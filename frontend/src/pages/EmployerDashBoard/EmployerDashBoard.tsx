@@ -95,6 +95,7 @@ export default function EmployerDashBoard() {
 
                 {/* Calendar */}
                 {/* Calendar */}
+                {/* Calendar */}
                 <div className="card calendar-card">
                 <h3 className="card-title">June 2025</h3>
 
