@@ -1,0 +1,15 @@
+# dependencies
+node_modules/
+frontend/node_modules/
+
+# builds
+dist/
+build/
+
+# env
+.env
+.env.local
+.env.*.local
+
+# OS
+.DS_Store
