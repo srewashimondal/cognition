@@ -1,12 +1,15 @@
 import './EmployerDashBoard.css';
+import { Link } from "react-router-dom";
 
 export default function EmployerDashBoard() {
   return (
     <div className="dashboard">
       <aside className="sidebar">
-        <div className="logo">
-          <span className="logo-text">Cognition</span>
-        </div>
+        <Link to="/">
+            <div className="logo">
+            <span className="logo-text">Cognition</span>
+            </div>
+        </Link>
 
         <nav className="nav">
           <button className="nav-item active"> 🏠︎ Employer Dashboard</button>
