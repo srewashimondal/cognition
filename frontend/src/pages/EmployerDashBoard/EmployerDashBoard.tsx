@@ -1,5 +1,7 @@
 import './EmployerDashBoard.css';
 import { Link } from "react-router-dom";
+import FullCalendar from '@fullcalendar/react';
+import dayGridPlugin from '@fullcalendar/daygrid';
 
 export default function EmployerDashBoard() {
   return (
@@ -55,7 +57,7 @@ export default function EmployerDashBoard() {
         </header>
 
         <section className="content">
-            <h1>Employee Name: John Doe</h1>
+            <h2>Employee Name: John Doe</h2>
 
             <div className="dashboard-row">
                 {/* Recent Course */}
@@ -97,22 +99,21 @@ export default function EmployerDashBoard() {
                 </div>
 
                 {/* Calendar */}
-                {/* Calendar */}
-                {/* Calendar */}
-                {/* Calendar */}
                 <div className="card calendar-card">
-                <h3 className="card-title">June 2025</h3>
-
-                <div className="calendar-grid">
-                    {Array.from({ length: 30 }).map((_, i) => (
-                    <div
-                        key={i}
-                        className={`calendar-day ${i === 16 ? 'active-day' : ''}`}
-                    >
-                        {i + 1}
-                    </div>
-                    ))}
-                </div>
+                  <FullCalendar
+                    plugins={[dayGridPlugin]}
+                    initialView="dayGridMonth"
+                    headerToolbar={{
+                      left: 'prev',
+                      center: 'title',
+                      right: 'next',
+                    }}
+                    height="auto"
+                    contentHeight="auto"
+                    fixedWeekCount={false}
+                    showNonCurrentDates={false}
+                    events={[]}
+                  />
                 </div>
             </div>
         </section>
