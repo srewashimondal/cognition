@@ -1,0 +1,37 @@
+.step {
+    display: flex;
+    justify-content: space-between;
+}
+
+.step-img {
+    width: 60%;
+}
+
+.step-img img {
+    height: 150px;
+    border-radius: 1000px;
+}
+
+.step-text {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.step-text p {
+    margin: 0;
+}
+
+.step-title {
+    display: flex;
+}
+
+.step-title h3 {
+    font-size: 50px;
+    font-weight: 400;
+    margin: 0;
+}
+
+.step-desc {
+    font-size: 20px;
+}

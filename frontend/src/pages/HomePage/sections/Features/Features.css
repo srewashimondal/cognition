@@ -1,0 +1,53 @@
+.features {
+    display: flex;
+    justify-content: center;
+    width: 100%;
+    margin-top: 150px;
+    margin-bottom: 90px;
+}
+
+.feat-inner {
+    width: 80%;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.big {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 200px;
+}
+
+
+.big-image{
+    width: 100%;
+}
+
+.big-text {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.1rem;
+    width: 70%;
+}
+
+.big-text h2 {
+    font-weight: 300;
+    margin: 0;
+    font-size: 110px;
+    line-height: 0.9;
+}
+
+.big-text h3 {
+    font-weight: 400;
+    font-size: 50px;
+    margin: 0;
+    color: #5C96DC;
+}
+
+.other-feats {
+    display: flex;
+    gap: 20px;
+}

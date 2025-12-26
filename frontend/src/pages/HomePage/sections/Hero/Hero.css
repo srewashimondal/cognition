@@ -1,0 +1,80 @@
+.hero {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+}
+
+.slogan {
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+}
+
+.slogan h1 {
+    line-height: 0.9;
+    margin: 0;
+    font-weight: 350;
+    font-size: 100px;
+    letter-spacing: 0.02em;
+    transform: scaleX(1.05);
+}
+
+.desc {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    margin-top: 50px;
+}
+
+.desc p {
+    line-height: 1.5;
+    margin: 0;
+    font-size: 20px;
+}
+
+.blue {
+    color: #70D2F0;
+}
+
+.buttons {
+    margin-top: 30px;
+    display: flex;
+    gap: 16px;
+    margin-bottom: 30px;
+}
+
+.buttons button {
+    display: flex;
+    gap: 5px;
+    font-size: 20px;
+    border-radius: 25px;
+}
+
+.cta-primary {
+    background-color: #0098FD;
+    color: white;
+    transition: 0.25s ease, transform 0.15s ease;
+}
+
+.cta-primary:hover {
+    background-color: white;
+    color: #0098FD;
+    border-color: #0098FD;
+    border-width: 2px;
+}
+
+.cta-secondary {
+    border-color: black;
+    border-width: 2px;
+    transition: 0.25s ease, transform 0.15s ease;
+}
+
+.cta-secondary:hover{
+    background-color: white;
+    color: #70D2F0;
+    border-color: #70D2F0;
+    border-width: 2px;
+}

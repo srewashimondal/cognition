@@ -1,0 +1,53 @@
+.feature {
+    display: flex;
+    justify-content: center;
+    width: 100%;
+}
+
+.feature.reverse {
+    flex-direction: row-reverse;
+}
+
+.feat-image {
+    width: 90%;
+}
+
+.radio-icon {
+    width: 30px;
+}
+
+.feat-text {
+    gap: 0.25rem;
+}
+
+.feat-text h3 {
+    font-size: 50px;
+    font-weight: 500;
+    margin: 0;
+    line-height: 1.1;
+}
+
+.feat-text p {
+    margin: 1;
+}
+
+.cta-link {
+    color: #0098FD;
+    font-weight: 600;
+    transition: 0.25s ease, transform 0.15s ease;
+}
+
+.cta-link:hover {
+    color: #0098FD;
+    font-weight: 650;
+    text-decoration: underline;
+}
+
+.link-div {
+    display: flex;
+    gap: 10px;
+}
+
+.blue-arrow {
+    width: 17px;
+}
