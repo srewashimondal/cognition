@@ -1,11 +1,14 @@
 import './EmployerDashBoard.css';
 import { Routes, Route, Navigate, Link, NavLink } from "react-router-dom";
-import EmployerHome from "./EmployerHome";
-import Assignments from "./Assignments";
-import Schedule from "./Schedule";
-import Recordings from "./Recordings";
-import Resources from "./Resources";
-import Settings from "./Settings";
+import EmployerHome from "./EmployerHome/EmployerHome";
+import Assignments from "./Assignments/Assignments";
+import Schedule from "./Schedule/Schedule";
+import Recordings from "./Recordings/Recordings";
+import Resources from "./Resources/Resources";
+import AIStudio from './AI Studio/AIStudio';
+import Settings from "./Settings/Settings";
+import logo from '../../assets/branding/cognition-logo.png';
+import bell from '../../assets/icons/bell.svg';
 
 export default function EmployerDashBoard() {
   return (
@@ -14,6 +17,9 @@ export default function EmployerDashBoard() {
       <aside className="sidebar">
         <Link to="/">
           <div className="logo">
+            <span className="logo-img">
+              <img src={logo}/>
+            </span>
             <span className="logo-text">Cognition</span>
           </div>
         </Link>
@@ -43,6 +49,10 @@ export default function EmployerDashBoard() {
             Recordings
           </NavLink>
 
+          <NavLink to="/employer/ai-studio" className="nav-item">
+            AI Studio
+          </NavLink>
+
           <NavLink to="/employer/resources" className="nav-item">
             Resources
           </NavLink>
@@ -68,7 +78,9 @@ export default function EmployerDashBoard() {
 
           <div className="topbar-right">
             <div className="notif">
-              <span className="bell">🔔</span>
+              <span className="bell">
+                <img src={bell}/>
+              </span>
               <span className="notif-dot" />
             </div>
 
@@ -90,6 +102,7 @@ export default function EmployerDashBoard() {
             <Route path="schedule" element={<Schedule />} />
             <Route path="recordings" element={<Recordings />} />
             <Route path="resources" element={<Resources />} />
+            <Route path="ai-studio" element={<AIStudio />} />
             <Route path="settings" element={<Settings />} />
 
             <Route path="*" element={<Navigate to="" />} />
