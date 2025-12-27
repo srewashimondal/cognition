@@ -1,13 +1,56 @@
 import FullCalendar from '@fullcalendar/react';
 import dayGridPlugin from '@fullcalendar/daygrid';
+import { useState } from "react";
 
+//To Do
+  const initialTodos = [
+  {
+    id: 1,
+    title: "Role Responsibilities",
+    date: "Tuesday, 30 June 2025",
+    completed: false,
+  },
+  {
+    id: 2,
+    title: "Workplace Policies",
+    date: "Monday, 24 June 2025",
+    completed: false,
+  },
+  {
+    id: 3,
+    title: "Retail Basics 101",
+    date: "Friday, 10 June 2025",
+    completed: true,
+  },
+  {
+    id: 4,
+    title: "Handling Objections",
+    date: "Friday, 05 June 2025",
+    completed: true,
+  },
+  ];
+
+  
 
 export default function EmployerHome() {
   const MAX_HOURS = 80;
-  const MAX_BAR_HEIGHT = 100; // px
+  const MAX_BAR_HEIGHT = 100; 
 
   const getHeight = (value: number) =>
   `${(value / MAX_HOURS) * MAX_BAR_HEIGHT}px`;
+
+  //To-Do
+  const [todos, setTodos] = useState(initialTodos);
+
+  const toggleTodo = (id: number) => {
+    setTodos(prev =>
+      prev.map(todo =>
+        todo.id === id
+          ? { ...todo, completed: !todo.completed }
+          : todo
+      )
+    );
+  };
 
   return (
     <>
@@ -179,7 +222,7 @@ export default function EmployerHome() {
                   stroke="#ff5a1f"
                   strokeWidth="3"
                 />
-                
+
                 <circle cx="100" cy="100" r="6" fill="#ff5a1f" />
               </svg>
             </div>
@@ -191,11 +234,32 @@ export default function EmployerHome() {
           </div>
         </div>
 
-
         {/* To-Do List */}
-        <div className="card">
+        <div className="card todo-card">
           <h3 className="card-title">To-Do List</h3>
+
+          <div className="todo-list">
+            {todos.map(todo => (
+              <div
+                key={todo.id}
+                className={`todo-item ${todo.completed ? "completed" : ""}`}
+              >
+                <div
+                  className={`checkbox ${todo.completed ? "checked" : ""}`}
+                  onClick={() => toggleTodo(todo.id)}
+                >
+                  {todo.completed && "✓"}
+                </div>
+
+                <div className="todo-text">
+                  <p className="todo-title">{todo.title}</p>
+                  <span className="todo-date">{todo.date}</span>
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
+
       </div>
     </>
   );

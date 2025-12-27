@@ -643,3 +643,65 @@
 .score a:hover {
   text-decoration: underline;
 }
+
+/*To-Do Section*/
+.todo-card {
+  padding: 20px;
+}
+
+.todo-list {
+  margin-top: 12px;
+}
+
+.todo-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  padding: 14px 0;
+  border-bottom: 1px solid #eef0f3;
+}
+
+.todo-item:last-child {
+  border-bottom: none;
+}
+
+.checkbox {
+  width: 20px;
+  height: 20px;
+  border: 2px solid #ff5a1f;
+  border-radius: 3px;
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  justify-content: center;
+  color: white;
+  font-size: 12px;
+  font-weight: bold;
+}
+
+.checkbox.checked {
+  background-color: #ff5a1f;
+}
+
+.todo-text {
+  display: flex;
+  flex-direction: column;
+}
+
+.todo-title {
+  font-size: 12px;
+  font-weight: 500;
+  color: #111827;
+  margin: 0;
+}
+
+.todo-date {
+  font-size: 10px;
+  color: #9ca3af;
+  margin-top: 1px;
+}
+
+.todo-item.completed .todo-title {
+  text-decoration: line-through;
+  color: #9ca3af;
+}
