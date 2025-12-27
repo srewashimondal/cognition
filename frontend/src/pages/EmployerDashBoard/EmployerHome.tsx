@@ -117,9 +117,80 @@ export default function EmployerHome() {
 
 
         {/* Performance */}
-        <div className="card">
+        <div className="card performance-card">
           <h3 className="card-title">Performance</h3>
+
+          <div className="performance-inner">
+            <div className="performance-header">
+              <div className="legend">
+                <span className="legend-dot" />
+                <span>Cognition AI’s Questions Performance</span>
+              </div>
+
+              <select className="dropdown">
+                <option>Yearly</option>
+                <option>Monthly</option>
+                <option>Daily</option>
+              </select>
+            </div>
+
+            <div className="gauge-wrapper">
+              <svg width="200" height="120" viewBox="0 0 200 120">
+                <path
+                  d="M20 100 A80 80 0 0 1 180 100"
+                  fill="none"
+                  stroke="#f3f4f6"
+                  strokeWidth="12"
+                  strokeLinecap="round"
+                />
+
+                <path
+                  d="M20 100 A80 80 0 0 1 140 40"
+                  fill="none"
+                  stroke="#ff5a1f"
+                  strokeWidth="12"
+                  strokeLinecap="round"
+                />
+
+                {[...Array(11)].map((_, i) => {
+                  const angle = (-90 + i * 18) * (Math.PI / 180);
+                  const x1 = 100 + Math.cos(angle) * 60;
+                  const y1 = 100 + Math.sin(angle) * 60;
+                  const x2 = 100 + Math.cos(angle) * 68;
+                  const y2 = 100 + Math.sin(angle) * 68;
+                  return (
+                    <line
+                      key={i}
+                      x1={x1}
+                      y1={y1}
+                      x2={x2}
+                      y2={y2}
+                      stroke="#e5e7eb"
+                      strokeWidth="2"
+                    />
+                  );
+                })}
+
+                <line
+                  x1="100"
+                  y1="100"
+                  x2="145"
+                  y2="55"
+                  stroke="#ff5a1f"
+                  strokeWidth="3"
+                />
+                
+                <circle cx="100" cy="100" r="6" fill="#ff5a1f" />
+              </svg>
+            </div>
+
+            <div className="score">
+              <p>Your Grade: <span>8.9/10</span></p>
+              <a href="#">Click Here to See Detailed Feedback</a>
+            </div>
+          </div>
         </div>
+
 
         {/* To-Do List */}
         <div className="card">
