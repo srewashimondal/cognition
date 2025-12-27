@@ -183,7 +183,7 @@
   padding: 16px 18px;
   box-shadow: 0 6px 20px rgba(0, 0, 0, 0.06);
 
-  height: 275px;   
+  height: 300px;   
   display: flex;
   flex-direction: column;
 }
@@ -311,12 +311,12 @@
 }
 
 .calendar-card .fc-daygrid-day {
-  padding: 2px;
+  padding: 0.1px;
 }
 
 .calendar-card .fc-daygrid-day-frame {
-  padding: 2px 0;
-  min-height: 1px; 
+  padding: 0;
+  min-height: 10px; 
   display: flex;
   align-items: center;
   justify-content: center;
@@ -338,7 +338,7 @@
 }
 
 .calendar-card .fc-toolbar {
-  margin-bottom: 6px;
+  margin-bottom: 2px;
 }
 
 .calendar-card .fc {
