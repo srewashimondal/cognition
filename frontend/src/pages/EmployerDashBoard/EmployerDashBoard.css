@@ -7,6 +7,11 @@
   background: #f7f7f7;
 }
 
+.logo-img img {
+  width: 40px;
+  height: 35px;
+}
+
 .dashboard-row {
   display: grid;
   grid-template-columns: 1fr 1fr 0.8fr;
