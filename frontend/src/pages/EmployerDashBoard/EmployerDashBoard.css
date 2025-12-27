@@ -7,6 +7,11 @@
   background: #f7f7f7;
 }
 
+.logo-img img {
+  width: 40px;
+  height: 35px;
+}
+
 .dashboard-row {
   display: grid;
   grid-template-columns: 1fr 1fr 0.8fr;
@@ -102,8 +107,10 @@
   gap: 16px;
 }
 
-.bell {
+.bell img {
   cursor: pointer;
+  width: 24px;
+  height: 24px;
 }
 
 .user {

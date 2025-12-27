@@ -1,6 +1,6 @@
 import './Login.css';
 import { useState } from 'react';
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import mail from '../../../assets/icons/mail.svg';
 import lock from '../../../assets/icons/lock.svg';
 import eye_on from '../../../assets/icons/eye_on.svg';
@@ -11,10 +11,14 @@ export default function Login() {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [viewPassword, setViewPassword] = useState(false);
+    const navigate = useNavigate();
 
     function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
         e.preventDefault();
         console.log(email, password);
+        if (email === "employer@gmail.com" && password === "employer") {
+            navigate("/employer");
+        }
         {/* put in backend logic later */}
     }
 
