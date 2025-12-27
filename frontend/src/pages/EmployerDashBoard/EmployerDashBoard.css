@@ -369,3 +369,8 @@
   font-size: 11px;
   padding: 4px 0;
 }
+
+.nav-item.active {
+  background: #ff5a1f;
+  color: white;
+}

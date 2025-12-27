@@ -1,123 +1,100 @@
 import './EmployerDashBoard.css';
-import { Link } from "react-router-dom";
-import FullCalendar from '@fullcalendar/react';
-import dayGridPlugin from '@fullcalendar/daygrid';
+import { Routes, Route, Navigate, Link, NavLink } from "react-router-dom";
+import EmployerHome from "./EmployerHome";
+import Assignments from "./Assignments";
+import Schedule from "./Schedule";
+import Recordings from "./Recordings";
+import Resources from "./Resources";
+import Settings from "./Settings";
 
 export default function EmployerDashBoard() {
   return (
     <div className="dashboard">
+      {/* Sidebar */}
       <aside className="sidebar">
         <Link to="/">
-            <div className="logo">
+          <div className="logo">
             <span className="logo-text">Cognition</span>
-            </div>
+          </div>
         </Link>
 
         <nav className="nav">
-          <button className="nav-item active"> 🏠︎ Employer Dashboard</button>
-          <button className="nav-item">Assignments</button>
-          <button className="nav-item">Schedule</button>
-          <button className="nav-item">Recordings</button>
-          <button className="nav-item">Cognition AI</button>
-          <button className="nav-item">Resources</button>
-          <button className="nav-item">Notes</button>
-          <button className="nav-item">Map Layouts</button>
-          <button className="nav-item">Modules Completed</button>
-          <button className="nav-item">Courses</button>
-          <button className="nav-item">Settings</button>
+          <NavLink
+            end
+            to="/employer"
+            className={({ isActive }) =>
+              `nav-item ${isActive ? "active" : ""}`
+            }
+          >
+            🏠︎ Employer Dashboard
+          </NavLink>
+
+
+          <NavLink to="/employer/assignments" className="nav-item">
+            Assignments
+          </NavLink>
+
+
+          <NavLink to="/employer/schedule" className="nav-item">
+            Schedule
+          </NavLink>
+
+          <NavLink to="/employer/recordings" className="nav-item">
+            Recordings
+          </NavLink>
+
+          <NavLink to="/employer/resources" className="nav-item">
+            Resources
+          </NavLink>
+
+          <NavLink to="/employer/settings" className="nav-item">
+            Settings
+          </NavLink>
         </nav>
+
       </aside>
 
+      {/* Main layout */}
       <main className="main">
+        {/* Topbar */}
         <header className="topbar">
           <div className="search-wrapper">
             <span className="search-icon">🔍︎</span>
             <input
-                className="search-input"
-                placeholder="Search by Employee Name or ID"
+              className="search-input"
+              placeholder="Search by Employee Name or ID"
             />
           </div>
 
           <div className="topbar-right">
             <div className="notif">
-                <span className="bell">🔔</span>
-                <span className="notif-dot" />
+              <span className="bell">🔔</span>
+              <span className="notif-dot" />
             </div>
 
             <div className="user-menu">
-                <img
-                src="https://i.etsystatic.com/30289585/r/il/3f982c/4322819070/il_fullxfull.4322819070_tn35.jpg" 
-                alt="profile"
+              <img
+                src="https://i.etsystatic.com/30289585/r/il/3f982c/4322819070/il_fullxfull.4322819070_tn35.jpg"
                 className="avatar"
-                />
-                <span className="username">Harsh</span>
-                <span className="caret">▾</span>
+              />
+              <span className="username">Harsh</span>
+              <span className="caret">▾</span>
             </div>
-            </div>
+          </div>
         </header>
 
         <section className="content">
-            <h2>Employee Name: John Doe</h2>
+          <Routes>
+            <Route index element={<EmployerHome />} />
+            <Route path="assignments" element={<Assignments />} />
+            <Route path="schedule" element={<Schedule />} />
+            <Route path="recordings" element={<Recordings />} />
+            <Route path="resources" element={<Resources />} />
+            <Route path="settings" element={<Settings />} />
 
-            <div className="dashboard-row">
-                {/* Recent Course */}
-                <div className="card">
-                <h3 className="card-title">Recent enrolled course</h3>
-
-                <div className="course-card">
-                    <div className="course-icon">✏️</div>
-                    <div className="course-info">
-                    <p className="course-name">Customer Experience & Sales</p>
-                    <div className="progress-bar">
-                        <div className="progress-fill" />
-                    </div>
-                    <span className="progress-text">14/30 classes</span>
-                    </div>
-                </div>
-                </div>
-
-                {/* Resources */}
-                <div className="card">
-                <h3 className="card-title">Your Resources</h3>
-
-                <ul className="resource-list">
-                    <li>
-                    <span>📄 auto-layout.pdf</span>
-                    <span className="resource-size">2.5 MB</span>
-                    </li>
-                    <li>
-                    <span>📄 onboarding.ppt</span>
-                    <span className="resource-size">1.2 MB</span>
-                    </li>
-                    <li>
-                    <span>🖼️ basics_ui.png</span>
-                    <span className="resource-size">1.8 MB</span>
-                    </li>
-                </ul>
-
-                <button className="see-more">see more</button>
-                </div>
-
-                {/* Calendar */}
-                <div className="card calendar-card">
-                  <FullCalendar
-                    plugins={[dayGridPlugin]}
-                    initialView="dayGridMonth"
-                    headerToolbar={{
-                      left: 'prev',
-                      center: 'title',
-                      right: 'next',
-                    }}
-                    height="auto"
-                    contentHeight="auto"
-                    fixedWeekCount={false}
-                    showNonCurrentDates={false}
-                    events={[]}
-                  />
-                </div>
-            </div>
+            <Route path="*" element={<Navigate to="" />} />
+          </Routes>
         </section>
-
       </main>
     </div>
   );
