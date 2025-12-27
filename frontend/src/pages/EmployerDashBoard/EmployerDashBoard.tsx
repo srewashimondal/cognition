@@ -5,6 +5,7 @@ import Assignments from "./Assignments/Assignments";
 import Schedule from "./Schedule/Schedule";
 import Recordings from "./Recordings/Recordings";
 import Resources from "./Resources/Resources";
+import AIStudio from './AI Studio/AIStudio';
 import Settings from "./Settings/Settings";
 import logo from '../../assets/branding/cognition-logo.png';
 import bell from '../../assets/icons/bell.svg';
@@ -101,7 +102,7 @@ export default function EmployerDashBoard() {
             <Route path="schedule" element={<Schedule />} />
             <Route path="recordings" element={<Recordings />} />
             <Route path="resources" element={<Resources />} />
-            <Route path="ai-studio" element={<Resources />} />
+            <Route path="ai-studio" element={<AIStudio />} />
             <Route path="settings" element={<Settings />} />
 
             <Route path="*" element={<Navigate to="" />} />
