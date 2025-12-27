@@ -1,8 +1,12 @@
 import './NavBar.css';
 import { Link } from "react-router-dom";
-import logo from "../../assets/branding/logo.png";
+import logo from "../../assets/branding/cognition-logo.png";
 
-export default function NavBar() {
+type NavBarProps = {
+    login?: boolean;
+}
+
+export default function NavBar({ login=true }: NavBarProps) {
     return (
     <div className="navbar">
         <div className="logo-div">
@@ -14,11 +18,15 @@ export default function NavBar() {
             <p>Why Cognition</p>
             <p>Products</p>
             <p>Pricing</p>
-            <Link className="hyper-link" to="/EmployerDashBoard"><p>Employer DashBoard</p></Link>
-            <Link className="hyper-link" to="/EmployeeDashBoard"><p>Employee DashBoard</p></Link>
+            <Link className="hyper-link" to="/employer"><p>Employer DashBoard</p></Link>
+            <Link className="hyper-link" to="/employee"><p>Employee DashBoard</p></Link>
         </div>
         <div className="login-div">
-            <button className="login-button">Login</button>
+            {
+                (login) && <Link to="/login">
+                                <button className="login-button">Login</button>
+                            </Link>
+            }
         </div>
     </div>);
 }
