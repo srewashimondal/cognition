@@ -1,0 +1,91 @@
+.signup-page {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.signup-wrapper{
+    margin-top: 130px;
+    display: flex;
+    flex-direction: row;
+    align-items: flex-start;
+    justify-content: center;
+    width: 70%;
+    gap: 40px;
+}
+
+.role-selection {
+    margin-bottom: 20px;
+}
+
+.role-pick:hover {
+    text-decoration: underline;
+}
+
+.role-pick.selected {
+    color:#FF4B00;
+    font-weight: 600;
+}
+
+.signup-div {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center; 
+    min-width: 300px;
+}
+
+.signup-wrapper h2 {
+    font-size: 40px;
+    color: #FF4B00;
+    font-weight: 700;
+}
+
+.signup-wrapper h3 {
+    font-size: 30px;
+    font-weight: 600;
+}
+
+
+.gradient-img-container {
+    width: 45%;
+    height: 100vh;
+    overflow: hidden;
+    position: relative;
+    min-width: 300px;
+}
+
+
+.gradient-img-container img {
+    height: 75%;
+    object-fit: cover;
+    display: block;
+    border-radius: 20px;
+    min-width: 300px;
+} 
+
+.overlay-text {
+    position: absolute;
+    color: white;
+    bottom: 30%;
+    left: 5%;
+}
+
+.overlay-text .small-overlay {
+    font-weight: 600;
+}
+
+.overlay-text .big-overlay {
+    font-size: 30px;
+    line-height: 1;
+}
+
+.cta:hover {
+    color: #70D2F0;
+    text-decoration: underline;
+}
+
+.error {
+    color: red;
+    font-size: 12px;
+}

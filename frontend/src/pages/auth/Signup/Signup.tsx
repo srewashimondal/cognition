@@ -1,0 +1,93 @@
+import './Signup.css';
+import { useState } from 'react';
+import { Link } from "react-router-dom";
+import mail from '../../../assets/icons/mail.svg';
+import lock from '../../../assets/icons/lock.svg';
+import eye_on from '../../../assets/icons/eye_on.svg';
+import eye_off from '../../../assets/icons/eye_off.svg';
+import gradient from '../../../assets/illustrations/gradient.jpg';
+import NavBar from '../../../components/NavBar/NavBar.tsx';
+
+type SignupProps = {
+    role: "employee" | "employer";
+}
+
+export default function Signup({ role="employee" }: SignupProps) {
+    const [email, setEmail] = useState("");
+    const [password, setPassword] = useState("");
+    const [reEnteredPassword, setReEnteredPassword] = useState("");
+    const [viewPassword, setViewPassword] = useState(false);
+    const [viewReEnteredPassword, setViewReEnteredPassword] = useState(false);
+
+    function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+        e.preventDefault();
+        console.log(email, password);
+        {/* put in backend logic later */}
+    }
+
+    return (
+        <div className="signup-page">
+            <NavBar login={false} />
+            <div className="signup-wrapper">
+                <div className="gradient-img-container">
+                    <img src={gradient} alt="gradient"/>
+                    <div className="overlay-text">
+                        <div className="small-overlay">{(role === "employee") ? "Your retail training workspace," : "Create an environment"}</div>
+                        <div className="big-overlay">{(role === "employee") ? "organzied and ready when you are." : "where your employees can grow."}</div>
+                    </div>
+                </div>
+                <div className="signup-div">
+                    <h2>Cognition</h2>
+                    <div className="login-text">
+                        <div className="role-selection">
+                            <Link to="/signup/employee/">
+                                <span className={`role-pick ${(role === "employee") ? "selected" : ""}`}>Sign Up as Employee</span>
+                            </Link>
+                            <span> | </span>
+                            <Link to="/signup/employer/">
+                                <span className={`role-pick ${(role === "employer") ? "selected" : ""}`}>Sign Up as Employer</span>
+                            </Link>
+                        </div>
+                        <h3>{(role === "employee") ? "Employee Sign Up" : "Employer Sign Up"}</h3>
+                        <div className="signup-text">
+                            <span className="p">Already have one? </span>
+                            <Link to="/login"><span className="cta">Login to Your Account.</span></Link>
+                        </div>
+                    </div>
+                    <form onSubmit={handleSubmit}>
+                        <div className="input-wrapper">
+                            <span className="input-icon">
+                                <img src={mail} alt="mail icon"/>
+                            </span>
+                            <input type="email" required placeholder="E-mail" value={email} onChange={(e) => setEmail(e.target.value)}/>
+                        </div>
+                        
+                        <div className="input-wrapper">
+                            <span className="input-icon">
+                                <img src={lock} alt="lock icon"/>
+                            </span>
+                            <input type={viewPassword ? "text" : "password"} required placeholder="Password" value={password} onChange={(e) => setPassword(e.target.value)}/>
+                            <span className="eye-icon" onClick={() => setViewPassword(!viewPassword)}>
+                                <img src={viewPassword ? eye_on : eye_off} alt="view password icon"/>
+                            </span>
+                        </div>
+
+                        <div className="password-wrapper">
+                            <div className="input-wrapper">
+                                    <span className="input-icon">
+                                        <img src={lock} alt="lock icon"/>
+                                    </span>
+                                    <input type={viewReEnteredPassword ? "text" : "password"} required placeholder="Re-enter Password" value={reEnteredPassword} onChange={(e) => setReEnteredPassword(e.target.value)}/>
+                                    <span className="eye-icon" onClick={() => setViewReEnteredPassword(!viewReEnteredPassword)}>
+                                        <img src={viewReEnteredPassword ? eye_on : eye_off} alt="view password icon"/>
+                                    </span>
+                            </div>
+                            {(reEnteredPassword) && (password !== reEnteredPassword) && (<p className="error">Passwords must match.</p>)}
+                        </div>
+                        <button className="signin-button" type="submit">Create Account</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    );
+}

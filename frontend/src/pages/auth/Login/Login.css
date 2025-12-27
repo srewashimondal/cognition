@@ -1,0 +1,126 @@
+.login-page {
+    display: flex;
+    justify-content: center;
+}
+
+.login-wrapper{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    max-width: 500px;
+}
+
+.login-text {
+    display: flex;
+    flex-direction: column;
+    margin: 0;
+    line-height: 3px;
+    margin-bottom: 50px;
+}
+
+.login-wrapper h2 {
+    font-size: 40px;
+    color: #FF4B00;
+    font-weight: 700;
+}
+
+.login-wrapper h3 {
+    font-size: 30px;
+    font-weight: 600;
+}
+
+.signup-text {
+    font-size: 12px;
+}
+
+.signup-text .p {
+    color: #9C9C9C;
+}
+
+.cta {
+    color: #FF4B00;
+    font-size: 12px;
+    transition: 0.25s ease, transform 0.15s ease;
+}
+
+.cta:hover {
+    color: #70D2F0;
+    text-decoration: underline;
+}
+
+form {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    justify-content: center;
+    gap: 16px;
+    width: 100%;
+    margin: 0;
+}
+
+.input-wrapper {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    border: 1px solid #3792AE;
+    border-radius: 10px;
+    padding: 7px;
+}
+
+input {
+    border: none;
+    font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+    font-weight: 500;
+    outline: none;
+    width: 100%;
+}
+
+input::placeholder {
+    color: #CACACA;
+    font-size: 14px;
+}
+
+.input-icon {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-top: 2px;
+}
+
+.input-icon img {
+    width: 22px;
+    height: 22px;
+}
+
+.password-wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    width: 100%;
+    margin: 0;
+    line-height: 1px;
+}
+
+.eye-icon img {
+    width: 18px;
+    height: 18px;
+}
+
+.signin-button {
+    background-color: white;
+    color: #FF4B00;
+    border: 1px solid #FF4B00;
+    width: 100%;
+}
+
+.signin-button:hover {
+    background-color: white;
+    color: #70D2F0;
+    border: 1px solid #70D2F0;
+}
+
+* {
+    box-sizing: border-box;
+}
+

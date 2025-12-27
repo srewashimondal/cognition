@@ -1,6 +1,6 @@
 import './Feature.css'
-import radio_icon from '../../../../../assets/illustrations/radio-icon.svg';
-import blue_arrow from '../../../../../assets/illustrations/blue-arrow.svg';
+import radio_icon from '../../../../../assets/icons/radio-icon.svg';
+import blue_arrow from '../../../../../assets/icons/blue-arrow.svg';
 
 type FeatureProps = {
     title: string;
