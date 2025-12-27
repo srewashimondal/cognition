@@ -48,6 +48,10 @@ export default function EmployerDashBoard() {
             Recordings
           </NavLink>
 
+          <NavLink to="/employer/ai-studio" className="nav-item">
+            AI Studio
+          </NavLink>
+
           <NavLink to="/employer/resources" className="nav-item">
             Resources
           </NavLink>
@@ -97,6 +101,7 @@ export default function EmployerDashBoard() {
             <Route path="schedule" element={<Schedule />} />
             <Route path="recordings" element={<Recordings />} />
             <Route path="resources" element={<Resources />} />
+            <Route path="ai-studio" element={<Resources />} />
             <Route path="settings" element={<Settings />} />
 
             <Route path="*" element={<Navigate to="" />} />
