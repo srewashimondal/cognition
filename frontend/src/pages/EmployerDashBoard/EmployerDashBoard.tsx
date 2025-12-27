@@ -1,11 +1,11 @@
 import './EmployerDashBoard.css';
 import { Routes, Route, Navigate, Link, NavLink } from "react-router-dom";
-import EmployerHome from "./EmployerHome";
-import Assignments from "./Assignments";
-import Schedule from "./Schedule";
-import Recordings from "./Recordings";
-import Resources from "./Resources";
-import Settings from "./Settings";
+import EmployerHome from "./EmployerHome/EmployerHome";
+import Assignments from "./Assignments/Assignments";
+import Schedule from "./Schedule/Schedule";
+import Recordings from "./Recordings/Recordings";
+import Resources from "./Resources/Resources";
+import Settings from "./Settings/Settings";
 import logo from '../../assets/branding/cognition-logo.png';
 import bell from '../../assets/icons/bell.svg';
 
