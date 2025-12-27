@@ -7,7 +7,7 @@ export default function EmployerHome() {
     <>
       <h2>Employee Name: John Doe</h2>
 
-      <div className="dashboard-row">
+      <div className="dashboard-row-wide">
         {/* Recent Course */}
         <div className="card">
           <h3 className="card-title">Recent enrolled course</h3>
@@ -52,6 +52,25 @@ export default function EmployerHome() {
             showNonCurrentDates={false}
             events={[]}
           />
+        </div>
+      </div>
+
+
+      {/* 2ND ROW */}
+      <div className="dashboard-row">
+        {/* Hours Spent */}
+        <div className="card">
+          <h3 className="card-title">Hours Spent</h3>
+        </div>
+
+        {/* Performance */}
+        <div className="card">
+          <h3 className="card-title">Performance</h3>
+        </div>
+
+        {/* To-Do List */}
+        <div className="card">
+          <h3 className="card-title">To-Do List</h3>
         </div>
       </div>
     </>

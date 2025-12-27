@@ -195,6 +195,8 @@
   margin-bottom: 12px;
 }
 
+/*Courses*/
+
 .course-card {
   display: flex;
   gap: 14px;
@@ -240,6 +242,8 @@
   color: #9ca3af;
 }
 
+/*Resources*/
+
 .resource-list {
   list-style: none;
   padding: 0;
@@ -267,6 +271,8 @@
   border-radius: 6px;
   cursor: pointer;
 }
+
+/*Calendar*/
 
 .calendar-card {
   padding: 14px;
@@ -373,4 +379,13 @@
 .nav-item.active {
   background: #ff5a1f;
   color: white;
+}
+
+/****************2ND ROW NOW********************/
+
+.dashboard-row-wide {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr; /* 👈 key difference */
+  gap: 20px;
+  margin-top: 20px;
 }
