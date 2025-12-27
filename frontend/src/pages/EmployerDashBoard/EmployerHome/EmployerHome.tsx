@@ -261,6 +261,73 @@ export default function EmployerHome() {
         </div>
 
       </div>
+
+
+      {/* 3RD ROW */}
+      <div className="dashboard-row-modules">
+
+        {/* Recent Enrolled Training Modules */}
+        <div className="card modules-card">
+          <div className="modules-header">
+            <h3 className="card-title">Recent enrolled training modules</h3>
+            <span className="view-all">All</span>
+            <button className="search-btn">🔍︎</button>
+          </div>
+
+          <div className="module-item active">
+            <div className="module-icon">✉</div>
+            <div className="module-info">
+              <p className="module-title">Workplace Policies</p>
+              <div className="module-meta">
+                <span>⏱ 5:30hrs</span>
+                <span>📄 05 Lessons</span>
+                <span>📝 Assignments</span>
+              </div>
+            </div>
+          </div>
+
+          <div className="module-item">
+            <div className="module-icon">💬</div>
+            <div className="module-info">
+              <p className="module-title">Greeting & Engagement Techniques</p>
+              <div className="module-meta">
+                <span>⏱ 4:00hrs</span>
+                <span>📄 03 Lessons</span>
+                <span>📝 Assignments</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Upcoming Module */}
+        <div className="card upcoming-card">
+          <h3 className="card-title">Upcoming Module</h3>
+
+          <div className="upcoming-item">
+            <div className="upcoming-left">
+              <span className="upcoming-icon">🎓</span>
+              <div>
+                <p className="upcoming-title">Inventory Awareness</p>
+                <span className="upcoming-time">5:30pm</span>
+              </div>
+            </div>
+            <button className="join-btn">Join</button>
+          </div>
+
+          <div className="upcoming-item">
+            <div className="upcoming-left">
+              <span className="upcoming-icon">📋</span>
+              <div>
+                <p className="upcoming-title">Stockroom Best Practices</p>
+                <span className="upcoming-time">9:00pm</span>
+              </div>
+            </div>
+            <button className="join-btn light">Join</button>
+          </div>
+        </div>
+
+      </div>
+
     </>
   );
 }
