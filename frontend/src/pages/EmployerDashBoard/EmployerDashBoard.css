@@ -107,8 +107,10 @@
   gap: 16px;
 }
 
-.bell {
+.bell img {
   cursor: pointer;
+  width: 24px;
+  height: 24px;
 }
 
 .user {

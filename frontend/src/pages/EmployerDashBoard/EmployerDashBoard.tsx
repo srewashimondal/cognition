@@ -6,7 +6,8 @@ import Schedule from "./Schedule";
 import Recordings from "./Recordings";
 import Resources from "./Resources";
 import Settings from "./Settings";
-import logo from '../../assets/branding/cognition-logo.png'
+import logo from '../../assets/branding/cognition-logo.png';
+import bell from '../../assets/icons/bell.svg';
 
 export default function EmployerDashBoard() {
   return (
@@ -72,7 +73,9 @@ export default function EmployerDashBoard() {
 
           <div className="topbar-right">
             <div className="notif">
-              <span className="bell">🔔</span>
+              <span className="bell">
+                <img src={bell}/>
+              </span>
               <span className="notif-dot" />
             </div>
 
