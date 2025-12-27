@@ -6,6 +6,7 @@ import Schedule from "./Schedule";
 import Recordings from "./Recordings";
 import Resources from "./Resources";
 import Settings from "./Settings";
+import logo from '../../assets/branding/cognition-logo.png'
 
 export default function EmployerDashBoard() {
   return (
@@ -14,6 +15,9 @@ export default function EmployerDashBoard() {
       <aside className="sidebar">
         <Link to="/">
           <div className="logo">
+            <span className="logo-img">
+              <img src={logo}/>
+            </span>
             <span className="logo-text">Cognition</span>
           </div>
         </Link>
