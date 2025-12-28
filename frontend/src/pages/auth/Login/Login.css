@@ -1,6 +1,7 @@
 .login-page {
     display: flex;
     justify-content: center;
+    padding-top: 80px;
 }
 
 .login-wrapper{
