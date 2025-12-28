@@ -2,7 +2,7 @@
 
 **AI-Powered, Employee-Centered Retail Training Platform**
 
-Cognition is an interactive Learning Management System (LMS) designed to improve retail onboarding by focusing on real-world skill transfer, employee confidence, and situational readiness. Built as a **Senior Design I** project at **The City College of New York**, Cognition rethinks traditional compliance-driven training by centering the employee experience—especially for **young, first-time, and neurodivergent workers**.
+Cognition is an interactive Learning Management System (LMS) designed to improve retail onboarding by focusing on real-world skill transfer, employee confidence, and situational readiness. Built as a **Senior Design I** project at **The City College of New York**, Cognition rethinks traditional compliance-driven training by centering the employee experience, especially for **young, first-time, and neurodivergent workers**.
 
 ---
 
@@ -134,3 +134,4 @@ The City College of New York
 - Professor Zhigang Zhu (CCNY)  
 - Ray Perez (CUNY Central Office of Student Affairs)  
 - Carrie L. Shockley, EdD (CUNY Central Office of Student Affairs)
+
