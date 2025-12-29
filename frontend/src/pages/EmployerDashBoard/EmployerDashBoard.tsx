@@ -41,9 +41,9 @@ export default function EmployerDashBoard() {
             Analytics
           </NavLink>
           
-          <NavLink to="/employer/lessons" className="nav-item">
+          {/* <NavLink to="/employer/lessons" className="nav-item">
             Lessons
-          </NavLink>
+          </NavLink> */}
 
           <NavLink to="/employer/modules" className="nav-item">
             Modules
