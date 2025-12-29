@@ -1,14 +1,15 @@
 import './EmployerDashBoard.css';
 import { Routes, Route, Navigate, Link, NavLink } from "react-router-dom";
-import EmployerHome from "./EmployerHome/EmployerHome";
-import Assignments from "./Assignments/Assignments";
-import Schedule from "./Schedule/Schedule";
-import Recordings from "./Recordings/Recordings";
+import Analytics from "./Analytics/Analytics";
+import Lessons from "./Modules/Lessons/Lessons";
+import Modules from "./Modules/Modules";
+import EmployerHome from './EmployerHome/EmployerHome';
 import Resources from "./Resources/Resources";
 import AIStudio from './AI Studio/AIStudio';
 import Settings from "./Settings/Settings";
 import logo from '../../assets/branding/cognition-logo.png';
 import bell from '../../assets/icons/bell.svg';
+/*import EmployeeDashBoard from '../EmployeeDashBoard/EmployeeDashBoard';*/
 
 export default function EmployerDashBoard() {
   return (
@@ -32,21 +33,20 @@ export default function EmployerDashBoard() {
               `nav-item ${isActive ? "active" : ""}`
             }
           >
-            🏠︎ Employer Dashboard
+            🏠︎ Employer Homepage
           </NavLink>
 
 
-          <NavLink to="/employer/assignments" className="nav-item">
-            Assignments
+          <NavLink to="/employer/analytics" className="nav-item">
+            Analytics
+          </NavLink>
+          
+          <NavLink to="/employer/lessons" className="nav-item">
+            Lessons
           </NavLink>
 
-
-          <NavLink to="/employer/schedule" className="nav-item">
-            Schedule
-          </NavLink>
-
-          <NavLink to="/employer/recordings" className="nav-item">
-            Recordings
+          <NavLink to="/employer/modules" className="nav-item">
+            Modules
           </NavLink>
 
           <NavLink to="/employer/ai-studio" className="nav-item">
@@ -98,9 +98,9 @@ export default function EmployerDashBoard() {
         <section className="content">
           <Routes>
             <Route index element={<EmployerHome />} />
-            <Route path="assignments" element={<Assignments />} />
-            <Route path="schedule" element={<Schedule />} />
-            <Route path="recordings" element={<Recordings />} />
+            <Route path="analytics" element={<Analytics />} />
+            <Route path="lessons" element={<Lessons />} />
+            <Route path="modules" element={<Modules />} />
             <Route path="resources" element={<Resources />} />
             <Route path="ai-studio" element={<AIStudio />} />
             <Route path="settings" element={<Settings />} />
