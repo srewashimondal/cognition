@@ -1,6 +1,5 @@
 import './AIStudio.css';
-import AIStudioAssignments from './AIStudioAssignments/AIStudioAssignments';
-
+import { useNavigate } from "react-router-dom";
 import { useState } from "react";
 
 type Module = {
@@ -41,6 +40,7 @@ const initialModules: Module[] = [
 ];
 
 export default function AIStudio() {
+  const navigate = useNavigate();
   const [modules, setModules] = useState(initialModules);
 
   const handleEdit = (id: number) => {
@@ -83,7 +83,15 @@ export default function AIStudio() {
               </div>
 
               <div className="module-actions">
-                <button className="watch">▶ View Assignments</button>
+                <button
+                  className="watch"
+                  onClick={() =>
+                    navigate(`${module.id}/assignments`)
+                  }
+                >
+                  ▶ View Assignments
+                </button>
+
                 <button className="download">⬇ Download</button>
               </div>
             </div>
