@@ -90,5 +90,12 @@
 .back-btn {
     font-size: 10px;
     cursor: pointer;
+    transition: 0.25s ease, transform 0.15s ease;
+    padding: 5px;
+    border-radius: 5px;
+}
+
+.back-btn:hover {
+    background-color: #f4f4f4;
 }
 
