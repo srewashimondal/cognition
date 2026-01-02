@@ -1,4 +1,5 @@
 import './Hero.css';
+import { Link } from "react-router-dom";
 
 export default function Hero() {
   return (
@@ -18,10 +19,12 @@ export default function Hero() {
 
       {/* CTA Buttons */}
       <div className="buttons">
+        <Link to='/employer-onboarding'>
         <button className="cta-primary">
           <span>Free Trial</span>
           <span className="arrow">→</span>
         </button>
+        </Link>
 
         <button className="cta-secondary">
           <span>Book a Demo</span>
