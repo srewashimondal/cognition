@@ -10,6 +10,7 @@ import Settings from "./Settings/Settings";
 import logo from '../../assets/branding/cognition-logo.png';
 import bell from '../../assets/icons/bell.svg';
 /*import EmployeeDashBoard from '../EmployeeDashBoard/EmployeeDashBoard';*/
+import AIStudioAssignments from './AI Studio/AIStudioAssignments/AIStudioAssignments';
 
 export default function EmployerDashBoard() {
   return (
@@ -103,6 +104,10 @@ export default function EmployerDashBoard() {
             <Route path="modules" element={<Modules />} />
             <Route path="resources" element={<Resources />} />
             <Route path="ai-studio" element={<AIStudio />} />
+            <Route
+              path="ai-studio/:moduleId/assignments"
+              element={<AIStudioAssignments />}
+            />
             <Route path="settings" element={<Settings />} />
 
             <Route path="*" element={<Navigate to="" />} />

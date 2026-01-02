@@ -1,0 +1,136 @@
+.assignments-page {
+  padding: 16px 24px;
+}
+
+.assignments-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.assignments-header h2 {
+  margin: 0;
+  font-weight: 600;
+}
+
+.assignments-header p {
+  margin: 4px 0 0;
+  color: #777;
+  font-size: 14px;
+}
+
+.assignments-filter {
+  font-size: 14px;
+  color: #555;
+  cursor: pointer;
+}
+
+/* Table */
+.assignments-table {
+  background: #fff;
+  border: 1px solid #eee;
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.table-header,
+.table-row {
+  display: grid;
+  grid-template-columns: 2fr 2fr 1.2fr 1fr 1fr;
+  padding: 14px 16px;
+  align-items: center;
+}
+
+.table-header {
+  font-weight: 600;
+  font-size: 14px;
+  background: #fafafa;
+  color: #666;
+}
+
+.table-row {
+  border-top: 1px solid #f0f0f0;
+  font-size: 14px;
+}
+
+.table-row .title {
+  font-weight: 500;
+}
+
+.table-row .course {
+  color: #777;
+}
+
+/* Status badges */
+.status {
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 500;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.status::before {
+  content: "";
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+}
+
+.status.done {
+  background: #e9fbe9;
+  color: #1a8f1a;
+}
+.status.done::before {
+  background: #1a8f1a;
+}
+
+.status.progress {
+  background: #eaf1ff;
+  color: #2563eb;
+}
+.status.progress::before {
+  background: #2563eb;
+}
+
+.status.pending {
+  background: #ffecec;
+  color: #dc2626;
+}
+.status.pending::before {
+  background: #dc2626;
+}
+
+/* Action */
+.action {
+  color: #999;
+  cursor: pointer;
+}
+
+/* Footer */
+.assignments-footer {
+  margin-top: 16px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 14px;
+}
+
+.assignments-footer select {
+  margin: 0 6px;
+}
+
+.pagination span {
+  margin: 0 4px;
+  cursor: pointer;
+}
+
+.pagination .active {
+  background: #ff5a1f;
+  color: white;
+  padding: 4px 8px;
+  border-radius: 6px;
+}
