@@ -44,6 +44,7 @@ ob-main {
     display: flex;
     flex-direction: column;
     gap: 36px;
+    width: 180px;
 }
 
 .sidebar-line {
