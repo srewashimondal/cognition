@@ -49,6 +49,8 @@
     color: white;
     border-radius: 25px;
     transition: 0.25s ease, transform 0.15s ease;
+    border-width: 2px;
+    border-color: #5B6CFF;
 }
 
 .cta-lm:hover {
