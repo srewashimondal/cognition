@@ -1,0 +1,59 @@
+import './OBMain.css';
+import ProfileSetup from '../ProfileSetup/ProfileSetup';
+import orange_right_arrow from '../../../../assets/icons/orange-right-arrow.svg';
+import orange_left_arrow from '../../../../assets/icons/orange-left-arrow.svg';
+
+type OBMainProps = {
+    stepTitle: string;
+    substeps: readonly string[];
+    subStep: number;
+    onNext: () => void;
+    onBack: () => void;
+  };
+
+export default function OBMain({ stepTitle, substeps, subStep, onNext, onBack }:OBMainProps) {
+
+    return(
+        <div className="ob-main-div">
+        <div className="stepper">
+            {substeps.map((label, index) => (
+            <div className="step" key={label}>
+                <div className={`step-line ${index <= subStep ? "active" : ""}`} />
+                <span
+                className={`step-label ${index === subStep ? "current" : ""}`}
+                >
+                {label}
+                </span>
+            </div>
+            ))}
+        </div>
+
+        <div className="step-contents">
+            {stepTitle === "Profile Setup" && (
+            <ProfileSetup substep={subStep} />
+            )}
+
+            <div className="next-section-div">
+                {((stepTitle !== "Profile Setup" ) || (subStep > 0)) && (
+                <div className="back-btn" onClick={onBack}>
+                    <span className="arrow-icon">
+                        <img src={orange_left_arrow} />
+                    </span>
+                </div>
+                )}
+
+                <div className="space"></div>
+
+                {((stepTitle !== "Invite & Launch" ) || (subStep !== substeps.length - 1)) && <div className="next-section-btn" onClick={onNext}>
+                    <span className="next-section-text">
+                        Next Section
+                    </span>
+                    <span className="arrow-icon">
+                        <img src={orange_right_arrow} />
+                    </span>
+                </div>}
+            </div>
+        </div>
+    </div>
+    );
+}

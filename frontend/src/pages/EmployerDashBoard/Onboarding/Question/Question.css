@@ -1,0 +1,36 @@
+.question-wrapper {
+    line-height: 0.5;
+    padding: 10px;
+}
+
+.question-text {
+    font-size: 16px;
+    font-weight: 500;
+}
+
+.direction-text {
+    font-size: 12px;
+    color: #9C9C9C;
+}
+
+.input-wrapper.type-text {
+    padding: 6px 5px;
+    max-width: 400px;
+    border-radius: 5px;
+    margin-top: 20px;
+}
+
+.input-wrapper.type-text:focus-within {
+    border-color: #FF9E76;
+}
+
+.input-wrapper.type-email {
+    padding: 6px 5px;
+    max-width: 400px;
+    border-radius: 5px;
+    margin-top: 20px;
+}
+
+.input-wrapper.type-email:focus-within {
+    border-color: #FF9E76;
+}
