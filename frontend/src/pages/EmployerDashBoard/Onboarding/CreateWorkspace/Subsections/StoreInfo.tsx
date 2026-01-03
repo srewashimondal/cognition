@@ -24,7 +24,7 @@ export default function StoreInfo() {
                 value={retailCategory} onChange={setRetailCategory} 
                 direction={"Select an option."}
                 options={["Beauty & Cosmetics", "Drugstore & Pharmacy", 
-                "General Retail", "Electronics & Tech", "Apparel & Fashion", "Specialty Retail"]}/>
+                "General Retail", "Electronics & Tech", "Apparel & Fashion", "Specialty Retail", "Home Goods", "Grocery", "Sporting Goods & Hobbies"]}/>
 
                 <Question question={"Store Format"} input_type={"radio"} 
                 value={storeFormat} onChange={setStoreFormat} 
