@@ -1,10 +1,10 @@
 .ob-pg {
-    background-color: #F5F5F5;
-    width: 100%;
+    background-color: #FFFFFF;
     min-height: 100vh;
     display: flex;
     justify-content: center;
     align-items: center;
+    position: relative;
 }
 
 .ob-modal {
@@ -17,6 +17,8 @@
     max-height: 80vh;
     border-radius: 20px;
     overflow: hidden;
+    border: 2px solid #F5F5F5;
+    position: absolute;
 }
 
 ob-main {
