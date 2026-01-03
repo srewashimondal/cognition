@@ -1,11 +1,10 @@
-import './AccountPreferences_Onboarding.css';
 import { useState, useEffect } from 'react';
 import Question from '../../Question/Question.tsx'
 
 export default function AccountPreferences_Onboarding() {
     const [displayName, setDisplayName] = useState("");
     const [profilePicture, setProfilePicture] = useState<File | null>(null);
-    const [notificationPreference, setNotificationPreference] = useState("");
+    const [notificationPreference, setNotificationPreference] = useState<string[]>([]);
 
     const [imagePreview, setImagePreview] = useState<string | null>(null);
     useEffect(() => {
@@ -40,8 +39,7 @@ export default function AccountPreferences_Onboarding() {
 
                 <Question question={"Notification Preference"} input_type={"checkbox"} 
                 value={notificationPreference} onChange={setNotificationPreference} 
-                options={["In-App", "E-mail"]}
-                meta={"pfp"}/>
+                direction={"Select all that apply."} options={["In-App", "E-mail"]} />
 
             </form>
         </div>
