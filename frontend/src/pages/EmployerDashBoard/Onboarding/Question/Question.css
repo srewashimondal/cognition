@@ -34,3 +34,84 @@
 .input-wrapper.type-email:focus-within {
     border-color: #FF9E76;
 }
+
+.input-wrapper.type-file {
+    border: none;
+}
+
+.input-wrapper.type-file.meta-pfp {
+    border: 2px;
+}
+
+.pfp-upload {
+    position: relative;
+}
+
+.pfp-upload-container {
+    position: relative;
+    width: 80px;
+    height: 80px;
+}
+
+.pfp-add {
+    position: absolute;
+    top: 45px;
+    right: -8px;
+    transition: transform 0.2s ease;
+}
+
+.pfp-add:hover {
+    transform: scale(1.1);
+}
+
+.uploaded-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 50%;
+}
+
+.img-frame {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background: none;
+}
+
+.input-wrapper.type-checkbox {
+    border: none;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 24px;
+}
+
+.checkbox-option {
+    display: flex;
+    align-items: center;
+    width: 120px;
+}
+
+.checkbox-option input {
+    position: absolute;
+    opacity: 0;
+    pointer-events: none;
+}
+
+.checkbox-box {
+    width: 18px;
+    height: 15px;
+    border: 1px solid #FF9E76;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 10px;
+    position: relative;
+}
+
+.checkbox-option input:checked + .checkbox-box {
+    background: #FF9E76;
+}
+
+.checkbox-label {
+    width: 100%;
+}

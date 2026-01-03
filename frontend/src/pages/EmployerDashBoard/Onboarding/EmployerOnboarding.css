@@ -13,12 +13,18 @@
     margin-top: 0;
     background-color: #FFFFFF;
     min-width: 800px;
-    min-height: 512px;
+    height: 80vh;
+    max-height: 80vh;
     border-radius: 20px;
+    overflow: hidden;
 }
 
 ob-main {
     padding: 20px;
+    height: 80vh;
+    max-height: 80vh;
+    display: flex;
+    overflow: hidden;
 }
 
 .ob-sidebar {
