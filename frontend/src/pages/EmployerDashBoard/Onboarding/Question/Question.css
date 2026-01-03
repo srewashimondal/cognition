@@ -148,12 +148,13 @@
     list-style: none;
     padding: 0px;
     margin: 0px;
+    margin-top: 5px;
     border: 1px solid #FF9E76;
     border-radius: 10px;
 }
 
 .select-item {
-    margin: 2px;
+    margin: 5px;
     padding: 1px;
     border: none;
     padding: 12px;
@@ -162,6 +163,7 @@
     display: flex;
     align-items: center;
     gap: 10px;
+    transition: 0.05s ease;
 }
 
 .select-item:hover {
