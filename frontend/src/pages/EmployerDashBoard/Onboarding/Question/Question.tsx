@@ -5,6 +5,10 @@ import { useRef } from "react";
 import default_icon from '../../../../assets/icons/default-icon.svg';
 import icon_stroke from '../../../../assets/icons/icon-stroke.svg';
 import add_cta from '../../../../assets/icons/add-cta.svg';
+import checkmark from '../../../../assets/icons/check-icon.svg';
+import chevron_down from '../../../../assets/icons/chevron-down.svg';
+import orange_check from '../../../../assets/icons/orange-check.svg';
+
 
 type QuestionProps = {
     question: string;
@@ -18,8 +22,8 @@ type QuestionProps = {
 };
 
 export default function Question({ question, input_type, value, onChange, options=[], direction, placeholder, meta }: QuestionProps) {
-    const [range, setRange] = useState<[number, number]>([0, 50]);
     const fileInputRef = useRef<HTMLInputElement | null>(null);
+    const [open, setOpen] = useState(false);
 
     function renderInput() {
         switch (input_type) {
@@ -35,27 +39,53 @@ export default function Question({ question, input_type, value, onChange, option
 
             case "range":
                 return(
-                    <Slider
-                        defaultValue={[0, 100]} value={range} onValueChange={(val) => setRange(val as [number, number])}
-                        min={0} max={100} variant="soft"
-                    />
+                    <div className="range-div">
+                        <Slider className="range-slider"
+                            defaultValue={[0, 100]} value={value as [number, number]} onValueChange={(val) => onChange?.(val as [number, number])}
+                            min={0} max={100} variant="soft" color="orange" 
+                        />
+                        <div className="range-text-div">
+                            <span className="range-text num">{value[0]} - {value[1]}</span>
+                            <span className="range-text">people</span>
+                        </div>
+                    </div>
                 );
 
             case "select":
                 return (
-                    <select value={value} onChange={(e) => onChange?.(e.target.value)}>
-                        {options.map((opt) => (
-                            <option key={opt} value={opt}>{opt}</option>
-                        ))}
-                    </select>
+                    <div className="select-root">
+                        <button onClick={() => (setOpen(!open))}>
+                            <span className="select-label">{value}</span>
+                            <span className="select-chevron">
+                                <img src={chevron_down}/>
+                            </span>
+                        </button>
+                        {open && (
+                            <ul className="select-content">
+                                {options.map(opt => (
+                                    <li key={opt} className={`select-item ${(value === opt) ? "selected" : ""}`}
+                                    onClick={() => {onChange?.(opt);
+                                    setOpen(false);}}>
+                                        <span className="checked-icon">
+                                            {(value === opt) ? (<div className="check-swap">
+                                                                    <img className="check default" src={orange_check} /> 
+                                                                    <img className="check hover" src={checkmark} />
+                                                                </div> ) : (<img src={checkmark} />)}
+                                        </span>
+                                        <span className="item-text">{opt}</span>
+                                    </li>
+                                ))}
+                            </ul>
+                        )}
+                    </div>
                 );
 
             case "radio":
                 return (
                     options.map((opt) => (
-                    <label key={opt}>
+                    <label className="radio-opt" key={opt}>
                         <input type="radio" name={question} checked={value === opt} onChange={() => onChange?.(opt)} />
-                        {opt}
+                        <p>{opt}</p>
                     </label>
                 )));
             

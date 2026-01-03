@@ -1,5 +1,6 @@
 import './OBMain.css';
 import ProfileSetup from '../ProfileSetup/ProfileSetup';
+import CreateWorkspace from '../CreateWorkspace/CreateWorkspace';
 import orange_right_arrow from '../../../../assets/icons/orange-right-arrow.svg';
 import orange_left_arrow from '../../../../assets/icons/orange-left-arrow.svg';
 
@@ -31,6 +32,10 @@ export default function OBMain({ stepTitle, substeps, subStep, onNext, onBack }:
         <div className="step-contents">
             {stepTitle === "Profile Setup" && (
             <ProfileSetup substep={subStep} />
+            )}
+
+            {stepTitle === "Create Workspace" && (
+            <CreateWorkspace substep={subStep} />
             )}
 
             <div className="next-section-div">

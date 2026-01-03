@@ -88,7 +88,7 @@
 .checkbox-option {
     display: flex;
     align-items: center;
-    width: 120px;
+    width: 320px;
 }
 
 .checkbox-option input {
@@ -114,4 +114,142 @@
 
 .checkbox-label {
     width: 100%;
+}
+
+.input-wrapper.type-select {
+    border: none;
+}
+
+.input-wrapper.type-select button {
+    background-color: white;
+    border: 1px solid #FF9E76;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+    padding: 10px;
+    width: 220px;
+}
+
+.input-wrapper.type-select button:hover {
+    border:  1px solid #FF9E76;
+    background-color: #f4f4f4;
+}
+
+.select-chevron {
+    display: flex;
+}
+
+.select-chevron img {
+    width: 20px;
+}
+
+.select-content {
+    list-style: none;
+    padding: 0px;
+    margin: 0px;
+    border: 1px solid #FF9E76;
+    border-radius: 10px;
+}
+
+.select-item {
+    margin: 2px;
+    padding: 1px;
+    border: none;
+    padding: 12px;
+    font-weight: 600px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.select-item:hover {
+    background-color: #FF9E76;
+    border-radius: 10px;
+}
+
+.select-item:hover .item-text{
+    color: white;
+}
+
+.select-item.selected:hover .item-text{
+    color: white;
+}
+
+.item-text {
+    font-weight: 600px;
+}
+
+.select-item.selected .item-text {
+    color:#FF9E76;
+}
+
+.check-swap {
+    position: relative;
+    width: 12px;
+    height: 10px;
+}
+
+.check {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+}
+
+.check.hover {
+    opacity: 0;
+}
+
+.select-item:hover .check.default {
+    opacity: 0;
+}
+
+.select-item:hover .check.hover {
+    opacity: 1;
+}
+
+.input-wrapper.type-radio {
+    border: none;
+    display: flex;
+    flex-direction: column;
+}
+
+.radio-opt {
+    display: flex;
+    align-items: center ;
+    justify-content: flex-start;
+    width: 100%;
+}
+
+.radio-opt input {
+    width: 30px;
+    accent-color: #FF4B00;
+}
+
+.input-wrapper.type-range {
+    border: none;
+}
+
+.range-div {
+    display: flex;
+    gap: 20px;
+}
+
+.range-text-div {
+    display: flex;
+    gap: 6px;
+}
+
+.range-text {
+    font-weight: 600;
+}
+
+.range-text.num {
+    color:#FF9E76;
+}
+
+.range-slider {
+    width: 300px;
 }

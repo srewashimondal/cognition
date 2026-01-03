@@ -1,6 +1,5 @@
-import './ProfileSetup.css';
-import PersonalInfo from './PersonalInfo/PersonalInfo.tsx';
-import AccountPreferences_Onboarding from './AccountPreferences/AccountPreferences_Onboarding.tsx';
+import PersonalInfo from './Subsections/PersonalInfo.tsx';
+import AccountPreferences_Onboarding from './Subsections/AccountPreferences_Onboarding.tsx';
 
 type ProfileSetupProps = {
     substep: number;
