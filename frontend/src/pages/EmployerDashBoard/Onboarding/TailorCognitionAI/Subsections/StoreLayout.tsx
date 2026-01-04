@@ -16,7 +16,7 @@ export default function StoreLayout() {
 
             <Question question={"Upload Store MAP"} input_type={"file"} 
             value={map} onChange={setMap} meta={"map"}
-            direction={"This will be the working store map Cognition AI references from."}/> 
+            direction={"Only JPEG/JPG, PNG, and SVG file types allowed."}/> 
             
             <Question question={"Store Layout Type"} input_type={"select"} 
             value={type} onChange={setType} options={["Aisles", "Sections", "Rooms", "Mixed"]}
