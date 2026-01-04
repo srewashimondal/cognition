@@ -1,4 +1,5 @@
 import './OBMain.css';
+import type { OnboardingData } from '../../../../types/OnboardingData';
 import ProfileSetup from '../ProfileSetup/ProfileSetup';
 import CreateWorkspace from '../CreateWorkspace/CreateWorkspace';
 import TailorCognitionAI from '../TailorCognitionAI/TailorCognitionAI';
@@ -7,6 +8,8 @@ import orange_right_arrow from '../../../../assets/icons/orange-right-arrow.svg'
 import orange_left_arrow from '../../../../assets/icons/orange-left-arrow.svg';
 
 type OBMainProps = {
+    data: Record<string, any>;
+    updateData: (updates: Partial<OnboardingData>) => void;
     stepTitle: string;
     substeps: readonly string[];
     subStep: number;
@@ -14,7 +17,7 @@ type OBMainProps = {
     onBack: () => void;
   };
 
-export default function OBMain({ stepTitle, substeps, subStep, onNext, onBack }:OBMainProps) {
+export default function OBMain({ data, updateData, stepTitle, substeps, subStep, onNext, onBack }:OBMainProps) {
 
     return(
         <div className="ob-main-div">
@@ -33,15 +36,15 @@ export default function OBMain({ stepTitle, substeps, subStep, onNext, onBack }:
 
         <div className="step-contents">
             {stepTitle === "Profile Setup" && (
-            <ProfileSetup substep={subStep} />
+            <ProfileSetup substep={subStep} data={data} updateData={updateData} />
             )}
 
             {stepTitle === "Create Workspace" && (
-            <CreateWorkspace substep={subStep} />
+            <CreateWorkspace substep={subStep} data={data} updateData={updateData} />
             )}
 
             {stepTitle === "Tailor Cognition AI" && (
-            <TailorCognitionAI substep={subStep} />
+            <TailorCognitionAI substep={subStep} data={data} updateData={updateData} />
             )}
 
             {stepTitle === "Invite & Launch" && (

@@ -1,6 +1,7 @@
 import './EmployerOnboarding.css';
 import { useState } from 'react';
 import OBMain from './OBMain/OBMain';
+import type { OnboardingData } from '../../../types/OnboardingData';
 import white_check from '../../../assets/icons/white-check.svg';
 
 export default function EmployerOnboarding() {
@@ -38,7 +39,37 @@ export default function EmployerOnboarding() {
           setStepIndex(prevStepIndex);
           setSubStepIndex(prevSubsteps.length - 1);
         }
-      };      
+    };
+      
+
+    const [data, setData] = useState<OnboardingData>({
+        fullName: "",
+        workEmail: "",
+        jobTitle: "",
+        displayName: "",
+        profilePicture: null,
+        notificationPreference: [],
+        workspaceName: "",
+        workspaceIcon: null,
+        accessibilityPref: [],
+        storeName: "",
+        retailCategory: "Beauty & Cosmetics",
+        storeFormat: "",
+        numEmployees: [0,100],
+        expLevel: "",
+        challenge: [],
+        uploadedPDF: [],
+        posProvider: "",
+        selectedSettings: ["Sync Inventory", "Sync Products"],
+        map: null,
+        type: "Aisles",
+        scenTypes: [],
+        difficultyLevel: "Beginner",
+    });
+
+    const updateData = (updates: Partial<OnboardingData>) => {
+        setData(d => ({ ...d, ...updates}));
+    };
       
       
     return (
@@ -80,7 +111,7 @@ export default function EmployerOnboarding() {
 
                 </div>
                 <div className="ob-main">
-                    <OBMain stepTitle={currentStepTitle} substeps={substeps} subStep={subStepIndex}
+                    <OBMain data={data} updateData={updateData} stepTitle={currentStepTitle} substeps={substeps} subStep={subStepIndex}
                     onNext={handleNext} onBack={handleBack} />
                 </div>
             </div>

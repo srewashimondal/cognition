@@ -1,12 +1,7 @@
-import { useState } from 'react';
 import Question from '../../Question/Question';
+import type { OnboardingSubsection } from '../../../../../types/OnboardingSubsection';
 
-export default function StoreInfo() {
-    const [storeName, setStoreName] = useState("");
-    const [retailCategory, setRetailCategory] = useState("Beauty & Cosmetics");
-    const [storeFormat, setStoreFormat] = useState("");
-
-
+export default function StoreInfo({ data, updateData }: OnboardingSubsection) {
     function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
         e.preventDefault();
         {/* put in backend logic later */}
@@ -17,17 +12,17 @@ export default function StoreInfo() {
             <form onSubmit={handleSubmit}>
 
                 <Question question={"Store Name"} input_type={"text"} 
-                value={storeName} onChange={setStoreName} 
+                value={data.storeName} onChange={(v) => updateData({ storeName: v})} 
                 direction={"Enter the name of your store/corporation."}/>
 
                 <Question question={"Retail Category"} input_type={"select"} 
-                value={retailCategory} onChange={setRetailCategory} 
+                value={data.retailCategory} onChange={(v) => updateData({ retailCategory: v})} 
                 direction={"Select an option."}
                 options={["Beauty & Cosmetics", "Drugstore & Pharmacy", 
                 "General Retail", "Electronics & Tech", "Apparel & Fashion", "Specialty Retail", "Home Goods", "Grocery", "Sporting Goods & Hobbies"]}/>
 
                 <Question question={"Store Format"} input_type={"radio"} 
-                value={storeFormat} onChange={setStoreFormat} 
+                value={data.storeFormat} onChange={(v) => updateData({ storeFormat: v})} 
                 direction={"Select an option."}
                 options={["Standalone Store", "Mall Location", "Department Store Section"]}/>
 

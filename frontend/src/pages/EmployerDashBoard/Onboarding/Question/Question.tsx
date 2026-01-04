@@ -38,12 +38,12 @@ export default function Question({ question, input_type, value, onChange, option
         switch (input_type) {
             case "text":
                 return(
-                    <input type="text" placeholder={placeholder} value={value || ""} onChange={(e) => onChange?.(e.target.value)}/>
+                    <input type="text" placeholder={placeholder} value={value ?? ""} onChange={(e) => onChange?.(e.target.value)}/>
                 );
 
             case "email":
                 return(
-                    <input type="email" placeholder={placeholder} value={value || ""} onChange={(e) => onChange?.(e.target.value)}/>
+                    <input type="email" placeholder={placeholder} value={value ?? ""} onChange={(e) => onChange?.(e.target.value)}/>
                 );
 
             case "range":
