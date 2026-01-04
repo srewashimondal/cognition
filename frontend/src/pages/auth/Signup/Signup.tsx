@@ -7,6 +7,7 @@ import eye_on from '../../../assets/icons/eye_on.svg';
 import eye_off from '../../../assets/icons/eye_off.svg';
 import gradient from '../../../assets/illustrations/gradient.jpg';
 import NavBar from '../../../components/NavBar/NavBar.tsx';
+import ErrorMessage from '../../../components/ErrorMessage/ErrorMessage.tsx';
 
 type SignupProps = {
     role: "employee" | "employer";
@@ -82,7 +83,7 @@ export default function Signup({ role="employee" }: SignupProps) {
                                         <img src={viewReEnteredPassword ? eye_on : eye_off} alt="view password icon"/>
                                     </span>
                             </div>
-                            {(reEnteredPassword) && (password !== reEnteredPassword) && (<p className="error">Passwords must match.</p>)}
+                            {(reEnteredPassword) && (password !== reEnteredPassword) && (<ErrorMessage message={"Passwords must match."} />)}
                         </div>
                         <button className="signin-button" type="submit">Create Account</button>
                     </form>
