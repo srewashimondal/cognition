@@ -212,6 +212,11 @@
     opacity: 1;
 }
 
+.select-item .check-thing {
+    opacity: 0;
+}
+
+
 .input-wrapper.type-radio {
     border: none;
     display: flex;
@@ -254,4 +259,71 @@
 
 .range-slider {
     width: 300px;
+}
+
+.upload-div {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+}
+
+.dropzone {
+    border: 1px dashed #FF9E76;
+    border-radius: 10px;
+    padding: 30px;
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    gap: 24px;
+}
+
+.dropzone img{
+    width: 30px;
+}
+
+.dropzone button {
+    background-color: white;
+    border: 1px solid #FF9E76;
+    color: #FF9E76;
+    transition: 0.2s ease;
+}
+
+
+.dropzone button:hover {
+    background-color: #FF9E76;
+    color: white;
+    border-color: #FF9E76;
+}
+
+.uploaded-content-div {
+    display: flex;
+    align-items: center;
+    padding: 10px;
+    width: 80%;
+}
+
+.input-wrapper.type-image-buttons {
+    border: none;
+    display: flex;
+    flex-direction: row;
+    gap: 50px;
+}
+
+.image-button {
+    border: solid 1px #3792AE;
+    padding: 10px;
+    border-radius: 5px;
+}
+
+.image-button:hover{
+    border-color: #FF4B00;
+}
+
+.image-button.selected {
+    border-color: #FF4B00;
+}
+
+.image-button img {
+    height: 50px;
 }

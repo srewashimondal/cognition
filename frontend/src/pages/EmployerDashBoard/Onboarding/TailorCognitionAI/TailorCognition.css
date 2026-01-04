@@ -1,0 +1,20 @@
+.connect-div {
+    display: flex;
+    width: 100%;
+    align-items: center;
+    justify-content: center;
+}
+
+.connect-div button {
+    width: 300px;
+    color: #FF4B00;
+    background-color: white;
+    border: 1px solid #FF4B00;
+    transition: 0.2s ease;
+}
+
+.connect-div button:hover {
+    background-color: #FF4B00;
+    color: white;
+    border: 1px solid #FF4B00;
+}
