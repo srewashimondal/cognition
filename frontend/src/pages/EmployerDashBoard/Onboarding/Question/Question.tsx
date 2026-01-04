@@ -1,29 +1,38 @@
 import './Question.css';
 import { Slider } from "@radix-ui/themes";
-import { useState } from 'react';
-import { useRef } from "react";
+import { useState, useRef } from 'react';
+import FileItem from '../../../../components/FileItem/FileItem';
 import default_icon from '../../../../assets/icons/default-icon.svg';
 import icon_stroke from '../../../../assets/icons/icon-stroke.svg';
 import add_cta from '../../../../assets/icons/add-cta.svg';
 import checkmark from '../../../../assets/icons/check-icon.svg';
 import chevron_down from '../../../../assets/icons/chevron-down.svg';
 import orange_check from '../../../../assets/icons/orange-check.svg';
-
+import upload_icon from '../../../../assets/icons/upload-icon.svg';
 
 type QuestionProps = {
     question: string;
-    input_type: "text" | "email" | "checkbox" | "radio" | "range" | "select" | "file" | "image";
+    input_type: "text" | "email" | "checkbox" | "radio" | "range" | "select" | "file" | "image" | "image-buttons";
     value?: any;
     onChange?: (value: any) => void;
     options?: string[];
+    fileOptions?: string[];
     direction?: string;
     placeholder?: string;
-    meta?: "pfp" | "none";
+    meta?: "pfp" | "pdf" | "map"; /* include video types later */
 };
 
-export default function Question({ question, input_type, value, onChange, options=[], direction, placeholder, meta }: QuestionProps) {
+export default function Question({ question, input_type, value, onChange, options=[], fileOptions=[], direction, placeholder, meta }: QuestionProps) {
     const fileInputRef = useRef<HTMLInputElement | null>(null);
     const [open, setOpen] = useState(false);
+    const [dragging, setDragging] = useState(false);
+
+    const allowedTypes = [
+        "application/pdf",
+        "image/jpeg",
+        "image/png",
+        "image/svg+xml",
+    ];
 
     function renderInput() {
         switch (input_type) {
@@ -70,7 +79,7 @@ export default function Question({ question, input_type, value, onChange, option
                                             {(value === opt) ? (<div className="check-swap">
                                                                     <img className="check default" src={orange_check} /> 
                                                                     <img className="check hover" src={checkmark} />
-                                                                </div> ) : (<img src={checkmark} />)}
+                                                                </div> ) : (<img className="check-thing" src={checkmark} />)}
                                         </span>
                                         <span className="item-text">{opt}</span>
                                     </li>
@@ -124,21 +133,109 @@ export default function Question({ question, input_type, value, onChange, option
                 )));
 
                 case "file":
-                    return (
-                        (meta === "pfp") ? 
-                        ((value) ? (<div className="pfp-upload-container">
-                            <img src={value} className="uploaded-image"/>
-                            <img src={icon_stroke} className="img-frame"/>
-                            <img src={add_cta} className="pfp-add" onClick={() => fileInputRef.current?.click()}/>
-                            <input ref={fileInputRef} type="file" accept="image/*" hidden onChange={(e) => onChange?.(e.target.files?.[0])}/>
-                        </div>) :
-                        (<div className="pfp-upload">
-                            <img src={default_icon} className="pfp-base"/>
-                            <img src={add_cta} className="pfp-add" onClick={() => fileInputRef.current?.click()}/>
-                            <input ref={fileInputRef} type="file" accept="image/*" hidden onChange={(e) => onChange?.(e.target.files?.[0])}/>
-                        </div>)) :
-                        (<input type="file" accept="image/*" onChange={(e) => onChange?.(e.target.files?.[0])}/> )
-                    );
+                    switch (meta) {
+                        case "pfp": 
+                            return ((value) ? (<div className="pfp-upload-container">
+                                <img src={value} className="uploaded-image"/>
+                                <img src={icon_stroke} className="img-frame"/>
+                                <img src={add_cta} className="pfp-add" onClick={() => fileInputRef.current?.click()}/>
+                                <input ref={fileInputRef} type="file" accept="image/*" hidden onChange={(e) => onChange?.(e.target.files?.[0])}/>
+                            </div>) :
+                            (<div className="pfp-upload">
+                                <img src={default_icon} className="pfp-base"/>
+                                <img src={add_cta} className="pfp-add" onClick={() => fileInputRef.current?.click()}/>
+                                <input ref={fileInputRef} type="file" accept="image/*" hidden onChange={(e) => onChange?.(e.target.files?.[0])}/>
+                            </div>)) 
+                        case "pdf":
+                            return (<div className={`upload-div ${(dragging) ? "dragging" : ""}`} onClick={() => fileInputRef.current?.click()}
+                                      onDragOver={(e) => {e.preventDefault(); setDragging(true);}} 
+                                      onDragLeave={() => setDragging(false)}
+                                      onDrop={(e) => {e.preventDefault(); setDragging(false);
+                                        const files = Array.from(e.dataTransfer.files).filter(
+                                            (file) => file.type ==="application/pdf"
+                                        )
+                                        onChange?.((prev: File[]) => [...prev, ...files]);
+                                      }} >
+
+                                        <div className="uploaded-content-div">
+                                            {Array.isArray(value) && (
+                                                <ul className="file-list">
+                                                    {value.map((file: File) => (
+                                                        <FileItem key={file.name} file={file} />
+                                                    ))}
+                                                </ul>
+                                            )}
+                                        </div>
+
+                                        <div className="dropzone">
+                                            <input ref={fileInputRef} type="file" accept="application/pdf"
+                                            multiple hidden onChange={(e) => {const files = Array.from(e.target.files || []); onChange?.((prev: File[]) => [...prev, ...files]);}} /> 
+                                            <img src={upload_icon}/>
+                                            <p>
+                                                <strong>Drag and drop files</strong>
+                                            </p>
+                                            <span>OR</span>
+                                            <button type="button" 
+                                            onClick={(e) => {e.stopPropagation(); fileInputRef.current?.click(); }}>Browse Files</button>
+                                        </div>
+                                    </div>);
+
+                        case "map":
+                            return (
+                            <div className={`upload-div ${dragging ? "dragging" : ""}`}
+                                onClick={() => fileInputRef.current?.click()}
+                                onDragOver={(e) => {e.preventDefault(); setDragging(true);}}
+                                onDragLeave={() => setDragging(false)}
+                                onDrop={(e) => {e.preventDefault(); setDragging(false);
+                        
+                                const files = Array.from(e.dataTransfer.files).filter(
+                                    (file) => allowedTypes.includes(file.type)
+                                );
+                        
+                                onChange?.(files[0] ?? null); }}
+                            >
+                                <div className="uploaded-content-div">
+                                    {value && (
+                                        <ul className="file-list">
+                                            <FileItem key={value.name} file={value} />
+                                        </ul>
+                                    )}
+                                </div>
+                        
+                                <div className="dropzone">
+                                    <input ref={fileInputRef} type="file" accept="application/pdf, image/jpeg,image/png,image/svg+xml" hidden
+                                    onChange={(e) => {
+                                        const files = Array.from(e.target.files || []).filter(
+                                            (file) => allowedTypes.includes(file.type)
+                                        );
+                            
+                                        onChange?.(files[0] ?? null);
+                                        }}
+                                    />
+                        
+                                    <img src={upload_icon} />
+                                    <p>
+                                        <strong>Drag and drop map files</strong>
+                                    </p>
+                                    <span>OR</span>
+                                    <button type="button"
+                                        onClick={(e) => {e.stopPropagation(); fileInputRef.current?.click();}}
+                                    >Browse Files</button>
+                                </div>
+                            </div>
+                            );
+  
+
+                        default:
+                            return (<input type="file" accept="image/*" onChange={(e) => onChange?.(e.target.files?.[0])}/> )
+                    };
+
+                case "image-buttons":
+                    return fileOptions.map((opt, index) => (
+                            <div key={options[index]} className={`image-button ${(value === options[index]) ? "selected" : ""}`} onClick={() => (onChange?.(options[index]))}>
+                                <img src={opt} />
+                            </div>
+                    ));
 
                 default:
                     return null;
