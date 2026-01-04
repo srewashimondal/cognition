@@ -1,22 +1,21 @@
 import { useState, useEffect } from 'react';
 import Question from '../../Question/Question.tsx'
+import type { OnboardingSubsection } from '../../../../../types/OnboardingSubsection.tsx';
 
-export default function AccountPreferences_Onboarding() {
-    const [displayName, setDisplayName] = useState("");
-    const [profilePicture, setProfilePicture] = useState<File | null>(null);
-    const [notificationPreference, setNotificationPreference] = useState<string[]>([]);
+
+export default function AccountPreferences_Onboarding({ data, updateData }: OnboardingSubsection) {
 
     const [imagePreview, setImagePreview] = useState<string | null>(null);
     useEffect(() => {
-        if (!profilePicture) {
+        if (!data.profilePicture) {
             setImagePreview(null);
             return;
         }
-        const url = URL.createObjectURL(profilePicture);
+        const url = URL.createObjectURL(data.profilePicture);
         setImagePreview(url);
 
         return () => URL.revokeObjectURL(url);
-    }, [profilePicture]);
+    }, [data.profilePicture]);
 
 
     function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
@@ -29,16 +28,16 @@ export default function AccountPreferences_Onboarding() {
             <form onSubmit={handleSubmit}>
                 
                 <Question question={"Display Name"} input_type={"text"} 
-                value={displayName} onChange={setDisplayName} 
+                value={data.displayName} onChange={(v) => updateData({ displayName: v})} 
                 direction={"This will be the display name on your profile."}/>
                 
                 <Question question={"Profile Picture"} input_type={"file"} 
-                value={imagePreview} onChange={setProfilePicture} 
+                value={imagePreview} onChange={(v) => updateData({ profilePicture: v})} 
                 direction={"You may change your profile picture now if you wish."}
                 meta={"pfp"}/>
 
                 <Question question={"Notification Preference"} input_type={"checkbox"} 
-                value={notificationPreference} onChange={setNotificationPreference} 
+                value={data.notificationPreference} onChange={(v) => updateData({ notificationPreference: v})} 
                 direction={"Select all that apply."} options={["In-App", "E-mail"]} />
 
             </form>
