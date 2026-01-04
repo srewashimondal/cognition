@@ -2,6 +2,7 @@ import './OBMain.css';
 import ProfileSetup from '../ProfileSetup/ProfileSetup';
 import CreateWorkspace from '../CreateWorkspace/CreateWorkspace';
 import TailorCognitionAI from '../TailorCognitionAI/TailorCognitionAI';
+import InviteLaunch from '../InviteLaunch/InviteLaunch';
 import orange_right_arrow from '../../../../assets/icons/orange-right-arrow.svg';
 import orange_left_arrow from '../../../../assets/icons/orange-left-arrow.svg';
 
@@ -41,6 +42,10 @@ export default function OBMain({ stepTitle, substeps, subStep, onNext, onBack }:
 
             {stepTitle === "Tailor Cognition AI" && (
             <TailorCognitionAI substep={subStep} />
+            )}
+
+            {stepTitle === "Invite & Launch" && (
+            <InviteLaunch substep={subStep} />
             )}
 
             <div className="next-section-div">

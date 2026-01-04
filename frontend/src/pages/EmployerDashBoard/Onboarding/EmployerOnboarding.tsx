@@ -8,7 +8,7 @@ export default function EmployerOnboarding() {
         "Profile Setup": ["Personal Info", "Account Preferences"],
         "Create Workspace": ["Workspace Info", "Store Info", "Team Details"],
         "Tailor Cognition AI": ["Training Materials", "POS Integration", "Store Layout", "Simulation Preferences"],
-        "Invite & Launch": ["Workspace Review", "Invite Team", "Launch"]
+        "Invite & Launch": ["Invite Team", "Launch"]
      } as const;
 
     const [stepIndex, setStepIndex] = useState(0);
