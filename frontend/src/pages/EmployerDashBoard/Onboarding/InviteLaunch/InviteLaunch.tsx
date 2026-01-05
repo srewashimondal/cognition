@@ -3,7 +3,7 @@ import LaunchWorkspace from "./Subsections/LaunchWorkspace";
 import type { OnboardingSection } from "../../../../types/OnboardingSection";
 
 
-export default function InviteLaunch({ substep, data, updateData, registerFormId, onNext }: OnboardingSection) {
+export default function InviteLaunch({ substep, registerFormId, onNext }: OnboardingSection) {
     return (
         <div className="il-div">
             {(substep === 0) && <InviteTeam registerFormId={registerFormId} onNext={onNext} />}
