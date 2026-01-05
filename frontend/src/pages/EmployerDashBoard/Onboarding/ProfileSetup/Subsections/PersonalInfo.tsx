@@ -20,17 +20,18 @@ export default function PersonalInfo({ data, updateData, registerFormId, onNext 
     return (
         <div className="pi-div">
             <form id={formId} onSubmit={handleSubmit}>
-                <Question question={"Full Name"} input_type={"text"} 
+                <Question question={"Full Name*"} input_type={"text"} 
                 value={data.fullName} onChange={(v) => updateData({ fullName: v})} 
-                direction={"This will be the primary name used for communications."}/>
+                direction={"This will be the primary name used for communications."}
+                required={true}/>
 
-                <Question question={"Work Email"} input_type={"email"} 
+                <Question question={"Work Email*"} input_type={"email"} 
                 value={data.workEmail} onChange={(v) => updateData({ workEmail: v})} 
-                direction={"Enter your work email."} />
+                direction={"Enter your work email."} required={true} />
 
-                <Question question={"Job Title"} input_type={"text"} 
+                <Question question={"Job Title*"} input_type={"text"} 
                 value={data.jobTitle} onChange={(v) => updateData({ jobTitle: v})} 
-                direction={"Enter your position as a supervisor."} />
+                direction={"Enter your position as a supervisor."} required={true} />
 
             </form>
         </div>

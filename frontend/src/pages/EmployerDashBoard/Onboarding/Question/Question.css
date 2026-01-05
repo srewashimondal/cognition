@@ -89,6 +89,8 @@
     display: flex;
     align-items: center;
     width: 320px;
+    height: 40px;
+    line-height: 40px;
 }
 
 .checkbox-option input {
@@ -99,13 +101,14 @@
 
 .checkbox-box {
     width: 18px;
-    height: 15px;
-    border: 1px solid #FF9E76;
-    display: flex;
+    height: 18px;
+    border: 1.5px solid #FF9E76;
+    display: inline-flex;
     align-items: center;
     justify-content: center;
     margin-right: 10px;
     position: relative;
+    flex-shrink: 0;
 }
 
 .checkbox-option input:checked + .checkbox-box {
