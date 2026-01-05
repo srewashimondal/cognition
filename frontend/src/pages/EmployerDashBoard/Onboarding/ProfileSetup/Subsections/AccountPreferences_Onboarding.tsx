@@ -3,7 +3,13 @@ import Question from '../../Question/Question.tsx'
 import type { OnboardingSubsection } from '../../../../../types/OnboardingSubsection.tsx';
 
 
-export default function AccountPreferences_Onboarding({ data, updateData }: OnboardingSubsection) {
+export default function AccountPreferences_Onboarding({ data, updateData, registerFormId, onNext }: OnboardingSubsection) {
+    const formId = "account-preferences-form";
+
+    useEffect(() => {
+        registerFormId(formId);
+        return () => registerFormId(""); 
+    }, []);
 
     const [imagePreview, setImagePreview] = useState<string | null>(null);
     useEffect(() => {
@@ -21,11 +27,12 @@ export default function AccountPreferences_Onboarding({ data, updateData }: Onbo
     function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
         e.preventDefault();
         {/* put in backend logic later */}
+        onNext();
     }
 
     return (
         <div className="ap-o-div">
-            <form onSubmit={handleSubmit}>
+            <form id={formId} onSubmit={handleSubmit}>
                 
                 <Question question={"Display Name"} input_type={"text"} 
                 value={data.displayName} onChange={(v) => updateData({ displayName: v})} 
