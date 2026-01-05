@@ -32,9 +32,9 @@ export default function WorkspaceInfo({ data, updateData, registerFormId, onNext
         <div className="wi-div">
             <form id={formId} onSubmit={handleSubmit}>
 
-                <Question question={"Workspace Name"} input_type={"text"} 
+                <Question question={"Workspace Name*"} input_type={"text"} 
                 value={data.workspaceName} onChange={(v) => updateData({ workspaceName: v})} 
-                direction={"This will be the name of your Workspace."}/>
+                direction={"This will be the name of your Workspace."} required={true} />
 
                 <Question question={"Workspace Icon"} input_type={"file"} 
                 value={imagePreview} onChange={(v) => updateData({ workspaceIcon: v})} 

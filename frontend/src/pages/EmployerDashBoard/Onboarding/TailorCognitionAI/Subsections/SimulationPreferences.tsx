@@ -48,7 +48,7 @@ export default function SimulationPreferences({ data, updateData, registerFormId
                 value={data.scenTypes} onChange={(v) => updateData({ scenTypes: v})} options={["Everyday customer interactions", "Emergency Situations"]} />
 
                 <Question question={"Select a difficulty level"} input_type={"select"} 
-                value={data.difficultyLevel} onChange={(v) => updateData({ difficultyLevel: v})} options={["Beginner", "Mixed", "Advanced"]}/>
+                value={data.difficultyLevel} onChange={(v) => updateData({ difficultyLevel: v})} options={["Beginner", "Intermediate", "Advanced"]}/>
 
             </form>
         </div>

@@ -1,5 +1,5 @@
 import './Question.css';
-import { Slider } from "@radix-ui/themes";
+import { Slider, CheckboxGroup } from "@radix-ui/themes";
 import { useState, useRef } from 'react';
 import FileItem from '../../../../components/FileItem/FileItem';
 import default_icon from '../../../../assets/icons/default-icon.svg';
@@ -20,9 +20,10 @@ type QuestionProps = {
     direction?: string;
     placeholder?: string;
     meta?: "pfp" | "pdf" | "map"; /* include video types later */
+    required?: boolean;
 };
 
-export default function Question({ question, input_type, value, onChange, options=[], fileOptions=[], direction, placeholder, meta }: QuestionProps) {
+export default function Question({ question, input_type, value, onChange, options=[], fileOptions=[], direction, placeholder, meta, required }: QuestionProps) {
     const fileInputRef = useRef<HTMLInputElement | null>(null);
     const [open, setOpen] = useState(false);
     const [dragging, setDragging] = useState(false);
@@ -38,12 +39,12 @@ export default function Question({ question, input_type, value, onChange, option
         switch (input_type) {
             case "text":
                 return(
-                    <input type="text" placeholder={placeholder} value={value ?? ""} onChange={(e) => onChange?.(e.target.value)}/>
+                    <input type="text" required={required} placeholder={placeholder} value={value ?? ""} onChange={(e) => onChange?.(e.target.value)}/>
                 );
 
             case "email":
                 return(
-                    <input type="email" placeholder={placeholder} value={value ?? ""} onChange={(e) => onChange?.(e.target.value)}/>
+                    <input type="email" required={required} placeholder={placeholder} value={value ?? ""} onChange={(e) => onChange?.(e.target.value)}/>
                 );
 
             case "range":
@@ -93,44 +94,31 @@ export default function Question({ question, input_type, value, onChange, option
                 return (
                     options.map((opt) => (
                     <label className="radio-opt" key={opt}>
-                        <input type="radio" name={question} checked={value === opt} onChange={() => onChange?.(opt)} />
+                        <input type="radio" required={required} name={question} checked={value === opt} onChange={() => onChange?.(opt)} />
                         <p>{opt}</p>
                     </label>
                 )));
             
             case "checkbox":
                 return (
-                    options.map((opt) => (
-                        <label className="checkbox-option">
-                            <input type="checkbox" checked={value?.includes(opt)}
-                                onChange={(e) => {
-                                    const checked = e.target.checked;
-                                    onChange?.(
-                                        checked ?
-                                        [...(value || []), opt]
-                                        : value.filter((v: string) => v !== opt)
-                                    );
-                                }}
-                            />
-                            <span className="checkbox-box">
-                                <svg
-                                    className="check-icon"
-                                    width="12"
-                                    height="10"
-                                    viewBox="0 0 12 10"
-                                    fill="none"
-                                    xmlns="http://www.w3.org/2000/svg"
-                                    >
-                                    <path
-                                        d="M11.293 1.40039L4 8.69336L0.707031 5.40039L1.40039 4.70703L4 7.30664L10.5996 0.707031L11.293 1.40039Z"
-                                        fill="white"
-                                        stroke="white"
-                                    />
-                                </svg>
-                            </span>
-                            <span className="checkbox-label">{opt}</span>   
-                        </label>
-                )));
+                    <CheckboxGroup.Root
+                      value={value ?? []}
+                      onValueChange={(vals) => onChange?.(vals)}
+                      className="checkbox-group"
+                      size="3"
+                      color="orange"
+                    >
+                      {options.map((opt) => (
+                        <CheckboxGroup.Item
+                          key={opt}
+                          value={opt}
+                          className="checkbox-item"
+                        >
+                          {opt}
+                        </CheckboxGroup.Item>
+                      ))}
+                    </CheckboxGroup.Root>
+                  );
 
                 case "file":
                     switch (meta) {

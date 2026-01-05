@@ -20,19 +20,20 @@ export default function StoreInfo({ data, updateData, registerFormId, onNext }: 
         <div className="si-div">
             <form id={formId} onSubmit={handleSubmit}>
 
-                <Question question={"Store Name"} input_type={"text"} 
+                <Question question={"Store Name*"} input_type={"text"} 
                 value={data.storeName} onChange={(v) => updateData({ storeName: v})} 
-                direction={"Enter the name of your store/corporation."}/>
+                direction={"Enter the name of your store/corporation."} required={true}/>
 
-                <Question question={"Retail Category"} input_type={"select"} 
+                <Question question={"Retail Category*"} input_type={"select"} 
                 value={data.retailCategory} onChange={(v) => updateData({ retailCategory: v})} 
                 direction={"Select an option."}
+                required={true}
                 options={["Beauty & Cosmetics", "Drugstore & Pharmacy", 
                 "General Retail", "Electronics & Tech", "Apparel & Fashion", "Specialty Retail", "Home Goods", "Grocery", "Sporting Goods & Hobbies"]}/>
 
-                <Question question={"Store Format"} input_type={"radio"} 
+                <Question question={"Store Format*"} input_type={"radio"} 
                 value={data.storeFormat} onChange={(v) => updateData({ storeFormat: v})} 
-                direction={"Select an option."}
+                direction={"Select an option."} required={true}
                 options={["Standalone Store", "Mall Location", "Department Store Section"]}/>
 
             </form>
