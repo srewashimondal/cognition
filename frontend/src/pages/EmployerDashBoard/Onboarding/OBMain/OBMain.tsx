@@ -50,7 +50,7 @@ export default function OBMain({ data, updateData, activeFormId, setActiveFormId
             )}
 
             {stepTitle === "Invite & Launch" && (
-            <InviteLaunch substep={subStep} />
+            <InviteLaunch substep={subStep} data={data} updateData={updateData} registerFormId={setActiveFormId} onNext={onNext} />
             )}
 
             <div className="next-section-div">

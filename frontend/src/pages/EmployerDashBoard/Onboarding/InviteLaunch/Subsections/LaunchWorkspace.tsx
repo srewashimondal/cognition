@@ -1,6 +1,14 @@
+import { useEffect } from 'react';
 import rocket_icon from '../../../../../assets/icons/rocket-icon.svg';
 
-export default function LaunchWorkspace() {
+
+export default function LaunchWorkspace({ registerFormId }: { registerFormId: (id: string) => void }) {
+    const formId = "launch-workspace";
+
+    useEffect(() => {
+        registerFormId(formId);
+        return () => registerFormId(""); 
+    }, []);
 
     function handleLaunch (e: React.MouseEvent<HTMLButtonElement>) {
         e.preventDefault();
