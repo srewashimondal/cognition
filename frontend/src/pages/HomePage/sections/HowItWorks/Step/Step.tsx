@@ -9,11 +9,11 @@ type StepProps = {
 
 export default function Step({ number, title, description, image }: StepProps) {
 return (
-    <div className="step">
-    <div className="step-text">
-        <p className="step-number">Step {number}</p>
+    <div className="a-step">
+    <div className="a-step-text">
+        <p className="a-step-number">Step {number}</p>
 
-        <div className="step-title">
+        <div className="a-step-title">
             <h3>{title}</h3>
         </div>
 

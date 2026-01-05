@@ -1,4 +1,4 @@
-.step {
+.a-step {
     display: flex;
     justify-content: space-between;
 }
@@ -12,21 +12,21 @@
     border-radius: 1000px;
 }
 
-.step-text {
+.a-step-text {
     display: flex;
     flex-direction: column;
     gap: 0.25rem;
 }
 
-.step-text p {
+.a-step-text p {
     margin: 0;
 }
 
-.step-title {
+.a-step-title {
     display: flex;
 }
 
-.step-title h3 {
+.a-step-title h3 {
     font-size: 50px;
     font-weight: 400;
     margin: 0;
