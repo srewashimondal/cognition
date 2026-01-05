@@ -1,4 +1,5 @@
 import './OBMain.css';
+import { useState } from 'react';
 import type { OnboardingData } from '../../../../types/OnboardingData';
 import ProfileSetup from '../ProfileSetup/ProfileSetup';
 import CreateWorkspace from '../CreateWorkspace/CreateWorkspace';
@@ -18,6 +19,7 @@ type OBMainProps = {
   };
 
 export default function OBMain({ data, updateData, stepTitle, substeps, subStep, onNext, onBack }:OBMainProps) {
+    const [activeFormId, setActiveFormId] = useState<string | null>(null);
 
     return(
         <div className="ob-main-div">
@@ -36,15 +38,15 @@ export default function OBMain({ data, updateData, stepTitle, substeps, subStep,
 
         <div className="step-contents">
             {stepTitle === "Profile Setup" && (
-            <ProfileSetup substep={subStep} data={data} updateData={updateData} />
+            <ProfileSetup substep={subStep} data={data} updateData={updateData} registerFormId={setActiveFormId} onNext={onNext}/>
             )}
 
             {stepTitle === "Create Workspace" && (
-            <CreateWorkspace substep={subStep} data={data} updateData={updateData} />
+            <CreateWorkspace substep={subStep} data={data} updateData={updateData} registerFormId={setActiveFormId} onNext={onNext} />
             )}
 
             {stepTitle === "Tailor Cognition AI" && (
-            <TailorCognitionAI substep={subStep} data={data} updateData={updateData} />
+            <TailorCognitionAI substep={subStep} data={data} updateData={updateData} registerFormId={setActiveFormId} onNext={onNext} />
             )}
 
             {stepTitle === "Invite & Launch" && (
@@ -62,14 +64,15 @@ export default function OBMain({ data, updateData, stepTitle, substeps, subStep,
 
                 <div className="space"></div>
 
-                {((stepTitle !== "Invite & Launch" ) || (subStep !== substeps.length - 1)) && <div className="next-section-btn" onClick={onNext}>
+                {((stepTitle !== "Invite & Launch" ) || (subStep !== substeps.length - 1)) && 
+                <button type="submit" form={activeFormId ?? undefined} className="next-section-btn">
                     <span className="next-section-text">
                         Next Section
                     </span>
                     <span className="arrow-icon">
                         <img src={orange_right_arrow} />
                     </span>
-                </div>}
+                </button>}
             </div>
         </div>
     </div>

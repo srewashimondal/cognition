@@ -69,10 +69,12 @@
     padding: 5px;
     border-radius: 5px;
     gap: 20px;
+    background-color: white;
 }
 
 .next-section-btn:hover {
     background-color: #f4f4f4;
+    border: none;
 }
 
 .next-section-text {

@@ -63,7 +63,7 @@ export default function Question({ question, input_type, value, onChange, option
             case "select":
                 return (
                     <div className="select-root">
-                        <button onClick={() => (setOpen(!open))}>
+                        <button type="button" onClick={() => (setOpen(!open))}>
                             <span className="select-label">{value}</span>
                             <span className="select-chevron">
                                 <img src={chevron_down}/>
@@ -154,7 +154,7 @@ export default function Question({ question, input_type, value, onChange, option
                                         const files = Array.from(e.dataTransfer.files).filter(
                                             (file) => file.type ==="application/pdf"
                                         )
-                                        onChange?.((prev: File[]) => [...prev, ...files]);
+                                        onChange?.([...(value ?? []), ...files]);
                                       }} >
 
                                         <div className="uploaded-content-div">
@@ -169,7 +169,7 @@ export default function Question({ question, input_type, value, onChange, option
 
                                         <div className="dropzone">
                                             <input ref={fileInputRef} type="file" accept="application/pdf"
-                                            multiple hidden onChange={(e) => {const files = Array.from(e.target.files || []); onChange?.((prev: File[]) => [...prev, ...files]);}} /> 
+                                            multiple hidden onChange={(e) => {const files = Array.from(e.target.files || []); onChange?.([...(value ?? []), ...files])}} /> 
                                             <img src={upload_icon}/>
                                             <p>
                                                 <strong>Drag and drop files</strong>

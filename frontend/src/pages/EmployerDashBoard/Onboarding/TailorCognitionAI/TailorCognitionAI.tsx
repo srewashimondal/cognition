@@ -5,13 +5,13 @@ import SimulationPreferences from "./Subsections/SimulationPreferences";
 import type { OnboardingSection } from "../../../../types/OnboardingSection";
 
 
-export default function TailorCognitionAI({ substep, data, updateData }: OnboardingSection) {
+export default function TailorCognitionAI({ substep, data, updateData, registerFormId, onNext }: OnboardingSection) {
     return (
         <div className="cw-div">
-            {(substep === 0) && <TrainingMaterials data={data} updateData={updateData} />}
-            {(substep === 1) && <POSIntegration data={data} updateData={updateData} />}
-            {(substep === 2) && <StoreLayout data={data} updateData={updateData} />}
-            {(substep === 3) && <SimulationPreferences data={data} updateData={updateData} />}
+            {(substep === 0) && <TrainingMaterials data={data} updateData={updateData} registerFormId={registerFormId} onNext={onNext} />}
+            {(substep === 1) && <POSIntegration data={data} updateData={updateData} registerFormId={registerFormId} onNext={onNext} />}
+            {(substep === 2) && <StoreLayout data={data} updateData={updateData} registerFormId={registerFormId} onNext={onNext} />}
+            {(substep === 3) && <SimulationPreferences data={data} updateData={updateData} registerFormId={registerFormId} onNext={onNext} />}
         </div>
     );
 }

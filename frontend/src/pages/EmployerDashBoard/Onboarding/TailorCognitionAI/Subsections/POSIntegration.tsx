@@ -1,18 +1,27 @@
 import '../TailorCognition.css';
+import { useEffect } from 'react';
 import Question from "../../Question/Question";
 import lightspeed_logo from '../../../../../assets/illustrations/lightspeed_logo.svg';
 import zoho_logo from '../../../../../assets/illustrations/zoho_logo.png';
 import type { OnboardingSubsection } from "../../../../../types/OnboardingSubsection";
 
-export default function POSIntegration({ data, updateData }: OnboardingSubsection) {
+export default function POSIntegration({ data, updateData, registerFormId, onNext }: OnboardingSubsection) {
+    const formId = "pos-integration-form";
+
+    useEffect(() => {
+        registerFormId(formId);
+        return () => registerFormId(""); 
+    }, []);
+    
     function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
         e.preventDefault();
+        onNext();
         {/* put in backend logic later */}
     }
 
     return (
         <div className="posi-div">
-            <form onSubmit={handleSubmit}>
+            <form id={formId} onSubmit={handleSubmit}>
 
             <Question question={"Select your Point of Scale System Provider"} input_type={"image-buttons"} 
             value={data.posProvider} onChange={(v) => updateData({ posProvider: v})} 

@@ -1,15 +1,24 @@
+import { useEffect } from 'react';
 import Question from '../../Question/Question';
 import type { OnboardingSubsection } from '../../../../../types/OnboardingSubsection';
 
-export default function StoreInfo({ data, updateData }: OnboardingSubsection) {
+export default function StoreInfo({ data, updateData, registerFormId, onNext }: OnboardingSubsection) {
+    const formId = "store-info-form";
+
+    useEffect(() => {
+        registerFormId(formId);
+        return () => registerFormId(""); 
+    }, []);
+    
     function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
         e.preventDefault();
+        onNext();
         {/* put in backend logic later */}
     }
 
     return (
         <div className="si-div">
-            <form onSubmit={handleSubmit}>
+            <form id={formId} onSubmit={handleSubmit}>
 
                 <Question question={"Store Name"} input_type={"text"} 
                 value={data.storeName} onChange={(v) => updateData({ storeName: v})} 
