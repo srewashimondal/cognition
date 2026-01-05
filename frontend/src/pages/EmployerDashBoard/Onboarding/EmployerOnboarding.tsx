@@ -105,7 +105,7 @@ export default function EmployerOnboarding() {
                     <div className="sidebar-steps">
                         <div className="sidebar-line" />
                         {stepTitles.map((title, index) => {
-                                const isCompleted = index < stepIndex;
+                                const isCompleted = (index < stepIndex) || (activeFormId === "launch-workspace");
                                 const isCurrent = index === stepIndex;
 
                                 return (
