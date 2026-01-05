@@ -45,7 +45,7 @@ export default function InviteTeam({ registerFormId, onNext }: {registerFormId: 
                             <span>Generate a Shareable Link</span>
                         </button>
                     </div>
-                    <div className="divider"></div>
+                    <div className="a-divider"></div>
                     <div className="qr-code-share">
                         <div className="download-btn-wrapper">
                             <button type="button" className="download-btn" onClick={handleDownload}>
