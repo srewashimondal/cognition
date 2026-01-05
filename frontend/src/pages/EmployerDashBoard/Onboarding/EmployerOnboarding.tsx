@@ -84,12 +84,15 @@ export default function EmployerOnboarding() {
         "pos-integration-form",
         "store-layout-form",
         "simulation-preferences-form",
-        "invite-team",
+        "invite-team-form",
         "launch-workspace",
     ] as const;
 
     const currentSubIdx = activeFormId ? SUBSECTION_FLOW.indexOf(activeFormId as any) : 0;
-    const percent = Math.floor((currentSubIdx / 11) * 100);
+    const percent = (activeFormId !== "invite-team-form") ? 
+                    ((activeFormId !== "launch-workspace") ?
+                        (Math.floor((currentSubIdx / 11) * 100)) : 100) : 95;
+
 
     return (
         <div className="ob-pg">

@@ -1,15 +1,13 @@
 import InviteTeam from "./Subsections/InviteTeam";
 import LaunchWorkspace from "./Subsections/LaunchWorkspace";
+import type { OnboardingSection } from "../../../../types/OnboardingSection";
 
-type InviteLaunchProps = {
-    substep: number;
-}
 
-export default function InviteLaunch({ substep }: InviteLaunchProps) {
+export default function InviteLaunch({ substep, data, updateData, registerFormId, onNext }: OnboardingSection) {
     return (
         <div className="il-div">
-            {(substep === 0) && <InviteTeam />}
-            {(substep === 1) && <LaunchWorkspace />}
+            {(substep === 0) && <InviteTeam registerFormId={registerFormId} onNext={onNext} />}
+            {(substep === 1) && <LaunchWorkspace registerFormId={registerFormId} />}
         </div>
     );
 }
