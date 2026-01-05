@@ -1,5 +1,4 @@
 import './OBMain.css';
-import { useState } from 'react';
 import type { OnboardingData } from '../../../../types/OnboardingData';
 import ProfileSetup from '../ProfileSetup/ProfileSetup';
 import CreateWorkspace from '../CreateWorkspace/CreateWorkspace';
@@ -11,6 +10,8 @@ import orange_left_arrow from '../../../../assets/icons/orange-left-arrow.svg';
 type OBMainProps = {
     data: Record<string, any>;
     updateData: (updates: Partial<OnboardingData>) => void;
+    activeFormId: string | null;
+    setActiveFormId: React.Dispatch<React.SetStateAction<string | null>>;
     stepTitle: string;
     substeps: readonly string[];
     subStep: number;
@@ -18,8 +19,7 @@ type OBMainProps = {
     onBack: () => void;
   };
 
-export default function OBMain({ data, updateData, stepTitle, substeps, subStep, onNext, onBack }:OBMainProps) {
-    const [activeFormId, setActiveFormId] = useState<string | null>(null);
+export default function OBMain({ data, updateData, activeFormId, setActiveFormId, stepTitle, substeps, subStep, onNext, onBack }:OBMainProps) {
 
     return(
         <div className="ob-main-div">

@@ -1,6 +1,7 @@
 import './EmployerOnboarding.css';
 import { useState } from 'react';
 import OBMain from './OBMain/OBMain';
+import ProgressBar from '../../../components/ProgressBar/ProgressBar';
 import type { OnboardingData } from '../../../types/OnboardingData';
 import white_check from '../../../assets/icons/white-check.svg';
 
@@ -70,14 +71,34 @@ export default function EmployerOnboarding() {
     const updateData = (updates: Partial<OnboardingData>) => {
         setData(d => ({ ...d, ...updates}));
     };
-      
-      
+
+    const [activeFormId, setActiveFormId] = useState<string | null>(null);
+    
+    const SUBSECTION_FLOW = [
+        "personal-info-form",
+        "account-preferences-form",
+        "workspace-info-form",
+        "store-info-form",
+        "team-details-form",
+        "training-materials-form",
+        "pos-integration-form",
+        "store-layout-form",
+        "simulation-preferences-form",
+        "invite-team",
+        "launch-workspace",
+    ] as const;
+
+    const currentSubIdx = activeFormId ? SUBSECTION_FLOW.indexOf(activeFormId as any) : 0;
+    const percent = Math.floor((currentSubIdx / 11) * 100);
+
     return (
         <div className="ob-pg">
             <div className="ob-modal">
                 <div className="ob-sidebar">
                     <h3 className="ob-sidebar-title">Onboarding Wizard</h3>
-
+                    <div className="ob-progress-bar">
+                        <ProgressBar percent={percent} />
+                    </div>
                     <div className="sidebar-steps">
                         <div className="sidebar-line" />
                         {stepTitles.map((title, index) => {
@@ -111,7 +132,7 @@ export default function EmployerOnboarding() {
 
                 </div>
                 <div className="ob-main">
-                    <OBMain data={data} updateData={updateData} stepTitle={currentStepTitle} substeps={substeps} subStep={subStepIndex}
+                    <OBMain data={data} updateData={updateData} activeFormId={activeFormId} setActiveFormId={setActiveFormId} stepTitle={currentStepTitle} substeps={substeps} subStep={subStepIndex}
                     onNext={handleNext} onBack={handleBack} />
                 </div>
             </div>
