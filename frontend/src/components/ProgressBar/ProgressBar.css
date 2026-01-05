@@ -1,0 +1,22 @@
+.progress-bar-div {
+    width: 100%;
+}
+
+.progress-bar-wrapper {
+    width: 180px;
+    background-color: white;
+    height: 4px;
+    border-radius: 25px;
+}
+
+.progress-bar-fill {
+    background-color: #FF844F;
+    height: 100%;
+    border-radius: 25px;
+    transition: width 800ms ease;
+}
+
+.progress-label {
+    font-size: 12px;
+    font-weight: 500;
+}
