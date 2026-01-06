@@ -1,0 +1,171 @@
+.modules-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 28px;
+  gap: 20px;
+}
+
+.modules-header h1 {
+  margin: 0;
+  font-size: 26px;
+  font-weight: 700;
+}
+
+.modules-header p {
+  margin-top: 6px;
+  color: #6b7280;
+  font-size: 15px;
+}
+
+.search-box .divider {
+  color: #d1d5db;
+}
+
+.search-box .active {
+  color: #f97316;
+  font-weight: 600;
+}
+
+.modules-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 24px;
+  margin-top: 20px;
+}
+
+.module-card {
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  border-radius: 16px;
+  padding: 20px;
+  position: relative;
+}
+
+
+.card-top {
+  display: flex;
+  justify-content: space-between;
+}
+
+.thumbnail {
+  width: 70px;
+  height: 70px;
+  border-radius: 10px;
+  background: repeating-linear-gradient(
+    45deg,
+    #fcd34d,
+    #fcd34d 8px,
+    #fde68a 8px,
+    #fde68a 16px
+  );
+}
+
+.edit-btn {
+  background: transparent;
+  border: 1px solid #e5e7eb;
+  border-radius: 6px;
+  padding: 4px 8px;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.card-content {
+  margin-top: 12px;
+}
+
+.subtitle {
+  color: #f59e0b;
+  font-weight: 600;
+  font-size: 14px;
+}
+
+.desc {
+  font-size: 13px;
+  color: #6b7280;
+  margin: 4px 0;
+  text-align: left;
+}
+
+.card-content h3 {
+  margin: 10px 0;
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.meta {
+  display: flex;
+  gap: 12px;
+  font-size: 12px;
+  color: #6b7280;
+  margin-bottom: 10px;
+}
+
+.deploy-btn {
+  background: #f97316;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  padding: 8px 12px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.deploy-btn:hover {
+  background: #ea580c;
+}
+
+.pagination {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  margin-top: 30px;
+}
+
+.pagination button {
+  border: 1px solid #e5e7eb;
+  background: #fff;
+  padding: 6px 10px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.pagination .active {
+  background: #f97316;
+  color: white;
+  border-color: #f97316;
+}
+
+.fab {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: #f97316;
+  color: white;
+  font-size: 22px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;       
+  padding: 0;         
+  border: none;
+  cursor: pointer;
+  z-index: 1000;
+}
+
+
+.fab:hover {
+  background: #ea580c;
+}
+
+
+.modules-page {
+  padding: 5px 5px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
