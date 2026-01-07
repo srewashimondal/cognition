@@ -93,12 +93,22 @@
   font-weight: 600;
 }
 
-.meta {
+.meta-div {
   display: flex;
   gap: 12px;
   font-size: 12px;
-  color: #6b7280;
+  color: black;
   margin-bottom: 10px;
+}
+
+.meta-icon img {
+  width: 15px;
+  margin-top: 2px;
+}
+
+.meta-item {
+  display: flex;
+  align-items: flex-start;
 }
 
 .deploy-btn {
@@ -116,6 +126,20 @@
   background: #ea580c;
 }
 
+.deploy-btn.deployed {
+  background-color: #f5f5f5;
+  color: #f97316;
+}
+
+.deploy-btn.deployed:hover {
+  background-color: #dedede;
+}
+
+.deployed-label-div {
+  display: flex;
+  gap: 10px;
+}
+
 .pagination {
   display: flex;
   justify-content: center;
@@ -124,17 +148,19 @@
 }
 
 .pagination button {
-  border: 1px solid #e5e7eb;
-  background: #fff;
+  background: #F2F2F2;
   padding: 6px 10px;
   border-radius: 6px;
   cursor: pointer;
 }
 
 .pagination .active {
-  background: #f97316;
+  background-color: #FF4B00;
   color: white;
-  border-color: #f97316;
+  border-color: #FF4B00;
+  font-size: 12px;
+  padding: 20px;
+  width: 35px;
 }
 
 .fab {
@@ -144,7 +170,7 @@
   width: 40px;
   height: 40px;
   border-radius: 50%;
-  background: #f97316;
+  background: #FF4B00;
   color: white;
   font-size: 22px;
   font-weight: 600;
@@ -156,11 +182,12 @@
   border: none;
   cursor: pointer;
   z-index: 1000;
+  transition: 0.2s ease;
 }
 
 
 .fab:hover {
-  background: #ea580c;
+  transform: scale(1.1);
 }
 
 

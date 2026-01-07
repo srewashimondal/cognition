@@ -1,5 +1,6 @@
 import "./Modules.css";
-import Module from './Module.tsx';
+import ModuleCard from '../../../cards/ModuleCard/ModuleCard.tsx';
+import add_cta from '../../../assets/icons/add-cta.svg';
 
 type Module = {
   id: number;
@@ -8,6 +9,7 @@ type Module = {
   description: string;
   hours: string;
   lessons: string;
+  deployed?: boolean;
 };
 
 const modules: Module[] = [
@@ -16,15 +18,16 @@ const modules: Module[] = [
     title: "Store Orientation and Navigation",
     subtitle: "Color Styles",
     description: "Let’s learn about colors, color contrast and color styles.",
-    hours: "1.30hrs",
+    hours: "1:30hrs",
     lessons: "03 Lessons",
+    deployed: true
   },
   {
     id: 2,
     title: "Product Knowledge & Inventory",
     subtitle: "Color Styles",
     description: "Let’s learn about colors, color contrast and color styles.",
-    hours: "1.30hrs",
+    hours: "1:30hrs",
     lessons: "03 Lessons",
   },
   {
@@ -32,7 +35,7 @@ const modules: Module[] = [
     title: "Customer Interaction & Communication",
     subtitle: "Color Styles",
     description: "Let’s learn about colors, color contrast and color styles.",
-    hours: "1.30hrs",
+    hours: "1:30hrs",
     lessons: "03 Lessons",
   },
   {
@@ -40,7 +43,7 @@ const modules: Module[] = [
     title: "Checkout, POS, & Transactions",
     subtitle: "Color Styles",
     description: "Let’s learn about colors, color contrast and color styles.",
-    hours: "1.30hrs",
+    hours: "1:30hrs",
     lessons: "03 Lessons",
   },
   {
@@ -48,7 +51,7 @@ const modules: Module[] = [
     title: "Safety, Compliance, & Store Policy",
     subtitle: "Color Styles",
     description: "Let’s learn about colors, color contrast and color styles.",
-    hours: "1.30hrs",
+    hours: "1:30hrs",
     lessons: "03 Lessons",
   },
   {
@@ -56,7 +59,7 @@ const modules: Module[] = [
     title: "Multitasking & Real World Pressure",
     subtitle: "Color Styles",
     description: "Let’s learn about colors, color contrast and color styles.",
-    hours: "1.30hrs",
+    hours: "1:30hrs",
     lessons: "03 Lessons",
   },
 ];
@@ -75,10 +78,10 @@ export default function Modules() {
 
       {/* Grid */}
       <div className="modules-grid">
-        {modules.map((m) => (<Module moduleInfo={m} />))}
+        {modules.map((m) => (<ModuleCard moduleInfo={m} />))}
       </div>
 
-      {/* Pagination */}
+      {/* Pagination */} {/* Note: maybe make a pagination component laterr */}
       <div className="pagination">
         <button disabled>{"<"}</button>
         <button className="active">1</button>
@@ -86,7 +89,9 @@ export default function Modules() {
       </div>
 
       {/* Floating Add Button */}
-      <button className="fab">+</button>
+      <button className="fab">
+        <img src={add_cta}/>
+      </button>
     </div>
   );
 }
