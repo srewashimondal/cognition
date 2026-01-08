@@ -1,9 +1,11 @@
 import "./EmployerHome.css";
+const employees = Array.from({ length: 9 });
 
 export default function EmployerHome() {
   return (
+  
     <div className="employer-dashboard">
-      <h2 className="page-title">Dashboard</h2>
+      <h2 className="page-title">Employer HomePage: Dashboard</h2>
 
       {/* KPI Cards */}
       <div className="kpi-grid">
@@ -59,6 +61,65 @@ export default function EmployerHome() {
             <button>View Reports</button>
           </div>
         </div>
+      </div>
+        {/* Employee Directory */}
+            <div className="card employee-section">
+              <div className="employee-header">
+                <h4 className="card-title">
+                  Total Employees <span className="employee-count">: 1285 persons</span>
+                </h4>
+
+                <div className="employee-controls">
+                  <input
+                    className="employee-search"
+                    placeholder="Search payroll or name"
+                  />
+                  <button className="control-btn">Filter</button>
+                  <button className="control-btn">Sort</button>
+                </div>
+              </div>
+
+              <div className="employee-grid">
+              {employees.map((_, i) => (
+                <div className="employee-card" key={i}>
+
+                  {/* Main info */}
+                  <div className="employee-main">
+                    <img src={`https://i.pravatar.cc/64?img=${i + 10}`} />
+                    <div>
+                      <p className="employee-name">Jane Cooper</p>
+                      <p className="employee-email">janecooper@gmail.com</p>
+                    </div>
+                  </div>
+
+                  {/* Role row */}
+                  <div className="employee-role">
+                    <span className="role-pill">
+                      <span className="dot" />
+                      Finance
+                    </span>
+                    <span className="divider" />
+                    <span className="role-title">Sr. Accountant</span>
+                  </div>
+
+        <hr />
+
+              {/* Footer */}
+              <div className="employee-footer">
+                <div>
+                  <p className="meta-label">Payroll</p>
+                  <p>121948ASH</p>
+                </div>
+                <div>
+                  <p className="meta-label">Join Date</p>
+                  <p>Feb 23, 2025</p>
+                </div>
+              </div>
+      </div>
+
+        ))}
+      </div>
+
       </div>
     </div>
   );
