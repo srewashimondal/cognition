@@ -1,0 +1,153 @@
+.settings-page {
+  text-align: left;
+}
+
+/* Tabs */
+.settings-tabs {
+  display: flex;
+  gap: 24px;
+  border-bottom: 1px solid #e5e7eb;
+  margin-bottom: 28px;
+}
+
+.settings-tabs span {
+  padding-bottom: 12px;
+  color: #6b7280;
+  cursor: pointer;
+}
+
+.settings-tabs .active {
+  color: #f97316;
+  border-bottom: 2px solid #f97316;
+  font-weight: 600;
+}
+
+/* Profile */
+.profile-section {
+  margin-bottom: 24px;
+}
+
+.section-label {
+  font-size: 14px;
+  color: #374151;
+  margin-bottom: 12px;
+}
+
+.avatar-box {
+  width: 120px;
+  height: 120px;
+  border: 2px dashed #d1d5db;
+  border-radius: 12px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  color: #9ca3af;
+  cursor: pointer;
+  text-align: center;
+}
+
+.upload-icon {
+  font-size: 20px;
+  margin-bottom: 6px;
+}
+
+hr {
+  border: none;
+  border-top: 1px solid #e5e7eb;
+  margin: 32px 0;
+}
+
+/* Form grid */
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 20px;
+}
+
+label {
+  font-size: 14px;
+  color: #374151;
+  margin-bottom: 6px;
+  display: block;
+}
+
+.form-grid input,
+.form-grid textarea,
+.bio-section textarea {
+  width: 100%;
+  padding: 12px;
+  border-radius: 8px;
+  border: 1px solid #8D98AA;
+  background-color: #EDF2F6;
+  font-size: 14px;
+  font-family: inherit;
+
+}
+
+/* Bio */
+.bio-section {
+  margin-top: 20px;
+}
+
+.form-grid input::placeholder,
+.form-grid textarea::placeholder,
+.bio-section textarea::placeholder {
+  font-family: inherit;
+  color: #9ca3af;
+  font-size: 14px;
+}
+
+
+/* Actions */
+.actions {
+  margin-top: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 24px;
+  width: 100%;
+}
+
+button {
+  padding: 10px 20px;
+  border-radius: 8px;
+  border: none;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.actions button {
+  display: inline-flex; 
+  margin: 0;           
+}
+
+
+button.primary {
+  background: #f97316;
+  color: #fff;
+}
+
+button.primary:hover {
+  background: #ffa768;
+}
+
+button.secondary {
+  background: transparent;
+  color: #6b7280;
+}
+
+.settings-page .actions {
+  display: flex;
+  flex-direction: row !important;
+  justify-content: flex-start;
+  align-items: center;
+  gap: 24px;
+  width: 100%;
+}
+
+.settings-page .actions button {
+  display: inline-flex !important;
+  width: auto !important;
+  margin: 0 !important;
+}
