@@ -11,22 +11,24 @@ type ModuleProp = {
 };
 
 export default function ModuleCard({ moduleInfo }: ModuleProp) {
+    const bannerColorByID = ["yellow", "pink", "blue", "green", "red", "orange"];
     return (
         <div key={moduleInfo.id} className="module-card">
             <div className="card-top">
-              <div className="thumbnail" />
-              <button className="edit-btn">
-                <div className="edit-swap">
-                  <img className="edit-icon default" src={black_edit} />
-                  <img className="edit-icon hover" src={orange_edit} />
-                </div>
-                <span>Edit</span>
-              </button>
+              <div className={`banner ${bannerColorByID[moduleInfo.id - 1]}`} >
+                <button className="edit-btn">
+                  <div className="edit-swap">
+                    <img className="edit-icon default" src={black_edit} />
+                    <img className="edit-icon hover" src={orange_edit} />
+                  </div>
+                  <span>Edit</span>
+                </button>
+              </div>
             </div>
 
             <div className="card-content">
-              <span className="subtitle">{moduleInfo.subtitle}</span>
-              <p className="desc">{moduleInfo.description}</p>
+              {/*<span className="subtitle">{moduleInfo.subtitle}</span>
+              <p className="desc">{moduleInfo.description}</p>*/}
               <h3>{moduleInfo.title}</h3>
 
               <div className="meta-div">
