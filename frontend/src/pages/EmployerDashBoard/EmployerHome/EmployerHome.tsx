@@ -1,7 +1,22 @@
 import "./EmployerHome.css";
+import { useState } from "react";
+
 const employees = Array.from({ length: 9 });
 
 export default function EmployerHome() {
+  const [search, setSearch] = useState("");
+
+  const visibleEmployees = employees.filter(() => {
+  if (!search) return true;
+
+  const term = search.toLowerCase();
+    return (
+      "jane cooper".includes(term) ||
+      "121948ash".includes(term)
+    );
+  });
+
+
   return (
   
     <div className="employer-dashboard">
@@ -73,14 +88,18 @@ export default function EmployerHome() {
                   <input
                     className="employee-search"
                     placeholder="Search payroll or name"
+                    value={search}
+                    onChange={(e) => setSearch(e.target.value)}
                   />
+
                   <button className="control-btn">Filter</button>
                   <button className="control-btn">Sort</button>
                 </div>
               </div>
 
               <div className="employee-grid">
-              {employees.map((_, i) => (
+              {visibleEmployees.map((_, i) => (
+
                 <div className="employee-card" key={i}>
 
                   {/* Main info */}
