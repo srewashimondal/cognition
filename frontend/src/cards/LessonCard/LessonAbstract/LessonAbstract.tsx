@@ -11,8 +11,8 @@ export default function LessonAbstract({ lessonAbstractInfo }: { lessonAbstractI
     const [AIEditMode, setAIEditMode] = useState(false);
     const [editPrompt, setEditPrompt] = useState("");
 
-    const handleAIEditSubmit = () => {
-        console.log(editPrompt);
+    const handleAIEditSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+        e.preventDefault();
         /* More backend logic later */
     };
  
