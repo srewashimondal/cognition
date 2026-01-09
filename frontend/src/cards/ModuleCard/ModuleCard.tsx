@@ -1,4 +1,5 @@
 import './ModuleCard.css'
+import { useNavigate } from 'react-router-dom';
 import clock_icon from '../../assets/icons/clock-icon.svg';
 import form_icon from '../../assets/icons/form-icon.svg';
 import white_rocket from '../../assets/icons/white-rocket-icon.svg';
@@ -8,15 +9,17 @@ import orange_edit from '../../assets/icons/orange-edit-icon.svg';
 
 type ModuleProp = {
     moduleInfo: Record<string, any>;
+    /* Later add an "employer | employee" item to differentiate between the two types of module cards */
 };
 
 export default function ModuleCard({ moduleInfo }: ModuleProp) {
+    const navigate = useNavigate();
     const bannerColorByID = ["yellow", "pink", "blue", "green", "red", "orange"];
     return (
         <div key={moduleInfo.id} className="module-card">
             <div className="card-top">
               <div className={`banner ${bannerColorByID[moduleInfo.id - 1]}`} >
-                <button className="edit-btn">
+                <button className="edit-btn" onClick={() => navigate(`/employer/modules/${moduleInfo.id}`)}>
                   <div className="edit-swap">
                     <img className="edit-icon default" src={black_edit} />
                     <img className="edit-icon hover" src={orange_edit} />
@@ -36,13 +39,13 @@ export default function ModuleCard({ moduleInfo }: ModuleProp) {
                   <span className="meta-icon">
                     <img src={clock_icon} />
                   </span>
-                  <span>{moduleInfo.hours}</span>
+                  <span>{`${moduleInfo.hours}hrs`}</span>
                 </span>
                 <span className="meta-item">
                   <span className="meta-icon">
                     <img src={form_icon} />
                   </span>
-                  <span>{moduleInfo.lessons}</span>
+                  <span>{`0${moduleInfo.numLessons} Lessons`}</span>
                 </span>
               </div>
 

@@ -1,0 +1,95 @@
+.lesson-abstract-wrapper {
+    display: flex;
+    gap: 10px;
+    max-height: 2000px;
+    transition: max-height 3000ms ease;
+}
+
+.lesson-abstract-wrapper.expanded {
+    max-height: 3000px;
+}
+
+.lesson-abstract {
+    border: 1px solid #ebebeb;
+    background-color: #f9f9f9;
+    border-radius: 7px;
+    padding: 0px 10px;
+}
+
+.lesson-abst {
+    font-weight: 600;
+    font-size: 13px;
+}
+
+.lesson-abstract-thread {
+    margin-top: 20px;
+    position: relative;
+    padding-left: 16px;
+    padding-bottom: 20px;
+}
+
+.lesson-abstract-thread::before {
+    content: "";
+    position: absolute;
+    left: 14px;
+    top: 0;
+    bottom: 30px;
+    width: 2px;
+    background: #d0d0d0;
+}
+
+.thread-filler {
+    height: 20px;
+}
+
+.lesson-abstract-actions {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    gap: 10px;
+}
+
+.ai-input-wrapper {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    border: 1px solid #C9C9C9;
+    border-radius: 7px;
+    padding: 5px 10px;
+    margin-bottom: 16px;
+}
+
+.ai-input-wrapper input {
+    border: none;
+    font-weight: 500;
+    outline: none;
+    width: 100%;
+    background: none;
+}
+
+.ai-input-wrapper input::placeholder {
+    color: #CACACA;
+    font-size: 12px;
+}
+
+.ai-input-edit-send {
+    all: unset;                 
+    box-sizing: border-box;
+    display: flex;
+    width: 31px;
+    height: 31px;
+    align-items: center;
+    justify-content: center;
+    transition: 0.2s ease;
+}
+
+.ai-input-edit-send img {
+    width: 30px;
+    height: 30px;
+}
+
+.ai-input-edit-send:hover {
+    transform: scale(1.1);
+    border: none;
+}

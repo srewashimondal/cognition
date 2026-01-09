@@ -1,0 +1,15 @@
+.skill-item {
+    display: inline-block;
+    background-color: #b6f2f9;
+    color: #00A6FF;
+    font-size: 8px;
+    padding: 3px 7px;
+    font-weight: 600;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: 0.2s ease;
+}
+
+.skill-item:hover {
+    background-color: #a7e0e6;
+}
