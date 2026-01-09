@@ -1,0 +1,118 @@
+.modules-header.lesson-pg {
+    margin-bottom: 0;
+    margin-top: 16px;
+}
+
+.back-to-modules {
+    width: 30px;
+    display: flex;
+    justify-content: center;
+    padding: 5px;
+    transition: 0.25s ease;
+    border-radius: 5px;
+}
+
+.back-to-modules img {
+    width: 18px;
+}
+
+.back-to-modules:hover {
+    background-color: #d0d0d0;
+    border: none;
+}
+
+.lesson-banner {
+    width: 100%;
+    height: 150px;
+    border-radius: 10px;
+    border: 1px solid #cecece;
+    margin-top: 16px;
+}
+
+.lesson-banner.yellow {
+    background: repeating-linear-gradient(
+        45deg,
+        #fcd34d,
+        #fcd34d 8px,
+        #fde68a 8px,
+        #fde68a 16px
+    );
+}
+
+.lesson-banner.pink {
+    background: repeating-linear-gradient(
+        45deg,
+        #ff91da,
+        #ff91da 8px,
+        #ffbce9 8px,
+        #ffbce9 16px
+    );
+}
+
+.lesson-banner.blue {
+    background: repeating-linear-gradient(
+        45deg,
+        #91ccff,
+        #91ccff 8px,
+        #afdaff 8px,
+        #afdaff 16px
+    );
+}
+
+.lesson-banner.green {
+    background: repeating-linear-gradient(
+        45deg,
+        #42c758,
+        #42c758 8px,
+        #6cda7f 8px,
+        #6cda7f 16px
+    );
+}
+
+.lesson-banner.red {
+    background: repeating-linear-gradient(
+        45deg,
+        #dc6e6b,
+        #dc6e6b 8px,
+        #ee8480 8px,
+        #ee8480 16px
+    );
+}
+
+.lesson-banner.orange {
+    background: repeating-linear-gradient(
+        45deg,
+        #ff7e39,
+        #ff7e39 8px,
+        #ff9962 8px,
+        #ff9962 16px
+    );
+}
+
+.lessons-list-header-employer {
+    display: flex;
+    width: 100%;
+    justify-content: space-between;
+    font-weight: 700;
+    color: #727272;
+    font-size: 12px;
+    background-color: #f4f4f4;
+    border: 1px solid #E4E4E4;
+    border-radius: 5px;
+    padding: 8px;
+}
+
+.lessons-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-top: 12px;
+}
+
+.list-header-section.lsn {
+    margin-left: 24px;
+}
+
+.filler-space {
+    height: 150px;
+}
