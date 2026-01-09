@@ -134,6 +134,7 @@ button.primary:hover {
 
 button.secondary {
   background: transparent;
+  border: 1px solid #6f7785;
   color: #6b7280;
 }
 
