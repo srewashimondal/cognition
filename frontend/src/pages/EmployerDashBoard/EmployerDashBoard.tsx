@@ -1,8 +1,8 @@
 import './EmployerDashBoard.css';
 import { Routes, Route, Navigate, Link, NavLink } from "react-router-dom";
 import Analytics from "./Analytics/Analytics";
-import Lessons from "./Modules/Lessons/Lessons";
 import Modules from "./Modules/Modules";
+import Lessons from "./Modules/Lessons/Lessons.tsx";
 import EmployerHome from './EmployerHome/EmployerHome';
 import Resources from "./Resources/Resources";
 import AIStudio from './AI Studio/AIStudio';
@@ -100,8 +100,8 @@ export default function EmployerDashBoard() {
           <Routes>
             <Route index element={<EmployerHome />} />
             <Route path="analytics" element={<Analytics />} />
-            <Route path="lessons" element={<Lessons />} />
             <Route path="modules" element={<Modules />} />
+            <Route path="modules/:id" element={<Lessons />} />
             <Route path="resources" element={<Resources />} />
             <Route path="ai-studio" element={<AIStudio />} />
             <Route
