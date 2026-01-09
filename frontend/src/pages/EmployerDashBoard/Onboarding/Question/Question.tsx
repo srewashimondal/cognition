@@ -203,7 +203,7 @@ export default function Question({ question, input_type, value, onChange, option
                         
                                     <img src={upload_icon} />
                                     <p>
-                                        <strong>Drag and drop the map layout file</strong>
+                                        <strong>Drag and drop map file</strong>
                                     </p>
                                     <span>OR</span>
                                     <button type="button"
