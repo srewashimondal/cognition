@@ -3,6 +3,7 @@
     gap: 10px;
     max-height: 2000px;
     transition: max-height 3000ms ease;
+    width: 100%;
 }
 
 .lesson-abstract-wrapper.expanded {
