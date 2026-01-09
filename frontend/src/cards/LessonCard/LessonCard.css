@@ -84,8 +84,6 @@
     margin: 1;
 }
 
-
-
 .radio-setting {
     margin: 10px;
 }
@@ -105,8 +103,8 @@
 .check-setting {
     display: flex;
     gap: 10px;
-    margin: 10px;
-    margin-top: 20px;
+    margin-left: 10px;
+    margin-bottom: 10px;
 }
 
 .lesson-card-expanded {
