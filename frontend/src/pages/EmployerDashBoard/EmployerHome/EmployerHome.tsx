@@ -95,6 +95,111 @@ export default function EmployerHome() {
         </div>
       </div>
 
+      {/* Analytics Charts */}
+      <div className="charts-grid">
+        {/* Weekly Learner Activity */}
+        <div className="chart-card">
+          <h4 className="chart-title">Weekly Learner Activity</h4>
+
+          <div className="bar-chart">
+            {["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"].map((day, i) => (
+              <div className="bar-group" key={day}>
+                <div
+                  className="bar"
+                  style={{ height: `${[45, 55, 38, 65, 72, 30, 34][i]}%` }}
+                />
+                <span>{day}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+
+
+
+        {/* Course Completion Rate */}
+        <div className="chart-card center">
+          <h4 className="chart-title">Course Completion Rate</h4>
+
+          <div className="donut-chart">
+            <div className="donut-center" />
+          </div>
+
+          <div className="donut-legend">
+            <span><i className="dot completed" /> Completed</span>
+            <span><i className="dot progress" /> In Progress</span>
+            <span><i className="dot notstarted" /> Not Started</span>
+          </div>
+        </div>
+
+        {/* Engagement Over Time */}
+        <div className="chart-card">
+          <h4 className="chart-title">Engagement Over Time</h4>
+
+          <div className="line-chart detailed">
+            <svg viewBox="0 0 300 180" preserveAspectRatio="none">
+              {/* Grid lines */}
+              {[0, 25, 50, 75, 100].map((y, i) => (
+                <g key={i}>
+                  <line
+                    x1="40"
+                    x2="290"
+                    y1={160 - y}
+                    y2={160 - y}
+                    stroke="#e5e7eb"
+                    strokeDasharray="4 4"
+                  />
+                  <text
+                    x="10"
+                    y={165 - y}
+                    fontSize="11"
+                    fill="#6b7280"
+                  >
+                    {y}
+                  </text>
+                </g>
+              ))}
+
+              {/* X-axis labels */}
+              {["Week 1", "Week 2", "Week 3", "Week 4", "Week 5", "Week 6"].map(
+                (label, i) => (
+                  <text
+                    key={label}
+                    x={40 + i * 42}
+                    y="175"
+                    fontSize="11"
+                    fill="#6b7280"
+                  >
+                    {label}
+                  </text>
+                )
+              )}
+
+              {/* Line */}
+              <polyline
+                points="40,80 82,95 124,60 166,75 208,55 250,70"
+                fill="none"
+                stroke="#8b5cf6"
+                strokeWidth="3"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+
+              {/* Dots */}
+              {[80, 95, 60, 75, 55, 70].map((y, i) => (
+                <circle
+                  key={i}
+                  cx={40 + i * 42}
+                  cy={y}
+                  r="4"
+                  fill="#8b5cf6"
+                />
+              ))}
+            </svg>
+          </div>
+        </div>
+
+      </div>
+
 
       {/* Main Content Grid */}
       <div className="main-grid">

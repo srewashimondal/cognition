@@ -498,3 +498,149 @@
   background: #fff7ed;
   color: #ea580c;
 }
+
+/* =============================== Analytics Charts ================================ */
+
+.charts-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 22px;
+  margin-bottom: 30px;
+}
+
+.chart-card {
+  background: #ffffff;
+  border-radius: 18px;
+  padding: 20px 22px;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.06);
+}
+
+.chart-card.center {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.chart-title {
+  font-size: 15px;
+  font-weight: 600;
+  margin-bottom: 12px;
+  margin-top: -1px;
+}
+
+/* ===== Bar Chart ===== */
+
+.bar-chart {
+  display: flex;
+  align-items: flex-end;
+  height: 140px;
+  gap: 14px;
+}
+
+.bar-chart::after {
+  content: "";
+  position: absolute;
+  bottom: 24px;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: #e5e7eb;
+}
+
+.bar-group {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 6px;
+  width: 100%;
+  height: 100%;
+  flex: 1;
+}
+
+.bar {
+  width: 100%;
+  max-width: 28px;
+  border-radius: 8px;
+  background: linear-gradient(180deg, #8b5cf6, #60a5fa);
+  transition: height 0.3s ease;
+}
+
+.bar-group span {
+  font-size: 11px;
+  color: #6b7280;
+}
+
+/* ===== Donut Chart ===== */
+
+.donut-chart {
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  background: conic-gradient(
+    #8b5cf6 0% 65%,
+    #3b82f6 65% 85%,
+    #e5e7eb 85% 100%
+  );
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 14px;
+}
+
+.donut-center {
+  width: 64px;
+  height: 64px;
+  background: #ffffff;
+  border-radius: 50%;
+}
+
+.donut-legend {
+  display: flex;
+  font-size: 12px;
+  color: #6b7280;
+  gap: 28px;
+}
+
+.donut-legend span {
+  display: flex;
+  align-items: center;
+  gap: 4px;        
+  white-space: nowrap;  
+}
+
+
+.dot {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  margin-right: 6px;
+}
+
+.dot.completed { background: #8b5cf6; }
+.dot.progress { background: #3b82f6; }
+.dot.notstarted { background: #e5e7eb; }
+
+/* ===== Line Chart ===== */
+
+.line-chart {
+  width: 100%;
+  height: 120px;
+  margin-top: -40px;
+}
+
+.line-chart svg {
+  width: 100%;
+  height: 100%;
+}
+
+.line-chart.detailed {
+  width: 100%;
+  height: 180px;
+}
+
+.line-chart.detailed svg {
+  width: 100%;
+  height: 100%;
+}
