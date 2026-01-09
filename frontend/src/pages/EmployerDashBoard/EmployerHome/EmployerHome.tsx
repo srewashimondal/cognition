@@ -20,34 +20,81 @@ export default function EmployerHome() {
   return (
   
     <div className="employer-dashboard">
-      <h2 className="page-title">Employer HomePage: Dashboard</h2>
+      {/* Welcome Banner */}
+      <div className="welcome-banner">
+        <div className="welcome-left">
+          <h3 className="welcome-title">
+            Welcome back, Alex! <span className="wave">👋</span>
+          </h3>
+          <p className="welcome-subtitle">
+            Shape the future of learning with innovative courses
+          </p>
 
-      {/* KPI Cards */}
-      <div className="kpi-grid">
-        <div className="kpi-card">
-          <p className="kpi-label">Active Employees</p>
-          <h3 className="kpi-value">216</h3>
-          <span className="kpi-sub positive">+2% this month</span>
+          <div className="welcome-stats">
+            <div className="stat">
+              <h4>12</h4>
+              <span>Active Courses</span>
+            </div>
+            <div className="stat">
+              <h4>247</h4>
+              <span>Total Learners</span>
+            </div>
+            <div className="stat">
+              <h4>94%</h4>
+              <span>Satisfaction Rate</span>
+            </div>
+          </div>
         </div>
 
-        <div className="kpi-card">
-          <p className="kpi-label">Ongoing Trainings</p>
-          <h3 className="kpi-value">12</h3>
-          <span className="kpi-sub">Across 4 departments</span>
-        </div>
-
-        <div className="kpi-card">
-          <p className="kpi-label">Pending Assignments</p>
-          <h3 className="kpi-value">38</h3>
-          <span className="kpi-sub warning">Needs review</span>
-        </div>
-
-        <div className="kpi-card">
-          <p className="kpi-label">Completion Rate</p>
-          <h3 className="kpi-value">82%</h3>
-          <span className="kpi-sub positive">↑ improving</span>
+        <div className="welcome-right">
+          <div className="icon-stack">
+            <div className="icon primary" />
+            <div className="icon secondary" />
+          </div>
         </div>
       </div>
+
+      {/* Analytics Overview */}
+      <h3 className="section-title">Analytics Overview</h3>
+
+      <div className="analytics-grid">
+        <div className="analytics-card">
+          <div className="analytics-left">
+            <p className="analytics-label">Total Learners</p>
+            <h3 className="analytics-value">247</h3>
+            <span className="analytics-change positive">↗ +12% this week</span>
+          </div>
+          <div className="analytics-icon purple">👥</div>
+        </div>
+
+        <div className="analytics-card">
+          <div className="analytics-left">
+            <p className="analytics-label">Active Courses</p>
+            <h3 className="analytics-value">12</h3>
+            <span className="analytics-change blue">↗ +2 this month</span>
+          </div>
+          <div className="analytics-icon blue">📘</div>
+        </div>
+
+        <div className="analytics-card">
+          <div className="analytics-left">
+            <p className="analytics-label">Certificates Issued</p>
+            <h3 className="analytics-value">89</h3>
+            <span className="analytics-change positive">↗ +23% this month</span>
+          </div>
+          <div className="analytics-icon green">🎖️</div>
+        </div>
+
+        <div className="analytics-card">
+          <div className="analytics-left">
+            <p className="analytics-label">Avg. Completion</p>
+            <h3 className="analytics-value">94%</h3>
+            <span className="analytics-change purple">↗ +5% this month</span>
+          </div>
+          <div className="analytics-icon orange">📈</div>
+        </div>
+      </div>
+
 
       {/* Main Content Grid */}
       <div className="main-grid">
