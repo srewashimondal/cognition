@@ -3,6 +3,7 @@ import "./Settings.css";
 
 type Tab = "account" | "security" | "notifications" | "interface";
 
+
 export default function Settings() {
   const [activeTab, setActiveTab] = useState<Tab>("account");
 
@@ -200,17 +201,108 @@ function NotificationSettings() {
 
 
 function InterfaceSettings() {
-  return (
-    <div className="settings-section">
-      <h3>Interface Preferences</h3>
+  const [theme, setTheme] = useState("light");
+  const [fontSize, setFontSize] = useState(14);
+  const [lineSpacing, setLineSpacing] = useState(1.5);
+  const [reducedMotion, setReducedMotion] = useState(false);
+  const [focusMode, setFocusMode] = useState(false);
 
-      <label>
-        Theme
-        <select>
-          <option>Light</option>
-          <option>Dark</option>
-        </select>
-      </label>
+  return (
+    <div className="interface-section">
+      <h3 className="section-title">Interface Preferences</h3>
+      <p className="section-subtitle">
+        Customize the interface to improve focus, readability, and comfort.
+      </p>
+
+      <div className="interface-card">
+        {/* Theme */}
+        <div className="interface-row">
+          <div>
+            <h4>Theme</h4>
+            <p>Choose a light or dark interface</p>
+          </div>
+
+          <div className="theme-toggle">
+            <button
+              className={theme === "light" ? "active light" : "light"}
+              onClick={() => setTheme("light")}
+            >
+              ☀ Light
+            </button>
+
+            <button
+              className={theme === "dark" ? "active dark" : "dark"}
+              onClick={() => setTheme("dark")}
+            >
+              🌙 Dark
+            </button>
+          </div>
+        </div>
+
+
+        {/* Text size */}
+        <div className="interface-row">
+          <div>
+            <h4>Text size</h4>
+            <p>Adjust text for easier reading</p>
+          </div>
+          <input
+            type="range"
+            min={12}
+            max={18}
+            value={fontSize}
+            onChange={(e) => setFontSize(Number(e.target.value))}
+          />
+        </div>
+
+        {/* Line spacing */}
+        <div className="interface-row">
+          <div>
+            <h4>Line spacing</h4>
+            <p>Increase spacing to reduce visual clutter</p>
+          </div>
+          <input
+            type="range"
+            min={1.2}
+            max={2}
+            step={0.1}
+            value={lineSpacing}
+            onChange={(e) => setLineSpacing(Number(e.target.value))}
+          />
+        </div>
+
+        {/* Reduced motion */}
+        <div className="interface-row">
+          <div>
+            <h4>Reduce motion</h4>
+            <p>Minimize animations and transitions</p>
+          </div>
+          <label className="switch">
+            <input
+              type="checkbox"
+              checked={reducedMotion}
+              onChange={() => setReducedMotion(!reducedMotion)}
+            />
+            <span className="slider" />
+          </label>
+        </div>
+
+        {/* Focus mode */}
+        <div className="interface-row">
+          <div>
+            <h4>Focus mode</h4>
+            <p>Increase contrast and reduce distractions</p>
+          </div>
+          <label className="switch">
+            <input
+              type="checkbox"
+              checked={focusMode}
+              onChange={() => setFocusMode(!focusMode)}
+            />
+            <span className="slider" />
+          </label>
+        </div>
+      </div>
 
       <div className="actions">
         <button className="primary">Save Settings</button>
