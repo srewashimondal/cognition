@@ -1,66 +1,46 @@
 import "./Modules.css";
+import type { ModuleType } from '../../../types/ModuleType.tsx';
 import ModuleCard from '../../../cards/ModuleCard/ModuleCard.tsx';
 import add_cta from '../../../assets/icons/add-cta.svg';
 
-type Module = {
-  id: number;
-  title: string;
-  subtitle: string;
-  description: string;
-  hours: string;
-  lessons: string;
-  deployed?: boolean;
-};
 
-const modules: Module[] = [
+const modules: ModuleType[] = [
   {
     id: 1,
     title: "Store Orientation and Navigation",
-    subtitle: "Color Styles",
-    description: "Let’s learn about colors, color contrast and color styles.",
-    hours: "1:30hrs",
-    lessons: "03 Lessons",
+    hours: "1:30",
+    numLessons: 3,
     deployed: true
   },
   {
     id: 2,
     title: "Product Knowledge & Inventory",
-    subtitle: "Color Styles",
-    description: "Let’s learn about colors, color contrast and color styles.",
-    hours: "1:30hrs",
-    lessons: "03 Lessons",
+    hours: "1:30",
+    numLessons: 3,
   },
   {
     id: 3,
     title: "Customer Interaction & Communication",
-    subtitle: "Color Styles",
-    description: "Let’s learn about colors, color contrast and color styles.",
-    hours: "1:30hrs",
-    lessons: "03 Lessons",
+    hours: "1:30",
+    numLessons: 3,
   },
   {
     id: 4,
     title: "Checkout, POS, & Transactions",
-    subtitle: "Color Styles",
-    description: "Let’s learn about colors, color contrast and color styles.",
-    hours: "1:30hrs",
-    lessons: "03 Lessons",
+    hours: "1:30",
+    numLessons: 3,
   },
   {
     id: 5,
     title: "Safety, Compliance, & Store Policy",
-    subtitle: "Color Styles",
-    description: "Let’s learn about colors, color contrast and color styles.",
-    hours: "1:30hrs",
-    lessons: "03 Lessons",
+    hours: "1:30",
+    numLessons: 3,
   },
   {
     id: 6,
     title: "Multitasking & Real World Pressure",
-    subtitle: "Color Styles",
-    description: "Let’s learn about colors, color contrast and color styles.",
-    hours: "1:30hrs",
-    lessons: "03 Lessons",
+    hours: "1:30",
+    numLessons: 3,
   },
 ];
 
