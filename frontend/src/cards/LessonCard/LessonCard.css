@@ -122,6 +122,5 @@
 
 .action-panel-left {
     display: flex;
-    width: 34%;
-    justify-content: space-between;
+    gap: 10px;
 }
