@@ -1,5 +1,6 @@
 import './EmployerDashBoard.css';
 import { Routes, Route, Navigate, Link, NavLink } from "react-router-dom";
+import { useState } from "react";
 import Analytics from "./Analytics/Analytics";
 import Modules from "./Modules/Modules";
 import Lessons from "./Modules/Lessons/Lessons.tsx";
@@ -32,8 +33,11 @@ import blue_clipboard from '../../assets/icons/sidebar/blue-clipboard-icon.svg';
 
 /*import EmployeeDashBoard from '../EmployeeDashBoard/EmployeeDashBoard';*/
 import AIStudioAssignments from './AI Studio/AIStudioAssignments/AIStudioAssignments';
+import ProfilePage from "./ProfilePage/ProfilePage";
 
 export default function EmployerDashBoard() {
+  const [profileOpen, setProfileOpen] = useState(false);
+  
   return (
     <div className="dashboard">
       {/* Sidebar */}
@@ -148,7 +152,10 @@ export default function EmployerDashBoard() {
               <span className="notif-dot" />
             </div>
 
-            <div className="user-menu">
+            <div
+              className="user-menu"
+              onClick={() => setProfileOpen(true)}
+            >
               <img
                 src="https://i.etsystatic.com/30289585/r/il/3f982c/4322819070/il_fullxfull.4322819070_tn35.jpg"
                 className="avatar"
@@ -156,6 +163,7 @@ export default function EmployerDashBoard() {
               <span className="username">Harsh</span>
               <span className="caret">▾</span>
             </div>
+
           </div>
         </header>
 
@@ -177,6 +185,9 @@ export default function EmployerDashBoard() {
           </Routes>
         </section>
       </main>
+
+      <ProfilePage open={profileOpen} onClose={() => setProfileOpen(false)} />
+        
     </div>
   );
 }
