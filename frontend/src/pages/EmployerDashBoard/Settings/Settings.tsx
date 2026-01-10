@@ -1,7 +1,7 @@
 import { useState } from "react";
 import "./Settings.css";
 
-type Tab = "account" | "security" | "notifications" | "interface";
+type Tab = "account" | "security" | "notifications" | "interface" | "payments";
 
 
 export default function Settings() {
@@ -38,6 +38,13 @@ export default function Settings() {
         >
           Interface
         </span>
+
+        <span
+          className={activeTab === "payments" ? "active" : ""}
+          onClick={() => setActiveTab("payments")}
+        >
+          Payments
+        </span>
       </div>
 
       <hr />
@@ -47,6 +54,7 @@ export default function Settings() {
       {activeTab === "security" && <SecuritySettings />}
       {activeTab === "notifications" && <NotificationSettings />}
       {activeTab === "interface" && <InterfaceSettings />}
+      {activeTab === "payments" && <PaymentsSettings />}
     </div>
   );
 }
@@ -311,3 +319,162 @@ function InterfaceSettings() {
   );
 }
 
+
+function PaymentsSettings() {
+  const [autoPayout, setAutoPayout] = useState(true);
+  const [notifyPayments, setNotifyPayments] = useState(true);
+  const [editing, setEditing] = useState(false);
+
+  const [card, setCard] = useState({
+    brand: "VISA",
+    last4: "1978",
+    name: "Harsh",
+    country: "United States",
+  });
+
+  const [form, setForm] = useState({
+    number: "",
+    name: "",
+    country: "United States",
+  });
+
+  const savePayment = () => {
+    if (!form.number || !form.name) return;
+
+    setCard({
+      brand: "VISA",
+      last4: form.number.slice(-4),
+      name: form.name,
+      country: form.country,
+    });
+
+    setForm({ number: "", name: "", country: "United States" });
+    setEditing(false);
+  };
+
+  return (
+    <div className="payments-section">
+      <h3 className="section-title">Payments</h3>
+      <p className="section-subtitle">
+        Manage payouts and payment methods for your account.
+      </p>
+
+      {/* Rounded container */}
+      <div className="payments-container">
+        {/* Toggles */}
+        <div className="toggle-row">
+          <div>
+            <strong>Enable Auto Payout</strong>
+            <p>Auto payout occurs at the end of each month.</p>
+          </div>
+          <label className="switch">
+            <input
+              type="checkbox"
+              checked={autoPayout}
+              onChange={() => setAutoPayout(!autoPayout)}
+            />
+            <span className="slider" />
+          </label>
+        </div>
+
+        <div className="toggle-row">
+          <div>
+            <strong>Notify New Payments</strong>
+            <p>You’ll be notified when a payment has been made.</p>
+          </div>
+          <label className="switch">
+            <input
+              type="checkbox"
+              checked={notifyPayments}
+              onChange={() => setNotifyPayments(!notifyPayments)}
+            />
+            <span className="slider" />
+          </label>
+        </div>
+
+        <hr />
+
+        {/* Saved card */}
+        {!editing ? (
+          <>
+            <div className="payment-card">
+              <div>
+                <strong>
+                  {card.brand} •••• {card.last4}
+                </strong>
+                <p>
+                  {card.name} · {card.country}
+                </p>
+              </div>
+
+              <button className="secondary" onClick={() => setEditing(true)}>
+                Update
+              </button>
+            </div>
+
+            <button
+              className="ghost-btn"
+              onClick={() => setEditing(true)}
+            >
+              + Add another payment method
+            </button>
+          </>
+        ) : (
+          <>
+            {/* Add / Update form */}
+            <div className="form-grid">
+              <div>
+                <label>Card number</label>
+                <input
+                  placeholder="1234 5678 9012 3456"
+                  value={form.number}
+                  onChange={(e) =>
+                    setForm({ ...form, number: e.target.value })
+                  }
+                />
+              </div>
+
+              <div>
+                <label>Cardholder name</label>
+                <input
+                  placeholder="Name on card"
+                  value={form.name}
+                  onChange={(e) =>
+                    setForm({ ...form, name: e.target.value })
+                  }
+                />
+              </div>
+
+              <div>
+                <label>Country</label>
+                <select
+                  value={form.country}
+                  onChange={(e) =>
+                    setForm({ ...form, country: e.target.value })
+                  }
+                >
+                  <option>United States</option>
+                  <option>United Kingdom</option>
+                  <option>Canada</option>
+                  <option>India</option>
+                </select>
+              </div>
+            </div>
+
+            <div className="inline-actions">
+              <button className="primary" onClick={savePayment}>
+                Save payment method
+              </button>
+              <button
+                className="secondary"
+                onClick={() => setEditing(false)}
+              >
+                Cancel
+              </button>
+            </div>
+          </>
+        )}
+      </div>
+    </div>
+  );
+}
