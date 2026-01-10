@@ -2,6 +2,7 @@ import './Lessons.css';
 import { useParams, useNavigate } from 'react-router-dom';
 import type { ModuleType } from '../../../../types/ModuleType';
 import LessonCard from '../../../../cards/LessonCard/LessonCard';
+import ActionButton from '../../../../components/ActionButton/ActionButton';
 import orange_left_arrow from '../../../../assets/icons/orange-left-arrow.svg';
 
 const modules: ModuleType[] = [
@@ -62,7 +63,8 @@ const modules: ModuleType[] = [
           adaptionLogic: "Lorem ipsum dolor sit amet consectetur adipiscing elit. Dolor sit amet consectetur adipiscing elit quisque faucibus."
         }
       },
-    ]
+    ],
+    deployed: true
   },
   {
     id: 2,
@@ -121,7 +123,8 @@ const modules: ModuleType[] = [
           adaptionLogic: "Lorem ipsum dolor sit amet consectetur adipiscing elit. Dolor sit amet consectetur adipiscing elit quisque faucibus."
         }
       }
-    ]
+    ],
+    deployed: false
   },
   {
     id: 3,
@@ -180,7 +183,8 @@ const modules: ModuleType[] = [
           adaptionLogic: "Lorem ipsum dolor sit amet consectetur adipiscing elit. Dolor sit amet consectetur adipiscing elit quisque faucibus."
         }
       }
-    ]
+    ],
+    deployed: false
   },
   {
     id: 4,
@@ -239,7 +243,8 @@ const modules: ModuleType[] = [
           adaptionLogic: "Lorem ipsum dolor sit amet consectetur adipiscing elit. Dolor sit amet consectetur adipiscing elit quisque faucibus."
         }
       }
-    ]
+    ],
+    deployed: false
   },
   {
     id: 5,
@@ -298,7 +303,8 @@ const modules: ModuleType[] = [
           adaptionLogic: "Lorem ipsum dolor sit amet consectetur adipiscing elit. Dolor sit amet consectetur adipiscing elit quisque faucibus."
         }
       }
-    ]
+    ],
+    deployed: false
   },
   {
     id: 6,
@@ -357,7 +363,8 @@ const modules: ModuleType[] = [
           adaptionLogic: "Lorem ipsum dolor sit amet consectetur adipiscing elit. Dolor sit amet consectetur adipiscing elit quisque faucibus."
         }
       }
-    ]
+    ],
+    deployed: false
   }
 ];
 
@@ -384,6 +391,9 @@ export default function Lessons() {
         <div>
           <h1>{module?.title}</h1>
           <p>View and manage your course lessons.</p>
+        </div>
+        <div>
+          <ActionButton buttonType="deploy" text="Deploy" disabled={module?.deployed} />
         </div>
       </div>
 
