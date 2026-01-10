@@ -1,12 +1,14 @@
 import './LessonCard.css';
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import type { LessonType } from '../../types/LessonType';
 import SkillItem from './SkillItem/SkillItem';
 import LessonAbstract from './LessonAbstract/LessonAbstract';
 import ActionButton from '../../components/ActionButton/ActionButton';
+import SkillsPopover from './SkillsPopover/SkillsPopover';
 import { Checkbox, RadioGroup } from "@radix-ui/themes";
 import orange_edit_icon from '../../assets/icons/orange-edit-icon.svg';
 import orange_check_icon from '../../assets/icons/orange-check.svg';
+import green_plus from '../../assets/icons/lesson-edit/green-plus.svg';
 
 type LessonProp = {
     lessonInfo: LessonType;
@@ -18,12 +20,50 @@ export default function LessonCard({ lessonInfo }: LessonProp) {
     const title = lessonInfo.title;
     const duration = lessonInfo.duration;
     const dueDate = lessonInfo.dueDate;
-    const skills =  lessonInfo.skills;
 
+    const [skills, setSkills] = useState<string[]>(lessonInfo.skills);
     const [expanded, setExpanded] = useState(false);
     const [attemptMode, setAttemptMode] = useState<"unlimited" | "custom">("unlimited");
     const [customNumAttempts, setCustomNumAttempts] = useState<number | "">("");
     const [changesMade, setChangesMade] = useState(false);
+    const [search, setSearch] = useState("");
+    const [error, setError] = useState<string | null>(null);
+
+    const removeSkill = (skillToRemove: string) => {
+        setSkills(prev => prev.filter(skill => skill !== skillToRemove));
+        setChangesMade(true);
+    };
+
+    const addSkill = (skillToAdd: string) => {
+        setSkills(prev => {
+            if (prev.includes(skillToAdd)) {
+                setError("Skill already added.")
+                return prev;
+            }
+
+            setError(null);
+            return [...prev, skillToAdd]
+        });
+        setChangesMade(true);
+    };
+
+    const [clicked, setClicked] = useState(false);
+
+    const wrapperRef = useRef<HTMLDivElement>(null);
+
+    useEffect(() => {
+        if (!clicked) return;
+
+        const handleClickOutside = (e: MouseEvent) => {
+            if (wrapperRef.current && !wrapperRef.current.contains(e.target as Node)) {
+                setClicked(false);
+            }
+        };
+
+        document.addEventListener("mousedown", handleClickOutside);
+        return () => document.removeEventListener("mousedown", handleClickOutside)
+    }, [clicked]);
+
 
     const handleCheck = () => {
         lessonInfo.randomize = !lessonInfo.randomize;
@@ -49,7 +89,17 @@ export default function LessonCard({ lessonInfo }: LessonProp) {
                     <p className="lesson-title">{id}. {title}</p>
                     <div className="lesson-skills">
                         <span>Skills</span>
-                        {skills.map((s) => (<SkillItem skill={s} />))}
+                        {skills.map((s) => (<SkillItem skill={s} expanded={expanded} onClick={() => (removeSkill(s))} />))}
+                        {(expanded) && (
+                            <div className="add-skill-popover-wrapper" ref={wrapperRef}>
+                                <div className="add-skill" onClick={(e) => {e.stopPropagation(); setClicked(true);}}>
+                                    <span className="green-plus-icon">
+                                        <img src={green_plus}/>
+                                    </span>
+                                    <span>Add skill</span>
+                                </div>
+                                {(clicked && expanded) && <SkillsPopover actionType="add" search={search} setSearch={setSearch} addSkill={addSkill} error={error} />}
+                        </div>)}
                     </div>
                 </div>
                 <p className="lesson-info lesson-duration">{duration}m</p>
