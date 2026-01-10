@@ -1,0 +1,100 @@
+.skill-popover {
+    position: absolute;
+    top: calc(100% + 10px);
+    left: 0;
+    background: white;
+    border: 1px solid #e5e5e5;
+    border-radius: 5px;
+    padding: 5px;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.08);
+    cursor: pointer;
+    transition: 0.2s ease;
+    display: flex;
+    justify-content: center;
+    flex-direction: column;
+    z-index: 1000;
+}
+
+.skill-popover.add {
+    border-radius: 10px;
+}
+
+.skill-popover.delete:hover {
+    background-color: rgb(246, 246, 246);
+}
+  
+.skill-popover::before {
+    content: "";
+    position: absolute;
+    top: -9px;
+    left: 10%; 
+    transform: translateX(-50%);
+    z-index: 0;
+    width: 0;
+    height: 0;
+    border-left: 9px solid transparent;
+    border-right: 9px solid transparent;
+    border-bottom: 9px solid #e5e5e5;
+}
+
+.skill-popover::after {
+    content: "";
+    position: absolute;
+    top: -8px;
+    left: 10%;
+    transform: translateX(-50%);
+    z-index: 1;
+    width: 0;
+    height: 0;
+    border-left: 9px solid transparent;
+    border-right: 9px solid transparent;
+    border-bottom: 9px solid white;
+}
+
+.skill-popover.add {
+    width: 250px;
+    display: inline-flex;
+}
+
+.skill-search-wrapper {
+    width: 95%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+    border: 1px solid #D9D9D9;
+    border-radius: 20px;
+    padding: 3px 8px;
+}
+
+.skill-search-wrapper input {
+    border: none;
+    font-weight: 500;
+    outline: none;
+    width: 100%;
+    background: none;
+}
+
+.skill-search-wrapper input::placeholder {
+    color: #CACACA;
+    font-size: 10px;
+}
+
+.skill-search-icon {
+    display: flex;
+}
+
+.skill-search-icon img {
+    width: 12px;
+}
+
+.suggested-skills {
+    display: flex;
+    flex-direction: column;
+    gap: 0px;
+}
+
+.suggested-text {
+    font-size: 10px;
+    color: #CACACA;
+}

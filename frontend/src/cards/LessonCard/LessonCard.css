@@ -7,7 +7,7 @@
     align-items: center;
     padding: 0px 10px;
     overflow: hidden;
-    max-height: 72px;
+    max-height: 300px;
     transition: max-height 1000ms ease;
 }
 
@@ -43,8 +43,34 @@
     display: flex;
     align-items: center;
     gap: 10px;
-
+    flex-wrap: wrap;
 }
+
+.add-skill-popover-wrapper {
+    position: relative;
+    display: inline-flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+.add-skill {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    background-color: #F0FEED;
+    color: #259800;
+    font-size: 8px;
+    padding: 3px 7px;
+    font-weight: 600;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: 0.2s ease;
+}
+
+.add-skill:hover {
+    background-color: #d8f0d2;
+}   
 
 .lesson-due {
     margin-left: 85px;
