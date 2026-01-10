@@ -60,3 +60,17 @@
 .action-button:hover .action-icon.default {
     opacity: 0;
 }
+
+.action-button.deploy {
+    margin: 20px;
+    padding: 10px;
+}
+
+.action-button.deploy.disabled {
+    background-color: #f5f5f5;
+    color: #FF4B00;
+}
+
+.action-button.deploy.disabled:hover {
+    background-color: #dedede;
+}
