@@ -39,7 +39,7 @@ export default function SkillItem({ skill, expanded=false, onClick, toAdd, onAdd
        
     return (
         <div className="skill-popover-wrapper" ref={wrapperRef}>
-            <div className={`skill-item ${(expanded) ? "expanded": ""}`} onClick={(e) => {e.stopPropagation(); handleClick();}}>
+            <div className={`skill-item ${(expanded) ? "expanded": ""}`} onClick={(e) => {e.stopPropagation(); setClicked(true); if (!expanded) {handleClick();}}}>
                 <span>{skill}</span>
                 {(expanded) && (<span className="blue-trash-icon">
                     <img src={blue_trash} />
