@@ -10,6 +10,28 @@ import AIStudio from './AI Studio/AIStudio';
 import Settings from "./Settings/Settings";
 import logo from '../../assets/branding/cognition-logo.png';
 import bell from '../../assets/icons/bell.svg';
+import down_chevron from '../../assets/icons/black-down-chevron.svg';
+
+import white_home from '../../assets/icons/sidebar/white-home-icon.svg';
+import black_home from '../../assets/icons/sidebar/black-home-icon.svg';
+import blue_home from '../../assets/icons/sidebar/blue-home-icon.svg';
+import white_pie from '../../assets/icons/sidebar/white-pie-icon.svg';
+import black_pie from '../../assets/icons/sidebar/black-pie-icon.svg';
+import blue_pie from '../../assets/icons/sidebar/blue-pie-icon.svg';
+import white_robot from '../../assets/icons/sidebar/white-robot-icon.svg';
+import black_robot from '../../assets/icons/sidebar/black-robot-icon.svg';
+import blue_robot from '../../assets/icons/sidebar/blue-robot-icon.svg';
+import white_gear from '../../assets/icons/sidebar/white-gear-icon.svg';
+import black_gear from '../../assets/icons/sidebar/black-gear-icon.svg';
+import blue_gear from '../../assets/icons/sidebar/blue-gear-icon.svg';
+import white_folder from '../../assets/icons/sidebar/white-folder-icon.svg';
+import black_folder from '../../assets/icons/sidebar/black-folder-icon.svg';
+import blue_folder from '../../assets/icons/sidebar/blue-folder-icon.svg';
+import white_clipboard from '../../assets/icons/sidebar/white-clipboard-icon.svg';
+import black_clipboard from '../../assets/icons/sidebar/black-clipboard-icon.svg';
+import blue_clipboard from '../../assets/icons/sidebar/blue-clipboard-icon.svg';
+
+
 /*import EmployeeDashBoard from '../EmployeeDashBoard/EmployeeDashBoard';*/
 import AIStudioAssignments from './AI Studio/AIStudioAssignments/AIStudioAssignments';
 import ProfilePage from "./ProfilePage/ProfilePage";
@@ -38,12 +60,26 @@ export default function EmployerDashBoard() {
               `nav-item ${isActive ? "active" : ""}`
             }
           >
-            🏠︎ Employer Homepage
+            <div className="sidebar-label">
+              <div className="sidebar-icon-swap">
+                <img className="sidebar-icon white" src={white_home} />
+                <img className="sidebar-icon black" src={black_home} />
+                <img className="sidebar-icon blue" src={blue_home} />
+              </div>
+              Employer Homepage
+            </div>
           </NavLink>
 
 
           <NavLink to="/employer/analytics" className="nav-item">
-            Analytics
+            <div className="sidebar-label">
+              <div className="sidebar-icon-swap">
+                <img className="sidebar-icon white" src={white_pie} />
+                <img className="sidebar-icon black" src={black_pie} />
+                <img className="sidebar-icon blue" src={blue_pie} />
+              </div>
+              Analytics
+            </div>
           </NavLink>
           
           {/* <NavLink to="/employer/lessons" className="nav-item">
@@ -51,19 +87,47 @@ export default function EmployerDashBoard() {
           </NavLink> */}
 
           <NavLink to="/employer/modules" className="nav-item">
-            Modules
+            <div className="sidebar-label">
+              <div className="sidebar-icon-swap">
+                <img className="sidebar-icon white" src={white_clipboard} />
+                <img className="sidebar-icon black" src={black_clipboard} />
+                <img className="sidebar-icon blue" src={blue_clipboard} />
+              </div>
+              Modules
+            </div>
           </NavLink>
 
           <NavLink to="/employer/ai-studio" className="nav-item">
-            AI Studio
+            <div className="sidebar-label">
+              <div className="sidebar-icon-swap">
+                <img className="sidebar-icon white" src={white_robot} />
+                <img className="sidebar-icon black" src={black_robot} />
+                <img className="sidebar-icon blue" src={blue_robot} />
+              </div>
+              AI Studio
+            </div>
           </NavLink>
 
           <NavLink to="/employer/resources" className="nav-item">
-            Resources
+            <div className="sidebar-label">
+              <div className="sidebar-icon-swap">
+                <img className="sidebar-icon white" src={white_folder} />
+                <img className="sidebar-icon black" src={black_folder} />
+                <img className="sidebar-icon blue" src={blue_folder} />
+              </div>
+              Resources
+            </div>
           </NavLink>
 
           <NavLink to="/employer/settings" className="nav-item">
-            Settings
+            <div className="sidebar-label">
+              <div className="sidebar-icon-swap">
+                <img className="sidebar-icon white" src={white_gear} />
+                <img className="sidebar-icon black" src={black_gear} />
+                <img className="sidebar-icon blue" src={blue_gear} />
+              </div>
+              Settings
+            </div>
           </NavLink>
         </nav>
 
@@ -98,7 +162,9 @@ export default function EmployerDashBoard() {
                 className="avatar"
               />
               <span className="username">Harsh</span>
-              <span className="caret">▾</span>
+              <span className="caret">
+                <img src={down_chevron} />
+              </span>
             </div>
 
           </div>
