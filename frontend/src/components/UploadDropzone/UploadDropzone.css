@@ -1,0 +1,41 @@
+.upload-container {
+    display: flex;
+    flex-direction: row;
+    align-items: flex-start;
+    width: 90%;
+}
+
+.upload-div.comp {
+    width: 100%;
+}
+
+.dropzone.comp {
+    max-width: 400px;
+    display: flex;
+    gap: 100px;
+    height: 300px;
+}
+
+.dropzone.comp img {
+    width: 70px;
+}
+
+.dropzone.comp button {
+    background-color: #F5F5F5;
+}
+
+.dropzone.comp button:hover {
+    background-color: #FF844F;
+}
+
+.dropzone-manual {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    justify-content: center;
+    align-items: center;
+}
+
+.uploaded-content-div.comp {
+    max-width: 100%;
+}

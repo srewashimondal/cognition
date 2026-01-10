@@ -1,3 +1,124 @@
+.ai-studio-contents {
+    display: flex;
+    flex-direction: column;
+    gap: 30px;
+    margin-left: 16px;
+}
+
+.ai-studio-prompt-header {
+    line-height: 0.8;
+}
+
+.ai-studio-prompt {
+    font-size: 16px;
+    font-weight: 500;
+    margin-bottom: 0;
+}
+
+.ai-studio-direction {
+    font-size: 14px;
+    color: #9C9C9C;
+}
+
+.delete-modal-overlay {
+    position: fixed;
+    inset: 0; 
+    background: rgba(0, 0, 0, 0.45);
+  
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  
+    z-index: 9999;
+    backdrop-filter: blur(4px);
+}
+  
+
+.delete-modal {
+    background: #ffffff;
+    border-radius: 16px;
+    padding: 24px 28px;
+    width: min(420px, 90vw);
+  
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  
+    box-shadow:
+      0 10px 30px rgba(0, 0, 0, 0.15);
+  
+    animation: modalPop 0.2s ease-out;
+}
+  
+.delete-modal h3 {
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin: 0;
+}
+  
+.delete-modal p {
+    font-size: 0.95rem;
+    color: #555;
+    word-break: break-word;
+}
+
+.delete-modal-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+    margin-top: 16px;
+}
+
+.delete-modal button {
+    padding: 8px 14px;
+    border-radius: 10px;
+    font-size: 0.9rem;
+    cursor: pointer;
+    border: none;
+}
+
+.delete-modal .cancel-btn {
+    background: transparent;
+    color: #666;
+}
+
+.delete-modal .cancel-btn:hover {
+    background: #f2f2f2;
+}
+
+.delete-modal .delete-btn {
+    background: #ff6a3d; 
+    color: white;
+}
+
+.delete-modal .delete-btn:hover {
+    background: #e85a2f;
+}
+
+.ai-studio-pos-integration {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+}
+
+.connect-div.ai-studio {
+    justify-content: flex-start;
+    margin-left: 80px;
+}
+
+.connect-div.ai-studio button {
+    background-color: #F5F5F5;
+}
+
+.ai-studio-save-changes {
+    width: 100%;
+    margin-bottom: 32px;
+    display: flex;
+    align-items: flex-end;
+}
+
+/*keep these here in case*/
+
 .modules-grid {
   margin-top: 1px;
   display: grid;
@@ -106,3 +227,5 @@
   padding: 6px 10px;    
   border-radius: 6px;
 }
+
+/*------*/

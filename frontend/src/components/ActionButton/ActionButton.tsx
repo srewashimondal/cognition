@@ -8,7 +8,6 @@ import orange_refresh_icon from '../../assets/icons/actions/orange-refresh-icon.
 import white_rocket_icon from '../../assets/icons/white-rocket-icon.svg';
 import orange_rocket_icon from '../../assets/icons/orange-rocket-icon.svg';
 
-
 type ActionButtonProps = {
     text: string;
     buttonType: "play" | "save" | "refresh" | "deploy";
@@ -39,7 +38,7 @@ export default function ActionButton({ text, buttonType, onClick, selected=false
 
     return (
         <button type="button" className={`action-button ${buttonType} ${(selected) ? "selected": ""} ${disabled ? "disabled" : ""}`} onClick={onClick}>
-            {(buttonType === "deploy" && !disabled) &&
+            {(!disabled) &&
             <div className="action-swap">
                 <img className="action-icon default" src={typeToIcon[buttonType]["default"]}/>
                 <img className="action-icon hover" src={typeToIcon[buttonType]["hover"]}/>
