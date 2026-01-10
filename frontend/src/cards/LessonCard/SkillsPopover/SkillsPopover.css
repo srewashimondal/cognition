@@ -19,6 +19,10 @@
     border-radius: 10px;
 }
 
+.skill-popover.delete {
+    left: 0%;
+}
+
 .skill-popover.delete:hover {
     background-color: rgb(246, 246, 246);
 }
@@ -37,6 +41,10 @@
     border-bottom: 9px solid #e5e5e5;
 }
 
+.skill-popover.delete::before {
+    left: 50%; 
+}
+
 .skill-popover::after {
     content: "";
     position: absolute;
@@ -49,6 +57,10 @@
     border-left: 9px solid transparent;
     border-right: 9px solid transparent;
     border-bottom: 9px solid white;
+}
+
+.skill-popover.delete::after {
+    left: 50%; 
 }
 
 .skill-popover.add {
