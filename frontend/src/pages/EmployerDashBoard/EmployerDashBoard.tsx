@@ -10,6 +10,7 @@ import AIStudio from './AI Studio/AIStudio';
 import Settings from "./Settings/Settings";
 import logo from '../../assets/branding/cognition-logo.png';
 import bell from '../../assets/icons/bell.svg';
+import down_chevron from '../../assets/icons/black-down-chevron.svg';
 
 import white_home from '../../assets/icons/sidebar/white-home-icon.svg';
 import black_home from '../../assets/icons/sidebar/black-home-icon.svg';
@@ -161,7 +162,9 @@ export default function EmployerDashBoard() {
                 className="avatar"
               />
               <span className="username">Harsh</span>
-              <span className="caret">▾</span>
+              <span className="caret">
+                <img src={down_chevron} />
+              </span>
             </div>
 
           </div>
