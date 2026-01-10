@@ -10,7 +10,7 @@
 }
 
 .dropzone.comp {
-    max-width: 400px;
+    max-width: 500px;
     display: flex;
     gap: 100px;
     height: 300px;
