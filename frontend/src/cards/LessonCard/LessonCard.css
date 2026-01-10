@@ -4,7 +4,7 @@
     width: 100%;
     border: 1px solid #E4E4E4;
     border-radius: 5px;
-    align-items: center;
+    align-items: stretch;
     padding: 0px 10px;
     overflow: hidden;
     max-height: 300px;
