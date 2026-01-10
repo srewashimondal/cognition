@@ -4,10 +4,21 @@ import pdf_icon from '../../assets/icons/pdf-icon.svg';
 import jpeg_icon from '../../assets/icons/jpeg-icon.svg';
 import png_icon from '../../assets/icons/png-icon.svg';
 import svg_icon from '../../assets/icons/svg-icon.svg';
+import x_icon from '../../assets/icons/thin-orange-x.svg'
+import hollow_star from '../../assets/icons/thin-orange-hollow-star.svg';
+import filled_star from '../../assets/icons/thin-orange-filled-star.svg';
 
-export default function FileItem({ file }: { file: File }) {
+type FileItemProps = {
+    file: File;
+    removeable?: boolean;
+    starrable?: boolean;
+    onClick?: () => void;
+}
+
+export default function FileItem({ file, removeable, starrable, onClick }: FileItemProps) {
     const [fill, setFill] = useState(0);
     const [val, setVal] = useState(0);
+    const [starred, setStarred] = useState(false);
   
     useEffect(() => {
         setFill(0);
@@ -42,6 +53,15 @@ export default function FileItem({ file }: { file: File }) {
                 {(val === 100) && <span className="progress-amt">{val}%</span>}
             </div>
         </div>
+        <span className="removeable-actions">
+            {(removeable) && <span className="file-icon remove" onClick={onClick}>
+                <img src={x_icon} />
+            </span>}
+            {(starrable) && <div className="star-swap" onClick={() => setStarred(!starred)}>
+                <img className={`file-icon hollow ${starred ? "selected" : ""}`} src={hollow_star} />
+                <img className={`file-icon filled ${starred ? "starred" : ""}`} src={filled_star} />
+            </div>}
+        </span>     
       </li>
     );
   }
