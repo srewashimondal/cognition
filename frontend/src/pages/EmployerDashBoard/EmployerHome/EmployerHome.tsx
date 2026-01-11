@@ -201,6 +201,40 @@ export default function EmployerHome() {
         </div>
       </div>
 
+      {/* Quick Actions */}
+      <div className="quick-actions-section">
+        <h3 className="section-title">Quick Actions</h3>
+
+        <div className="quick-actions-grid">
+          {/* Primary action */}
+          <div className="quick-action primary">
+            <div className="action-content">
+              <div className="action-title-row">
+                <div className="action-icon">+</div>
+                <h4>Create Course</h4>
+              </div>
+              <p>Build your next amazing learning experience</p>
+            </div>
+
+            <span className="sparkle">✨</span>
+          </div>
+
+
+          {/* Secondary actions */}
+          <div className="quick-action secondary">
+            <div className="action-content">
+              <div className="action-title-row">
+                <div className="secondary-icon">✏️</div>
+                <h4>Edit Course</h4>
+              </div>
+              <p>Modify existing content</p>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+
         {/* Employee Directory */}
             <div className="card employee-section">
               <div className="employee-header">

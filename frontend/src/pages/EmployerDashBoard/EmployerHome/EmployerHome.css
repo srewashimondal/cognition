@@ -570,3 +570,146 @@
   width: 100%;
   height: 100%;
 }
+
+/* ================= Quick Actions ================= */
+
+.quick-actions-section {
+  margin: 40px 0;
+}
+
+.quick-actions-section .section-title {
+  margin-left: 10px;
+}
+
+.quick-actions-grid {
+  display: grid;
+  grid-template-columns: 3fr 1.5fr;
+  gap: 16px;
+}
+
+.quick-action {
+  border-radius: 16px;
+  padding: 20px 22px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: #ffffff;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.06);
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  overflow: visible;
+}
+
+.quick-action:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 26px rgba(0, 0, 0, 0.08);
+}
+
+.action-content {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+
+.quick-action.primary h4 {
+  font-size: 18px;
+  font-weight: 600;
+  margin: 0;
+}
+
+.quick-action.primary p {
+  font-size: 14px;
+  opacity: 0.9;
+  margin-top: -23px;
+  margin-left: 55px;
+}
+
+
+.sparkle {
+  font-size: 18px;
+  opacity: 0.9;
+}
+
+/* Secondary cards */
+.quick-action.secondary {
+  gap: 12px;
+}
+
+.secondary-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  background: #f3f4f6;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  margin-top: 12px;
+}
+
+.quick-action.secondary h4 {
+  font-size: 15px;
+  font-weight: 600;
+  margin-top: 10px;
+}
+
+.quick-action.secondary p {
+  font-size: 13px;
+  color: #6b7280;
+  margin-top: -30px;
+  margin-left: 50px;
+}
+
+@media (max-width: 900px) {
+  .quick-actions-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.action-title-row {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.action-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.18);
+  color: #ffffff;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 15px;
+
+  font-size: 22px;
+  font-weight: 700;
+
+  position: relative;
+  z-index: 2;
+}
+
+
+
+.action-icon.primary {
+  background: linear-gradient(135deg, #8b5cf6, #60a5fa);
+  color: #ffffff;
+}
+
+.quick-action.primary {
+  background: linear-gradient(135deg, #7c3aed, #2563eb);
+  color: #ffffff;
+}
+
+.sparkle {
+  font-size: 18px;
+  opacity: 0.85;
+}
+
+.quick-action.primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 30px rgba(124, 58, 237, 0.35);
+}
