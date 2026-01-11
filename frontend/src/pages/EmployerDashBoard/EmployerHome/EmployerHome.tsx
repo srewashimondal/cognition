@@ -55,8 +55,10 @@ export default function EmployerHome() {
       </div>
 
       {/* Analytics Overview */}
-      <h3 className="section-title">Analytics Overview</h3>
-
+      <div className="analytics-header">
+        <h3 className="section-title">Analytics Overview</h3>
+      </div>
+  
       <div className="analytics-grid">
         <div className="analytics-card">
           <div className="analytics-left">

@@ -238,6 +238,7 @@
   justify-content: space-between;
   align-items: stretch;
   padding: 28px 32px;
+  margin-bottom: 48px;
   border-radius: 20px;
   background: linear-gradient(
     135deg,
@@ -250,6 +251,12 @@
   position: relative;
   overflow: hidden;
 }
+
+.analytics-header {
+  margin-top: 48px;
+  margin-left: 10px;
+}
+
 
 .welcome-banner::before {
   content: "";
