@@ -31,7 +31,6 @@ import white_clipboard from '../../assets/icons/sidebar/white-clipboard-icon.svg
 import black_clipboard from '../../assets/icons/sidebar/black-clipboard-icon.svg';
 import blue_clipboard from '../../assets/icons/sidebar/blue-clipboard-icon.svg';
 
-
 /*import EmployeeDashBoard from '../EmployeeDashBoard/EmployeeDashBoard';*/
 import AIStudioAssignments from './AI Studio/AIStudioAssignments/AIStudioAssignments';
 import ProfilePage from "./ProfilePage/ProfilePage";
