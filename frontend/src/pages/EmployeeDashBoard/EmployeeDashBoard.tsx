@@ -11,6 +11,7 @@ import SimulationView from './SimulationView/SimulationView';
 import StandardLessonView from './StandardLessonView/StandardLessonView';
 import EmployeeHome from './EmployeeHome/EmployeeHome';
 import EmployeeModules from './EmployeeModules/EmployeeModules';
+import Schedule from './Schedule/Schedule';
 
 export default function EmployeeDashBoard() {
     const [profileOpen, setProfileOpen] = useState(false);
@@ -87,6 +88,14 @@ export default function EmployeeDashBoard() {
               Standard Lesson View
             </div>
           </NavLink>
+
+          <NavLink to="/employee/schedule" className="nav-item">
+            <div className="sidebar-label">
+              <div className="sidebar-icon-swap">
+              </div>
+              Schedule
+            </div>
+          </NavLink>
         </nav>
 
       </aside>
@@ -135,8 +144,8 @@ export default function EmployeeDashBoard() {
             <Route path="modules" element={<EmployeeModules />} />
             <Route path="simulation-lesson-view" element={<SimulationLessonView />} />
             <Route path="simulation-view" element={<SimulationView />} />
+            <Route path="schedule" element={<Schedule />} />
             <Route path="standard-lesson-view" element={<StandardLessonView />} />
-
             <Route path="*" element={<Navigate to="" />} />
           </Routes>
         </section>
