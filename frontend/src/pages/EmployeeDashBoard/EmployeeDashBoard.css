@@ -1,33 +1,33 @@
 /* Same base layout as Employer dashboard */
 .dashboard {
     display: flex;
-  }
-  
-  /* Sidebar is already fixed via shared CSS */
-  
-  /* Main area */
-  .main {
-    margin-left: 240px;          /* sidebar width */
-    overflow: hidden;            /* prevent body scrolling */
+}
+
+.main {
+    margin-left: 240px;         
+    overflow: hidden;            
     display: flex;
     flex-direction: column;
-  }
+}
   
-  /* Topbar is fixed, so content must account for it */
-  .topbar {
+.topbar {
     position: fixed;
     top: 0;
-    height: 64px;                /* IMPORTANT */
+    height: 60px;               
     z-index: 100;
     background: white;
     border-bottom: 1px solid #eee;
-  }
+}
   
-  /* This is the KEY FIX */
-  .content {
-    margin-top: 64px;            /* SAME as topbar height */
+.content {
+    margin-top: 64px;           
     padding: 18px;
     overflow-y: auto;
     flex: 1;
-  }
-  
+}
+
+.sidebar-icon-swap.sim {
+    position: relative;
+    width: 19px;
+    height: 19px;  
+}
