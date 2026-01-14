@@ -1,5 +1,5 @@
 /* Same base layout as Employer dashboard */
-.dashboard.employee {
+.dashboard {
     display: flex;
     min-height: 100vh;
   }
@@ -7,7 +7,7 @@
   /* Sidebar is already fixed via shared CSS */
   
   /* Main area */
-  .main.employee {
+  .main {
     margin-left: 240px;          /* sidebar width */
     height: 100vh;
     overflow: hidden;            /* prevent body scrolling */
@@ -16,11 +16,9 @@
   }
   
   /* Topbar is fixed, so content must account for it */
-  .topbar.employee {
+  .topbar {
     position: fixed;
     top: 0;
-    left: 240px;                 /* sidebar width */
-    width: calc(100% - 240px);
     height: 64px;                /* IMPORTANT */
     z-index: 100;
     background: white;
@@ -28,7 +26,7 @@
   }
   
   /* This is the KEY FIX */
-  .content.employee {
+  .content {
     margin-top: 64px;            /* SAME as topbar height */
     padding: 18px;
     overflow-y: auto;
