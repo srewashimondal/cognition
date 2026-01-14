@@ -45,14 +45,16 @@ export default function EmployerDashBoard() {
       {/* Sidebar */}
       
       <aside className="sidebar">
-        <Link to="/">
+        
           <div className="logo">
-            <span className="logo-img">
-              <img src={logo}/>
-            </span>
-            {(!sidebarCollapsed) && <span className="logo-text">Cognition</span>}
+            <Link to="/">
+              <span className="logo-img">
+                <img src={logo}/>
+              </span>
+            </Link>
+            {(!sidebarCollapsed) && <span className="logo-text">Workspace</span>}
           </div>
-        </Link>
+        
 
         <nav className="nav">
           <NavLink
