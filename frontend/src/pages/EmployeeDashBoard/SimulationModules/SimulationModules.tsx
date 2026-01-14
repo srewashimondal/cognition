@@ -74,6 +74,8 @@ export default function SimulationModules() {
             <div className="modules-grid">
                 {modules.map((m) => (<ModuleCard moduleInfo={m.moduleInfo} role={"employee"} status={m.status} percent={m.percent} style={true} />))}
             </div>
+            
+            <div className="filler-space"></div>
         </div>
     );
 }
