@@ -1,6 +1,8 @@
+import './Analytics.css';
 import FullCalendar from '@fullcalendar/react';
 import dayGridPlugin from '@fullcalendar/daygrid';
 import { useState } from "react";
+import search_icon from '../../../assets/icons/lesson-edit/grey-search.svg';
 
 //To Do
   const initialTodos = [
@@ -54,6 +56,16 @@ export default function Analytics() {
 
   return (
     <>
+
+        <div className="search-wrapper">
+            <span className="analytics-search-icon">
+              <img src={search_icon} />
+            </span>
+            <input
+              className="search-input"
+              placeholder="Search by Employee Name or ID"
+            />
+        </div>
       <h2>Employee Name: John Doe</h2>
 
       <div className="dashboard-row-wide">
