@@ -5,7 +5,7 @@
 }
 .lesson-abstract {
     border: 1px solid #ebebeb;
-    background-color: #f9f9f9;
+    background-color: white;
     border-radius: 7px;
     padding: 0px 10px;
 }
@@ -14,7 +14,7 @@
     font-weight: 600;
     font-size: 13px;
 }
-
+/*
 .lesson-abstract-thread {
     margin-top: 20px;
     position: relative;
@@ -34,7 +34,7 @@
 
 .thread-filler {
     height: 20px;
-}
+}*/
 
 .lesson-abstract-actions {
     display: flex;

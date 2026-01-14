@@ -10,7 +10,7 @@ export default function LessonAbstractItem({ itemName, content }: LessonAbstract
         <div className="lesson-abstract-item">
             <div className="lesson-abstract-branch" />
             <div className="lesson-abstract-card">
-                <p>{itemName}</p>
+                <p className="lesson-abstract-item-name">{itemName}</p>
                 <p>{content}</p>
             </div>
         </div>

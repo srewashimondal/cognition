@@ -19,63 +19,65 @@
     border-radius: 10px;
 }
 
-.banner.yellow {
-    background: repeating-linear-gradient(
-        45deg,
-        #fcd34d,
-        #fcd34d 8px,
-        #fde68a 8px,
-        #fde68a 16px
+.banner.module1 {
+    background: radial-gradient(
+        circle at center,
+        rgba(210, 235, 255, 0.9) 0%,
+        rgba(220, 245, 255, 0.7) 38%,
+        rgba(230, 248, 255, 0.45) 58%,
+        rgba(240, 252, 255, 0.25) 68%,
+        transparent 82%
     );
 }
 
-.banner.pink {
-    background: repeating-linear-gradient(
-        45deg,
-        #ff91da,
-        #ff91da 8px,
-        #ffbce9 8px,
-        #ffbce9 16px
+.banner.module2 {
+    background: radial-gradient(
+        circle at center,
+        rgba(255, 140, 70, 0.9) 0%,
+        rgba(255, 180, 120, 0.55) 40%,
+        rgba(255, 220, 190, 0.25) 60%,
+        transparent 78%
     );
 }
 
-.banner.blue {
-    background: repeating-linear-gradient(
-        45deg,
-        #91ccff,
-        #91ccff 8px,
-        #afdaff 8px,
-        #afdaff 16px
+.banner.module3 {
+    background: radial-gradient(
+        circle at center,
+        rgba(220, 247, 255, 0.9) 0%,
+        rgba(220, 247, 255, 0.6) 35%,
+        rgba(235, 250, 255, 0.35) 55%,
+        rgba(245, 252, 255, 0.2) 65%,
+        transparent 80%
     );
 }
 
-.banner.green {
-    background: repeating-linear-gradient(
-        45deg,
-        #42c758,
-        #42c758 8px,
-        #6cda7f 8px,
-        #6cda7f 16px
+.banner.module4 {
+    background: radial-gradient(
+        circle at center,
+        rgba(255, 165, 95, 0.8) 0%,
+        rgba(255, 200, 150, 0.5) 45%,
+        rgba(255, 235, 210, 0.3) 65%,
+        transparent 80%
     );
 }
 
-.banner.red {
-    background: repeating-linear-gradient(
-        45deg,
-        #dc6e6b,
-        #dc6e6b 8px,
-        #ee8480 8px,
-        #ee8480 16px
+.banner.module5 {
+    background: radial-gradient(
+        circle at center,
+    rgba(200, 235, 255, 0.85) 0%,
+    rgba(220, 245, 255, 0.6) 38%,
+    rgba(235, 250, 255, 0.35) 58%,
+    transparent 78%
     );
 }
 
-.banner.orange {
-    background: repeating-linear-gradient(
-        45deg,
-        #ff7e39,
-        #ff7e39 8px,
-        #ff9962 8px,
-        #ff9962 16px
+.banner.module6 {
+    background: radial-gradient(
+        circle at center,
+        rgba(255, 120, 50, 0.95) 0%,
+        rgba(255, 165, 105, 0.6) 38%,
+        rgba(255, 210, 180, 0.3) 58%,
+        transparent 75%
     );
 }
   

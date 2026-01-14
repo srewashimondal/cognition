@@ -3,12 +3,14 @@
     flex-direction: column;
     width: 100%;
     border: 1px solid #E4E4E4;
-    border-radius: 5px;
+    border-radius: 10px;
     align-items: stretch;
     padding: 0px 10px;
     overflow: hidden;
     max-height: 300px;
     transition: max-height 1000ms ease;
+    background-color: white;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
 }
 
 .lesson-card.expanded {
@@ -89,6 +91,7 @@
     display: flex;
     width: 70px;
     justify-content: center;
+    background-color: white;
 }
 
 .expand-btn:hover {

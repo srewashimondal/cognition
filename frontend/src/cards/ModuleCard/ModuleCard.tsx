@@ -14,7 +14,7 @@ type ModuleProp = {
 
 export default function ModuleCard({ moduleInfo }: ModuleProp) {
     const navigate = useNavigate();
-    const bannerColorByID = ["yellow", "pink", "blue", "green", "red", "orange"];
+    const bannerColorByID = ["module1", "module2", "module3", "module4", "module5", "module6"];
     return (
         <div key={moduleInfo.id} className="module-card">
             <div className="card-top">
