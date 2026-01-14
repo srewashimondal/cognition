@@ -70,7 +70,7 @@ export default function EmployerDashBoard() {
                 <img className="sidebar-icon black" src={black_home} />
                 <img className="sidebar-icon blue" src={blue_home} />
               </div>
-              { (!sidebarCollapsed) && "Employer Homepage" }
+              { (!sidebarCollapsed) && "Employer Home" }
             </div>
           </NavLink>
 
