@@ -17,7 +17,7 @@ export default function EmployeeDashBoard() {
     const [profileOpen, setProfileOpen] = useState(false);
       
     return (
-    <div className="dashboard">
+    <div className="dashboard employee">
       {/* Sidebar */}
       <aside className="sidebar">
         <Link to="/">
@@ -101,9 +101,9 @@ export default function EmployeeDashBoard() {
       </aside>
 
       {/* Main layout */}
-      <main className="main">
+      <main className="main employee">
         {/* Topbar */}
-        <header className="topbar">
+        <header className="topbar employee">
           <div className="search-wrapper">
             <span className="search-icon">🔍︎</span>
             <input
@@ -137,7 +137,7 @@ export default function EmployeeDashBoard() {
           </div>
         </header>
 
-        <section className="content">
+        <section className="content employee">
           <Routes>
             <Route index element={<EmployeeHome />} />
             <Route path="performance" element={<PerformanceDashboard />} />
