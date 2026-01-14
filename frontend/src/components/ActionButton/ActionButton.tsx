@@ -39,9 +39,9 @@ export default function ActionButton({ text, buttonType, onClick, selected=false
     return (
         <button type="button" className={`action-button ${buttonType} ${(selected) ? "selected": ""} ${disabled ? "disabled" : ""}`} onClick={onClick}>
             {(!disabled) &&
-            <div className="action-swap">
-                <img className="action-icon default" src={typeToIcon[buttonType]["default"]}/>
-                <img className="action-icon hover" src={typeToIcon[buttonType]["hover"]}/>
+            <div className="an-action-swap">
+                <img className="an-action-icon default" src={typeToIcon[buttonType]["default"]}/>
+                <img className="an-action-icon hover" src={typeToIcon[buttonType]["hover"]}/>
             </div>}
             <span className="action-text">{`${text}${disabled ? "ed" : ""}`}</span>
         </button>

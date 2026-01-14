@@ -1,4 +1,5 @@
-.action-button {           
+.action-button {
+    height: 36px;    
     line-height: 1;         
     box-sizing: border-box;  
     background-color: #FF4B00;
@@ -15,49 +16,47 @@
 }  
 
 .action-button:hover {
-    position: relative;
     border: 1px solid #FF4B00;
     background-color: #F9F9F9;
     color: #FF4B00;
 }
 
 .action-button.selected {
-    position: relative;
     border: 1px solid #FF4B00;
     background-color: #F9F9F9;
     color: #FF4B00;
 }
 
-.action-swap {
+.an-action-swap {
     position: relative;
     width: 16px;
     height: 16px;  
 }
 
-.action-icon {
+.an-action-icon {
     position: absolute;
     inset: 0;
     width: 100%;
     height: 100%;
 }
 
-.action-icon.default {
+.an-action-icon.default {
     opacity: 1;
 }
 
-.action-icon.hover {
+.an-action-icon.hover {
     opacity: 0;
 }
 
-.action-button:hover .action-icon.hover {
+.action-button:hover .an-action-icon.hover {
     opacity: 1;
 }
 
-.action-button.selected .action-icon.hover {
+.action-button.selected .an-action-icon.hover {
     opacity: 1;
 }
 
-.action-button:hover .action-icon.default {
+.action-button:hover .an-action-icon.default {
     opacity: 0;
 }
 

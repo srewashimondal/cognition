@@ -2,7 +2,6 @@
 
 .dashboard {
   display: flex;
-  min-height: 100vh;
   font-family: Inter, system-ui, sans-serif;
   background: #f7f7f7;
 }
@@ -10,6 +9,10 @@
 .logo-img img {
   width: 40px;
   height: 35px;
+}
+
+.logo-text {
+  cursor: default;
 }
 
 .dashboard-row {
@@ -135,7 +138,6 @@
   flex: 1;
   display: flex;
   flex-direction: column;
-  min-height: 100vh;
   overflow: hidden;
   transition: margin-left 0.25s ease;
 }
@@ -147,8 +149,14 @@
 .content {
   padding: 18px;
   overflow-y: auto;
+  flex: 1;
+  overflow-x: hidden;
 }
 
+.main,
+.content {
+  overflow-x: hidden;
+}
 
 .topbar {
   position: fixed;
@@ -183,6 +191,7 @@
   padding: 5px;
   border-radius: 5px;
   transition: 0.2s ease;
+  cursor: w-resize;
 }
 
 .sidebar-toggle img {
@@ -191,6 +200,10 @@
 
 .sidebar-toggle:hover {
   background-color: #eee;
+}
+
+.dashboard.collapsed .sidebar-toggle {
+  cursor: e-resize;
 }
 
 .topbar-right {

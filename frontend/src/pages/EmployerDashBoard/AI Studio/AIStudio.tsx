@@ -113,6 +113,7 @@ export default function AIStudio() {
                 </div>
             </form>
         </div>
+        <div className="filler-space"></div>
     </div>
 );
 }

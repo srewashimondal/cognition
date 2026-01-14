@@ -1,7 +1,6 @@
 /* Same base layout as Employer dashboard */
 .dashboard {
     display: flex;
-    min-height: 100vh;
   }
   
   /* Sidebar is already fixed via shared CSS */
@@ -9,7 +8,6 @@
   /* Main area */
   .main {
     margin-left: 240px;          /* sidebar width */
-    height: 100vh;
     overflow: hidden;            /* prevent body scrolling */
     display: flex;
     flex-direction: column;

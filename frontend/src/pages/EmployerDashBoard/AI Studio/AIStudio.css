@@ -1,8 +1,16 @@
+.ai-studio-page {
+  height: auto;
+  min-height: auto;
+  overflow: visible;
+}
+
 .ai-studio-contents {
     display: flex;
     flex-direction: column;
     gap: 30px;
-    margin-left: 16px;
+    padding-left: 16px;  /* ✅ padding instead of margin */
+    padding-right: 16px;
+    box-sizing: border-box;
 }
 
 .ai-studio-prompt-header {
@@ -112,7 +120,7 @@
 
 .ai-studio-save-changes {
     width: 100%;
-    margin-bottom: 32px;
+    padding-bottom: 32px;
     display: flex;
     align-items: flex-end;
 }
