@@ -1,11 +1,11 @@
-import './EmployeeHome.css';
+import './Resources.css';
 
-export default function EmployeeHome() {
+export default function Resources() {
     return (
-        <div className="employee-home">
+        <div className="settings=pg">
             <div className="modules-header">
                 <div>
-                <h1>Employee Home</h1>
+                <h1>Resources</h1>
                 <p></p>
                 </div>
             </div>

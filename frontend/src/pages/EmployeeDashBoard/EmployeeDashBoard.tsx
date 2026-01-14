@@ -4,30 +4,60 @@ import { useState } from "react";
 import logo from '../../assets/branding/cognition-logo.png';
 import bell from '../../assets/icons/bell.svg';
 import down_chevron from '../../assets/icons/black-down-chevron.svg';
+import sidebar_icon from '../../assets/icons/sidebar-icon.svg';
 import ProfilePage from "../EmployerDashBoard/ProfilePage/ProfilePage";
 import PerformanceDashboard from "./PerformanceDashboard/PerformanceDashboard";
+/*
 import SimulationLessonView from './SimulationLessonView/SimulationLessonView/SimulationLessonView';
 import SimulationView from './SimulationView/SimulationView';
-import StandardLessonView from './StandardLessonView/StandardLessonView';
+*/
+import StandardModules from './StandardModules/StandardModules';
+import SimulationModules from './SimulationModules/SimulationModules';
 import EmployeeHome from './EmployeeHome/EmployeeHome';
-import EmployeeModules from './EmployeeModules/EmployeeModules';
 import Schedule from './Schedule/Schedule';
+import Resources from './Resources/Resources';
+import Settings from './Settings/Settings';
+
+import white_home from '../../assets/icons/sidebar/white-home-icon.svg';
+import black_home from '../../assets/icons/sidebar/black-home-icon.svg';
+import blue_home from '../../assets/icons/sidebar/blue-home-icon.svg';
+import white_pie from '../../assets/icons/sidebar/white-pie-icon.svg';
+import black_pie from '../../assets/icons/sidebar/black-pie-icon.svg';
+import blue_pie from '../../assets/icons/sidebar/blue-pie-icon.svg';
+import white_gear from '../../assets/icons/sidebar/white-gear-icon.svg';
+import black_gear from '../../assets/icons/sidebar/black-gear-icon.svg';
+import blue_gear from '../../assets/icons/sidebar/blue-gear-icon.svg';
+import white_folder from '../../assets/icons/sidebar/white-folder-icon.svg';
+import black_folder from '../../assets/icons/sidebar/black-folder-icon.svg';
+import blue_folder from '../../assets/icons/sidebar/blue-folder-icon.svg';
+import white_calendar from '../../assets/icons/sidebar/white-calendar-icon.svg';
+import black_calendar from '../../assets/icons/sidebar/black-calendar-icon.svg';
+import blue_calendar from '../../assets/icons/sidebar/blue-calendar-icon.svg';
+import white_vl from '../../assets/icons/sidebar/white-vl-icon.svg';
+import black_vl from '../../assets/icons/sidebar/black-vl-icon.svg';
+import blue_vl from '../../assets/icons/sidebar/blue-vl-icon.svg';
+import white_controller from '../../assets/icons/sidebar/white-controller-icon.svg';
+import black_controller from '../../assets/icons/sidebar/black-controller-icon.svg';
+import blue_controller from '../../assets/icons/sidebar/blue-controller-icon.svg';
+
 
 export default function EmployeeDashBoard() {
     const [profileOpen, setProfileOpen] = useState(false);
-      
+    const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+
     return (
-    <div className="dashboard employee">
+    <div className={`dashboard employee ${sidebarCollapsed ? "collapsed" : ""}`}>
       {/* Sidebar */}
       <aside className="sidebar">
-        <Link to="/">
           <div className="logo">
-            <span className="logo-img">
-              <img src={logo}/>
-            </span>
-            <span className="logo-text">Cognition</span>
+            <Link to="/">
+              <span className="logo-img">
+                <img src={logo}/>
+              </span>
+            </Link>
+            {(!sidebarCollapsed) && <span className="logo-text">Workspace</span>}
           </div>
-        </Link>
+        
 
         <nav className="nav">
           <NavLink
@@ -39,8 +69,11 @@ export default function EmployeeDashBoard() {
           >
             <div className="sidebar-label">
               <div className="sidebar-icon-swap">
+                <img className="sidebar-icon white" src={white_home} />
+                <img className="sidebar-icon black" src={black_home} />
+                <img className="sidebar-icon blue" src={blue_home} />
               </div>
-              Employee Homepage
+              {(!sidebarCollapsed) && "Employee Home" }
             </div>
           </NavLink>
 
@@ -48,8 +81,11 @@ export default function EmployeeDashBoard() {
           <NavLink to="/employee/performance" className="nav-item">
             <div className="sidebar-label">
               <div className="sidebar-icon-swap">
+                <img className="sidebar-icon white" src={white_pie} />
+                <img className="sidebar-icon black" src={black_pie} />
+                <img className="sidebar-icon blue" src={blue_pie} />
               </div>
-              Performance Dashboard
+              {(!sidebarCollapsed) && "Performance" }
             </div>
           </NavLink>
           
@@ -57,14 +93,28 @@ export default function EmployeeDashBoard() {
             Lessons
           </NavLink> */}
 
-          <NavLink to="/employee/modules" className="nav-item">
+          <NavLink to="/employee/simulation-modules" className="nav-item">
             <div className="sidebar-label">
-              <div className="sidebar-icon-swap">
+              <div className="sidebar-icon-swap sim">
+                <img className="sidebar-icon white" src={white_controller} />
+                <img className="sidebar-icon black" src={black_controller} />
+                <img className="sidebar-icon blue" src={blue_controller} />
               </div>
-              Modules
+              {(!sidebarCollapsed) && "Simulation Modules" }
             </div>
           </NavLink>
 
+          <NavLink to="/employee/standard-modules" className="nav-item">
+            <div className="sidebar-label">
+              <div className="sidebar-icon-swap">
+                <img className="sidebar-icon white" src={white_vl} />
+                <img className="sidebar-icon black" src={black_vl} />
+                <img className="sidebar-icon blue" src={blue_vl} />
+              </div>
+              {(!sidebarCollapsed) && "Standard Modules"}
+            </div>
+          </NavLink>
+            {/*
           <NavLink to="/employee/simulation-lesson-view" className="nav-item">
             <div className="sidebar-label">
               <div className="sidebar-icon-swap">
@@ -88,12 +138,37 @@ export default function EmployeeDashBoard() {
               Standard Lesson View
             </div>
           </NavLink>
-
+            */}
           <NavLink to="/employee/schedule" className="nav-item">
             <div className="sidebar-label">
               <div className="sidebar-icon-swap">
+                <img className="sidebar-icon white" src={white_calendar} />
+                <img className="sidebar-icon black" src={black_calendar} />
+                <img className="sidebar-icon blue" src={blue_calendar} />
               </div>
-              Schedule
+              {(!sidebarCollapsed) && "Schedule" }
+            </div>
+          </NavLink>
+
+          <NavLink to="/employee/resources" className="nav-item">
+            <div className="sidebar-label">
+              <div className="sidebar-icon-swap">
+                <img className="sidebar-icon white" src={white_folder} />
+                <img className="sidebar-icon black" src={black_folder} />
+                <img className="sidebar-icon blue" src={blue_folder} />
+              </div>
+              {(!sidebarCollapsed) && "Resources" }
+            </div>
+          </NavLink>
+
+          <NavLink to="/employee/settings" className="nav-item">
+            <div className="sidebar-label">
+              <div className="sidebar-icon-swap">
+                <img className="sidebar-icon white" src={white_gear} />
+                <img className="sidebar-icon black" src={black_gear} />
+                <img className="sidebar-icon blue" src={blue_gear} />
+              </div>
+              {(!sidebarCollapsed) && "Settings" }
             </div>
           </NavLink>
         </nav>
@@ -104,12 +179,17 @@ export default function EmployeeDashBoard() {
       <main className="main employee">
         {/* Topbar */}
         <header className="topbar employee">
+          {/*
           <div className="search-wrapper">
             <span className="search-icon">🔍︎</span>
             <input
               className="search-input"
               placeholder="Search by Employee Name or ID"
             />
+          </div>*/}
+
+          <div className="sidebar-toggle" onClick={() => setSidebarCollapsed(prev => !prev)} >
+            <img src={sidebar_icon} />
           </div>
 
           <div className="topbar-right">
@@ -141,11 +221,13 @@ export default function EmployeeDashBoard() {
           <Routes>
             <Route index element={<EmployeeHome />} />
             <Route path="performance" element={<PerformanceDashboard />} />
-            <Route path="modules" element={<EmployeeModules />} />
-            <Route path="simulation-lesson-view" element={<SimulationLessonView />} />
-            <Route path="simulation-view" element={<SimulationView />} />
+            <Route path="simulation-modules" element={<SimulationModules />} />
+            {/*<Route path="simulation-lesson-view" element={<SimulationLessonView />} />
+            <Route path="simulation-view" element={<SimulationView />} />*/}
             <Route path="schedule" element={<Schedule />} />
-            <Route path="standard-lesson-view" element={<StandardLessonView />} />
+            <Route path="standard-modules" element={<StandardModules />} />
+            <Route path="resources" element={<Resources />} />
+            <Route path="settings" element={<Settings />} />
             <Route path="*" element={<Navigate to="" />} />
           </Routes>
         </section>
