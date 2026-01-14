@@ -43,7 +43,7 @@ import blue_controller from '../../assets/icons/sidebar/blue-controller-icon.svg
 
 export default function EmployeeDashBoard() {
     const [profileOpen, setProfileOpen] = useState(false);
-    const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+    const [sidebarCollapsed, setSidebarCollapsed] = useState(true);
 
     return (
     <div className={`dashboard employee ${sidebarCollapsed ? "collapsed" : ""}`}>

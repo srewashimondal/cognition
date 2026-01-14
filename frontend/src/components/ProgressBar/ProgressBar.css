@@ -9,11 +9,20 @@
     border-radius: 25px;
 }
 
+.progress-bar-wrapper.styled {
+    width: 100%;
+    background-color: #C1C1C1;
+}
+
 .progress-bar-fill {
     background-color: #FF844F;
     height: 100%;
     border-radius: 25px;
     transition: width 800ms ease;
+}
+
+.progress-bar-fill.styled {
+    background-color: #FF4B00;
 }
 
 .progress-label {

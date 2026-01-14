@@ -58,7 +58,7 @@ export default function Modules() {
 
       {/* Grid */}
       <div className="modules-grid">
-        {modules.map((m) => (<ModuleCard moduleInfo={m} />))}
+        {modules.map((m) => (<ModuleCard moduleInfo={m} role={"employer"} />))}
       </div>
 
       {/* Pagination */} {/* Note: maybe make a pagination component laterr */}

@@ -38,7 +38,7 @@ import ProfilePage from "./ProfilePage/ProfilePage";
 
 export default function EmployerDashBoard() {
   const [profileOpen, setProfileOpen] = useState(false);
-  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(true);
   
   return (
     <div className={`dashboard ${sidebarCollapsed ? "collapsed" : ""}`}>
