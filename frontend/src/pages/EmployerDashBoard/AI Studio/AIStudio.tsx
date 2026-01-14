@@ -72,7 +72,7 @@ export default function AIStudio() {
 
       <div className="ai-studio-contents">
         <form id="ai-studio-form">
-            <div className="ai-studio-upload-pdf">
+            <div className="ai-studio-section ai-studio-upload-pdf">
                 <div className="ai-studio-prompt-header">
                     <p className="ai-studio-prompt">Upload Training Materials</p>
                     <p className="ai-studio-direction">Accepted File Type: PDF</p>
@@ -83,7 +83,7 @@ export default function AIStudio() {
                     </div>
                 </div>
             </div>
-            <div className="ai-studio-upload-map">
+            <div className="ai-studio-section ai-studio-upload-map">
                 <div className="ai-studio-prompt-header">
                     <p className="ai-studio-prompt">Upload Store Map Layout</p>
                     <p className="ai-studio-direction">Accepted File Types: PDF, JPEG/JPG, PNG, SVG</p>
@@ -94,7 +94,7 @@ export default function AIStudio() {
                     </div>
                 </div>
             </div>
-                <div className="ai-studio-pos-integration">
+                <div className="ai-studio-section ai-studio-pos-integration">
                     <Question question={"Select your Point of Scale System Provider"} input_type={"image-buttons"} 
                     value={posProvider} onChange={(newProvider) => {handleChange(); setPOSProvider(newProvider);}} 
                     options={["Lightspeed", "Zoho"]} fileOptions={[lightspeed_logo, zoho_logo]}

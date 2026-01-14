@@ -4,6 +4,18 @@
   overflow: visible;
 }
 
+.ai-studio-section {
+  background-color: white;
+  padding: 24px;
+  border-radius: 10px;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
+  transition: 0.2s ease;
+}
+
+.ai-studio-section:hover {
+  transform: scale(1.01);
+}
+
 .ai-studio-contents {
     display: flex;
     flex-direction: column;
@@ -115,7 +127,7 @@
 }
 
 .connect-div.ai-studio button {
-    background-color: #F5F5F5;
+    background-color: white;
 }
 
 .ai-studio-save-changes {
