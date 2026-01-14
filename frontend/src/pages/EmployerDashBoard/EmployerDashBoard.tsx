@@ -11,6 +11,7 @@ import Settings from "./Settings/Settings";
 import logo from '../../assets/branding/cognition-logo.png';
 import bell from '../../assets/icons/bell.svg';
 import down_chevron from '../../assets/icons/black-down-chevron.svg';
+import sidebar_icon from '../../assets/icons/sidebar-icon.svg';
 
 import white_home from '../../assets/icons/sidebar/white-home-icon.svg';
 import black_home from '../../assets/icons/sidebar/black-home-icon.svg';
@@ -37,17 +38,19 @@ import ProfilePage from "./ProfilePage/ProfilePage";
 
 export default function EmployerDashBoard() {
   const [profileOpen, setProfileOpen] = useState(false);
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   
   return (
-    <div className="dashboard">
+    <div className={`dashboard ${sidebarCollapsed ? "collapsed" : ""}`}>
       {/* Sidebar */}
+      
       <aside className="sidebar">
         <Link to="/">
           <div className="logo">
             <span className="logo-img">
               <img src={logo}/>
             </span>
-            <span className="logo-text">Cognition</span>
+            {(!sidebarCollapsed) && <span className="logo-text">Cognition</span>}
           </div>
         </Link>
 
@@ -65,7 +68,7 @@ export default function EmployerDashBoard() {
                 <img className="sidebar-icon black" src={black_home} />
                 <img className="sidebar-icon blue" src={blue_home} />
               </div>
-              Employer Homepage
+              { (!sidebarCollapsed) && "Employer Homepage" }
             </div>
           </NavLink>
 
@@ -77,7 +80,7 @@ export default function EmployerDashBoard() {
                 <img className="sidebar-icon black" src={black_pie} />
                 <img className="sidebar-icon blue" src={blue_pie} />
               </div>
-              Analytics
+              { (!sidebarCollapsed) && "Analytics" }
             </div>
           </NavLink>
           
@@ -92,7 +95,7 @@ export default function EmployerDashBoard() {
                 <img className="sidebar-icon black" src={black_clipboard} />
                 <img className="sidebar-icon blue" src={blue_clipboard} />
               </div>
-              Modules
+              { (!sidebarCollapsed) && "Modules" }
             </div>
           </NavLink>
 
@@ -103,7 +106,7 @@ export default function EmployerDashBoard() {
                 <img className="sidebar-icon black" src={black_robot} />
                 <img className="sidebar-icon blue" src={blue_robot} />
               </div>
-              AI Studio
+              { (!sidebarCollapsed) && "AI Studio" }
             </div>
           </NavLink>
 
@@ -114,7 +117,7 @@ export default function EmployerDashBoard() {
                 <img className="sidebar-icon black" src={black_folder} />
                 <img className="sidebar-icon blue" src={blue_folder} />
               </div>
-              Resources
+              { (!sidebarCollapsed) && "Resources" }
             </div>
           </NavLink>
 
@@ -125,23 +128,28 @@ export default function EmployerDashBoard() {
                 <img className="sidebar-icon black" src={black_gear} />
                 <img className="sidebar-icon blue" src={blue_gear} />
               </div>
-              Settings
+              { (!sidebarCollapsed) && "Settings" }
             </div>
           </NavLink>
         </nav>
 
-      </aside>
+      </aside> 
 
       {/* Main layout */}
       <main className="main">
         {/* Topbar */}
+
         <header className="topbar">
-          <div className="search-wrapper">
+        { /*<div className="search-wrapper">
             <span className="search-icon">🔍︎</span>
             <input
               className="search-input"
               placeholder="Search by Employee Name or ID"
             />
+          </div>*/ }
+
+          <div className="sidebar-toggle" onClick={() => setSidebarCollapsed(prev => !prev)}>
+            <img src={sidebar_icon} />
           </div>
 
           <div className="topbar-right">
