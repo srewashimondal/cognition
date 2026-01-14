@@ -377,7 +377,7 @@ export default function Lessons() {
   const module = modules.find(m => m.id === moduleId);
 
   const lessons = module?.lessons;
-  const bannerColorByID = ["yellow", "pink", "blue", "green", "red", "orange"];
+  const bannerColorByID = ["module1", "module2", "module3", "module4", "module5", "module6"];
 
   return (
     <div className="lessons-page">

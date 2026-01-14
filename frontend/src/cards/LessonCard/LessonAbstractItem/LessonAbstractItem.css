@@ -4,15 +4,21 @@
     align-items: flex-start;
     overflow: hidden;
     margin-bottom: 16px;
+    transition: 0.2s ease;
 }
- 
+
+.lesson-abstract-item:hover {
+    transform: scale(1.01);
+}
+
+ /*
 .lesson-abstract-branch {
     width: 20px;
     height: 2px;
     background: #d0d0d0;
     margin-top: 40px;
     z-index: 1;
-}
+}*/
 
 
 .lesson-abstract-card {
@@ -25,8 +31,11 @@
 }
 
 .lesson-abstract-card p {
-    font-weight: 500;
     font-size: 12px;
     color: #767676;
     margin: 2px;
+}
+
+.lesson-abstract-item-name {
+    font-weight: 600;
 }
