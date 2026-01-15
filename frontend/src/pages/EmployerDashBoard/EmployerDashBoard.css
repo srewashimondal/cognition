@@ -3,7 +3,7 @@
 .dashboard {
   display: flex;
   font-family: Inter, system-ui, sans-serif;
-  background: #fbfbfb;
+  background-color: #fbfbfb;
 }
 
 .logo-img img {
