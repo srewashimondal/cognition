@@ -34,16 +34,16 @@ export const moduleAttempts: ModuleAttemptType[] = [
                 id: simId,
                 premise: "Lorem ipsum simulation premise.",
                 characterName: "Astra"
-              },
+            },
               status: "completed",
               conversationId: `m1-l${lesson.id}-s${simId}`,
               messages: loremMessages("Astra")
             })
           ),
           evaluation: {
-            strengths: "Lorem ipsum strengths.",
-            shortcomings: "Lorem ipsum shortcomings.",
-            overallFeedback: "Lorem ipsum overall feedback."
+            strengths: "Lorem ipsum dolor sit amet consectetur adipiscing elit. Consectetur adipiscing elit quisque faucibus ex sapien vitae. Ex sapien vitae pellentesque sem placerat in id.",
+            shortcomings: "Lorem ipsum dolor sit amet consectetur adipiscing elit. Consectetur adipiscing elit quisque faucibus ex sapien vitae. Ex sapien vitae pellentesque sem placerat in id. ",
+            overallFeedback: "Lorem ipsum dolor sit amet consectetur adipiscing elit. Elit quisque faucibus ex sapien vitae pellentesque sem. Sem placerat in id cursus mi pretium tellus. Tellus duis convallis tempus leo eu aenean sed. Sed diam urna tempor pulvinar vivamus fringilla lacus. Lacus nec metus bibendum egestas iaculis massa nisl. Nisl malesuada lacinia integer nunc posuere ut hendrerit."
           }
         })
       )
@@ -73,9 +73,9 @@ export const moduleAttempts: ModuleAttemptType[] = [
             })
           ),
           evaluation: {
-            strengths: "Lorem ipsum strengths.",
-            shortcomings: "Lorem ipsum shortcomings.",
-            overallFeedback: "Lorem ipsum overall feedback."
+            strengths: "Lorem ipsum dolor sit amet consectetur adipiscing elit. Consectetur adipiscing elit quisque faucibus ex sapien vitae. Ex sapien vitae pellentesque sem placerat in id. ",
+            shortcomings: "Lorem ipsum dolor sit amet consectetur adipiscing elit. Consectetur adipiscing elit quisque faucibus ex sapien vitae. Ex sapien vitae pellentesque sem placerat in id. ",
+            overallFeedback: "Lorem ipsum dolor sit amet consectetur adipiscing elit. Elit quisque faucibus ex sapien vitae pellentesque sem. Sem placerat in id cursus mi pretium tellus. Tellus duis convallis tempus leo eu aenean sed. Sed diam urna tempor pulvinar vivamus fringilla lacus. Lacus nec metus bibendum egestas iaculis massa nisl. Nisl malesuada lacinia integer nunc posuere ut hendrerit."
           }
         },
   

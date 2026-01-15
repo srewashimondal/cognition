@@ -22,6 +22,14 @@ type ModuleProp = {
 export default function ModuleCard({ moduleInfo, role, status, percent, style }: ModuleProp) {
     const navigate = useNavigate();
     const bannerColorByID = ["module1", "module2", "module3", "module4", "module5", "module6"];
+
+    const handleNavigateEmployee = () => {
+      if (status === "completed") {
+        return;
+      }
+      navigate(`/employee/simulation-modules/${moduleInfo.id}`);
+    };
+
     return (
         <div key={moduleInfo.id} className="module-card">
             <div className="card-top">
@@ -68,7 +76,7 @@ export default function ModuleCard({ moduleInfo, role, status, percent, style }:
                     <span>Deploy</span>
                   </span>) : ("Deployed")}
                 </button> ) : (
-                <button className={`module-card-btn ${(moduleInfo.deployed) ? "deployed" : ""}`}>
+                <button className={`module-card-btn ${(status == "completed") ? "completed" : ""}`} onClick={handleNavigateEmployee}>
                   {(status !== "completed") ? (<span className="module-card-btn-label-div">
                     <div className="module-action-swap">
                       <img className="module-action-icon default" src={white_play}/>

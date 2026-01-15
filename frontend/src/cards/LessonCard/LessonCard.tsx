@@ -1,6 +1,8 @@
 import './LessonCard.css';
 import { useState, useEffect, useRef } from 'react';
+import { useNavigate } from 'react-router-dom';
 import type { LessonType } from '../../types/Modules/Lessons/LessonType';
+import type { LessonEvaluationType } from '../../types/Modules/Lessons/LessonEvaluationType';
 import SkillItem from './SkillItem/SkillItem';
 import LessonAbstract from './LessonAbstract/LessonAbstract';
 import ActionButton from '../../components/ActionButton/ActionButton';
@@ -9,13 +11,17 @@ import { Checkbox, RadioGroup } from "@radix-ui/themes";
 import orange_edit_icon from '../../assets/icons/orange-edit-icon.svg';
 import orange_check_icon from '../../assets/icons/orange-check.svg';
 import green_plus from '../../assets/icons/lesson-edit/green-plus.svg';
+import down_chevron from '../../assets/icons/another-black-down-chevron.svg';
+import up_chevron from '../../assets/icons/black-up-chevron.svg';
 
 type LessonProp = {
     lessonInfo: LessonType;
-    /* Later add an "employer | employee" item to differentiate between the two types of lesson cards */
+    role: "employer" | "employee";
+    status?: "not begun" | "started" | "completed";
+    evaluation?: LessonEvaluationType;
 };
 
-export default function LessonCard({ lessonInfo }: LessonProp) {
+export default function LessonCard({ lessonInfo, role, status, evaluation }: LessonProp) {
     const id = lessonInfo.id;
     const title = lessonInfo.title;
     const duration = lessonInfo.duration;
@@ -29,9 +35,22 @@ export default function LessonCard({ lessonInfo }: LessonProp) {
     const [search, setSearch] = useState("");
     const [error, setError] = useState<string | null>(null);
 
+    const buttonLabelsByStatus = {
+        "not begun": "Begin",
+        "started": "Continue"
+    };
+
+    const statusLabelbyStatus = {
+        "not begun": "Pending",
+        "started": "Progress",
+        "completed": "Done"
+    }
+
     const removeSkill = (skillToRemove: string) => {
-        setSkills(prev => prev.filter(skill => skill !== skillToRemove));
-        setChangesMade(true);
+        if (role === "employer") {
+            setSkills(prev => prev.filter(skill => skill !== skillToRemove));
+            setChangesMade(true);
+        }
     };
 
     const addSkill = (skillToAdd: string) => {
@@ -64,6 +83,14 @@ export default function LessonCard({ lessonInfo }: LessonProp) {
         return () => document.removeEventListener("mousedown", handleClickOutside)
     }, [clicked]);
 
+    const navigate = useNavigate();
+    const handleNavigateEmployee = () => {
+        if (status === "completed") {
+            setExpanded(prev => !prev);
+        }
+        console.log("Navigate to simulation");
+    }
+
 
     const handleCheck = () => {
         lessonInfo.randomize = !lessonInfo.randomize;
@@ -82,6 +109,10 @@ export default function LessonCard({ lessonInfo }: LessonProp) {
         /* nothing for now */
     };
 
+    const handleLessonReset = () => {
+        /* nothing for now */
+    };
+
     return (
         <div key={id} className={`lesson-card ${(expanded) ? ("expanded") : ("")}`}>
             <div className="lesson-card-top">
@@ -89,8 +120,8 @@ export default function LessonCard({ lessonInfo }: LessonProp) {
                     <p className="lesson-title">{id}. {title}</p>
                     <div className="lesson-skills">
                         <span>Skills</span>
-                        {skills.map((s) => (<SkillItem skill={s} expanded={expanded} onClick={() => (removeSkill(s))} />))}
-                        {(expanded) && (
+                        {skills.map((s) => (<SkillItem skill={s} expanded={expanded} role={role} onClick={() => (removeSkill(s))} />))}
+                        {(expanded && role === "employer") && (
                             <div className="add-skill-popover-wrapper" ref={wrapperRef}>
                                 <div className="add-skill" onClick={(e) => {e.stopPropagation(); setClicked(true);}}>
                                     <span className="green-plus-icon">
@@ -102,14 +133,23 @@ export default function LessonCard({ lessonInfo }: LessonProp) {
                         </div>)}
                     </div>
                 </div>
-                <p className="lesson-info lesson-duration">{duration}m</p>
-                <p className="lesson-info lesson-due">{dueDate}</p>
-                <button className={`expand-btn ${(expanded) ? ("expanded") : ("")}`} onClick={() => {setExpanded(!expanded); console.log(id, ": ", expanded);}}>
-                    <img src={(expanded) ? (orange_check_icon) : (orange_edit_icon)} />
-                </button>
+                <p className={`lesson-info lesson-duration ${role}`}>{duration}m</p>
+                <p className={`lesson-info lesson-due ${role}`}>{dueDate}</p>
+                <div className={`lesson-info lesson-status ${statusLabelbyStatus[status ?? "not begun"]} ${role}`}>
+                    <div className="lesson-status-dot" />
+                    {statusLabelbyStatus[status ?? "not begun"]}
+                </div>
+                { (role === "employer") ?
+                    (<button className={`expand-btn ${(expanded) ? ("expanded") : ("")}`} onClick={() => {setExpanded(!expanded); console.log(id, ": ", expanded);}}>
+                        <img src={(expanded) ? (orange_check_icon) : (orange_edit_icon)} />
+                    </button>) :
+                    (<button className={`lesson-action-btn ${statusLabelbyStatus[status ?? "not begun"]}`} onClick={handleNavigateEmployee}>
+                        {(status == "completed") ? (<img src={(expanded) ? (up_chevron) : (down_chevron)} />) : (buttonLabelsByStatus[status ?? "not begun"])}
+                    </button>)
+                }
             </div>
             {
-                (expanded) && (
+                (expanded && role === "employer") && (
                     <div className="lesson-card-expanded">
                         <LessonAbstract lessonAbstractInfo={lessonInfo.lessonAbstractInfo}/>
                         <div className="expanded-settings">
@@ -140,6 +180,32 @@ export default function LessonCard({ lessonInfo }: LessonProp) {
                             <div className="action-panel-right">
                                 <ActionButton buttonType="refresh" text="Reset to Default" onClick={handleRefresh} />
                             </div>
+                        </div>
+                    </div>
+                )
+            }
+            {
+                (expanded && role === "employee") && (
+                    <div className="lesson-card-expanded">
+                        <p className="expanded-settings-label">Cognition Evaluation & Stats</p>
+                        <div className="eval-wrapper">
+                            <div className="eval-left">
+                                <div className="eval-box strengths">
+                                    <p className="eval-label green">Strengths</p>
+                                    <p className="expanded-settings-text black">{evaluation?.strengths}</p>
+                                </div>
+                                <div className="eval-box shortcomings">
+                                    <p className="eval-label red">Shortcomings</p>
+                                    <p className="expanded-settings-text black">{evaluation?.shortcomings}</p>
+                                </div>
+                            </div>
+                            <div className="eval-box overall">
+                                <p className="eval-label orange">Overall Feedback</p>
+                                <p className="expanded-settings-text black">{evaluation?.overallFeedback}</p>
+                            </div>
+                        </div>
+                        <div className="employee-action-panel">
+                            <ActionButton text={"Restart Lesson"} buttonType={"refresh"} onClick={handleLessonReset} reversed={true} />
                         </div>
                     </div>
                 )
