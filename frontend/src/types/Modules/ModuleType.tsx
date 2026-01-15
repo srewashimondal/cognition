@@ -1,4 +1,4 @@
-import type { LessonType } from './LessonType';
+import type { LessonType } from './Lessons/LessonType';
 
 export type ModuleType = {
     id: number;

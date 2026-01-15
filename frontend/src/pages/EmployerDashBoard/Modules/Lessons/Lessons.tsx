@@ -1,6 +1,6 @@
 import './Lessons.css';
 import { useParams, useNavigate } from 'react-router-dom';
-import type { ModuleType } from '../../../../types/ModuleType';
+import type { ModuleType } from '../../../../types/Modules/ModuleType';
 import LessonCard from '../../../../cards/LessonCard/LessonCard';
 import ActionButton from '../../../../components/ActionButton/ActionButton';
 import orange_left_arrow from '../../../../assets/icons/orange-left-arrow.svg';

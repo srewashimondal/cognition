@@ -1,6 +1,6 @@
 import PersonalInfo from './Subsections/PersonalInfo.tsx';
 import AccountPreferences_Onboarding from './Subsections/AccountPreferences_Onboarding.tsx';
-import type { OnboardingSection } from '../../../../types/OnboardingSection.tsx';
+import type { OnboardingSection } from '../../../../types/Onboarding/OnboardingSection.tsx';
 
 export default function ProfileSetup({ substep, data, updateData, registerFormId, onNext }: OnboardingSection) {
     return (

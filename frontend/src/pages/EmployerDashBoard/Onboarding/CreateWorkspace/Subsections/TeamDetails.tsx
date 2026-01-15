@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 import Question from '../../Question/Question';
-import type { OnboardingSubsection } from '../../../../../types/OnboardingSubsection';
+import type { OnboardingSubsection } from '../../../../../types/Onboarding/OnboardingSubsection';
 
 export default function TeamDetails({ data, updateData, registerFormId, onNext }: OnboardingSubsection) {
     const formId = "team-details-form";
