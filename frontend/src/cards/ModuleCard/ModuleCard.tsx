@@ -27,7 +27,7 @@ export default function ModuleCard({ moduleInfo, role, status, percent, style }:
       if (status === "completed") {
         return;
       }
-      navigate(`/employee/simulation-modules/${moduleInfo.id}`);
+      navigate(`/employee/simulations/${moduleInfo.id}`);
     };
 
     return (

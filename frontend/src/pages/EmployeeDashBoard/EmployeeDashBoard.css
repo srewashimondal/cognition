@@ -1,6 +1,7 @@
 /* Same base layout as Employer dashboard */
 .dashboard {
     display: flex;
+    min-height: 100vh;
 }
 
 .main {
@@ -8,6 +9,7 @@
     overflow: hidden;            
     display: flex;
     flex-direction: column;
+    flex: 1;
 }
   
 .topbar {
@@ -20,10 +22,14 @@
 }
   
 .content {
-    margin-top: 64px;           
+    margin-top: 60px;
     padding: 18px;
     overflow-y: auto;
     flex: 1;
+}
+
+.content.employee.no-padding {
+    padding: 0;
 }
 
 .sidebar-icon-swap.sim {

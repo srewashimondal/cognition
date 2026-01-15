@@ -1,4 +1,5 @@
 import './SimulationLessons.css';
+import { useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import LessonCard from '../../../../cards/LessonCard/LessonCard';
 import ActionButton from '../../../../components/ActionButton/ActionButton';
@@ -9,14 +10,28 @@ import orange_left_arrow from '../../../../assets/icons/orange-left-arrow.svg';
 
 export default function SimulationLessons() {
     const navigate = useNavigate();
-    const { id } = useParams();
-    const moduleId = Number(id);
+    const { moduleID } = useParams();
+    const id = Number(moduleID);
 
     /* replace this line with backend logic later */
-    const moduleAttempt = moduleAttempts.find(m => m.moduleInfo.id === moduleId);
+    const moduleAttempt = moduleAttempts.find(m => m.moduleInfo.id === id);
     const moduleInfo = moduleAttempt?.moduleInfo;
     const lessonAttempts = moduleAttempt?.lessons;
     const bannerColorByID = ["module1", "module2", "module3", "module4", "module5", "module6"];
+
+    useEffect(() => {
+        window.scrollTo({ top: 0, left: 0, behavior: "instant" });
+    }, []);
+
+    const handleSimNavigate = (moduleID: number, lessonID: number, status: string) => {
+        if (status === "not begun") {
+            navigate(`/employee/simulations/${moduleID}/${lessonID}/1`);
+            return;
+        }
+        const lessonAttempt = moduleAttempt?.lessons?.find(l => l.lessonInfo.id === lessonID);
+        const nextSimIndex = lessonAttempt?.simulations?.findIndex(s => s.status !== "completed") ?? 0;
+        navigate(`/employee/simulations/${moduleID}/${lessonID}/${nextSimIndex + 1}`);
+    };
 
     const handleModuleReset = () => {
         /* nothing for now */
@@ -24,7 +39,7 @@ export default function SimulationLessons() {
 
     return (
         <div className="simulation-lessons-pg">
-            <div className="back-to-modules" onClick={() => navigate(`/employee/simulation-modules`)}>
+            <div className="back-to-modules" onClick={() => navigate(`/employee/simulations`)}>
                 <img src={orange_left_arrow} />
             </div>
 
@@ -47,7 +62,9 @@ export default function SimulationLessons() {
             </div>
 
             <div className="lessons-list">
-                {lessonAttempts?.map((l) => (<LessonCard lessonInfo={l.lessonInfo} role={"employee"} status={l.status} evaluation={l.evaluation} />))}
+                {lessonAttempts?.map((l) => (<LessonCard lessonInfo={l.lessonInfo} 
+                role={"employee"} status={l.status} evaluation={l.evaluation} 
+                navigateToSim={() => handleSimNavigate(id, l.lessonInfo.id, l.status)} />))}
             </div>
 
             <div className="employee-action-panel module">

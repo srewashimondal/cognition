@@ -1,6 +1,5 @@
 import './LessonCard.css';
 import { useState, useEffect, useRef } from 'react';
-import { useNavigate } from 'react-router-dom';
 import type { LessonType } from '../../types/Modules/Lessons/LessonType';
 import type { LessonEvaluationType } from '../../types/Modules/Lessons/LessonEvaluationType';
 import SkillItem from './SkillItem/SkillItem';
@@ -19,9 +18,10 @@ type LessonProp = {
     role: "employer" | "employee";
     status?: "not begun" | "started" | "completed";
     evaluation?: LessonEvaluationType;
+    navigateToSim?: () => void;
 };
 
-export default function LessonCard({ lessonInfo, role, status, evaluation }: LessonProp) {
+export default function LessonCard({ lessonInfo, role, status, evaluation, navigateToSim }: LessonProp) {
     const id = lessonInfo.id;
     const title = lessonInfo.title;
     const duration = lessonInfo.duration;
@@ -83,12 +83,12 @@ export default function LessonCard({ lessonInfo, role, status, evaluation }: Les
         return () => document.removeEventListener("mousedown", handleClickOutside)
     }, [clicked]);
 
-    const navigate = useNavigate();
     const handleNavigateEmployee = () => {
         if (status === "completed") {
             setExpanded(prev => !prev);
+            return; 
         }
-        console.log("Navigate to simulation");
+        navigateToSim?.();
     }
 
 

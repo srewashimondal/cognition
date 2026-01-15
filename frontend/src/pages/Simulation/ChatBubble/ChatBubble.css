@@ -1,0 +1,31 @@
+.chat-bubble-wrapper {
+    display: flex;
+}
+
+.chat-bubble-wrapper.user {
+    justify-content: flex-end;
+}
+
+.chat-bubble-wrapper.character {
+    justify-content: flex-start;
+}
+
+.chat-bubble {
+    display: inline-flex;
+    flex-direction: column;
+    max-width: 90%;
+    padding: 10px 14px;
+    border-radius: 10px;
+    margin-bottom: 10px;
+    font-size: 13px;
+    word-wrap: break-word;
+    white-space: pre-wrap;
+}
+
+.chat-bubble.user {
+    background-color: #DCF7FF;
+}
+
+.role-text {
+    font-weight: 700;
+}

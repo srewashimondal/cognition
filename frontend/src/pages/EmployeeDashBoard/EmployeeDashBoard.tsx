@@ -1,6 +1,7 @@
 import './EmployeeDashBoard.css';
 import { Routes, Route, Navigate, Link, NavLink } from "react-router-dom";
 import { useState } from "react";
+import { useMatch } from "react-router-dom";
 import logo from '../../assets/branding/cognition-logo.png';
 import bell from '../../assets/icons/bell.svg';
 import down_chevron from '../../assets/icons/black-down-chevron.svg';
@@ -18,6 +19,7 @@ import Schedule from './Schedule/Schedule';
 import Resources from './Resources/Resources';
 import Settings from './Settings/Settings';
 import SimulationLessons from './SimulationModules/SimulationLessons/SimulationLessons';
+import SimulationPage from '../Simulation/SimulationPage';
 
 import white_home from '../../assets/icons/sidebar/white-home-icon.svg';
 import black_home from '../../assets/icons/sidebar/black-home-icon.svg';
@@ -45,6 +47,7 @@ import blue_controller from '../../assets/icons/sidebar/blue-controller-icon.svg
 export default function EmployeeDashBoard() {
     const [profileOpen, setProfileOpen] = useState(false);
     const [sidebarCollapsed, setSidebarCollapsed] = useState(true);
+    const isSimulationPage = useMatch("/employee/simulations/:moduleID/:lessonID/:simIdx");
 
     return (
     <div className={`dashboard employee ${sidebarCollapsed ? "collapsed" : ""}`}>
@@ -94,14 +97,14 @@ export default function EmployeeDashBoard() {
             Lessons
           </NavLink> */}
 
-          <NavLink to="/employee/simulation-modules" className="nav-item">
+          <NavLink to="/employee/simulations" className="nav-item">
             <div className="sidebar-label">
               <div className="sidebar-icon-swap sim">
                 <img className="sidebar-icon white" src={white_controller} />
                 <img className="sidebar-icon black" src={black_controller} />
                 <img className="sidebar-icon blue" src={blue_controller} />
               </div>
-              {(!sidebarCollapsed) && "Simulation Modules" }
+              {(!sidebarCollapsed) && "Simulations" }
             </div>
           </NavLink>
 
@@ -218,12 +221,13 @@ export default function EmployeeDashBoard() {
           </div>
         </header>
 
-        <section className="content employee">
+        <section className={`content employee ${isSimulationPage ? "no-padding" : ""}`}>
           <Routes>
             <Route index element={<EmployeeHome />} />
             <Route path="performance" element={<PerformanceDashboard />} />
-            <Route path="simulation-modules" element={<SimulationModules />} />
-            <Route path="simulation-modules/:id" element={<SimulationLessons />} />
+            <Route path="simulations" element={<SimulationModules />} />
+            <Route path="simulations/:moduleID" element={<SimulationLessons />} />
+            <Route path="simulations/:moduleID/:lessonID/:simIdx" element={<SimulationPage />} />
             {/*<Route path="simulation-lesson-view" element={<SimulationLessonView />} />
             <Route path="simulation-view" element={<SimulationView />} />*/}
             <Route path="schedule" element={<Schedule />} />

@@ -10,10 +10,18 @@ const loremMessages = (
     content: string;
     name?: string;
   }[] => [
-    { role: "user", content: "Lorem ipsum dolor sit amet." },
-    { role: "character", name: characterName, content: "Lorem ipsum dolor sit amet consectetur." },
+    { role: "character", name: characterName, content: "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum." },
+    { role: "user", content: "Lorem ipsum dolor sit amet consectetur adipiscing elit. Dolor sit amet consectetur adipiscing elit quisque faucibus." },
     { role: "assistant", content: "Lorem ipsum evaluation feedback." },
-    { role: "user", content: "Lorem ipsum adipiscing elit." }
+    { role: "character", name: characterName, content: "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum." },
+    { role: "user", content: "Lorem ipsum dolor sit amet." },
+    { role: "assistant", content: "Lorem ipsum evaluation feedback." },
+    { role: "character", name: characterName, content: "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum." },
+    { role: "user", content: "Lorem ipsum dolor sit amet consectetur adipiscing elit. Dolor sit amet consectetur adipiscing elit quisque faucibus." },
+    { role: "assistant", content: "Lorem ipsum evaluation feedback." },
+    { role: "character", name: characterName, content: "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum." },
+    { role: "user", content: "Lorem ipsum dolor sit amet." },
+    { role: "assistant", content: "Lorem ipsum evaluation feedback." },
 ];
   
 export const moduleAttempts: ModuleAttemptType[] = [
@@ -105,7 +113,7 @@ export const moduleAttempts: ModuleAttemptType[] = [
               },
               status: "not begun",
               conversationId: "m2-l2-s2",
-              messages: []
+              messages: loremMessages("Nova")
             },
             {
               attempt_id: 3,
@@ -116,7 +124,7 @@ export const moduleAttempts: ModuleAttemptType[] = [
               },
               status: "not begun",
               conversationId: "m2-l2-s3",
-              messages: []
+              messages: loremMessages("Nova")
             }
           ]
         },

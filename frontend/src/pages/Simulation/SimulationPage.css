@@ -1,0 +1,43 @@
+.simulation-page {
+    display: flex;
+    justify-content: space-between;
+    padding: 0;
+    height: 100vh;       
+    align-items: stretch;
+    width: 100%;
+}
+
+.chat-section {
+    background-color: white;
+    width: 70%;
+    height: 100%;
+}
+
+.sim-info {
+    width: 30%;
+    background-color: #FAFAFA;
+    border-left: 1px solid #C6C6C6;
+    height: 100%;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: flex-start;
+}
+
+.sim-info h3 {
+    margin: 0;
+    font-size: 20px;
+    font-weight: 600;
+}
+
+.sim-info p {
+    margin-bottom: 5px;
+    font-size: 12px;
+}
+
+.sim-prompt {
+    font-weight: 600;
+}
+
+
