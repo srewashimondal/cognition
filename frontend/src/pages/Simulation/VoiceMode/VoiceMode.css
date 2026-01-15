@@ -67,7 +67,7 @@
     padding: 30px;
     font-size: 14px;
     font-weight: 500;
-    position: fixed;
+    height: 45vh;
 }
 
 .scroll-wrapper {

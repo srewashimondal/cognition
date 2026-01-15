@@ -1,0 +1,92 @@
+.type-chat {
+    display: flex;
+    flex-direction: column;
+    height: 91vh;
+    align-items: center;
+}
+
+.title-section.type {
+    justify-content: space-between;
+    margin-top: 10px;
+}
+
+.filler.text {
+    width: 30px;
+}
+
+.empty-wrapper.text {
+    height: 80vh;
+}
+
+.scroll-wrapper.text {
+    flex: 1;               /* 🔑 THIS IS THE KEY */
+    overflow-y: auto;
+    position: relative;
+    max-height: 80vh;
+    overflow: hidden;
+    padding: 10px;
+    width: 95%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.scrollable-transcript.text {
+    width: 100%;
+    margin-bottom: 38px;
+    display: flex;
+    flex-direction: column;
+}
+
+.scroll-spacer {
+    flex-grow: 1;
+}
+
+.blur-top.text {
+    top: 2%;
+}
+
+.blur-bottom.text {
+    bottom: 8%;
+}
+
+.chat-input {
+    position: absolute;
+    z-index: 1000;
+    bottom: 2%;
+    width: 92%;
+    margin-right: 20px;
+}
+
+.chat-wrapper {
+    border: 1px solid #C9C9C9;
+    border-radius: 10px;
+    background-color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+    padding: 7px;
+    height: 40px;
+}
+
+.chat-wrapper input::placeholder {
+    font-size: 13px;
+}
+
+.chat-input-icon {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-top: 2px;
+    transition: 0.2s ease;
+}
+
+.chat-input-icon img {
+    width: 24px;
+    height: 24px;
+}
+
+.chat-input-icon:hover {
+    transform: scale(1.1);
+}

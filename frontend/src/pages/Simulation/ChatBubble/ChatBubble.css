@@ -1,5 +1,6 @@
 .chat-bubble-wrapper {
     display: flex;
+    width: 100%;
 }
 
 .chat-bubble-wrapper.user {
@@ -28,4 +29,8 @@
 
 .role-text {
     font-weight: 700;
+}
+
+.last-message {
+    margin-bottom: 10px;
 }
