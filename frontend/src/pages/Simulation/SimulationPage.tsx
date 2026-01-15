@@ -2,6 +2,7 @@ import './SimulationPage.css';
 import { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import VoiceMode from './VoiceMode/VoiceMode';
+import TypeMode from './TypeMode/TypeMode';
 // dummy data
 import { moduleAttempts } from '../../dummy_data/modulesAttempt_data';
 
@@ -33,9 +34,14 @@ export default function SimulationPage() {
     return (
         <div className="simulation-page">
             <div className="chat-section">
-                <VoiceMode title={lessonTitle ?? ""} idx={simulationIndex + 1} 
+                {(voiceMode) ?
+                (<VoiceMode title={lessonTitle ?? ""} idx={simulationIndex + 1} 
                 messages={messages ?? []} switchType={() => setVoiceMode(false)}
-                handleBack={handleBack} />
+                handleBack={handleBack} />) :
+                (<TypeMode title={lessonTitle ?? ""} idx={simulationIndex + 1} 
+                messages={messages ?? []} switchType={() => setVoiceMode(true)}
+                handleBack={handleBack} />)
+                }
             </div>
             <div className="sim-info">
                 <h3>Meet {simInfo?.characterName}</h3>
