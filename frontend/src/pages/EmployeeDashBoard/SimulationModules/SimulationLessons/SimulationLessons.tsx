@@ -1,6 +1,7 @@
 import './SimulationLessons.css';
 import { useParams, useNavigate } from 'react-router-dom';
 import LessonCard from '../../../../cards/LessonCard/LessonCard';
+import ActionButton from '../../../../components/ActionButton/ActionButton';
 // dummy data
 import { moduleAttempts } from '../../../../dummy_data/modulesAttempt_data';
 import orange_left_arrow from '../../../../assets/icons/orange-left-arrow.svg';
@@ -16,6 +17,10 @@ export default function SimulationLessons() {
     const moduleInfo = moduleAttempt?.moduleInfo;
     const lessonAttempts = moduleAttempt?.lessons;
     const bannerColorByID = ["module1", "module2", "module3", "module4", "module5", "module6"];
+
+    const handleModuleReset = () => {
+        /* nothing for now */
+    };
 
     return (
         <div className="simulation-lessons-pg">
@@ -45,6 +50,10 @@ export default function SimulationLessons() {
                 {lessonAttempts?.map((l) => (<LessonCard lessonInfo={l.lessonInfo} role={"employee"} status={l.status} evaluation={l.evaluation} />))}
             </div>
 
+            <div className="employee-action-panel module">
+                <ActionButton text={"Reset Progress"} buttonType={"refresh"} onClick={handleModuleReset} reversed={true} />
+            </div>
+            <div className="filler-space" />
         </div>
     );
 }
