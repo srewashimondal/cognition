@@ -6,12 +6,13 @@ import blue_trash from '../../../assets/icons/lesson-edit/blue-trash.svg';
 type SkillItemProps = {
     skill: string;
     expanded?: boolean;
+    role?: "employee" | "employer";
     onClick?: () => void;
     toAdd?: boolean;
     onAdd?: () => void;
 }
 
-export default function SkillItem({ skill, expanded=false, onClick, toAdd, onAdd }: SkillItemProps) {
+export default function SkillItem({ skill, expanded=false, role, onClick, toAdd, onAdd }: SkillItemProps) {
     const [clicked, setClicked] = useState(false);
     const handleClick = () => {
         if (expanded) {
@@ -41,7 +42,7 @@ export default function SkillItem({ skill, expanded=false, onClick, toAdd, onAdd
         <div className="skill-popover-wrapper" ref={wrapperRef}>
             <div className={`skill-item ${(expanded) ? "expanded": ""}`} onClick={(e) => {e.stopPropagation(); setClicked(true); if (!expanded) {handleClick();}}}>
                 <span>{skill}</span>
-                {(expanded) && (<span className="blue-trash-icon">
+                {(expanded && role === "employer") && (<span className="blue-trash-icon">
                     <img src={blue_trash} />
                 </span>)}
             </div>

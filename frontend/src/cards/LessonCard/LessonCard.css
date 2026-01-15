@@ -86,6 +86,61 @@
     color: #a3a2a2;
 }
 
+.lesson-due.employee {
+    margin-left: 0px;
+    margin-right: 125px;
+}
+
+.lesson-duration.employee {
+    margin-right: 160px;
+}
+
+.lesson-status.employee {
+    margin-right: 55px;
+}
+
+.lesson-status {
+    border-radius: 20px;
+    font-weight: 500;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 3px 7px;
+}
+
+.lesson-status-dot {
+    border-radius: 50%;
+    width: 6px;
+    height: 6px;
+}
+
+.lesson-status.Pending {
+    background-color: #FEEDED;
+    color: #DC2626;
+}
+
+.lesson-status.Pending .lesson-status-dot {
+    background-color: #DC2626;
+}
+
+.lesson-status.Progress {
+    background-color: #EDF5FE;
+    color: #3083FF;
+}
+
+.lesson-status.Progress .lesson-status-dot {
+    background-color: #3083FF;
+}
+
+.lesson-status.Done {
+    background-color: #F0FEED;
+    color: #259800;
+}
+
+.lesson-status.Done .lesson-status-dot {
+    background-color: #259800;
+}
+
 .expand-btn {
     height: 50px;
     display: flex;
@@ -105,6 +160,50 @@
 
 .expand-btn img {
     width: 60%;
+}
+
+.lesson-action-btn {
+    height: 50px;
+    display: flex;
+    width: 70px;
+    justify-content: center;
+    background-color: white;
+}
+
+.lesson-action-btn:hover {
+    background-color: #d0d0d0;
+    border: none;
+}
+
+.lesson-action-btn.Progress, .lesson-action-btn.Pending {
+    font-size: 12px;
+    align-items: center;
+    height: 30px;
+}
+
+.lesson-action-btn.Progress {
+    color: white;
+    background-color: #FF7F4A;
+    border: 1px solid #FF7F4A;
+    transition: 0.2s ease;
+}
+
+.lesson-action-btn.Progress:hover {
+    border: 1px solid #FF7F4A;
+    color: #FF7F4A;
+    background-color: white;
+}
+
+.lesson-action-btn.Pending {
+    color: #FF7F4A;
+    background-color: #FFD7C6;
+    border: 1px solid #FFD7C6;
+    transition: 0.2s ease;
+}
+
+.lesson-action-btn.Pending:hover {
+    border: 1px solid #FFD7C6;
+    background-color: white;
 }
 
 .expanded-settings-text {
@@ -150,4 +249,69 @@
 .action-panel-left {
     display: flex;
     gap: 10px;
+}
+
+.expanded-settings-label {
+    font-size: 12px;
+    font-weight: 500;
+}
+
+.eval-wrapper {
+    display: flex;
+}
+
+.eval-left {
+    flex: 1;
+}
+
+.eval-box {
+    border-radius: 5px;
+    padding: 10px 10px;
+    margin: 20px;
+}
+
+.eval-box p {
+    margin: 0;
+}
+
+.eval-box.strengths {
+    background-color: #D7F5D9;
+}
+
+.eval-box.shortcomings {
+    background-color: #FCDEDE;
+}
+
+.eval-box.overall {
+    background-color: #FFE3D8;
+    flex: 1;
+    align-self: flex-start;
+}
+
+.eval-label {
+    font-size: 11px;
+    font-weight: 600;
+}
+
+.eval-label.green {
+    color: #328B38;
+}
+
+.eval-label.red {
+    color: #B54E4E;
+}
+
+.eval-label.orange {
+    color: #FF7F4D;
+}
+
+.expanded-settings-text.black {
+    color: black;
+    font-size: 11px;
+}
+
+.employee-action-panel {
+    display: flex;
+    justify-content: flex-end;
+    padding: 20px;
 }

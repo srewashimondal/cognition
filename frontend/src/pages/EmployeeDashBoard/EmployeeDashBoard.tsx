@@ -17,6 +17,7 @@ import EmployeeHome from './EmployeeHome/EmployeeHome';
 import Schedule from './Schedule/Schedule';
 import Resources from './Resources/Resources';
 import Settings from './Settings/Settings';
+import SimulationLessons from './SimulationModules/SimulationLessons/SimulationLessons';
 
 import white_home from '../../assets/icons/sidebar/white-home-icon.svg';
 import black_home from '../../assets/icons/sidebar/black-home-icon.svg';
@@ -222,6 +223,7 @@ export default function EmployeeDashBoard() {
             <Route index element={<EmployeeHome />} />
             <Route path="performance" element={<PerformanceDashboard />} />
             <Route path="simulation-modules" element={<SimulationModules />} />
+            <Route path="simulation-modules/:id" element={<SimulationLessons />} />
             {/*<Route path="simulation-lesson-view" element={<SimulationLessonView />} />
             <Route path="simulation-view" element={<SimulationView />} />*/}
             <Route path="schedule" element={<Schedule />} />

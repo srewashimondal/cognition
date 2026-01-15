@@ -201,12 +201,12 @@
     color: #FF4B00;
 }
 
-.module-card-btn.deployed {
+.module-card-btn.deployed, .module-card-btn.completed {
     background-color: #f5f5f5;
     color: #f97316;
 }
 
-.module-card-btn.deployed:hover {
+.module-card-btn.deployed:hover, .module-card-btn.completed:hover {
     background-color: #dedede;
 }
 

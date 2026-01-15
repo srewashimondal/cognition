@@ -406,7 +406,7 @@ export default function Lessons() {
       </div>
 
       <div className="lessons-list">
-        {lessons?.map((l) => (<LessonCard lessonInfo={l} />))}
+        {lessons?.map((l) => (<LessonCard lessonInfo={l} role={"employer"} />))}
       </div>
       <div className="filler-space">
 

@@ -13,12 +13,24 @@
     color: white;
     gap: 5px;
     font-size: 12px;
-}  
+}
+
+.action-button.reversed {
+    border: 1px solid #FF4B00;
+    background-color: #ffffff;
+    color: #FF4B00;
+}
 
 .action-button:hover {
     border: 1px solid #FF4B00;
-    background-color: #F9F9F9;
+    background-color: #ffffff;
     color: #FF4B00;
+}
+
+.action-button.reversed:hover {
+    background-color: #FF4B00;
+    border: 1px solid #FF4B00;
+    color: white;
 }
 
 .action-button.selected {
