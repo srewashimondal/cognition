@@ -4,6 +4,7 @@ import ModuleCard from '../../../cards/ModuleCard/ModuleCard';
 
 const modules: ModuleAttemptType[] = [
     {   
+        attempt_id: 1,
         moduleInfo: {
             id: 1,
             title: "Store Orientation and Navigation",
@@ -14,6 +15,7 @@ const modules: ModuleAttemptType[] = [
         status: "completed"
     },
     {   
+        attempt_id: 2,
         moduleInfo: {
             id: 2,
             title: "Product Knowledge & Inventory",
@@ -24,6 +26,7 @@ const modules: ModuleAttemptType[] = [
         percent: 60
     },
     {   
+        attempt_id: 3,
         moduleInfo: {
         id: 3,
         title: "Customer Interaction & Communication",
@@ -32,7 +35,8 @@ const modules: ModuleAttemptType[] = [
         },
         status: "not begun"
     },
-    {
+    {   
+        attempt_id: 4,
         moduleInfo: {
             id: 4,
             title: "Checkout, POS, & Transactions",
@@ -42,6 +46,7 @@ const modules: ModuleAttemptType[] = [
         status: "not begun"
     },
     {   
+        attempt_id: 5,
         moduleInfo: {
             id: 5,
             title: "Safety, Compliance, & Store Policy",
@@ -50,7 +55,8 @@ const modules: ModuleAttemptType[] = [
         },
         status: "not begun"
     },
-    {
+    {   
+        attempt_id: 6,
         moduleInfo: {
             id: 6,
             title: "Multitasking & Real World Pressure",
