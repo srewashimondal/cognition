@@ -1,6 +1,6 @@
 import './LessonCard.css';
 import { useState, useEffect, useRef } from 'react';
-import type { LessonType } from '../../types/LessonType';
+import type { LessonType } from '../../types/Modules/Lessons/LessonType';
 import SkillItem from './SkillItem/SkillItem';
 import LessonAbstract from './LessonAbstract/LessonAbstract';
 import ActionButton from '../../components/ActionButton/ActionButton';

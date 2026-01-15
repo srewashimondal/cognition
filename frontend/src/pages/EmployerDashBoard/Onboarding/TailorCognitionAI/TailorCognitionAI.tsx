@@ -2,7 +2,7 @@ import TrainingMaterials from "./Subsections/TrainingMaterials";
 import POSIntegration from "./Subsections/POSIntegration";
 import StoreLayout from "./Subsections/StoreLayout";
 import SimulationPreferences from "./Subsections/SimulationPreferences";
-import type { OnboardingSection } from "../../../../types/OnboardingSection";
+import type { OnboardingSection } from "../../../../types/Onboarding/OnboardingSection";
 
 
 export default function TailorCognitionAI({ substep, data, updateData, registerFormId, onNext }: OnboardingSection) {

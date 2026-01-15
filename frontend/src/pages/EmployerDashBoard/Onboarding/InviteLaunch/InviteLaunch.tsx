@@ -1,6 +1,6 @@
 import InviteTeam from "./Subsections/InviteTeam";
 import LaunchWorkspace from "./Subsections/LaunchWorkspace";
-import type { OnboardingSection } from "../../../../types/OnboardingSection";
+import type { OnboardingSection } from "../../../../types/Onboarding/OnboardingSection";
 
 
 export default function InviteLaunch({ substep, registerFormId, onNext }: OnboardingSection) {

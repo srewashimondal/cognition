@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import Question from '../../Question/Question.tsx';
-import type { OnboardingSubsection } from '../../../../../types/OnboardingSubsection.tsx';
+import type { OnboardingSubsection } from '../../../../../types/Onboarding/OnboardingSubsection.tsx';
 
 export default function WorkspaceInfo({ data, updateData, registerFormId, onNext }: OnboardingSubsection) {
     const [imagePreview, setImagePreview] = useState<string | null>(null);

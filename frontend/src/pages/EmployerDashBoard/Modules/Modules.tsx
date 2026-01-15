@@ -1,5 +1,5 @@
 import "./Modules.css";
-import type { ModuleType } from '../../../types/ModuleType.tsx';
+import type { ModuleType } from '../../../types/Modules/ModuleType.tsx';
 import ModuleCard from '../../../cards/ModuleCard/ModuleCard.tsx';
 import add_cta from '../../../assets/icons/add-cta.svg';
 

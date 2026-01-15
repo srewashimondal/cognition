@@ -1,7 +1,7 @@
 import './PersonalInfo.css';
 import { useEffect } from 'react';
 import Question from '../../Question/Question.tsx'
-import type { OnboardingSubsection } from '../../../../../types/OnboardingSubsection.tsx';
+import type { OnboardingSubsection } from '../../../../../types/Onboarding/OnboardingSubsection.tsx';
 
 export default function PersonalInfo({ data, updateData, registerFormId, onNext }: OnboardingSubsection) {  
     const formId = "personal-info-form";

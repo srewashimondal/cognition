@@ -1,6 +1,6 @@
 import './ModuleCard.css'
 import { useNavigate } from 'react-router-dom';
-import type { ModuleType } from '../../types/ModuleType';
+import type { ModuleType } from '../../types/Modules/ModuleType';
 import ProgressBar from '../../components/ProgressBar/ProgressBar';
 import clock_icon from '../../assets/icons/clock-icon.svg';
 import form_icon from '../../assets/icons/form-icon.svg';

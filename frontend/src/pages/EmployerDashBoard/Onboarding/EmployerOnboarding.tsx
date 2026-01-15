@@ -2,7 +2,7 @@ import './EmployerOnboarding.css';
 import { useState } from 'react';
 import OBMain from './OBMain/OBMain';
 import ProgressBar from '../../../components/ProgressBar/ProgressBar';
-import type { OnboardingData } from '../../../types/OnboardingData';
+import type { OnboardingData } from '../../../types/Onboarding/OnboardingData';
 import white_check from '../../../assets/icons/white-check.svg';
 
 export default function EmployerOnboarding() {

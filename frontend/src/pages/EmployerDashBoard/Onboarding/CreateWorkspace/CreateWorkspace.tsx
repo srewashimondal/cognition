@@ -1,7 +1,7 @@
 import WorkspaceInfo from "./Subsections/WorkspaceInfo";
 import StoreInfo from "./Subsections/StoreInfo";
 import TeamDetails from "./Subsections/TeamDetails";
-import type { OnboardingSection } from "../../../../types/OnboardingSection";
+import type { OnboardingSection } from "../../../../types/Onboarding/OnboardingSection";
 
 export default function CreateWorkspace({ substep, data, updateData, registerFormId, onNext }: OnboardingSection) {
     return (

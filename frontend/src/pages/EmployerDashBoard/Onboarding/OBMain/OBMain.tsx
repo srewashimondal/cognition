@@ -1,5 +1,5 @@
 import './OBMain.css';
-import type { OnboardingData } from '../../../../types/OnboardingData';
+import type { OnboardingData } from '../../../../types/Onboarding/OnboardingData';
 import ProfileSetup from '../ProfileSetup/ProfileSetup';
 import CreateWorkspace from '../CreateWorkspace/CreateWorkspace';
 import TailorCognitionAI from '../TailorCognitionAI/TailorCognitionAI';

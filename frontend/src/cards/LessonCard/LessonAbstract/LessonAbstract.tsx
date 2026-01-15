@@ -1,7 +1,7 @@
 import './LessonAbstract.css';
 import { useState } from 'react';
 import { useNavigate } from "react-router-dom";
-import type { LessonAbstractType } from "../../../types/LessonAbstractType";
+import type { LessonAbstractType } from "../../../types/Modules/Lessons/LessonAbstractType";
 import LessonAbstractItem from "../LessonAbstractItem/LessonAbstractItem";
 import LessonEditButton from "../LessonEditButton/LessonEditButton";
 import orange_send_icon from "../../../assets/icons/lesson-edit/orange-right-arrow-send.svg";
