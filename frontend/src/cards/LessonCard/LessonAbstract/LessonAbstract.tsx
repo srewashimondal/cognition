@@ -6,10 +6,14 @@ import LessonAbstractItem from "../LessonAbstractItem/LessonAbstractItem";
 import LessonEditButton from "../LessonEditButton/LessonEditButton";
 import orange_send_icon from "../../../assets/icons/lesson-edit/orange-right-arrow-send.svg";
 
-export default function LessonAbstract({ lessonAbstractInfo }: { lessonAbstractInfo: LessonAbstractType}) {
+export default function LessonAbstract({ lessonAbstractInfo }: { lessonAbstractInfo?: LessonAbstractType}) {
     const navigate = useNavigate();
     const [AIEditMode, setAIEditMode] = useState(false);
     const [editPrompt, setEditPrompt] = useState("");
+
+    if (!lessonAbstractInfo) {
+        return null;
+    }
 
     const handleAIEditSubmit = (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();

@@ -9,6 +9,6 @@ export type LessonType = {
     dueDate: string;
     numAttempts: number | "unlimited";
     randomize?: boolean;
-    lessonAbstractInfo: LessonAbstractType;
+    lessonAbstractInfo?: LessonAbstractType;
 };
   
