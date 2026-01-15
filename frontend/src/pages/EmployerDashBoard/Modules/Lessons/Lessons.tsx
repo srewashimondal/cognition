@@ -1,4 +1,5 @@
 import './Lessons.css';
+import { useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import type { ModuleType } from '../../../../types/Modules/ModuleType';
 import LessonCard from '../../../../cards/LessonCard/LessonCard';
@@ -378,6 +379,10 @@ export default function Lessons() {
 
   const lessons = module?.lessons;
   const bannerColorByID = ["module1", "module2", "module3", "module4", "module5", "module6"];
+
+  useEffect(() => {
+    window.scrollTo({ top: 0, left: 0, behavior: "instant" });
+  }, []);
 
   return (
     <div className="lessons-page">
