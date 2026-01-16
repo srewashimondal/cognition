@@ -45,10 +45,10 @@ export default function SimulationPage() {
         <div className="simulation-page">
             <div className="chat-section">
                 {(voiceMode) ?
-                (<VoiceMode title={lessonTitle ?? ""} idx={simulationIndex + 1} 
+                (<VoiceMode key={`voice-${simulationIndex}`} title={lessonTitle ?? ""} idx={simulationIndex + 1} 
                 messages={messages ?? []} switchType={() => setVoiceMode(false)}
                 handleBack={handleBack} />) :
-                (<TypeMode title={lessonTitle ?? ""} idx={simulationIndex + 1} 
+                (<TypeMode key={`type-${simulationIndex}`} title={lessonTitle ?? ""} idx={simulationIndex + 1} 
                 messages={messages ?? []} switchType={() => setVoiceMode(true)}
                 handleBack={handleBack} />)
                 }

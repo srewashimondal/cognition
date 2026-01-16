@@ -35,9 +35,11 @@ export default function ChatBubble({ message, allMessages, className }: ChatBubb
                         <p>{content}</p>
                     </div>
                 </div>) :
-                (<div className={`chat-bubble ${role}`}>
+                (<div className={`another-chat-wrapper ${role}`}>
                     <span className="role-text">{(role === "user") ? "You" : name}</span>
-                    <span className="content-text">{content}</span>
+                    <div className={`chat-bubble ${role}`}>
+                        <span className="content-text">{content}</span>
+                    </div>
                 </div>)
             }
         </div>
