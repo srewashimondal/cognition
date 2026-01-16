@@ -25,6 +25,14 @@
     align-items: flex-start;
 }
 
+.sub-info {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: flex-start;
+    height: 25vh;
+}
+
 .sim-info h3 {
     margin: 0;
     font-size: 20px;
@@ -40,4 +48,11 @@
     font-weight: 600;
 }
 
-
+.sim-action-panel {
+    display: flex;
+    padding: 5px;
+    gap: 5px;
+    margin-top: 20px;
+    justify-content: space-evenly;
+    width: 100%;
+}
