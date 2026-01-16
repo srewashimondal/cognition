@@ -4,6 +4,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import VoiceMode from './VoiceMode/VoiceMode';
 import TypeMode from './TypeMode/TypeMode';
 import Assistant from './Assistant/Assistant';
+import ActionButton from '../../components/ActionButton/ActionButton';
 // dummy data
 import { moduleAttempts } from '../../dummy_data/modulesAttempt_data';
 
@@ -11,7 +12,7 @@ export default function SimulationPage() {
     const { moduleID, lessonID, simIdx } = useParams();
     const moduleId = Number(moduleID);
     const lessonId = Number(lessonID);
-    const simulationIndex = Number(simIdx) - 1;
+    const simulationIndex = simIdx !== undefined ? Number(simIdx) - 1 : 0;
 
     const moduleAttempt = moduleAttempts.find(m => m.moduleInfo.id === moduleId);
     const lessonAttempts = moduleAttempt?.lessons;
@@ -32,6 +33,14 @@ export default function SimulationPage() {
         navigate(`/employee/simulations/${moduleID}`);
     };
 
+    const handleNext = () => {
+        navigate(`/employee/simulations/${moduleID}/${lessonID}/${simulationIndex + 2}`);
+    };
+
+    const handleRead = () => {
+        /* Nothing for now */
+    };
+
     return (
         <div className="simulation-page">
             <div className="chat-section">
@@ -45,10 +54,16 @@ export default function SimulationPage() {
                 }
             </div>
             <div className="sim-info">
-                <h3>Meet {simInfo?.characterName}</h3>
-                <p>Scenario Premise: {simInfo?.premise}</p>
-                <p className="sim-prompt">How would you approach this situation?</p>
+                <div className="sub-info">
+                    <h3>Meet {simInfo?.characterName}</h3>
+                    <p>Scenario Premise: {simInfo?.premise}</p>
+                    <p className="sim-prompt">How would you approach this situation?</p>
+                </div>
                 <Assistant messages={messages ?? []} />
+                <div className="sim-action-panel">
+                    <ActionButton text={"View Reference Materials"} buttonType={"read"} onClick={handleRead} />
+                    {(simulationIndex < 2) && <ActionButton text={"Next Part"} buttonType={"play"} onClick={handleNext} />}
+                </div>
             </div>
         </div>
     );

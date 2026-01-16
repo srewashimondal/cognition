@@ -7,10 +7,12 @@ import white_refresh_icon from '../../assets/icons/actions/white-refresh-icon.sv
 import orange_refresh_icon from '../../assets/icons/actions/orange-refresh-icon.svg';
 import white_rocket_icon from '../../assets/icons/white-rocket-icon.svg';
 import orange_rocket_icon from '../../assets/icons/orange-rocket-icon.svg';
+import white_form_icon from '../../assets/icons/actions/white-form-icon.svg';
+import orange_form_icon from '../../assets/icons/actions/orange-form-icon.svg';
 
 type ActionButtonProps = {
     text: string;
-    buttonType: "play" | "save" | "refresh" | "deploy";
+    buttonType: "play" | "save" | "refresh" | "deploy" | "read";
     onClick?: () => void; 
     selected?: boolean;
     disabled?: boolean;
@@ -34,6 +36,10 @@ export default function ActionButton({ text, buttonType, onClick, selected=false
         "deploy": {
             "default": white_rocket_icon,
             "hover": orange_rocket_icon
+        }, 
+        "read": {
+            "default": white_form_icon,
+            "hover": orange_form_icon
         }
     }
 
