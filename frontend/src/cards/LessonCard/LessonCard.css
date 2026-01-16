@@ -10,11 +10,13 @@
     max-height: 300px;
     transition: max-height 1000ms ease;
     background-color: white;
-    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
+    transition: 0.2s ease;
 }
 
 .lesson-card.expanded {
     max-height: 2000px;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
+    transform: scale(1.01);
 }
 
 .lesson-card-top {
@@ -152,6 +154,16 @@
 .expand-btn:hover {
     background-color: #d0d0d0;
     border: none;
+}
+
+.lesson-card:has(.expand-btn:hover) {
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
+    transform: scale(1.01);
+}
+
+.lesson-card:has(.lesson-action-btn:hover) {
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
+    transform: scale(1.01);
 }
 
 .expand-btn.expanded img {
