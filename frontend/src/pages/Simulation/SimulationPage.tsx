@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import VoiceMode from './VoiceMode/VoiceMode';
 import TypeMode from './TypeMode/TypeMode';
+import Assistant from './Assistant/Assistant';
 // dummy data
 import { moduleAttempts } from '../../dummy_data/modulesAttempt_data';
 
@@ -47,6 +48,7 @@ export default function SimulationPage() {
                 <h3>Meet {simInfo?.characterName}</h3>
                 <p>Scenario Premise: {simInfo?.premise}</p>
                 <p className="sim-prompt">How would you approach this situation?</p>
+                <Assistant messages={messages ?? []} />
             </div>
         </div>
     );

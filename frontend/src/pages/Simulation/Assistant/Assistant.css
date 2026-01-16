@@ -1,0 +1,28 @@
+.assistant-box {
+    width: 100%;
+    border: 1px solid #C2C2C2;
+    border-radius: 5px;
+    background-color: white;
+    padding: 5px;
+    margin-top: 10px;
+}
+
+.assistant-messages {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 10px;
+    height: 40vh;
+    overflow-y: auto;
+}
+
+.assistant-tracker {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 10px;
+    font-size: 15px;
+}
+

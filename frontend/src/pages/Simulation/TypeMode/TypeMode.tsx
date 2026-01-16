@@ -36,12 +36,17 @@ export default function TypeMode({ title, idx, messages, switchType, handleBack 
     const handleSend = () => {
         if (!userInput.trim()) return;
 
-        const newMessage: MessageType = {
-            role: "user",
-            content: userInput,
-        };
+        setChatMessages(prev => {
+            const lastId = prev.length > 0 ? prev[prev.length - 1].id : 0;
 
-        setChatMessages(prev => [...prev, newMessage]);
+            const newMessage: MessageType = {
+                id: lastId + 1,
+                role: "user",
+                content: userInput,
+            };
+
+            return [...prev, newMessage];
+        });
         setUserInput("");
     };
 
@@ -58,8 +63,8 @@ export default function TypeMode({ title, idx, messages, switchType, handleBack 
             { (chatMessages.length > 0) ?
                 (<div className="scrollable-transcript text" ref={transcriptRef}>
                     <div className="scroll-spacer" />
-                    {chatMessages.filter(m => m.role !== "assistant").map((m, i, arr) => <ChatBubble key={i} role={m.role} content={m.content} 
-                    name={m.name ?? ""} className={i === arr.length - 1 ? "last-message" : ""} />)}
+                    {chatMessages.filter(m => m.role !== "assistant").map((m, i, arr) => <ChatBubble key={m.id} message={m} allMessages={chatMessages} 
+                    className={i === arr.length - 1 ? "last-message" : i === 0 ? "first-message": ""} />)}
                 </div>) :
                 (<div className="empty-wrapper text">
 
