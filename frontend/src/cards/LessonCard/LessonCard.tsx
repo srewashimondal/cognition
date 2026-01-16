@@ -135,10 +135,10 @@ export default function LessonCard({ lessonInfo, role, status, evaluation, navig
                 </div>
                 <p className={`lesson-info lesson-duration ${role}`}>{duration}m</p>
                 <p className={`lesson-info lesson-due ${role}`}>{dueDate}</p>
-                <div className={`lesson-info lesson-status ${statusLabelbyStatus[status ?? "not begun"]} ${role}`}>
+                {(role === "employee") && <div className={`lesson-info lesson-status ${statusLabelbyStatus[status ?? "not begun"]} ${role}`}>
                     <div className="lesson-status-dot" />
                     {statusLabelbyStatus[status ?? "not begun"]}
-                </div>
+                </div>}
                 { (role === "employer") ?
                     (<button className={`expand-btn ${(expanded) ? ("expanded") : ("")}`} onClick={() => {setExpanded(!expanded); console.log(id, ": ", expanded);}}>
                         <img src={(expanded) ? (orange_check_icon) : (orange_edit_icon)} />
