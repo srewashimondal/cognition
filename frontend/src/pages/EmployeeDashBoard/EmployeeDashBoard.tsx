@@ -7,7 +7,6 @@ import bell from '../../assets/icons/bell.svg';
 import down_chevron from '../../assets/icons/black-down-chevron.svg';
 import sidebar_icon from '../../assets/icons/sidebar-icon.svg';
 import ProfilePage from "../EmployerDashBoard/ProfilePage/ProfilePage";
-import PerformanceDashboard from "./PerformanceDashboard/PerformanceDashboard";
 /*
 import SimulationLessonView from './SimulationLessonView/SimulationLessonView/SimulationLessonView';
 import SimulationView from './SimulationView/SimulationView';
@@ -24,9 +23,6 @@ import SimulationPage from '../Simulation/SimulationPage';
 import white_home from '../../assets/icons/sidebar/white-home-icon.svg';
 import black_home from '../../assets/icons/sidebar/black-home-icon.svg';
 import blue_home from '../../assets/icons/sidebar/blue-home-icon.svg';
-import white_pie from '../../assets/icons/sidebar/white-pie-icon.svg';
-import black_pie from '../../assets/icons/sidebar/black-pie-icon.svg';
-import blue_pie from '../../assets/icons/sidebar/blue-pie-icon.svg';
 import white_gear from '../../assets/icons/sidebar/white-gear-icon.svg';
 import black_gear from '../../assets/icons/sidebar/black-gear-icon.svg';
 import blue_gear from '../../assets/icons/sidebar/blue-gear-icon.svg';
@@ -78,18 +74,6 @@ export default function EmployeeDashBoard() {
                 <img className="sidebar-icon blue" src={blue_home} />
               </div>
               {(!sidebarCollapsed) && "Employee Home" }
-            </div>
-          </NavLink>
-
-
-          <NavLink to="/employee/performance" className="nav-item">
-            <div className="sidebar-label">
-              <div className="sidebar-icon-swap">
-                <img className="sidebar-icon white" src={white_pie} />
-                <img className="sidebar-icon black" src={black_pie} />
-                <img className="sidebar-icon blue" src={blue_pie} />
-              </div>
-              {(!sidebarCollapsed) && "Performance" }
             </div>
           </NavLink>
           
@@ -224,7 +208,6 @@ export default function EmployeeDashBoard() {
         <section className={`content employee ${isSimulationPage ? "no-padding" : ""}`}>
           <Routes>
             <Route index element={<EmployeeHome />} />
-            <Route path="performance" element={<PerformanceDashboard />} />
             <Route path="simulations" element={<SimulationModules />} />
             <Route path="simulations/:moduleID" element={<SimulationLessons />} />
             <Route path="simulations/:moduleID/:lessonID/:simIdx" element={<SimulationPage />} />
