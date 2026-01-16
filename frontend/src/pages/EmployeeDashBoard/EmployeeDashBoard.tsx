@@ -5,6 +5,7 @@ import { useMatch } from "react-router-dom";
 import logo from '../../assets/branding/cognition-logo.png';
 import bell from '../../assets/icons/bell.svg';
 import down_chevron from '../../assets/icons/black-down-chevron.svg';
+import left_chevron from '../../assets/icons/black-left-chevron.svg';
 import sidebar_icon from '../../assets/icons/sidebar-icon.svg';
 import ProfilePage from "../EmployerDashBoard/ProfilePage/ProfilePage";
 /*
@@ -190,7 +191,7 @@ export default function EmployeeDashBoard() {
 
             <div
               className="user-menu"
-              onClick={() => setProfileOpen(true)}
+              onClick={() => setProfileOpen(prev => !prev)}
             >
               <img
                 src="https://i.etsystatic.com/30289585/r/il/3f982c/4322819070/il_fullxfull.4322819070_tn35.jpg"
@@ -198,7 +199,7 @@ export default function EmployeeDashBoard() {
               />
               <span className="username">Harsh</span>
               <span className="caret">
-                <img src={down_chevron} />
+                {(profileOpen) ? <img src={left_chevron} /> : <img src={down_chevron} />}
               </span>
             </div>
 

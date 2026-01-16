@@ -1,5 +1,8 @@
-import { useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import "./ProfilePage.css";
+import default_icon from '../../../assets/icons/default-icon.svg';
+import icon_stroke from '../../../assets/icons/icon-stroke.svg';
+import add_cta from '../../../assets/icons/add-cta.svg';
 
 interface ProfilePageProps {
   open: boolean;
@@ -7,6 +10,21 @@ interface ProfilePageProps {
 }
 
 export default function ProfilePage({ open, onClose }: ProfilePageProps) {
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
+  const [uploadedPFP, setUploadedPFP] = useState<string | File>("https://i.etsystatic.com/30289585/r/il/3f982c/4322819070/il_fullxfull.4322819070_tn35.jpg");
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
+  useEffect(() => {
+      if (typeof uploadedPFP === "string") {
+          setImagePreview(null);
+          return;
+      }
+      const url = URL.createObjectURL(uploadedPFP);
+      setImagePreview(url);
+
+      return () => URL.revokeObjectURL(url);
+  }, [uploadedPFP]);
+  const displayIcon = imagePreview ?? (typeof uploadedPFP === "string" ? uploadedPFP : undefined);
+
   useEffect(() => {
     if (!open) return;
 
@@ -40,6 +58,7 @@ export default function ProfilePage({ open, onClose }: ProfilePageProps) {
 
         {/* Profile top */}
         <section className="profile-hero">
+          {/*
           <div className="avatar-wrapper">
             <img
               src="https://i.etsystatic.com/30289585/r/il/3f982c/4322819070/il_fullxfull.4322819070_tn35.jpg"
@@ -47,7 +66,20 @@ export default function ProfilePage({ open, onClose }: ProfilePageProps) {
               className="profile-avatar"
             />
             <button className="change-avatar">Change</button>
-          </div>
+          </div>*/}
+
+          {(imagePreview || uploadedPFP) ? 
+          (<div className="avatar-wrapper pfp-upload-container">
+            <img src={displayIcon} className="uploaded-image"/>
+            <img src={icon_stroke} className="img-frame"/>
+            <img src={add_cta} className="pfp-add" onClick={() => fileInputRef.current?.click()}/>
+            <input ref={fileInputRef} type="file" accept="image/*" hidden onChange={(e) => {const file = e.target.files?.[0]; if (file) setUploadedPFP(file);}}/>
+          </div>) :
+          (<div className="pfp-upload">
+              <img src={default_icon} className="pfp-base"/>
+              <img src={add_cta} className="pfp-add" onClick={() => fileInputRef.current?.click()}/>
+              <input ref={fileInputRef} type="file" accept="image/*" hidden onChange={(e) => {const file = e.target.files?.[0]; if (file) setUploadedPFP(file);}}/>
+          </div>)}
 
           <h4>Harsh</h4>
           <p className="role">Employer Admin</p>
