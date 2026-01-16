@@ -11,6 +11,10 @@
     justify-content: flex-start;
 }
 
+.chat-bubble-wrapper.assistant {
+    margin: 0;
+}
+
 .chat-bubble {
     display: inline-flex;
     flex-direction: column;
@@ -25,12 +29,66 @@
 
 .chat-bubble.user {
     background-color: #DCF7FF;
+    text-align: right;
+}
+
+.assistant-msg {
+    font-size: 10px;
+    width: 100%;
+}
+
+.reply-preview {
+    color: #888888;
+    display: flex;
+    padding-left: 2px;
+    gap: 3px;
+    cursor: pointer;
+}
+
+.italic {
+    font-style: italic;
+}
+
+.reply-icon img {
+    width: 11px;
+    height: 11px;
+}
+
+.chat-bubble.assistant {
+    background-color: #FFD5C3;
+    padding: 10px;
+    width: 100%;
+    border-radius: 7px;
+}
+
+.chat-bubble.assistant p {
+    font-size: 10px;
+    margin: 0px;
+}
+
+.reply-rating {
+    font-weight: 500;
 }
 
 .role-text {
     font-weight: 700;
+    margin-right: 5px;
+}
+
+.first-message {
+    margin-top: 10px;
+}
+
+.chat-bubble-wrapper.assistant.first-message {
+    margin-top: 70px;
+}
+
+.chat-bubble-wrapper.assistant.first-message.expanded {
+    margin-top: 100px;
 }
 
 .last-message {
     margin-bottom: 10px;
 }
+
+  

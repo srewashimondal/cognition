@@ -23,6 +23,13 @@ export default function VoiceMode({ title, idx, messages, switchType, handleBack
             transcriptRef.current.scrollHeight;
         }
     }, [chatMessages]);
+
+    useEffect(() => {
+        const el = transcriptRef.current;
+        if (!el) return;
+    
+        el.scrollTop = el.scrollHeight;
+    }, [chatMessages]);
       
     return (
         <div className="voice-chat">
@@ -39,8 +46,8 @@ export default function VoiceMode({ title, idx, messages, switchType, handleBack
             { (chatMessages.length > 0) ?
                 (<div className="scroll-wrapper">
                     <div className="scrollable-transcript" ref={transcriptRef}>
-                        {chatMessages.filter(m => m.role !== "assistant").map((m, i, arr) => <ChatBubble key={i} role={m.role} 
-                        content={m.content} name={m.name ?? ""} className={i === arr.length - 1 ? "last-message" : ""} />)}
+                        {chatMessages.filter(m => m.role !== "assistant").map((m, i, arr) => <ChatBubble key={m.id} 
+                        message={m} allMessages={chatMessages} className={i === arr.length - 1 ? "last-message" : i === 0 ? "first-message": ""} />)}
                     </div>
                     <p>Transcript</p>
                     <div className="blur-top" />
