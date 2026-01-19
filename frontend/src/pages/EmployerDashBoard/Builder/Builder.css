@@ -1,6 +1,7 @@
 .builder-page {
     display: flex;
     flex-direction: column;
+    height: 91vh;
 }
 
 .builder-hero {
@@ -40,6 +41,102 @@
 }
 
 .chatbar-wrapper {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.attach-overlay {
+    position: fixed;
+    inset: 0; 
+    background: rgba(0, 0, 0, 0.45);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+    backdrop-filter: blur(4px);
+}
+
+.attach-modal {
+    background: #ffffff;
+    border-radius: 16px;
+    padding: 24px 28px;
+    width: min(700px, 100vw);
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+    animation: modalPop 0.2s ease-out;
+    height: 80vh;
+    overflow: hidden;
+}
+
+.attach-content-wrapper {
+    flex: 1;             
+    overflow-y: auto;     
+    min-height: 0; 
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 24px;    
+}
+
+.x-icon-wrapper {
+    display: flex;
+    justify-content: space-between;
+    font-size: 18px;
+    font-weight: 600;
+    color: #FF4B00;
+    display: flex;
+    width: 100%;
+    align-items: center;
+}
+
+.x-icon {
+    width: 24px;
+    height: 24px;
+    transition: 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 5px;
+}
+
+.x-icon:hover {
+    background-color: #eee;
+}
+
+.resource-card.builder:hover {
+    transform: none;
+    box-shadow: none;
+}
+
+.attach-btn {
+    color: white;
+    background-color: #FF844F;
+    border: 2px solid #FF844F;
+    font-weight: 500;
+    padding: 5px; 
+    transition: 0.2s ease;
+}
+
+.attach-btn:hover {
+    color: #FF844F;
+    background-color: white;
+    border: 2px solid #FF844F;
+}
+
+.attach-btn.attached {
+    color: #FF844F;
+    background-color: white;
+    border: 2px solid #FF844F;
+}
+
+.attach-action-panel {
+    display: flex;
+    justify-content: flex-end;
+}
+
+.doc-icon.builder {
     display: flex;
     justify-content: center;
     align-items: center;
