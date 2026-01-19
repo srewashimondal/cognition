@@ -26,11 +26,13 @@
 }
 
 .info-body {
+    flex: 1; 
     width: 100%;
     display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: center;
+    min-height: 0;
 }
 
 .sim-info h3 {
@@ -152,6 +154,12 @@
     justify-content: flex-start;
     align-items: flex-start;
     height: 65vh;
+    overflow-y: auto;
+    scrollbar-width: none;
+}
+  
+.feedback-info::-webkit-scrollbar {
+    display: none;                  
 }
 
 .sim-prompt {
@@ -228,6 +236,22 @@
     font-weight: 600;
     display: flex;
     flex-direction: column;
+    padding-top: 10px;
+}
+
+.suggestion-title {
+    margin: 7px;
+    margin-top: 0;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.blue-dot {
+    background-color: #70D2F0;
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
 }
 
 .suggesiton-thread-wrapper {

@@ -102,6 +102,10 @@ export default function SimulationPage() {
                                         <p className="score-content">{feedbackInfo?.content}</p>
                                     </div>
                                     <div className="suggestion-section">
+                                        <div className="suggestion-title">
+                                            <div className="blue-dot" />
+                                            Proposed Improvement
+                                        </div>
                                         <div className="current-msg-wrapper">
                                             <div className="current-msg">
                                                 <div className="current-msg-content">
