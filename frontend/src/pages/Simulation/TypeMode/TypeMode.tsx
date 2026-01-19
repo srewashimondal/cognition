@@ -12,9 +12,10 @@ type TypeModeProps = {
     messages: MessageType[];
     switchType: () => void;
     handleBack: () => void;
+    handleClick: (messageID: number) => void;
 };
 
-export default function TypeMode({ title, idx, messages, switchType, handleBack }: TypeModeProps) {
+export default function TypeMode({ title, idx, messages, switchType, handleBack, handleClick }: TypeModeProps) {
     const transcriptRef = useRef<HTMLDivElement | null>(null);
     const [chatMessages, setChatMessages] = useState<MessageType[]>(messages ?? []);
     const [userInput, setUserInput] = useState("");
@@ -64,7 +65,7 @@ export default function TypeMode({ title, idx, messages, switchType, handleBack 
                 (<div className="scrollable-transcript text" ref={transcriptRef}>
                     <div className="scroll-spacer" />
                     {chatMessages.filter(m => m.role !== "assistant").map((m, i, arr) => <ChatBubble key={m.id} message={m} allMessages={chatMessages} 
-                    className={i === arr.length - 1 ? "last-message" : i === 0 ? "first-message": ""} />)}
+                    className={i === arr.length - 1 ? "last-message" : i === 0 ? "first-message": ""} handleClick={() => handleClick(m.id)} />)}
                 </div>) :
                 (<div className="empty-wrapper text">
 

@@ -12,19 +12,20 @@ const loremMessages = (
     name?: string;
     rating?: number;
     replyToId?: number;
+    improved?: string;
   }[] => [
     { id: 1, role: "character", name: characterName, content: "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum." },
     { id: 2, role: "user", content: "Lorem ipsum dolor sit amet consectetur adipiscing elit. Dolor sit amet consectetur adipiscing elit quisque faucibus." },
-    { id: 3, role: "assistant", content: "Lorem ipsum evaluation feedback.", rating: 6, replyToId: 2 },
+    { id: 3, role: "assistant", content: "Lorem ipsum dolor sit amet consectetur adipiscing elit. Dolor sit amet consectetur adipiscing elit quisque faucibus.", rating: 6, replyToId: 2, improved: "Pulvinar vivamus fringilla lacus nec metus bibendum egestas. Iaculis massa nisl malesuada lacinia integer nunc posuere." },
     { id: 4, role: "character", name: characterName, content: "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum." },
     { id: 5, role: "user", content: "Lorem ipsum dolor sit amet." },
-    { id: 6, role: "assistant", content: "Lorem ipsum evaluation feedback.", rating: 7, replyToId: 5 },
+    { id: 6, role: "assistant", content: "Lorem ipsum dolor sit amet consectetur adipiscing elit. Dolor sit amet consectetur adipiscing elit quisque faucibus.", rating: 7, replyToId: 5, improved: "Pulvinar vivamus fringilla lacus nec metus bibendum egestas. Iaculis massa nisl malesuada lacinia integer nunc posuere." },
     { id: 7, role: "character", name: characterName, content: "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum." },
     { id: 8, role: "user", content: "Lorem ipsum dolor sit amet consectetur adipiscing elit. Dolor sit amet consectetur adipiscing elit quisque faucibus." },
-    { id: 9, role: "assistant", content: "Lorem ipsum evaluation feedback.", rating: 9, replyToId: 8 },
+    { id: 9, role: "assistant", content: "Lorem ipsum dolor sit amet consectetur adipiscing elit. Dolor sit amet consectetur adipiscing elit quisque faucibus.", rating: 9, replyToId: 8, improved: "Pulvinar vivamus fringilla lacus nec metus bibendum egestas. Iaculis massa nisl malesuada lacinia integer nunc posuere." },
     { id: 10, role: "character", name: characterName, content: "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum." },
     { id: 11, role: "user", content: "Lorem ipsum dolor sit amet." },
-    { id: 12, role: "assistant", content: "Lorem ipsum evaluation feedback.", rating: 4, replyToId: 11},
+    { id: 12, role: "assistant", content: "Lorem ipsum dolor sit amet consectetur adipiscing elit. Dolor sit amet consectetur adipiscing elit quisque faucibus.", rating: 4, replyToId: 11, improved: "Pulvinar vivamus fringilla lacus nec metus bibendum egestas. Iaculis massa nisl malesuada lacinia integer nunc posuere."},
 ];
   
 export const moduleAttempts: ModuleAttemptType[] = [
@@ -43,7 +44,7 @@ export const moduleAttempts: ModuleAttemptType[] = [
               attempt_id: simId,
               simulationInfo: {
                 id: simId,
-                premise: "Lorem ipsum simulation premise.",
+                premise: "Lorem ipsum dolor sit amet consectetur adipiscing elit. Elit quisque faucibus ex sapien vitae pellentesque sem. Sem placerat in id cursus mi pretium tellus. Tellus duis convallis tempus leo eu aenean sed. Sed diam urna tempor pulvinar vivamus fringilla lacus. Lacus nec metus bibendum egestas iaculis massa nisl. Nisl malesuada lacinia integer nunc posuere ut hendrerit.",
                 characterName: "Astra"
             },
               status: "completed",
@@ -75,7 +76,7 @@ export const moduleAttempts: ModuleAttemptType[] = [
               attempt_id: simId,
               simulationInfo: {
                 id: simId,
-                premise: "Lorem ipsum simulation premise.",
+                premise: "Lorem ipsum dolor sit amet consectetur adipiscing elit. Elit quisque faucibus ex sapien vitae pellentesque sem. Sem placerat in id cursus mi pretium tellus. Tellus duis convallis tempus leo eu aenean sed. Sed diam urna tempor pulvinar vivamus fringilla lacus. Lacus nec metus bibendum egestas iaculis massa nisl. Nisl malesuada lacinia integer nunc posuere ut hendrerit.",
                 characterName: "Nova"
               },
               status: "completed",
@@ -100,7 +101,7 @@ export const moduleAttempts: ModuleAttemptType[] = [
               attempt_id: 1,
               simulationInfo: {
                 id: 1,
-                premise: "Lorem ipsum simulation premise.",
+                premise: "Lorem ipsum dolor sit amet consectetur adipiscing elit. Elit quisque faucibus ex sapien vitae pellentesque sem. Sem placerat in id cursus mi pretium tellus. Tellus duis convallis tempus leo eu aenean sed. Sed diam urna tempor pulvinar vivamus fringilla lacus. Lacus nec metus bibendum egestas iaculis massa nisl. Nisl malesuada lacinia integer nunc posuere ut hendrerit.",
                 characterName: "Nova"
               },
               status: "completed",
@@ -111,7 +112,7 @@ export const moduleAttempts: ModuleAttemptType[] = [
               attempt_id: 2,
               simulationInfo: {
                 id: 2,
-                premise: "Lorem ipsum simulation premise.",
+                premise: "Lorem ipsum dolor sit amet consectetur adipiscing elit. Elit quisque faucibus ex sapien vitae pellentesque sem. Sem placerat in id cursus mi pretium tellus. Tellus duis convallis tempus leo eu aenean sed. Sed diam urna tempor pulvinar vivamus fringilla lacus. Lacus nec metus bibendum egestas iaculis massa nisl. Nisl malesuada lacinia integer nunc posuere ut hendrerit.",
                 characterName: "Nova"
               },
               status: "not begun",
@@ -122,7 +123,7 @@ export const moduleAttempts: ModuleAttemptType[] = [
               attempt_id: 3,
               simulationInfo: {
                 id: 3,
-                premise: "Lorem ipsum simulation premise.",
+                premise: "Lorem ipsum dolor sit amet consectetur adipiscing elit. Elit quisque faucibus ex sapien vitae pellentesque sem. Sem placerat in id cursus mi pretium tellus. Tellus duis convallis tempus leo eu aenean sed. Sed diam urna tempor pulvinar vivamus fringilla lacus. Lacus nec metus bibendum egestas iaculis massa nisl. Nisl malesuada lacinia integer nunc posuere ut hendrerit.",
                 characterName: "Nova"
               },
               status: "not begun",
@@ -142,7 +143,7 @@ export const moduleAttempts: ModuleAttemptType[] = [
               attempt_id: simId,
               simulationInfo: {
                 id: simId,
-                premise: "Lorem ipsum simulation premise.",
+                premise: "Lorem ipsum dolor sit amet consectetur adipiscing elit. Elit quisque faucibus ex sapien vitae pellentesque sem. Sem placerat in id cursus mi pretium tellus. Tellus duis convallis tempus leo eu aenean sed. Sed diam urna tempor pulvinar vivamus fringilla lacus. Lacus nec metus bibendum egestas iaculis massa nisl. Nisl malesuada lacinia integer nunc posuere ut hendrerit.",
                 characterName: "Nova"
               },
               status: "not begun",
@@ -169,7 +170,7 @@ export const moduleAttempts: ModuleAttemptType[] = [
                 attempt_id: simId,
                 simulationInfo: {
                   id: simId,
-                  premise: "Lorem ipsum simulation premise.",
+                  premise: "Lorem ipsum dolor sit amet consectetur adipiscing elit. Elit quisque faucibus ex sapien vitae pellentesque sem. Sem placerat in id cursus mi pretium tellus. Tellus duis convallis tempus leo eu aenean sed. Sed diam urna tempor pulvinar vivamus fringilla lacus. Lacus nec metus bibendum egestas iaculis massa nisl. Nisl malesuada lacinia integer nunc posuere ut hendrerit.",
                   characterName: "Astra"
                 },
                 status: "not begun",

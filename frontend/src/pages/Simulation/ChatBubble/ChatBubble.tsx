@@ -7,9 +7,10 @@ type ChatBubbleProps = {
     message: MessageType;
     allMessages: MessageType[];
     className?: string;
+    handleClick: () => void;
 };
 
-export default function ChatBubble({ message, allMessages, className }: ChatBubbleProps) {
+export default function ChatBubble({ message, allMessages, className, handleClick }: ChatBubbleProps) {
     const { role, name, content, rating, replyToId } = message;
     const [expanded, setExpanded] = useState(false);
     const repliedMessage = replyToId ? allMessages.find(m => m.id === replyToId) : null;
@@ -37,7 +38,7 @@ export default function ChatBubble({ message, allMessages, className }: ChatBubb
                 </div>) :
                 (<div className={`another-chat-wrapper ${role}`}>
                     <span className="role-text">{(role === "user") ? "You" : name}</span>
-                    <div className={`chat-bubble ${role}`}>
+                    <div className={`chat-bubble ${role}`} onClick={handleClick}>
                         <span className="content-text">{content}</span>
                     </div>
                 </div>)

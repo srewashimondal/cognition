@@ -16,6 +16,18 @@
     gap: 10px;
 }
 
+.info-btn {
+    font-size: 11px;
+    background-color: #FFD5C3;
+    border: 1px solid #FFD5C3;
+    transition: 0.2s ease;
+}
+
+.info-btn:hover {
+    background-color: #f6cbbb;
+    border: 1px solid #f6cbbb;
+}
+
 .back-to-lessons {
     width: 30px;
     display: flex;

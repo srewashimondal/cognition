@@ -5,4 +5,5 @@ export type MessageType = {
     name?: string;
     rating?: number;
     replyToId?: number;
+    improved?: string;
 };

@@ -48,9 +48,15 @@
     white-space: pre-wrap;
 }
 
+
 .chat-bubble.user {
     background-color: #DCF7FF;
     text-align: right;
+    transition: 0.2s ease;
+}
+
+.chat-bubble.user:hover {
+    background-color: #cef0fb;
 }
 
 .assistant-msg {

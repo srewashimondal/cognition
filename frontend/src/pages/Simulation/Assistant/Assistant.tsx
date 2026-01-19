@@ -10,9 +10,9 @@ export default function Assistant({ messages }: AssistantProps) {
     return (
         <div className="assistant-box">
             <div className="assistant-messages">
-                {messages.filter(m => m.role === "assistant").map((m, i, arr) => 
+                {/*{messages.filter(m => m.role === "assistant").map((m, i, arr) => 
                 <ChatBubble key={m.id} message={m} allMessages={messages} 
-                className={i === arr.length - 1 ? "last-message" : i === 0 ? "first-message": ""} />)}
+                className={i === arr.length - 1 ? "last-message" : i === 0 ? "first-message": ""} />)}*/}
             </div>
             <div className="assistant-tracker">
                 <div>

@@ -25,12 +25,8 @@
     align-items: flex-start;
 }
 
-.sub-info {
-    display: flex;
-    flex-direction: column;
-    justify-content: flex-start;
-    align-items: flex-start;
-    height: 25vh;
+.info-body {
+    width: 100%;
 }
 
 .sim-info h3 {
@@ -44,8 +40,125 @@
     font-size: 12px;
 }
 
+.select-panel {
+    display: flex;
+    justify-content: space-evenly;
+    align-items: center;
+    width: 100%;
+    background-color: #E8E8E8;
+    font-size: 13px;
+    border-radius: 20px;
+    font-weight: 500;
+    margin-bottom: 20px;
+    height: 35px;
+    position: relative;
+    cursor: pointer;
+}
+
+.selector {
+    position: absolute;
+    background-color: white;
+    height: 30px;
+    border-radius: 20px;
+    width: 50%;
+    margin-left: 3px;
+    margin-right: 3px;
+    left: 0;
+    z-index: 0;
+    transition: transform 0.25s ease;
+}
+
+.select-option {
+    position: relative; 
+    z-index: 2;
+    height: 30px;
+    border-radius: 20px;
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #888888;
+    font-size: 13px;
+    gap: 5px;
+}
+
+.select-panel.premise .select-option.premise,
+.select-panel.feedback .select-option.feedback {
+    color: #000000;
+}
+
+.select-panel.feedback .selector {
+    transform: translateX(96%);
+}
+
+.select-option p {
+    position: relative;
+    margin: 0;
+}
+
+.select-swap {
+    position: relative;
+    width: 16px;
+    height: 16px;
+}
+
+.select-icon {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    inset: 0;
+}
+
+.select-icon.premise {
+    opacity: 0;
+}
+
+.select-icon.premise.unselected {
+    opacity: 1;
+}
+
+.select-icon.premise.selected {
+    opacity: 1;
+}
+
+.select-icon.feedback {
+    opacity: 0;
+}
+
+.select-icon.feedback.unselected {
+    opacity: 1;
+}
+
+.select-icon.feedback.selected {
+    opacity: 1;
+}
+
+.premise-info {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: flex-start;
+    height: 65vh;
+}
+
+.feedback-info {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: flex-start;
+    height: 65vh;
+}
+
 .sim-prompt {
     font-weight: 600;
+}
+
+.score-section {
+    border: 1px solid #C6C6C6;
+    background-color: #FFF8F4;
+    border-radius: 10px;
+    padding: 10px;
+    width: 100%;
 }
 
 .sim-action-panel {
@@ -55,4 +168,135 @@
     margin-top: 20px;
     justify-content: space-evenly;
     width: 100%;
+}
+
+.feedback-info {
+    display: flex;
+    flex-direction: column;
+    padding: 10px;
+    gap: 20px;
+}
+
+.feedback-info.empty {
+    text-align: center;
+    font-weight: 600;
+    font-size: 14px;
+    display: flex;
+    justify-content: center;
+}
+
+.score-section p {
+    font-size: 11px;
+}
+
+.score-divider {
+    height: 1px;
+    width: 95%;
+    background-color: #C6C6C6;
+    margin-top: 2px;
+}
+
+.score-content {
+    font-size: 12px;
+    color: #727272;
+}
+
+.rating-section {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.msg-icon {
+    display: flex;
+}
+
+.rating-section h3 {
+    margin: 0;
+}
+
+.suggestion-section {
+    font-size: 11px;
+    border: 1px solid #C6C6C6;
+    padding: 15px;
+    border-radius: 10px;
+    font-weight: 600;
+    display: flex;
+    flex-direction: column;
+}
+
+.suggesiton-thread-wrapper {
+    height: 20px;
+}
+
+.suggestion-thread-line {
+    width: 1px;
+    background-color: #C6C6C6;
+    z-index: 1;
+    height: 100%;
+    margin-left: 17px;
+}
+
+.current-msg-wrapper {
+    position: relative;
+}
+
+.current-msg {
+    background-color: white;
+    border-radius: 10px;
+    border: 1px solid #C6C6C6;
+    color: #727272;
+    z-index: 2;
+}
+
+.current-msg-content {
+    padding: 7px;
+    margin-bottom: 10px;
+}
+
+.improved-msg {
+    display: flex;             
+    background-color: white;
+    border-radius: 10px;
+    border: 1px solid #C6C6C6;
+    color: #000;
+    z-index: 2;
+    overflow: hidden;
+    border-left: none;
+}
+
+.improved-msg-wrapper {
+    position: relative;
+}
+
+.improved-msg-content {
+    padding: 7px;
+    margin-bottom: 10px;
+}
+
+.blue-thing {
+    width: 15px;
+    background-color: #70D2F0;
+    border-radius: 4px;
+}
+
+.msg-label {
+    position: absolute;
+    display: inline-block;
+    background-color: #F2F2F2;
+    border: 1px solid #C6C6C6;
+    border-radius: 10px;
+    padding: 0px 5px;
+    bottom: -7%;
+    right: 5%;
+    display: flex;
+    gap: 6px;
+}
+
+.improved-msg-wrapper .msg-label {
+    color: #62c4e1;
+}
+
+.trend-icon {
+    display: flex;
 }
