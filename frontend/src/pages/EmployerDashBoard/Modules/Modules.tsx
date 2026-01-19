@@ -1,4 +1,5 @@
 import "./Modules.css";
+import { useState } from "react";
 import type { ModuleType } from '../../../types/Modules/ModuleType.tsx';
 import ModuleCard from '../../../cards/ModuleCard/ModuleCard.tsx';
 import add_cta from '../../../assets/icons/add-cta.svg';
@@ -45,6 +46,8 @@ const modules: ModuleType[] = [
 ];
 
 export default function Modules() {
+  const [addSelected, setAddSelected] = useState(false);
+
   return (
     <div className="modules-page">
       {/* Header */}
@@ -69,9 +72,22 @@ export default function Modules() {
       </div>
 
       {/* Floating Add Button */}
-      <button className="fab">
-        <img src={add_cta}/>
-      </button>
+      <>
+        {addSelected && <div className="drawer-backdrop module" onClick={() => setAddSelected(false)} />}
+        <div className="fab-wrapper">
+          { addSelected && (
+              <div className="fab-options">
+                <div className="fab-option">New Simulation Module</div>
+                <div className="fab-option">New Standard Module</div>
+                <div className="fab-options-line" />
+              </div>
+            )
+          }
+          <button className={`fab ${addSelected ? "selected" : ""}`} onClick={() => setAddSelected(prev => !prev)}>
+            <img src={add_cta}/>
+          </button>
+        </div>
+      </>
     </div>
   );
 }

@@ -163,6 +163,18 @@
   width: 35px;
 }
 
+.fab-wrapper {
+  display: flex;
+  flex-direction: column;
+  height: 60px;
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  width: 30%;
+  isolation: isolate;
+  z-index: 999;
+}
+
 .fab {
   position: fixed;
   bottom: 24px;
@@ -181,18 +193,74 @@
   padding: 0;         
   border: none;
   cursor: pointer;
-  z-index: 1000;
   transition: 0.2s ease;
+  z-index: 1000;
 }
 
+.fab.selected {
+  transform: rotate(45deg);
+}
 
 .fab:hover {
   transform: scale(1.1);
 }
 
+.fab.selected:hover {
+  transform: rotate(45deg) scale(1.1);
+}
 
 .modules-page {
   padding: 5px 5px;
   max-width: 1200px;
   margin: 0 auto;
+}
+
+.fab-options {
+  position: fixed;
+  bottom: 80px;
+  right: 24px;
+  display: flex;
+  justify-content: center;
+  align-items: flex-end;
+  gap: 20px;
+  flex-direction: column;
+}
+
+.fab-option {
+  background-color: white;
+  border: 1px solid #C6C6C6;
+  padding: 5px 10px;
+  border-radius: 20px;
+  font-size: 15px;
+  color: #727272;
+  display: flex;
+  justify-content: center;
+  cursor: pointer;
+  transition: 0.2s ease;
+  z-index: 1000;
+  font-weight: 600;
+}
+
+.fab-option:hover {
+  color: #FF4B00;
+  border-color: #FF4B00;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
+  transform: scale(1.01);
+}
+
+.fab-options-line {
+  position: fixed;
+  width: 2px; 
+  height: 20%;
+  background-color: #C6C6C6; 
+  z-index: 999;
+  bottom: 6%;
+  right: 45px;
+}
+
+.drawer-backdrop.module {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.35);
+  z-index: 500;
 }
