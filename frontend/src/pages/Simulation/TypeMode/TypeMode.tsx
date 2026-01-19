@@ -4,8 +4,6 @@ import type { MessageType } from '../../../types/Modules/Lessons/Simulations/Mes
 import ChatBubble from '../ChatBubble/ChatBubble';
 import ChatBar from '../../../components/ChatBar/ChatBar';
 import left_arrow from '../../../assets/icons/orange-left-arrow.svg';
-import ai_mic from '../../../assets/icons/ai-mic.svg';
-import send_icon from '../../../assets/icons/orange-up-icon-send.svg';
 
 type TypeModeProps = {
     title: string;
