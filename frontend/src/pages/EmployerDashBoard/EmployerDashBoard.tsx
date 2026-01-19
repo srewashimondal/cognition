@@ -35,6 +35,7 @@ import blue_clipboard from '../../assets/icons/sidebar/blue-clipboard-icon.svg';
 /*import EmployeeDashBoard from '../EmployeeDashBoard/EmployeeDashBoard';*/
 import AIStudioAssignments from './AI Studio/AIStudioAssignments/AIStudioAssignments';
 import ProfilePage from "./ProfilePage/ProfilePage";
+import Builder from './Builder/Builder.tsx';
 
 export default function EmployerDashBoard() {
   const [profileOpen, setProfileOpen] = useState(false);
@@ -192,7 +193,8 @@ export default function EmployerDashBoard() {
               element={<AIStudioAssignments />}
             />
             <Route path="settings" element={<Settings />} />
-
+            <Route path="builder" element={<Builder />} />
+            <Route path="builder/:moduleID" element={<Builder />} />
             <Route path="*" element={<Navigate to="" />} />
           </Routes>
         </section>

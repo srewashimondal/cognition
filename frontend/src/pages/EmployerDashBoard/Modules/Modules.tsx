@@ -1,9 +1,9 @@
 import "./Modules.css";
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import type { ModuleType } from '../../../types/Modules/ModuleType.tsx';
 import ModuleCard from '../../../cards/ModuleCard/ModuleCard.tsx';
 import add_cta from '../../../assets/icons/add-cta.svg';
-
 
 const modules: ModuleType[] = [
   {
@@ -46,6 +46,7 @@ const modules: ModuleType[] = [
 ];
 
 export default function Modules() {
+  const navigate = useNavigate();
   const [addSelected, setAddSelected] = useState(false);
 
   return (
@@ -77,7 +78,7 @@ export default function Modules() {
         <div className="fab-wrapper">
           { addSelected && (
               <div className="fab-options">
-                <div className="fab-option">New Simulation Module</div>
+                <div className="fab-option" onClick={() => navigate(`/employer/builder`)}>New Simulation Module</div>
                 <div className="fab-option">New Standard Module</div>
                 <div className="fab-options-line" />
               </div>
