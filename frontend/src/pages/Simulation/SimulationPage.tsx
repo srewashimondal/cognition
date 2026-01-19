@@ -88,7 +88,7 @@ export default function SimulationPage() {
                                 <p><span className="sim-prompt">Scenario Premise: </span> {simInfo?.premise}</p>
                                 <p className="sim-prompt">How would you approach this situation?</p>
                             </div>) : 
-                            (selectedMessage ? 
+                            (messageInfo ? 
                                 (<div className="feedback-info">
                                     <div className="score-section">
                                         <p>Overall Score</p>
