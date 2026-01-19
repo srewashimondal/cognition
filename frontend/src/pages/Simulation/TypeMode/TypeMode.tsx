@@ -2,6 +2,7 @@ import './TypeMode.css';
 import { useState, useEffect, useRef } from 'react';
 import type { MessageType } from '../../../types/Modules/Lessons/Simulations/MessageType';
 import ChatBubble from '../ChatBubble/ChatBubble';
+import ChatBar from '../../../components/ChatBar/ChatBar';
 import left_arrow from '../../../assets/icons/orange-left-arrow.svg';
 import ai_mic from '../../../assets/icons/ai-mic.svg';
 import send_icon from '../../../assets/icons/orange-up-icon-send.svg';
@@ -71,20 +72,23 @@ export default function TypeMode({ title, idx, messages, switchType, handleBack,
 
                 </div>)
             }    
-                    <div className="blur-top text" />
-                    <div className="blur-bottom text" />
-                    <div className="chat-input">
-                        <div className="chat-wrapper">
-                            <span className="chat-input-icon" onClick={switchType}>
-                                <img src={ai_mic} />
-                            </span>
-                            <input type="text" placeholder="Enter your response" value={userInput} onChange={(e) => setUserInput(e.target.value)} 
-                            onKeyDown={(e) => {if (e.key === "Enter") {e.preventDefault(); handleSend();}}}/>
-                            <span className="chat-input-icon" onClick={handleSend}>
-                                <img src={send_icon} />
-                            </span>
-                        </div>
+                <div className="blur-top text" />
+                <div className="blur-bottom text" />
+                {/*<div className="chat-input">
+                    <div className="chat-wrapper">
+                        <span className="chat-input-icon" onClick={switchType}>
+                            <img src={ai_mic} />
+                        </span>
+                        <input type="text" placeholder="Enter your response" value={userInput} onChange={(e) => setUserInput(e.target.value)} 
+                        onKeyDown={(e) => {if (e.key === "Enter") {e.preventDefault(); handleSend();}}}/>
+                        <span className="chat-input-icon" onClick={handleSend}>
+                            <img src={send_icon} />
+                        </span>
                     </div>
+                </div>*/}
+                <div className="chatbar-wrapper chat-input">
+                    <ChatBar context="simulation" userInput={userInput} setUserInput={setUserInput} handleSend={handleSend} handleVoiceMode={switchType} />
+                </div>
             </div>
         </div>
     );

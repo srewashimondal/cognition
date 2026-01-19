@@ -33,7 +33,7 @@
 
 .scrollable-transcript.text {
     width: 100%;
-    margin-bottom: 38px;
+    margin-bottom: 78px;
     display: flex;
     flex-direction: column;
 }
@@ -72,6 +72,11 @@
 
 .chat-wrapper input::placeholder {
     font-size: 13px;
+}
+
+.chatbar-wrapper.chat-input {
+    bottom: -10%;
+    width: 100%;
 }
 
 .chat-input-icon {

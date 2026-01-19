@@ -7,21 +7,28 @@ import send_icon from '../../assets/icons/chatbar/send-icon.svg';
 
 type ChatBarProps = {
     context: "builder" | "module" | "simulation";
-    handleAttach: () => void;
+    userInput: string;
+    setUserInput: (userInput: string) => void;
+    handleSend: () => void;
+    handleAttach?: () => void;
     attachedFiles?: string[]; // change to File[] later
     showFileCond?: boolean;
     handleRemoveFile?: (fileName: string) => void;
     handleVoiceMode?: () => void;
 };
 
-export default function ChatBar({ context, handleAttach, attachedFiles, showFileCond, handleRemoveFile, handleVoiceMode }: ChatBarProps) {
-    const [userInput, setUserInput] = useState("");
+export default function ChatBar({ context, userInput, setUserInput, handleSend, handleAttach, attachedFiles, showFileCond, handleRemoveFile, handleVoiceMode }: ChatBarProps) {
     const handleTextareaChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
         setUserInput(e.target.value);
       
         const el = e.target;
         el.style.height = "auto"; 
         el.style.height = `${Math.min(el.scrollHeight, 140)}px`;
+    };
+    const contextToPlaceholder = {
+        "builder": "Describe your idea",
+        "module": "Tell Cognition AI what to adjust",
+        "simulation": "Enter your response"
     };
       
 
@@ -33,8 +40,8 @@ export default function ChatBar({ context, handleAttach, attachedFiles, showFile
                 </div>
             }
             <div className={`chat-bar-input ${(showFileCond && (attachedFiles?.length ?? 0)) ? "expanded" : ""}`}>
-                <textarea placeholder="Describe your idea" value={userInput} onChange={(e) => {setUserInput(e.target.value); handleTextareaChange(e);}} />
-                <span className="send-icon">
+                <textarea placeholder={contextToPlaceholder[context]} value={userInput} onChange={(e) => {setUserInput(e.target.value); handleTextareaChange(e);}} />
+                <span className="send-icon" onClick={handleSend}>
                     <img src={send_icon} />
                 </span>
             </div>

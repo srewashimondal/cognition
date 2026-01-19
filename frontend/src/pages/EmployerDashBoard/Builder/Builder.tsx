@@ -64,8 +64,13 @@ export default function Builder() {
     const { moduleID } = useParams();
     const isNewDraft = !moduleID;
     const [openModal, setOpenModal] = useState(false);
+    const [userInput, setUserInput] = useState("");
     const [attachedFiles, setAttachedFiles] = useState<string[]>([]); // change to File[] later
     const [voiceMode, setVoiceMode] = useState(false);
+
+    const handleSend = () => {
+        /* nothing for now */
+    };
 
     const handleAttach = (fileToAttach: string) => { // change to File later
         setAttachedFiles(prev =>
@@ -78,6 +83,7 @@ export default function Builder() {
     const handleRemoveFile = (fileToRemove: string) => { // change to File later
         setAttachedFiles(prev => prev.filter(item => item !== fileToRemove));
     };
+
     
     return (
         <div className="builder-page">
@@ -146,9 +152,11 @@ export default function Builder() {
                 </div>
             </div>}
             <div className="chatbar-wrapper">
-                <ChatBar context="builder" handleAttach={() => setOpenModal(true)}
+                <ChatBar context="builder" userInput={userInput} setUserInput={setUserInput} 
+                handleSend={handleSend} handleAttach={() => setOpenModal(true)}
                 attachedFiles={attachedFiles} showFileCond={!openModal} 
-                handleRemoveFile={handleRemoveFile} handleVoiceMode={() => setVoiceMode(prev => !prev)} />
+                handleRemoveFile={handleRemoveFile} 
+                handleVoiceMode={() => setVoiceMode(prev => !prev)} />
             </div>
         </div>
     );
