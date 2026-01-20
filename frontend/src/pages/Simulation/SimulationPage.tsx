@@ -13,7 +13,7 @@ import grey_ai_icon from '../../assets/icons/simulations/grey-ai-icon.svg';
 import message_icon from '../../assets/icons/simulations/message-icon.svg';
 import blue_trend_icon from '../../assets/icons/simulations/blue-trending-up-icon.svg';
 
-export default function SimulationPage() {
+export default function SimulationPage({ role }: { role: "employee" | "employer" }) {
     const { moduleID, lessonID, simIdx } = useParams();
     const moduleId = Number(moduleID);
     const lessonId = Number(lessonID);
@@ -39,11 +39,17 @@ export default function SimulationPage() {
 
     const navigate = useNavigate();
     const handleBack = () => {
-        navigate(`/employee/simulations/${moduleID}`);
+        if (role === "employee") {
+            navigate(`/employee/simulations/${moduleID}`);
+            return;
+        }
+        navigate(`/employer/builder/${moduleID}`);
     };
 
     const handleNext = () => {
-        navigate(`/employee/simulations/${moduleID}/${lessonID}/${simulationIndex + 2}`);
+        if (role === "employee") {
+            navigate(`/employee/simulations/${moduleID}/${lessonID}/${simulationIndex + 2}`);
+        }
     };
 
     const handleRead = () => {
@@ -51,7 +57,7 @@ export default function SimulationPage() {
     };
 
     return (
-        <div className="simulation-page">
+        <div className={`simulation-page ${role}`}>
             <div className="chat-section">
                 {(voiceMode) ?
                 (<VoiceMode key={`voice-${simulationIndex}`} title={lessonTitle ?? ""} idx={simulationIndex + 1} 
@@ -139,7 +145,9 @@ export default function SimulationPage() {
                 </div>
                 <div className="sim-action-panel">
                     <ActionButton text={"View Reference Materials"} buttonType={"read"} onClick={handleRead} />
-                    {(simulationIndex < 2) && <ActionButton text={"Next Part"} buttonType={"play"} onClick={handleNext} />}
+                    <div className={`action-wrap-sim ${role === "employer" ? "employer" : ""}`}>
+                        {(simulationIndex < 2) && <ActionButton text={"Next Part"} buttonType={"play"} onClick={handleNext} />}
+                    </div>
                 </div>
             </div>
             

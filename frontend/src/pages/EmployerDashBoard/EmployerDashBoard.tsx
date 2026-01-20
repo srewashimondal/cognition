@@ -1,6 +1,7 @@
 import './EmployerDashBoard.css';
 import { Routes, Route, Navigate, Link, NavLink } from "react-router-dom";
 import { useState } from "react";
+import { useMatch } from "react-router-dom";
 import Analytics from "./Analytics/Analytics";
 import Modules from "./Modules/Modules";
 import Lessons from "./Modules/Lessons/Lessons.tsx";
@@ -8,6 +9,7 @@ import EmployerHome from './EmployerHome/EmployerHome';
 import Resources from "./Resources/Resources";
 import AIStudio from './AI Studio/AIStudio';
 import Settings from "./Settings/Settings";
+import SimulationPage from '../Simulation/SimulationPage.tsx';
 import logo from '../../assets/branding/cognition-logo.png';
 import bell from '../../assets/icons/bell.svg';
 import down_chevron from '../../assets/icons/black-down-chevron.svg';
@@ -40,6 +42,7 @@ import Builder from './Builder/Builder.tsx';
 export default function EmployerDashBoard() {
   const [profileOpen, setProfileOpen] = useState(false);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(true);
+  const isSimulationPage = useMatch("/employer/simulations/:moduleID/:lessonID/:simIdx");
   
   return (
     <div className={`dashboard ${sidebarCollapsed ? "collapsed" : ""}`}>
@@ -180,12 +183,13 @@ export default function EmployerDashBoard() {
           </div>
         </header>
 
-        <section className="content">
+        <section className={`content employer ${isSimulationPage ? "no-padding" : ""}`}>
           <Routes>
             <Route index element={<EmployerHome />} />
             <Route path="analytics" element={<Analytics />} />
             <Route path="modules" element={<Modules />} />
             <Route path="modules/:id" element={<Lessons />} />
+            <Route path="simulations/:moduleID/:lessonID/:simIdx" element={<SimulationPage role={"employer"} />} />
             <Route path="resources" element={<Resources />} />
             <Route path="ai-studio" element={<AIStudio />} />
             <Route

@@ -211,7 +211,7 @@ export default function EmployeeDashBoard() {
             <Route index element={<EmployeeHome />} />
             <Route path="simulations" element={<SimulationModules />} />
             <Route path="simulations/:moduleID" element={<SimulationLessons />} />
-            <Route path="simulations/:moduleID/:lessonID/:simIdx" element={<SimulationPage />} />
+            <Route path="simulations/:moduleID/:lessonID/:simIdx" element={<SimulationPage role={"employee"} />} />
             {/*<Route path="simulation-lesson-view" element={<SimulationLessonView />} />
             <Route path="simulation-view" element={<SimulationView />} />*/}
             <Route path="schedule" element={<Schedule />} />

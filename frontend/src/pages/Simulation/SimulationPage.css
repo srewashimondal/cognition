@@ -7,6 +7,10 @@
     width: 100%;
 }
 
+.simulation-page.employer {
+    height: 92vh;
+}
+
 .chat-section {
     background-color: white;
     width: 70%;
@@ -328,4 +332,8 @@
 
 .trend-icon {
     display: flex;
+}
+
+.action-wrap-sim.employer {
+    cursor: not-allowed;
 }

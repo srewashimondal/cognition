@@ -255,7 +255,7 @@ export default function BuilderCanvas({ id }: BuilderCanvasProps) {
                 </div>
             </div>
             <div className="lessons-list">
-                {lessons?.map((l) => (<LessonCard lessonInfo={l} role={"employer"} />))}
+                {lessons?.map((l) => (<LessonCard lessonInfo={l} role={"employer"} moduleID={moduleId} />))}
             </div>
             <div className="builder-action-panel">
                 <ActionButton text={"Save as Draft"} buttonType={"save"} onClick={handleSave} reversed={true} />

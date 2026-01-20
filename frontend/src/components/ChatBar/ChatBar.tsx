@@ -133,7 +133,9 @@ export default function ChatBar({ context, userInput, setUserInput, handleSend, 
                 )
             }
             <div className={`chat-bar-input ${(showFileCond && (attachedFiles?.length ?? 0)) ? "expanded" : ""}`}>
-                <textarea placeholder={contextToPlaceholder[context]} value={userInput} onChange={(e) => {setUserInput(e.target.value); handleTextareaChange(e);}} />
+                <textarea placeholder={contextToPlaceholder[context]} value={userInput} 
+                onChange={(e) => {setUserInput(e.target.value); handleTextareaChange(e);}} 
+                onKeyDown={(e) => {if (e.key === "Enter") {e.preventDefault(); handleSend();}}} />
                 <span className="send-icon" onClick={handleSend}>
                     <img src={send_icon} />
                 </span>

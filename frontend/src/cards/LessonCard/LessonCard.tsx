@@ -1,5 +1,6 @@
 import './LessonCard.css';
 import { useState, useEffect, useRef } from 'react';
+import { useNavigate } from 'react-router-dom';
 import type { LessonType } from '../../types/Modules/Lessons/LessonType';
 import type { LessonEvaluationType } from '../../types/Modules/Lessons/LessonEvaluationType';
 import SkillItem from './SkillItem/SkillItem';
@@ -20,9 +21,12 @@ type LessonProp = {
     status?: "not begun" | "started" | "completed";
     evaluation?: LessonEvaluationType;
     navigateToSim?: () => void;
+    moduleID?: number;
 };
 
-export default function LessonCard({ lessonInfo, role, status, evaluation, navigateToSim }: LessonProp) {
+export default function LessonCard({ lessonInfo, role, status, evaluation, navigateToSim, moduleID }: LessonProp) {
+    const navigate = useNavigate();
+
     const id = lessonInfo.id;
     const title = lessonInfo.title;
     const duration = lessonInfo.duration;
@@ -105,7 +109,7 @@ export default function LessonCard({ lessonInfo, role, status, evaluation, navig
     };
 
     const handlePreview = () => {
-        /* nothing for now */
+        navigate(`/employer/simulations/${moduleID}/${id}/1`);
     };
 
     const handleRefresh = () => {

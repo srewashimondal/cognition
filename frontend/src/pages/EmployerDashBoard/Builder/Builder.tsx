@@ -63,7 +63,7 @@ const resourceSections = [
 export default function Builder() {
     const navigate = useNavigate();
     const { moduleID } = useParams();
-    const isNewDraft = !moduleID; // work with this later for backend
+    const isNewDraft = !moduleID;
     const [openModal, setOpenModal] = useState(false);
     const [userInput, setUserInput] = useState("");
     const [attachedFiles, setAttachedFiles] = useState<string[]>([]); // change to File[] later
