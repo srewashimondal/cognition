@@ -2,7 +2,6 @@
   padding: 20px 12px;
 }
 
-/* Header */
 .resources-header {
   margin-bottom: 28px;
   margin-top: -40px;
@@ -19,14 +18,12 @@
   font-size: 15px;
 }
 
-/* Grid */
 .resources-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
   gap: 24px;
 }
 
-/* Card */
 .resource-card {
   position: relative;
   background: #ffffff;
@@ -41,7 +38,6 @@
   box-shadow: 0 12px 30px rgba(0, 0, 0, 0.08);
 }
 
-/* Card header */
 .card-header h3 {
   font-size: 18px;
   font-weight: 600;
