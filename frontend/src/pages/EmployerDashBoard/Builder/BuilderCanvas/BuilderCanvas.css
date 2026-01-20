@@ -1,5 +1,30 @@
 .builder-canvas-page {
     position: relative;
+    /*height: 100%;*/
+}
+
+.canvas-wrapper {
+    outline: 1px solid #C6C6C6;
+    padding: 7px 15px;
+    margin-top: 7px;
+    border-radius: 10px;
+    background-color: white;
+    /*height: 60vh;
+    overflow-y: auto;*/
+}
+
+.builder-page-title {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-weight: 500;
+    gap: 5px;
+}
+
+.builder-page-title img {
+    display: flex;
+    width: 16px;
 }
 
 .show-chatbar-toggle {
@@ -16,7 +41,7 @@
     position: fixed;
     z-index: 1000;
     bottom: 78px;
-    left: -3%;
+    right: 3%;
     box-shadow: 0 6px 20px rgba(0, 0, 0, 0.10);
 }
 
@@ -25,12 +50,12 @@
 }
 
 .builder-chat-wrapper {
-    width: 90%;
-    position: fixed;
+    width: 100%;
+    /*position: fixed;
     z-index: 1000;
     bottom: -6%;
     left: 50%;
-    transform: translateX(-45%);
+    transform: translateX(-32%);*/
 }
 
 .green-pill {

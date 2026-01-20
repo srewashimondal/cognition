@@ -73,7 +73,7 @@ form {
 
 input {
     border: none;
-    font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+    font-family: Instrument Sans, system-ui, sans-serif;
     font-weight: 500;
     outline: none;
     width: 100%;

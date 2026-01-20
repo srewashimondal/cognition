@@ -17,7 +17,7 @@ import cap_icon from '../../../../assets/icons/simulations/black-cap-icon.svg';
 import plus_icon from '../../../../assets/icons/simulations/black-plus-icon.svg';
 import x_icon from '../../../../assets/icons/simulations/grey-x-icon.svg';
 import note_icon from '../../../../assets/icons/orange-note-icon.svg';
-import ai_icon from '../../../../assets/icons/simulations/orange-ai-icon.svg';
+import black_ai_icon from '../../../../assets/icons/simulations/black-ai-icon.svg';
 
 type BuilderCanvasProps = {
     id: string;
@@ -92,7 +92,8 @@ export default function BuilderCanvas({ id }: BuilderCanvasProps) {
     const [tempAttach, setTempAttach] = useState<string[]>([]); // change to File[]
     const [title, SetTitle] = useState(module?.title);
     const [userInput, setUserInput] = useState("");
-    const [showChatBar, setShowChatBar] = useState(false);
+
+    const bannerColorByID = ["module1", "module2", "module3", "module4", "module5", "module6"];
 
     const handleRemoveReference = (fileToRemove: string) => { // change to File
         setReferences(prev => prev?.filter(item => item !== fileToRemove));
@@ -185,6 +186,15 @@ export default function BuilderCanvas({ id }: BuilderCanvasProps) {
                     </span>
                     Generated Module
             </div>*/}
+            <div className="builder-page-title">
+                <span>
+                    <img src={black_ai_icon} />
+                </span>
+                Builder Studio
+            </div>
+
+            <div className="canvas-wrapper">
+            <div className={`lesson-banner ${bannerColorByID[(module?.id ?? 1) - 1]}`} />
             <div className="modules-header lesson-pg">
                 {editMode ? 
                     <div className="title-input-wrapper">
@@ -260,16 +270,13 @@ export default function BuilderCanvas({ id }: BuilderCanvasProps) {
                 <ActionButton text={"Save as Draft"} buttonType={"save"} onClick={handleSave} reversed={true} />
                 <ActionButton text={"Deploy"} buttonType={"deploy"} onClick={handleDeploy} disabled={module?.deployed} />
             </div>
+            </div>
+
             <div className="builder-chat-wrapper">
-                { (showChatBar) ?
                 <ChatBar context={"module"} userInput={userInput} setUserInput={setUserInput} 
                 handleSend={handleSend} pageContext={["Module Base", ...(lessons ?? [])]}/>
-                : <div className="show-chatbar-toggle" onClick={() => setShowChatBar(prev => !prev)}>
-                    <img src={ai_icon} />
-                </div>
-                }
             </div>
-            <div className="filler-space" />
+            {/*<div className="filler-space" />*/}
         </div>
     );
 }

@@ -5,7 +5,7 @@
 }
 
 .main-chat-wrapper.module {
-    margin: 60px;
+    width: 100%;
 }
 
 .chat-bar-wrapper {
@@ -24,12 +24,11 @@
 }
 
 .chat-bar-wrapper.module {
-    width: 90%;
+    width: 100%;
     margin: 10px;
     margin-left: 0px;
-    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.10);
-    background-color: #fff1ea;
-    border-color: #ffd0b9;
+    /*background-color: #fff1ea;
+    border-color: #ffd0b9;*/
 }
 
 .main-chat-wrapper.simulation {
@@ -52,9 +51,9 @@
     border-radius: 5px; /*new*/
 }
 
-.chat-bar-wrapper.module .chat-bar-input-context {
+/*.chat-bar-wrapper.module .chat-bar-input-context {
     outline: 2px solid #ffd0b9;
-}
+}*/
 
 .chat-bar-input {
     display: flex;
@@ -76,7 +75,7 @@
     background: none;
     font-size: 16px;
     line-height: 1.4;
-    font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+    font-family: 'Instrument Sans', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
     box-sizing: border-box;
     min-height: 44px;       
     max-height: 140px;
@@ -174,10 +173,14 @@
     border: 1px solid #C6C6C6;
     display: flex;
     flex-direction: column;
-    border-radius: 5px;
+    border-radius: 10px;
     font-size: 12px;
-    width: 200px;
+    width: 300px;
     box-shadow: 0 6px 20px rgba(0, 0, 0, 0.20);
+    position: absolute;
+    bottom: 11%;
+    z-index: 1000;
+    overflow: hidden;
 }
 
 .context-wrapper img {
@@ -200,7 +203,7 @@
     display: flex;
     gap: 10px;
     width: 100%;
-    padding: 5px;
+    padding: 7px;
     cursor: pointer;
 }
 
