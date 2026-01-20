@@ -19,13 +19,13 @@
 }
 
 .scroll-wrapper.text {
-    flex: 1;               /* 🔑 THIS IS THE KEY */
+    flex: 1;              
     overflow-y: auto;
     position: relative;
     max-height: 80vh;
     overflow: hidden;
     padding: 10px;
-    width: 95%;
+    width: 100%;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -76,7 +76,7 @@
 
 .chatbar-wrapper.chat-input {
     bottom: -10%;
-    width: 100%;
+    width: 680px;
 }
 
 .chat-input-icon {

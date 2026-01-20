@@ -2,6 +2,7 @@
     display: flex;
     justify-content: center;
     align-items: center;
+    font-family: Instrument Sans, system-ui, sans-serif;
 }
 
 .signup-wrapper{

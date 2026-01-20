@@ -9,6 +9,7 @@
     height: 100px;
     background: white;
     margin: 0;
+    font-family: Instrument Sans, system-ui, sans-serif;
 }
 
 .navbar::after {

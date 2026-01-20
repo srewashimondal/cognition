@@ -17,8 +17,7 @@ import cap_icon from '../../../../assets/icons/simulations/black-cap-icon.svg';
 import plus_icon from '../../../../assets/icons/simulations/black-plus-icon.svg';
 import x_icon from '../../../../assets/icons/simulations/grey-x-icon.svg';
 import note_icon from '../../../../assets/icons/orange-note-icon.svg';
-import info_icon from '../../../../assets/icons/simulations/green-info-icon.svg';
-import ai_icon from '../../../../assets/icons/simulations/grey-ai-icon.svg';
+import ai_icon from '../../../../assets/icons/simulations/orange-ai-icon.svg';
 
 type BuilderCanvasProps = {
     id: string;
@@ -180,12 +179,12 @@ export default function BuilderCanvas({ id }: BuilderCanvasProps) {
             <div className="back-to-modules" onClick={() => navigate(`/employer/modules`)}>
                 <img src={orange_left_arrow} />
             </div>
-            <div className="green-pill">
+            {/*<div className="green-pill">
                     <span>
                         <img src={info_icon} />
                     </span>
                     Generated Module
-            </div>
+            </div>*/}
             <div className="modules-header lesson-pg">
                 {editMode ? 
                     <div className="title-input-wrapper">

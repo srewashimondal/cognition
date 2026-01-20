@@ -110,34 +110,36 @@ export default function ChatBar({ context, userInput, setUserInput, handleSend, 
                 </div>)}
             </div> }
         <div className={`chat-bar-wrapper ${context}`}>
-            { (showFileCond && (attachedFiles?.length ?? 0) > 0) &&
-                <div className="attached-items-wrapper">
-                    {attachedFiles?.map((f) => <AttachmentItem fileName={f} onClick={() => handleRemoveFile?.(f)} />)}
-                </div>
-            }
-            {
-                ((selectedContext?.length ?? 0) > 0) && (
-                    <div className="selected-context-wrapper">
-                        {selectedContext
-                            ?.filter((l): l is string => typeof l === "string")
-                            .map((l) => (
-                                <ContextItem label={l} global={true} handleRemove={() => handleRemoveFromContext(l)} />
-                            ))}
-                        {selectedContext
-                            ?.filter((l): l is LessonType => typeof l !== "string")
-                            .map((l) => (
-                                <ContextItem label={l.title} global={false} handleRemove={() => handleRemoveFromContext(l)} />
-                        ))}
+            <div className="chat-bar-input-context">
+                { (showFileCond && (attachedFiles?.length ?? 0) > 0) &&
+                    <div className="attached-items-wrapper">
+                        {attachedFiles?.map((f) => <AttachmentItem fileName={f} onClick={() => handleRemoveFile?.(f)} />)}
                     </div>
-                )
-            }
-            <div className={`chat-bar-input ${(showFileCond && (attachedFiles?.length ?? 0)) ? "expanded" : ""}`}>
-                <textarea placeholder={contextToPlaceholder[context]} value={userInput} 
-                onChange={(e) => {setUserInput(e.target.value); handleTextareaChange(e);}} 
-                onKeyDown={(e) => {if (e.key === "Enter") {e.preventDefault(); handleSend();}}} />
-                <span className="send-icon" onClick={handleSend}>
-                    <img src={send_icon} />
-                </span>
+                }
+                {
+                    ((selectedContext?.length ?? 0) > 0) && (
+                        <div className="selected-context-wrapper">
+                            {selectedContext
+                                ?.filter((l): l is string => typeof l === "string")
+                                .map((l) => (
+                                    <ContextItem label={l} global={true} handleRemove={() => handleRemoveFromContext(l)} />
+                                ))}
+                            {selectedContext
+                                ?.filter((l): l is LessonType => typeof l !== "string")
+                                .map((l) => (
+                                    <ContextItem label={l.title} global={false} handleRemove={() => handleRemoveFromContext(l)} />
+                            ))}
+                        </div>
+                    )
+                }
+                <div className={`chat-bar-input ${(showFileCond && (attachedFiles?.length ?? 0)) ? "expanded" : ""}`}>
+                    <textarea placeholder={contextToPlaceholder[context]} value={userInput} 
+                    onChange={(e) => {setUserInput(e.target.value); handleTextareaChange(e);}} 
+                    onKeyDown={(e) => {if (e.key === "Enter") {e.preventDefault(); handleSend();}}} />
+                    <span className="send-icon" onClick={handleSend}>
+                        <img src={send_icon} />
+                    </span>
+                </div>
             </div>
             <div className="chat-actions-wrapper">
                 <div className="chat-actions">

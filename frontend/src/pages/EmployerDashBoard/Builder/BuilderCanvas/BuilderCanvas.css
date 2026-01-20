@@ -5,18 +5,23 @@
 .show-chatbar-toggle {
     width: 60px;
     height: 60px;
-    border: 2px solid #C6C6C6;
+    border: 1px solid #ffd0b9;
     display: flex;
     justify-content: center;
     align-items: center;
     padding: 10px;
     border-radius: 50%;
     transition: 0.2s ease;
-    background-color: #F1FCFF;
+    background-color: #fff5f0;
     position: fixed;
     z-index: 1000;
     bottom: 78px;
-    left: 1%;
+    left: -3%;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.10);
+}
+
+.show-chatbar-toggle:hover {
+    background-color: #ffe7db;
 }
 
 .builder-chat-wrapper {
