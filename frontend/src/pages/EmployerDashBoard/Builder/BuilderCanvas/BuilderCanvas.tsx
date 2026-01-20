@@ -259,7 +259,7 @@ export default function BuilderCanvas({ id }: BuilderCanvasProps) {
             </div>
             <div className="builder-action-panel">
                 <ActionButton text={"Save as Draft"} buttonType={"save"} onClick={handleSave} reversed={true} />
-                <ActionButton text={"Deploy"} buttonType={"deploy"} onClick={handleDeploy} />
+                <ActionButton text={"Deploy"} buttonType={"deploy"} onClick={handleDeploy} disabled={module?.deployed} />
             </div>
             <div className="builder-chat-wrapper">
                 { (showChatBar) ?

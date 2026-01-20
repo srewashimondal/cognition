@@ -81,29 +81,28 @@ export default function ChatBar({ context, userInput, setUserInput, handleSend, 
         handleContextClick(contextToRemove);
     };
 
-    const contextRef = useRef<HTMLDivElement | null>(null);
+    const chatBarRef = useRef<HTMLDivElement | null>(null);
     useEffect(() => {
         const handleClickOutside = (e: MouseEvent) => {
-          if (
-            contextRef.current &&
-            !contextRef.current.contains(e.target as Node)
-          ) {
-            setShowContext(false);
-          }
+            if (
+                chatBarRef.current &&
+                !chatBarRef.current.contains(e.target as Node)
+            ) {
+                setShowContext(false);
+            }
         };
       
         document.addEventListener("mousedown", handleClickOutside);
         return () => {
-          document.removeEventListener("mousedown", handleClickOutside);
+            document.removeEventListener("mousedown", handleClickOutside);
         };
     }, []);
       
-      
     return (
-        <div className={`main-chat-wrapper ${context}`}>
+        <div className={`main-chat-wrapper ${context}`} ref={chatBarRef}>
         { (showContext) && 
-            <div className="context-wrapper" ref={contextRef}>
-                {pageContextState?.map((l) => <div className="context-item" onClick={() => handleContextClick(l)}>
+            <div className="context-wrapper">
+                {pageContextState?.map((l) => <div className="context-item" onClick={(e) => {e.stopPropagation(); handleContextClick(l);}}>
                     <span>
                         <img src={typeof l === "string" ? globe_icon : cap_icon} />
                     </span>
