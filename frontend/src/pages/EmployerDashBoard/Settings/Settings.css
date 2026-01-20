@@ -172,9 +172,7 @@ button.secondary {
   margin-bottom: 20px;
 }
 
-/* ===============================
-   Security Settings
-================================ */
+/* =============================== Security Settings ================================ */
 
 .security-section {
   max-width: 900px;
@@ -193,7 +191,6 @@ button.secondary {
   margin-bottom: 28px;
 }
 
-/* Password input with eye */
 .password-field {
   position: relative;
 }
@@ -207,7 +204,6 @@ button.secondary {
   color: #6b7280;
 }
 
-/* Password strength */
 .password-strength {
   display: flex;
   align-items: center;
@@ -244,7 +240,6 @@ button.secondary {
   font-weight: 500;
 }
 
-/* Two-factor */
 .two-factor {
   display: flex;
   justify-content: space-between;
@@ -264,7 +259,6 @@ button.secondary {
   color: #6b7280;
 }
 
-/* Toggle switch */
 .switch {
   position: relative;
   width: 44px;
@@ -306,9 +300,7 @@ button.secondary {
   transform: translateX(20px);
 }
 
-/* ===============================
-   Notifications Settings
-================================ */
+/* =============================== Notifications Settings ================================ */
 
 .notifications-section {
   max-width: 820px;
@@ -328,7 +320,6 @@ button.secondary {
   margin-bottom: 28px;
 }
 
-/* Notification list container */
 .notification-list {
   background: #ffffff;
   border: 1px solid #e5e7eb;
@@ -336,7 +327,6 @@ button.secondary {
   padding: 8px 0;
 }
 
-/* Individual item */
 .notification-item {
   display: flex;
   justify-content: space-between;
@@ -484,14 +474,12 @@ button.secondary {
   box-shadow: 0 2px 6px rgba(0,0,0,0.08);
 }
 
-/* DARK active — THIS is what you want */
 .theme-toggle button.dark.active {
-  background: #111827;   /* dark pill */
-  color: #ffffff;        /* white text */
+  background: #111827; 
+  color: #ffffff;   
   box-shadow: 0 2px 8px rgba(0,0,0,0.25);
 }
 
-/* Hover (subtle) */
 .theme-toggle button:not(.active):hover {
   color: #111827;
 }
