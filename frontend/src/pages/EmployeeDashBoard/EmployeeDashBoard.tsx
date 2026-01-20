@@ -139,7 +139,7 @@ export default function EmployeeDashBoard() {
             </div>
           </NavLink>
 
-          <NavLink to="/employee/employee-resources" className="nav-item">
+          <NavLink to="/employee/resources" className="nav-item">
             <div className="sidebar-label">
               <div className="sidebar-icon-swap">
                 <img className="sidebar-icon white" src={white_folder} />
@@ -150,7 +150,7 @@ export default function EmployeeDashBoard() {
             </div>
           </NavLink>
 
-          <NavLink to="/employee/employee-settings" className="nav-item">
+          <NavLink to="/employee/settings" className="nav-item">
             <div className="sidebar-label">
               <div className="sidebar-icon-swap">
                 <img className="sidebar-icon white" src={white_gear} />
@@ -216,8 +216,8 @@ export default function EmployeeDashBoard() {
             <Route path="simulation-view" element={<SimulationView />} />*/}
             <Route path="schedule" element={<Schedule />} />
             <Route path="standard-modules" element={<StandardModules />} />
-            <Route path="employee-resources" element={<EmployeeResources />} />
-            <Route path="employee-settings" element={<EmployeeSettings />} />
+            <Route path="resources" element={<EmployeeResources />} />
+            <Route path="settings" element={<EmployeeSettings />} />
             <Route path="*" element={<Navigate to="" />} />
           </Routes>
         </section>
