@@ -80,6 +80,7 @@
 .module-info-line {
     display: flex;
     align-items: center;
+    margin-left: 6px;
 }
   
 .module-info-left {
