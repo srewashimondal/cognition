@@ -16,8 +16,8 @@ import StandardModules from './StandardModules/StandardModules';
 import SimulationModules from './SimulationModules/SimulationModules';
 import EmployeeHome from './EmployeeHome/EmployeeHome';
 import Schedule from './Schedule/Schedule';
-import Resources from './Resources/Resources';
-import Settings from './Settings/Settings';
+import EmployeeResources from './Resources/EmployeeResources';
+import EmployeeSettings from './Settings/EmployeeSettings';
 import SimulationLessons from './SimulationModules/SimulationLessons/SimulationLessons';
 import SimulationPage from '../Simulation/SimulationPage';
 
@@ -139,7 +139,7 @@ export default function EmployeeDashBoard() {
             </div>
           </NavLink>
 
-          <NavLink to="/employee/resources" className="nav-item">
+          <NavLink to="/employee/employee-resources" className="nav-item">
             <div className="sidebar-label">
               <div className="sidebar-icon-swap">
                 <img className="sidebar-icon white" src={white_folder} />
@@ -150,7 +150,7 @@ export default function EmployeeDashBoard() {
             </div>
           </NavLink>
 
-          <NavLink to="/employee/settings" className="nav-item">
+          <NavLink to="/employee/employee-settings" className="nav-item">
             <div className="sidebar-label">
               <div className="sidebar-icon-swap">
                 <img className="sidebar-icon white" src={white_gear} />
@@ -216,8 +216,8 @@ export default function EmployeeDashBoard() {
             <Route path="simulation-view" element={<SimulationView />} />*/}
             <Route path="schedule" element={<Schedule />} />
             <Route path="standard-modules" element={<StandardModules />} />
-            <Route path="resources" element={<Resources />} />
-            <Route path="settings" element={<Settings />} />
+            <Route path="employee-resources" element={<EmployeeResources />} />
+            <Route path="employee-settings" element={<EmployeeSettings />} />
             <Route path="*" element={<Navigate to="" />} />
           </Routes>
         </section>

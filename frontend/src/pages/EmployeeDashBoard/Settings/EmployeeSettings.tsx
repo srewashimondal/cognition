@@ -1,11 +1,11 @@
-import './Settings.css';
+import './EmployeeSettings.css';
 
-export default function Settings() {
+export default function EmployeeSettings() {
     return (
         <div className="settings=pg">
             <div className="modules-header">
                 <div>
-                <h1>Settings</h1>
+                <h1>Employee Settings</h1>
                 <p></p>
                 </div>
             </div>
