@@ -6,6 +6,9 @@ export const modules: ModuleType[] = [
       title: "Store Orientation and Navigation",
       hours: "1:30",
       numLessons: 3,
+      createTime: "January 16, 2025 10:00AM",
+      difficulty: "Intermediate",
+      references: ["Document1", "Document2", "Document3"],
       lessons: [
         {
           id: 1,
@@ -66,6 +69,9 @@ export const modules: ModuleType[] = [
       title: "Product Knowledge & Inventory",
       hours: "1:30",
       numLessons: 3,
+      createTime: "January 16, 2025 10:00AM",
+      difficulty: "Intermediate",
+      references: ["Document1", "Document2", "Document3"],
       lessons: [
         {
           id: 1,
@@ -126,6 +132,9 @@ export const modules: ModuleType[] = [
       title: "Customer Interaction & Communication",
       hours: "1:30",
       numLessons: 3,
+      createTime: "January 16, 2025 10:00AM",
+      difficulty: "Intermediate",
+      references: ["Document1", "Document2", "Document3"],
       lessons: [
         {
           id: 1,
@@ -186,6 +195,9 @@ export const modules: ModuleType[] = [
       title: "Checkout, POS & Transactions",
       hours: "1:30",
       numLessons: 3,
+      createTime: "January 16, 2025 10:00AM",
+      difficulty: "Intermediate",
+      references: ["Document1", "Document2", "Document3"],
       lessons: [
         {
           id: 1,
@@ -246,6 +258,9 @@ export const modules: ModuleType[] = [
       title: "Safety, Compliance & Store Policy",
       hours: "1:30",
       numLessons: 3,
+      createTime: "January 16, 2025 10:00AM",
+      difficulty: "Intermediate",
+      references: ["Document1", "Document2", "Document3"],
       lessons: [
         {
           id: 1,
@@ -306,6 +321,9 @@ export const modules: ModuleType[] = [
       title: "Multitasking & Real-World Pressure",
       hours: "1:30",
       numLessons: 3,
+      createTime: "January 16, 2025 10:00AM",
+      difficulty: "Intermediate",
+      references: ["Document1", "Document2", "Document3"],
       lessons: [
         {
           id: 1,

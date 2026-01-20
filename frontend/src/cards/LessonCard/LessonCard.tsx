@@ -6,12 +6,14 @@ import SkillItem from './SkillItem/SkillItem';
 import LessonAbstract from './LessonAbstract/LessonAbstract';
 import ActionButton from '../../components/ActionButton/ActionButton';
 import SkillsPopover from './SkillsPopover/SkillsPopover';
-import { Checkbox, RadioGroup } from "@radix-ui/themes";
-import orange_edit_icon from '../../assets/icons/orange-edit-icon.svg';
-import orange_check_icon from '../../assets/icons/orange-check.svg';
+import { Checkbox, RadioGroup, Slider, CheckboxGroup } from "@radix-ui/themes";
+import edit_icon from '../../assets/icons/simulations/grey-edit-icon.svg';
+import refresh_icon from '../../assets/icons/simulations/grey-refresh-icon.svg';
+import check_icon from '../../assets/icons/simulations/grey-check-icon.svg';
 import green_plus from '../../assets/icons/lesson-edit/green-plus.svg';
 import down_chevron from '../../assets/icons/another-black-down-chevron.svg';
 import up_chevron from '../../assets/icons/black-up-chevron.svg';
+import ErrorMessage from '../../components/ErrorMessage/ErrorMessage';
 
 type LessonProp = {
     lessonInfo: LessonType;
@@ -34,6 +36,7 @@ export default function LessonCard({ lessonInfo, role, status, evaluation, navig
     const [changesMade, setChangesMade] = useState(false);
     const [search, setSearch] = useState("");
     const [error, setError] = useState<string | null>(null);
+    const [selectedDate, setSelectedDate] = useState<string | null>(null);
 
     const buttonLabelsByStatus = {
         "not begun": "Begin",
@@ -67,6 +70,7 @@ export default function LessonCard({ lessonInfo, role, status, evaluation, navig
     };
 
     const [clicked, setClicked] = useState(false);
+    const [criteria, setCriteria] = useState<string[]>(["Empathy & Tone", "Policy Adherence", "Problem Resolution", "Communication Clarity"]);
 
     const wrapperRef = useRef<HTMLDivElement>(null);
 
@@ -133,16 +137,24 @@ export default function LessonCard({ lessonInfo, role, status, evaluation, navig
                         </div>)}
                     </div>
                 </div>
-                <p className={`lesson-info lesson-duration ${role}`}>{duration}m</p>
-                <p className={`lesson-info lesson-due ${role}`}>{dueDate}</p>
-                {(role === "employee") && <div className={`lesson-info lesson-status ${statusLabelbyStatus[status ?? "not begun"]} ${role}`}>
-                    <div className="lesson-status-dot" />
-                    {statusLabelbyStatus[status ?? "not begun"]}
-                </div>}
+                {(role === "employee") &&
+                <>
+                    <p className={`lesson-info lesson-duration ${role}`}>{duration}m</p>
+                    <p className={`lesson-info lesson-due ${role}`}>{dueDate}</p>
+                    <div className={`lesson-info lesson-status ${statusLabelbyStatus[status ?? "not begun"]} ${role}`}>
+                        <div className="lesson-status-dot" />
+                        {statusLabelbyStatus[status ?? "not begun"]}
+                    </div>
+                </>}
                 { (role === "employer") ?
-                    (<button className={`expand-btn ${(expanded) ? ("expanded") : ("")}`} onClick={() => {setExpanded(!expanded); console.log(id, ": ", expanded);}}>
-                        <img src={(expanded) ? (orange_check_icon) : (orange_edit_icon)} />
-                    </button>) :
+                    (<div className="local-action-panel">
+                        <div className="builder-action" onClick={() => setExpanded(prev => !prev)}>
+                            <img src={expanded ? check_icon : edit_icon} />
+                        </div>
+                        <div className="builder-action">
+                            <img src={refresh_icon} />
+                        </div>
+                    </div>) :
                     (<button className={`lesson-action-btn ${statusLabelbyStatus[status ?? "not begun"]}`} onClick={handleNavigateEmployee}>
                         {(status == "completed") ? (<img src={(expanded) ? (up_chevron) : (down_chevron)} />) : (buttonLabelsByStatus[status ?? "not begun"])}
                     </button>)
@@ -169,6 +181,38 @@ export default function LessonCard({ lessonInfo, role, status, evaluation, navig
                                 <div className="check-setting">
                                     <Checkbox defaultChecked onCheckedChange={handleCheck} color="orange" />
                                     <span className="expanded-settings-text">Randomize each attempt</span>
+                                </div>
+                                <div className="slider-setting">
+                                    <span className="expanded-settings-text">Customer Mood</span>
+                                    <Slider defaultValue={[33.3]} color="orange" />
+                                    <div className="slider-labels expanded-settings-text">
+                                        <p>Calm</p> 
+                                        <p>Neutral</p>
+                                        <p>Frustrated</p>
+                                        <p>Angry</p>
+                                    </div>
+                                </div>
+                                <div className="check-setting eval">
+                                    <span className="expanded-settings-text">Evaluation Criteria</span>
+                                    <CheckboxGroup.Root value={criteria} onValueChange={(vals) => setCriteria(vals)}
+                                    className="checkbox-group" size="2" color="orange">
+                                        <CheckboxGroup.Item value={"Empathy & Tone"}>
+                                            <span className="expanded-settings-text">Empathy & Tone</span>
+                                        </CheckboxGroup.Item>
+                                        <CheckboxGroup.Item value={"Policy Adherence"}>
+                                            <span className="expanded-settings-text">Policy Adherence</span>
+                                        </CheckboxGroup.Item>
+                                        <CheckboxGroup.Item value={"Problem Resolution"}>
+                                            <span className="expanded-settings-text">Problem Resolution</span>
+                                        </CheckboxGroup.Item>
+                                        <CheckboxGroup.Item value={"Communication Clarity"}>
+                                            <span className="expanded-settings-text">Communication Clarity</span>
+                                        </CheckboxGroup.Item>
+                                    </CheckboxGroup.Root>
+                                </div>
+                                <div className="date-picker">
+                                    <span className="expanded-settings-text">Set Due Date*</span>
+                                    <input type="date" value={selectedDate ?? ""} onChange={(e) => setSelectedDate(e.target.value)} className="date-input" />
                                 </div>
                             </form>
                         </div>

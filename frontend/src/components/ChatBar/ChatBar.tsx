@@ -1,5 +1,4 @@
 import './ChatBar.css';
-import { useState } from 'react';
 import AttachmentItem from '../AttachmentItem/AttachmentItem';
 import paperclip_icon from '../../assets/icons/chatbar/paperclip-icon.svg';
 import voice_icon from '../../assets/icons/chatbar/voice-msg-icon.svg';

@@ -19,6 +19,7 @@
     cursor: pointer;
     transition: 0.2s ease;
     width: 100%;
+    z-index: 1;
 }
 
 .skill-item:hover {

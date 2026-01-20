@@ -1,0 +1,113 @@
+.global-action-panel {
+    display: flex;
+    gap: 10px;
+    padding-right: 10px;
+}
+
+.builder-action {
+    width: 40px;
+    height: 40px;
+    border: 1px solid #DBDBDB;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 10px;
+    border-radius: 50%;
+    transition: 0.2s ease;
+}
+
+.builder-action:hover {
+    background-color: #DBDBDB;
+    border: 1px solid #DBDBDB;
+}
+
+.module-info-builder {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    width: 40%;
+    margin-top: 10px;
+}
+  
+.module-info-line {
+    display: flex;
+    align-items: center;
+}
+  
+.module-info-left {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    min-width: 180px; 
+}
+
+.module-info-icon {
+    display: flex;
+}
+  
+.module-info-icon img {
+    width: 18px;
+    height: 18px;
+}
+  
+.module-info-label {
+    font-size: 14px;
+    color: #666;
+}
+  
+.module-info-value {
+    font-size: 14px;
+    color: #222;
+    margin: 0;
+    font-weight: 500;
+}
+
+.attached-references-wrapper {
+    display: flex;
+    width: 100%;
+    align-items: center;
+    gap: 10px;
+}
+
+.attached-references {
+    display: flex;
+    padding: 5px 7px;
+    gap: 10px;
+    padding-left: 0;
+    flex-wrap: wrap;
+}
+
+.plus-wrapper {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.module-info-line.lesson {
+    margin-top: 12px;
+}
+
+.title-input-wrapper {
+    width: 100%;
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    gap: 5px;
+}
+
+.edit-mode-icon {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.title-input {
+    width: 100%;
+}
+
+.title-input input {
+    background: none;
+    margin: 0;
+    font-size: 26px;
+    font-weight: 700;
+}

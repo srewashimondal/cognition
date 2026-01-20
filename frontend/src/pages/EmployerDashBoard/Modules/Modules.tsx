@@ -1,49 +1,9 @@
 import "./Modules.css";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import type { ModuleType } from '../../../types/Modules/ModuleType.tsx';
+import { modules } from '../../../dummy_data/modules_data.tsx';
 import ModuleCard from '../../../cards/ModuleCard/ModuleCard.tsx';
 import add_cta from '../../../assets/icons/add-cta.svg';
-
-const modules: ModuleType[] = [
-  {
-    id: 1,
-    title: "Store Orientation and Navigation",
-    hours: "1:30",
-    numLessons: 3,
-    deployed: true
-  },
-  {
-    id: 2,
-    title: "Product Knowledge & Inventory",
-    hours: "1:30",
-    numLessons: 3,
-  },
-  {
-    id: 3,
-    title: "Customer Interaction & Communication",
-    hours: "1:30",
-    numLessons: 3,
-  },
-  {
-    id: 4,
-    title: "Checkout, POS, & Transactions",
-    hours: "1:30",
-    numLessons: 3,
-  },
-  {
-    id: 5,
-    title: "Safety, Compliance, & Store Policy",
-    hours: "1:30",
-    numLessons: 3,
-  },
-  {
-    id: 6,
-    title: "Multitasking & Real World Pressure",
-    hours: "1:30",
-    numLessons: 3,
-  },
-];
 
 export default function Modules() {
   const navigate = useNavigate();

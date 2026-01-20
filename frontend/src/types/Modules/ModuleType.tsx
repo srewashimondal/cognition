@@ -7,4 +7,7 @@ export type ModuleType = {
     numLessons: number;
     lessons?: LessonType[];
     deployed?: boolean;
+    createTime: string;
+    difficulty: string;
+    references: string[]; // change to File later
 };

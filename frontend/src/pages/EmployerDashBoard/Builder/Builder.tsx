@@ -3,6 +3,7 @@ import { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import ChatBar from '../../../components/ChatBar/ChatBar';
 import ActionButton from '../../../components/ActionButton/ActionButton';
+import BuilderCanvas from './BuilderCanvas/BuilderCanvas';
 import orange_left_arrow from '../../../assets/icons/orange-left-arrow.svg';
 import ai_icon from '../../../assets/icons/simulations/grey-ai-icon.svg';
 import x_icon from '../../../assets/icons/simulations/grey-x-icon.svg';
@@ -86,78 +87,83 @@ export default function Builder() {
 
     
     return (
-        <div className="builder-page">
-            {(openModal) && <div className="attach-overlay">
-                <div className="attach-modal">
-                    <div className="x-icon-wrapper">
-                        Select Documents to Attach
-                        <div className="x-icon" onClick={() => {setOpenModal(false); setAttachedFiles([]);}}>
-                            <img src={x_icon} />
-                        </div>
-                    </div>
-                    <div className="attach-content-wrapper">   
-                        {resourceSections.map((section) => (
-                        <div
-                            key={section.title}
-                            className={`resource-card ${section.tone} builder`}
-                        >
-                            <div className="card-header">
-                            <h3>
-                                <span className={`section-icon ${section.tone}`}>
-                                {section.icon}
-                                </span>
-                                {section.title}
-                            </h3>
-                            <p>{section.description}</p>
+        <> { (isNewDraft) ? 
+            (<div className="builder-page">
+                {(openModal) && <div className="attach-overlay">
+                    <div className="attach-modal">
+                        <div className="x-icon-wrapper">
+                            Select Documents to Attach
+                            <div className="x-icon" onClick={() => {setOpenModal(false); setAttachedFiles([]);}}>
+                                <img src={x_icon} />
                             </div>
-
-                            <ul className="resource-list">
-                            {section.items.map((item) => (
-                                <li key={item} className="resource-item">
-                                <span className="doc-icon builder">
-                                    <img src={note_icon} />
-                                </span>
-                                <span className="doc-name">{item}</span>
-                                <button className={`attach-btn ${attachedFiles.includes(item) ? "attached" : ""}`} onClick={() => handleAttach(item)}>
-                                    {attachedFiles.includes(item) ? "Attached" : "Attach"}
-                                </button>
-                                </li>
-                            ))}
-                            </ul>
                         </div>
-                        ))}
+                        <div className="attach-content-wrapper">   
+                            {resourceSections.map((section) => (
+                            <div
+                                key={section.title}
+                                className={`resource-card ${section.tone} builder`}
+                            >
+                                <div className="card-header">
+                                <h3>
+                                    <span className={`section-icon ${section.tone}`}>
+                                    {section.icon}
+                                    </span>
+                                    {section.title}
+                                </h3>
+                                <p>{section.description}</p>
+                                </div>
+
+                                <ul className="resource-list">
+                                {section.items.map((item) => (
+                                    <li key={item} className="resource-item">
+                                    <span className="doc-icon builder">
+                                        <img src={note_icon} />
+                                    </span>
+                                    <span className="doc-name">{item}</span>
+                                    <button className={`attach-btn ${attachedFiles.includes(item) ? "attached" : ""}`} onClick={() => handleAttach(item)}>
+                                        {attachedFiles.includes(item) ? "Attached" : "Attach"}
+                                    </button>
+                                    </li>
+                                ))}
+                                </ul>
+                            </div>
+                            ))}
+                        </div>
+                        <div className="attach-action-panel">
+                            <ActionButton text="Attach Documents" buttonType="attach"
+                            onClick={() => setOpenModal(false)} />
+                        </div>
                     </div>
-                    <div className="attach-action-panel">
-                        <ActionButton text="Attach Documents" buttonType="attach"
-                        onClick={() => setOpenModal(false)} />
+                </div>}
+                <div className="back-to-modules" onClick={() => navigate(`/employer/modules`)}>
+                    <img src={orange_left_arrow} />
+                </div>
+                {(voiceMode) ? 
+                <div className="voice-receiver">
+                    <div className="voice-circle" /> 
+                    You are Speaking
+                </div>
+                : <div className="builder-hero">
+                    <h3>Welcome To</h3>
+                    <h3>Builder Studio</h3>
+                    <div className="builder-desc">
+                        <span>
+                            <img src={ai_icon} />
+                        </span>
+                        <p>Start by pitching a Simulation Idea to Cognition AI</p>
                     </div>
+                </div>}
+                <div className="chatbar-wrapper">
+                    <ChatBar context="builder" userInput={userInput} setUserInput={setUserInput} 
+                    handleSend={handleSend} handleAttach={() => setOpenModal(true)}
+                    attachedFiles={attachedFiles} showFileCond={!openModal} 
+                    handleRemoveFile={handleRemoveFile} 
+                    handleVoiceMode={() => setVoiceMode(prev => !prev)} />
                 </div>
-            </div>}
-            <div className="back-to-modules" onClick={() => navigate(`/employer/modules`)}>
-                <img src={orange_left_arrow} />
-            </div>
-            {(voiceMode) ? 
-            <div className="voice-receiver">
-                <div className="voice-circle" /> 
-                You are Speaking
-            </div>
-            : <div className="builder-hero">
-                <h3>Welcome To</h3>
-                <h3>Builder Studio</h3>
-                <div className="builder-desc">
-                    <span>
-                        <img src={ai_icon} />
-                    </span>
-                    <p>Start by pitching a Simulation Idea to Cognition AI</p>
-                </div>
-            </div>}
-            <div className="chatbar-wrapper">
-                <ChatBar context="builder" userInput={userInput} setUserInput={setUserInput} 
-                handleSend={handleSend} handleAttach={() => setOpenModal(true)}
-                attachedFiles={attachedFiles} showFileCond={!openModal} 
-                handleRemoveFile={handleRemoveFile} 
-                handleVoiceMode={() => setVoiceMode(prev => !prev)} />
-            </div>
-        </div>
+            </div> ) :
+            (
+             <BuilderCanvas id={moduleID} />
+            )
+        } </>
     );
 }

@@ -6,7 +6,7 @@
     border-radius: 10px;
     align-items: stretch;
     padding: 0px 10px;
-    overflow: hidden;
+    /*overflow: hidden;*/
     max-height: 300px;
     transition: max-height 1000ms ease;
     background-color: white;
@@ -14,7 +14,7 @@
 }
 
 .lesson-card.expanded {
-    max-height: 2000px;
+    max-height: 3000px;
     box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
     transform: scale(1.01);
 }
@@ -156,7 +156,7 @@
     border: none;
 }
 
-.lesson-card:has(.expand-btn:hover) {
+.lesson-card:has(.builder-action:hover) {
     box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
     transform: scale(1.01);
 }
@@ -329,3 +329,59 @@
     justify-content: flex-end;
     padding: 20px;
 }
+
+.local-action-panel {
+    display: flex;
+    gap: 10px;
+    padding-right: 10px;
+}
+
+.local-action-panel img {
+    width: 14px;
+}
+
+.local-action-panel .builder-action {
+    width: 36px;
+    height: 36px;
+}
+
+.slider-setting {
+    display: flex;
+    width: 70%;
+    flex-direction: column;
+    gap: 10px;
+    margin-left: 10px;
+    margin-bottom: 10px;
+}
+
+.slider-labels {
+    margin-top: 0;
+    display: flex;
+    width: 100%;
+    justify-content: space-between;
+}
+
+.check-setting.eval {
+    display: flex;
+    flex-direction: column;
+}
+
+.date-input {
+    padding: 8px 12px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    font-size: 14px;
+    font-family: inherit;
+    cursor: pointer;
+    width: 20%;
+}
+
+.date-picker {
+    display: flex;
+    width: 70%;
+    flex-direction: column;
+    gap: 10px;
+    margin-left: 10px;
+    margin-bottom: 10px;
+}
+  

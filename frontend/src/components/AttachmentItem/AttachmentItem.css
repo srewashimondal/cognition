@@ -13,6 +13,7 @@
     border: 1px solid #DBDBDB;
     border-radius: 10px;
     cursor: pointer;
+    background-color: white;
 }
 
 .attached-file-icon {

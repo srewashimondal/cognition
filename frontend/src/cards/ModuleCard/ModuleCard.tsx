@@ -35,7 +35,7 @@ export default function ModuleCard({ moduleInfo, role, status, percent, style }:
             <div className="card-top">
               <div className={`banner ${bannerColorByID[moduleInfo.id - 1]}`} >
                 {(role === "employer") &&
-                <button className="edit-btn" onClick={() => navigate(`/employer/modules/${moduleInfo.id}`)}>
+                <button className="edit-btn" onClick={() => navigate(`/employer/builder/${moduleInfo.id}`)}>
                   <div className="edit-swap">
                     <img className="edit-icon default" src={black_edit} />
                     <img className="edit-icon hover" src={orange_edit} />
