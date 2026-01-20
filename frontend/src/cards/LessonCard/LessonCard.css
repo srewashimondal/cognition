@@ -6,7 +6,7 @@
     border-radius: 10px;
     align-items: stretch;
     padding: 0px 10px;
-    /*overflow: hidden;*/
+    overflow: hidden;
     max-height: 300px;
     transition: max-height 1000ms ease;
     background-color: white;

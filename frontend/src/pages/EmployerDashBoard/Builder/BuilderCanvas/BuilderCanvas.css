@@ -1,3 +1,51 @@
+.builder-canvas-page {
+    position: relative;
+}
+
+.show-chatbar-toggle {
+    width: 60px;
+    height: 60px;
+    border: 2px solid #C6C6C6;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 10px;
+    border-radius: 50%;
+    transition: 0.2s ease;
+    background-color: #F1FCFF;
+    position: fixed;
+    z-index: 1000;
+    bottom: 78px;
+    left: 1%;
+}
+
+.builder-chat-wrapper {
+    width: 90%;
+    position: fixed;
+    z-index: 1000;
+    bottom: -10px;
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+.green-pill {
+    font-size: 14px;
+    font-weight: 600;
+    color: #7B955E;
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    background-color: #DAF0C1;
+    padding: 5px 8px;
+    border-radius: 25px;
+    margin-top: 10px;
+}
+
+.green-pill img {
+    width: 17px;
+    display: flex;
+}
+
 .global-action-panel {
     display: flex;
     gap: 10px;
@@ -110,4 +158,10 @@
     margin: 0;
     font-size: 26px;
     font-weight: 700;
+}
+
+.builder-action-panel {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
 }

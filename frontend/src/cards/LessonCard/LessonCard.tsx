@@ -13,7 +13,6 @@ import check_icon from '../../assets/icons/simulations/grey-check-icon.svg';
 import green_plus from '../../assets/icons/lesson-edit/green-plus.svg';
 import down_chevron from '../../assets/icons/another-black-down-chevron.svg';
 import up_chevron from '../../assets/icons/black-up-chevron.svg';
-import ErrorMessage from '../../components/ErrorMessage/ErrorMessage';
 
 type LessonProp = {
     lessonInfo: LessonType;

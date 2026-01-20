@@ -1,0 +1,16 @@
+.context-item-wrapper {
+    font-size: 11px;
+    border: 1px solid #C6C6C6;
+    border-radius: 5px;
+    padding: 2px 7px;
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    padding: 3px 5px;
+    cursor: pointer;
+}
+
+.context-item-wrapper img {
+    display: flex;
+    width: 16px;
+}

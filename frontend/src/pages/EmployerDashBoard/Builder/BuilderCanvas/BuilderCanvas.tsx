@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import AttachmentItem from '../../../../components/AttachmentItem/AttachmentItem';
 import ActionButton from '../../../../components/ActionButton/ActionButton';
 import LessonCard from '../../../../cards/LessonCard/LessonCard';
+import ChatBar from '../../../../components/ChatBar/ChatBar';
 import { modules } from '../../../../dummy_data/modules_data';
 import orange_left_arrow from '../../../../assets/icons/orange-left-arrow.svg';
 import edit_icon from '../../../../assets/icons/simulations/grey-edit-icon.svg';
@@ -13,10 +14,11 @@ import clock_icon from '../../../../assets/icons/simulations/black-clock-icon.sv
 import face_icon from '../../../../assets/icons/simulations/black-face-icon.svg';
 import folder_icon from '../../../../assets/icons/simulations/black-folder-icon.svg';
 import cap_icon from '../../../../assets/icons/simulations/black-cap-icon.svg';
-import globe_icon from '../../../../assets/icons/simulations/black-globe-icon.svg';
 import plus_icon from '../../../../assets/icons/simulations/black-plus-icon.svg';
 import x_icon from '../../../../assets/icons/simulations/grey-x-icon.svg';
 import note_icon from '../../../../assets/icons/orange-note-icon.svg';
+import info_icon from '../../../../assets/icons/simulations/green-info-icon.svg';
+import ai_icon from '../../../../assets/icons/simulations/grey-ai-icon.svg';
 
 type BuilderCanvasProps = {
     id: string;
@@ -90,7 +92,8 @@ export default function BuilderCanvas({ id }: BuilderCanvasProps) {
     const [openModal, setOpenModal] = useState(false);
     const [tempAttach, setTempAttach] = useState<string[]>([]); // change to File[]
     const [title, SetTitle] = useState(module?.title);
-    const [difficulty, setDifficulty] = useState(module?.difficulty);
+    const [userInput, setUserInput] = useState("");
+    const [showChatBar, setShowChatBar] = useState(false);
 
     const handleRemoveReference = (fileToRemove: string) => { // change to File
         setReferences(prev => prev?.filter(item => item !== fileToRemove));
@@ -113,6 +116,18 @@ export default function BuilderCanvas({ id }: BuilderCanvasProps) {
         setOpenModal(false);
         setReferences(prev => [...(prev ?? []), ...filesToAttach]);
     }
+
+    const handleDeploy = () => {
+        /* Nothing for now */
+    };
+
+    const handleSave = () => {
+        /* Nothing for now */
+    };
+
+    const handleSend = () => {
+        /* Nothing for now */
+    };
 
     return (
         <div className="builder-canvas-page">
@@ -165,6 +180,12 @@ export default function BuilderCanvas({ id }: BuilderCanvasProps) {
             <div className="back-to-modules" onClick={() => navigate(`/employer/modules`)}>
                 <img src={orange_left_arrow} />
             </div>
+            <div className="green-pill">
+                    <span>
+                        <img src={info_icon} />
+                    </span>
+                    Generated Module
+            </div>
             <div className="modules-header lesson-pg">
                 {editMode ? 
                     <div className="title-input-wrapper">
@@ -203,7 +224,7 @@ export default function BuilderCanvas({ id }: BuilderCanvasProps) {
                     </span>
                     <span className="module-info-label">Difficulty</span>
                     </div>
-                    <p className="module-info-value">{difficulty}</p> {/*lets say this is calculated by lesson info*/}
+                    <p className="module-info-value">{module?.difficulty}</p> {/*lets say this is calculated by lesson info*/}
                 </div>
 
                 <div className="module-info-line">
@@ -236,6 +257,20 @@ export default function BuilderCanvas({ id }: BuilderCanvasProps) {
             <div className="lessons-list">
                 {lessons?.map((l) => (<LessonCard lessonInfo={l} role={"employer"} />))}
             </div>
+            <div className="builder-action-panel">
+                <ActionButton text={"Save as Draft"} buttonType={"save"} onClick={handleSave} reversed={true} />
+                <ActionButton text={"Deploy"} buttonType={"deploy"} onClick={handleDeploy} />
+            </div>
+            <div className="builder-chat-wrapper">
+                { (showChatBar) ?
+                <ChatBar context={"module"} userInput={userInput} setUserInput={setUserInput} 
+                handleSend={handleSend} pageContext={["Module Base", ...(lessons ?? [])]}/>
+                : <div className="show-chatbar-toggle" onClick={() => setShowChatBar(prev => !prev)}>
+                    <img src={ai_icon} />
+                </div>
+                }
+            </div>
+            <div className="filler-space" />
         </div>
     );
 }
