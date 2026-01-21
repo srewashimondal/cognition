@@ -17,8 +17,36 @@
     padding: 3px;
 }
 
+.employer-card-top-left {
+    display: flex;
+    align-self: center;
+    width: 70%;
+    gap: 20px;
+}
+
+.drag-handle {
+    display: flex;
+    align-self: center;
+    justify-content: center;
+    cursor: grab;
+}
+
+.drag-handle:active {
+    cursor: grabbing;
+}
+
+.lesson-title-div {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: flex-start;
+    width: 100%;
+    gap: 10px;
+    padding: 5px;
+}
+
 .lesson-tag.employer {
-    font-size: 14px;
+    font-size: 12px;
 }
 
 .lesson-tag-wrapper {
@@ -29,7 +57,7 @@
 }
 
 .lesson-tag-wrapper img {
-    width: 20px;
+    width: 16px;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -40,7 +68,7 @@
     border: 1px solid #eee;
     border-radius: 5px;
     background-color: #f9f9f9;
-    width: 70%;
+    width: 100%;
 }
 
 .lesson-title.employer input {

@@ -4,6 +4,9 @@ import { useNavigate } from 'react-router-dom';
 import ActionButton from '../../../components/ActionButton/ActionButton';
 import EmployerCard from '../../../cards/StandardLesson/EmployerCard/EmployerCard';
 import type { StandardLessonType } from '../../../types/Standard/StandardLessons';
+import { DndContext, closestCenter } from "@dnd-kit/core";
+import { SortableContext, verticalListSortingStrategy } from "@dnd-kit/sortable";
+import { arrayMove } from "@dnd-kit/sortable";
 import orange_left_arrow from '../../../assets/icons/orange-left-arrow.svg';
 import edit_icon from '../../../assets/icons/simulations/grey-edit-icon.svg';
 import check_icon from '../../../assets/icons/simulations/grey-check-icon.svg';
@@ -42,9 +45,35 @@ export default function StandardBuilder() {
         });
     };
 
+    const handleAddQuiz = () => {
+        setLessons(prev => {
+            const lastId = prev.length > 0 ? prev[prev.length - 1].id : 0;
+
+            const newLesson: StandardLessonType = {
+                id: lastId + 1,
+                title: "New Quiz Title",
+                type: "quiz"
+            };
+
+            return [...prev, newLesson];
+        });
+    };
+
     const handleDelete = (lessonToDelete: StandardLessonType) => {
         setLessons((prev) => prev.filter((l) => l.id !== lessonToDelete.id));
         setLessonToDelete(null);
+    };
+
+    const handleDragEnd = (event: any) => {
+        const { active, over } = event;
+      
+        if (!over || active.id === over.id) return;
+      
+        setLessons((prev) => {
+          const oldIndex = prev.findIndex(l => l.id === active.id);
+          const newIndex = prev.findIndex(l => l.id === over.id);
+          return arrayMove(prev, oldIndex, newIndex);
+        });
     };
 
     return (
@@ -126,7 +155,7 @@ export default function StandardBuilder() {
                                 </div>
                                 Add Video Lesson
                             </button>
-                            <button className="add-lesson-btn">
+                            <button className="add-lesson-btn" onClick={handleAddQuiz}>
                                 <div className="add-icon-swap">
                                     <img className="add-icon default" src={white_plus_icon} />
                                     <img className="add-icon hover" src={blue_plus_icon} />
@@ -149,7 +178,12 @@ export default function StandardBuilder() {
                                 </button>
                             </div> 
                             : <>
-                            {lessons.map((l) => <EmployerCard id={l.id} title={l.title} type={l.type} handleDelete={() => setLessonToDelete(l)}/>)}
+                                <DndContext collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+                                    <SortableContext items={lessons.map(l => l.id)} strategy={verticalListSortingStrategy}>
+                                        {lessons.map((l, i) => <EmployerCard key={l.id} id={l.id} title={l.title} type={l.type} 
+                                        handleDelete={() => setLessonToDelete(l)} position={i + 1} />)}
+                                    </SortableContext>
+                                </DndContext>
                             </>
                         }
                     </div>
