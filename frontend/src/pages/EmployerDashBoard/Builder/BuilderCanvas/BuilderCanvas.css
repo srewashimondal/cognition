@@ -102,24 +102,6 @@
     bottom: 6%;*/
 }
 
-.green-pill {
-    font-size: 14px;
-    font-weight: 600;
-    color: #7B955E;
-    display: inline-flex;
-    align-items: center;
-    gap: 7px;
-    background-color: #DAF0C1;
-    padding: 5px 8px;
-    border-radius: 25px;
-    margin-top: 10px;
-}
-
-.green-pill img {
-    width: 17px;
-    display: flex;
-}
-
 .global-action-panel {
     display: flex;
     gap: 10px;
@@ -186,6 +168,7 @@
     align-items: flex-start;
     flex-direction: column;
     justify-content: flex-start;
+    gap: 4px;
 }
   
 .module-info-icon {
@@ -382,7 +365,34 @@
     min-height: 0;    
 }
 
+.difficulty-pill {
+    padding: 2px 7px;
+    border-radius: 20px;
+}
 
+.difficulty-pill.Intermediate {
+    background-color: #fffabf;
+    padding: 2px 7px;
+    border-radius: 20px;
+    color: #857d2a;
+    font-weight: 500;
+}
+
+.difficulty-pill.Beginner {
+    background-color: #e9f7ef;  
+    padding: 2px 7px;
+    border-radius: 20px;
+    color: #2f855a;           
+    font-weight: 500;
+}
   
+.difficulty-pill.Advanced {
+    background-color: #eef2ff; 
+    padding: 2px 7px;
+    border-radius: 20px;
+    color: #4338ca;             
+    font-weight: 500;
+}
+   
   
   

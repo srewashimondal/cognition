@@ -260,7 +260,7 @@ export default function BuilderCanvas({ id }: BuilderCanvasProps) {
 
                         <div className="module-info-line">
                             <span className="module-info-label">DIFFICULTY</span>
-                            <p className="module-info-value">{module?.difficulty}</p> {/*lets say this is calculated by lesson info*/}
+                            <div className={`module-info-value difficulty-pill ${module?.difficulty}`}>{module?.difficulty}</div> {/*lets say this is calculated by lesson info*/}
                         </div>
 
                         <div className="module-info-line">
