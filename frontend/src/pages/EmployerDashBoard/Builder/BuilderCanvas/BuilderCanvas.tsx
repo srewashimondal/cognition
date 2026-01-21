@@ -1,23 +1,25 @@
 import './BuilderCanvas.css';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import AttachmentItem from '../../../../components/AttachmentItem/AttachmentItem';
 import ActionButton from '../../../../components/ActionButton/ActionButton';
 import LessonCard from '../../../../cards/LessonCard/LessonCard';
 import ChatBar from '../../../../components/ChatBar/ChatBar';
+import ChatBubble from '../../../Simulation/ChatBubble/ChatBubble';
 import { modules } from '../../../../dummy_data/modules_data';
+import type { MessageType } from '../../../../types/Modules/Lessons/Simulations/MessageType';
 import orange_left_arrow from '../../../../assets/icons/orange-left-arrow.svg';
 import edit_icon from '../../../../assets/icons/simulations/grey-edit-icon.svg';
 import refresh_icon from '../../../../assets/icons/simulations/grey-refresh-icon.svg';
 import check_icon from '../../../../assets/icons/simulations/grey-check-icon.svg';
-import clock_icon from '../../../../assets/icons/simulations/black-clock-icon.svg';
-import face_icon from '../../../../assets/icons/simulations/black-face-icon.svg';
-import folder_icon from '../../../../assets/icons/simulations/black-folder-icon.svg';
 import cap_icon from '../../../../assets/icons/simulations/black-cap-icon.svg';
-import plus_icon from '../../../../assets/icons/simulations/black-plus-icon.svg';
+import white_plus_icon from '../../../../assets/icons/simulations/white-plus-icon.svg';
+import blue_plus_icon from '../../../../assets/icons/simulations/blue-plus-icon.svg';
 import x_icon from '../../../../assets/icons/simulations/grey-x-icon.svg';
 import note_icon from '../../../../assets/icons/orange-note-icon.svg';
-import black_ai_icon from '../../../../assets/icons/simulations/black-ai-icon.svg';
+import file_icon from '../../../../assets/icons/simulations/grey-file-icon.svg';
+import folder_icon from '../../../../assets/icons/simulations/grey-folder-icon.svg';
+import white_ai_icon from '../../../../assets/icons/simulations/white-ai-icon.svg';
+import orange_ai_icon from '../../../../assets/icons/simulations/orange-ai-icon.svg';
 
 type BuilderCanvasProps = {
     id: string;
@@ -92,12 +94,8 @@ export default function BuilderCanvas({ id }: BuilderCanvasProps) {
     const [tempAttach, setTempAttach] = useState<string[]>([]); // change to File[]
     const [title, SetTitle] = useState(module?.title);
     const [userInput, setUserInput] = useState("");
-
-    const bannerColorByID = ["module1", "module2", "module3", "module4", "module5", "module6"];
-
-    const handleRemoveReference = (fileToRemove: string) => { // change to File
-        setReferences(prev => prev?.filter(item => item !== fileToRemove));
-    };
+    const [openAIPanel, setOpenAIPanel] = useState(false);
+    const [chatMessages, setChatMessages] = useState<MessageType[]>([]);
 
     const handleAttachTemp = (fileToAttach: string) => { // change to File later
         setTempAttach(prev =>
@@ -126,9 +124,42 @@ export default function BuilderCanvas({ id }: BuilderCanvasProps) {
     };
 
     const handleSend = () => {
-        /* Nothing for now */
+        if (!userInput.trim()) return;
+
+        setChatMessages(prev => {
+            const lastId = prev.length > 0 ? prev[prev.length - 1].id : 0;
+
+            const newMessage: MessageType = {
+                id: lastId + 1,
+                role: "user",
+                content: userInput,
+            };
+
+            return [...prev, newMessage];
+        });
+        setUserInput("");
     };
 
+    const transcriptRef = useRef<HTMLDivElement | null>(null);
+    useEffect(() => {
+        if (!openAIPanel) return;
+      
+        requestAnimationFrame(() => {
+          const el = transcriptRef.current;
+          if (!el) return;
+      
+          el.scrollTop = el.scrollHeight;
+        });
+    }, [openAIPanel]);
+
+    useEffect(() => {
+        const el = transcriptRef.current;
+        if (!el) return;
+      
+        el.scrollTop = el.scrollHeight;
+    }, [chatMessages]);
+      
+    
     return (
         <div className="builder-canvas-page">
             {(openModal) && <div className="attach-overlay">
@@ -177,106 +208,139 @@ export default function BuilderCanvas({ id }: BuilderCanvasProps) {
                         </div>
                     </div>
                 </div>}
-            <div className="back-to-modules" onClick={() => navigate(`/employer/modules`)}>
-                <img src={orange_left_arrow} />
-            </div>
-            {/*<div className="green-pill">
-                    <span>
-                        <img src={info_icon} />
-                    </span>
-                    Generated Module
-            </div>*/}
-            <div className="builder-page-title">
-                <span>
-                    <img src={black_ai_icon} />
-                </span>
-                Builder Studio
-            </div>
 
-            <div className="canvas-wrapper">
-            <div className={`lesson-banner ${bannerColorByID[(module?.id ?? 1) - 1]}`} />
-            <div className="modules-header lesson-pg">
-                {editMode ? 
-                    <div className="title-input-wrapper">
-                        <span className="edit-mode-icon">
-                            <img src={edit_icon} />
+            <div className="canvas-main-wrapper">
+                <div className="canvas-main">
+                    <div className="back-to-modules builder" onClick={() => navigate(`/employer/modules`)}>
+                        <img src={orange_left_arrow} />
+                    </div>
+                    <div className="modules-header lesson-pg">
+                        <div className="builder-header-wrapper">
+                            <div className="builder-page-title">
+                                Builder Studio / Simulation Modules
+                            </div>
+                            {editMode ? 
+                                <div className="title-input-wrapper">
+                                    <span className="edit-mode-icon">
+                                        <img src={edit_icon} />
+                                    </span>
+                                    <div className="title-input">
+                                        <input type="text" placeholder="Enter new title" value={title} onChange={(e) => SetTitle(e.target.value)} />
+                                    </div>
+                                </div>
+                            : <h1>{title}</h1>}
+                        </div>
+                        <div className="global-action-panel">
+                            <div className="builder-action" onClick={() => setEditMode(prev => !prev)}>
+                                <img src={editMode ? check_icon : edit_icon} />
+                            </div>
+                            <div className="builder-action">
+                                <img src={refresh_icon} />
+                            </div>
+                            <div className="builder-action-pill" onClick={() => setOpenModal(true)}>
+                                <span>
+                                    <img src={folder_icon} />
+                                </span>
+                                View References {/* In the backend I'll make it so the attached files show "attached" */}
+                            </div>
+                            <div className="builder-action-pill" onClick={handleSave}>
+                                <span>
+                                    <img src={file_icon} />
+                                </span>
+                                Save as Draft
+                            </div>
+                            <ActionButton text={"Deploy"} buttonType={"deploy"} onClick={handleDeploy} disabled={module?.deployed} />
+                        </div>
+                    </div>
+                    <div className="module-info-builder">
+                        <div className="module-info-line">
+                            <span className="module-info-label">CREATED</span>
+                            <p className="module-info-value">{module?.createTime}</p>
+                        </div>
+
+                        <div className="module-info-line">
+                            <span className="module-info-label">DIFFICULTY</span>
+                            <p className="module-info-value">{module?.difficulty}</p> {/*lets say this is calculated by lesson info*/}
+                        </div>
+
+                        <div className="module-info-line">
+                            <span className="module-info-label">TOTAL LESSONS</span>
+                            <p className="module-info-value">{lessons?.length} lessons</p> 
+                        </div>
+                        <div className="builder-filler-space" />
+                    </div>
+                    {/*<div className="module-info-line lesson">
+                        <span className="module-info-icon">
+                            <img src={folder_icon} />
                         </span>
-                        <div className="title-input">
-                            <input type="text" placeholder="Enter new title" value={title} onChange={(e) => SetTitle(e.target.value)} />
+                        <span className="module-info-label">REFERENCES</span>
+                    </div>
+                    <div className="attached-references-wrapper">
+                        <div className="attached-references" >
+                            {references?.map((f) => <AttachmentItem fileName={f} onClick={() => handleRemoveReference(f)} />)}
+                            <div className="plus-wrapper">
+                                <div className="builder-action" onClick={() => setOpenModal(true)}>
+                                    <img src={plus_icon} />
+                                </div>
+                            </div>
+                        </div>
+                    </div>*/}
+                    <div className="module-lessons-wrapper">
+                        <div className="lesson-title-wrapper">
+                            <div className="module-info-line lesson">
+                                <span className="module-info-icon">
+                                    <img src={cap_icon} />
+                                </span>
+                                <span className="module-info-label lesson">LESSONS</span>
+                            </div>
+                            <button className="add-lesson-btn">
+                                <div className="add-icon-swap">
+                                    <img className="add-icon default" src={white_plus_icon} />
+                                    <img className="add-icon hover" src={blue_plus_icon} />
+                                </div>
+                                Add Lesson
+                            </button>
+                        </div> 
+                        <div className="lessons-list">
+                            {lessons?.map((l) => (<LessonCard lessonInfo={l} role={"employer"} moduleID={moduleId} />))}
+                        </div>
+                        {/*<div className="builder-action-panel">
+                            <ActionButton text={"Save as Draft"} buttonType={"save"} onClick={handleSave} reversed={true} />
+                            <ActionButton text={"Deploy"} buttonType={"deploy"} onClick={handleDeploy} disabled={module?.deployed} />
+                        </div>*/}
+                        <div className="filler-space" />
+                    </div>
+                    { !openAIPanel &&
+                    <div className="open-ai-toggle" onClick={() => setOpenAIPanel(prev => !prev)}>
+                        <img src={white_ai_icon} />
+                    </div>}
+                </div>
+                { openAIPanel &&
+                <div className="ai-side-panel">
+                    <div className="x-icon-wrapper panel">
+                        <div className="ai-panel-title">
+                            <span>
+                                <img src={orange_ai_icon} />
+                            </span>
+                            Cognition AI
+                        </div>
+                        <div className="x-icon" onClick={() => setOpenAIPanel(false)}>
+                            <img src={x_icon} />
                         </div>
                     </div>
-                : <h1>{title}</h1>}
-                <div className="global-action-panel">
-                    <div className="builder-action" onClick={() => setEditMode(prev => !prev)}>
-                        <img src={editMode ? check_icon : edit_icon} />
+                    <div className="ai-panel-chat-space" ref={transcriptRef}>
+                            {chatMessages.length === 0 && <div className="scroll-spacer" />}
+                            {chatMessages.filter(m => m.role !== "assistant").map((m, i, arr) => 
+                            <ChatBubble key={m.id} message={m} allMessages={chatMessages} 
+                            className={i === arr.length - 1 ? "last-message" : i === 0 ? "first-message": ""} />)}    
                     </div>
-                    <div className="builder-action">
-                        <img src={refresh_icon} />
-                    </div>
-                </div>
-            </div>
-            <div className="module-info-builder">
-                <div className="module-info-line">
-                    <div className="module-info-left">
-                    <span className="module-info-icon">
-                        <img src={clock_icon} />
-                    </span>
-                    <span className="module-info-label">Created</span>
-                    </div>
-                    <p className="module-info-value">{module?.createTime}</p>
-                </div>
-
-                <div className="module-info-line">
-                    <div className="module-info-left">
-                    <span className="module-info-icon">
-                        <img src={face_icon} />
-                    </span>
-                    <span className="module-info-label">Difficulty</span>
-                    </div>
-                    <p className="module-info-value">{module?.difficulty}</p> {/*lets say this is calculated by lesson info*/}
-                </div>
-
-                <div className="module-info-line">
-                    <div className="module-info-left">
-                    <span className="module-info-icon">
-                        <img src={folder_icon} />
-                    </span>
-                    <span className="module-info-label">References</span>
+                    <div className="builder-chat-wrapper">
+                        <ChatBar context={"module"} userInput={userInput} setUserInput={setUserInput} 
+                        handleSend={handleSend} pageContext={["Module Base", ...(lessons ?? [])]} />
                     </div>
                 </div>
+                }
             </div>
-            <div className="attached-references-wrapper">
-                <div className="attached-references" >
-                    {references?.map((f) => <AttachmentItem fileName={f} onClick={() => handleRemoveReference(f)} />)}
-                    <div className="plus-wrapper">
-                        <div className="builder-action" onClick={() => setOpenModal(true)}>
-                            <img src={plus_icon} />
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div className="module-info-line lesson">
-                <div className="module-info-left">
-                <span className="module-info-icon">
-                    <img src={cap_icon} />
-                </span>
-                <span className="module-info-label">Lessons</span>
-                </div>
-            </div>
-            <div className="lessons-list">
-                {lessons?.map((l) => (<LessonCard lessonInfo={l} role={"employer"} moduleID={moduleId} />))}
-            </div>
-            <div className="builder-action-panel">
-                <ActionButton text={"Save as Draft"} buttonType={"save"} onClick={handleSave} reversed={true} />
-                <ActionButton text={"Deploy"} buttonType={"deploy"} onClick={handleDeploy} disabled={module?.deployed} />
-            </div>
-            </div>
-
-            <div className="builder-chat-wrapper">
-                <ChatBar context={"module"} userInput={userInput} setUserInput={setUserInput} 
-                handleSend={handleSend} pageContext={["Module Base", ...(lessons ?? [])]}/>
-            </div>
-            {/*<div className="filler-space" />*/}
         </div>
     );
 }

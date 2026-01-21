@@ -73,8 +73,8 @@
 }
 
 .action-button.deploy {
-    margin: 20px;
     padding: 10px;
+    border-radius: 25px;
 }
 
 .action-button.deploy.disabled {

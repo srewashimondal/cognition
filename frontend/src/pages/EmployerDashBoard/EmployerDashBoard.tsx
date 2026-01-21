@@ -43,9 +43,10 @@ export default function EmployerDashBoard() {
   const [profileOpen, setProfileOpen] = useState(false);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(true);
   const isSimulationPage = useMatch("/employer/simulations/:moduleID/:lessonID/:simIdx");
+  const isBuilderPage = useMatch("employer/builder/:moduleID");
   
   return (
-    <div className={`dashboard ${sidebarCollapsed ? "collapsed" : ""}`}>
+    <div className={`dashboard ${sidebarCollapsed ? "collapsed" : ""} ${isBuilderPage ? "white" : ""}`}>
       {/* Sidebar */}
       
       <aside className="sidebar">
@@ -183,7 +184,7 @@ export default function EmployerDashBoard() {
           </div>
         </header>
 
-        <section className={`content employer ${isSimulationPage ? "no-padding" : ""}`}>
+        <section className={`content employer ${(isSimulationPage || isBuilderPage) ? "no-padding" : ""}`}>
           <Routes>
             <Route index element={<EmployerHome />} />
             <Route path="analytics" element={<Analytics />} />

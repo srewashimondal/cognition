@@ -14,6 +14,8 @@ import check_icon from '../../assets/icons/simulations/grey-check-icon.svg';
 import green_plus from '../../assets/icons/lesson-edit/green-plus.svg';
 import down_chevron from '../../assets/icons/another-black-down-chevron.svg';
 import up_chevron from '../../assets/icons/black-up-chevron.svg';
+import clock_icon from '../../assets/icons/simulations/black-clock-icon.svg';
+import slider_icon from '../../assets/icons/simulations/black-slider-icon.svg';
 
 type LessonProp = {
     lessonInfo: LessonType;
@@ -124,20 +126,31 @@ export default function LessonCard({ lessonInfo, role, status, evaluation, navig
         <div key={id} className={`lesson-card ${(expanded) ? ("expanded") : ("")}`}>
             <div className="lesson-card-top">
                 <div className="lesson-info lesson-title-section">
-                    <p className="lesson-title">{id}. {title}</p>
-                    <div className="lesson-skills">
-                        <span>Skills</span>
-                        {skills.map((s) => (<SkillItem skill={s} expanded={expanded} role={role} onClick={() => (removeSkill(s))} />))}
-                        {(expanded && role === "employer") && (
-                            <div className="add-skill-popover-wrapper" ref={wrapperRef}>
-                                <div className="add-skill" onClick={(e) => {e.stopPropagation(); setClicked(true);}}>
-                                    <span className="green-plus-icon">
-                                        <img src={green_plus}/>
-                                    </span>
-                                    <span>Add skill</span>
-                                </div>
-                                {(clicked && expanded) && <SkillsPopover actionType="add" search={search} setSearch={setSearch} addSkill={addSkill} error={error} />}
-                        </div>)}
+                    <div className="lesson-name-wrapper">
+                        <p className="lesson-tag">{id}. Lesson</p>
+                        <h3 className="lesson-title">{title}</h3>
+                    </div>
+                    <div className="lesson-meta-wrapper">
+                        <div className="lesson-skills time">
+                            <span>
+                                <img src={clock_icon} />
+                            </span>
+                            10 min
+                        </div>
+                        <div className="lesson-skills">
+                            <span>Skills</span>
+                            {skills.map((s) => (<SkillItem skill={s} expanded={expanded} role={role} onClick={() => (removeSkill(s))} />))}
+                            {(expanded && role === "employer") && (
+                                <div className="add-skill-popover-wrapper" ref={wrapperRef}>
+                                    <div className="add-skill" onClick={(e) => {e.stopPropagation(); setClicked(true);}}>
+                                        <span className="green-plus-icon">
+                                            <img src={green_plus}/>
+                                        </span>
+                                        <span>Add skill</span>
+                                    </div>
+                                    {(clicked && expanded) && <SkillsPopover actionType="add" search={search} setSearch={setSearch} addSkill={addSkill} error={error} />}
+                            </div>)}
+                        </div>
                     </div>
                 </div>
                 {(role === "employee") &&
@@ -168,9 +181,15 @@ export default function LessonCard({ lessonInfo, role, status, evaluation, navig
                     <div className="lesson-card-expanded">
                         <LessonAbstract lessonAbstractInfo={lessonInfo.lessonAbstractInfo}/>
                         <div className="expanded-settings">
+                            <div className="expanded-settings-text sim-settings">
+                                <span>
+                                    <img src={slider_icon} />
+                                </span>
+                                Simulation Settings
+                            </div>
                             <form onChange={() => setChangesMade(true)}>
                                 <div className="radio-setting">
-                                    <p className="expanded-settings-text">Number of Attempts</p>
+                                    <p className="expanded-settings-text label">Number of Attempts</p>
                                     <RadioGroup.Root defaultValue="unlimited" color="orange" size="1" 
                                     value={attemptMode} onValueChange={(value) => setAttemptMode(value as "unlimited" | "custom")}>
                                         <RadioGroup.Item value="unlimited" className="expanded-settings-text">Unlimited</RadioGroup.Item>
@@ -183,10 +202,10 @@ export default function LessonCard({ lessonInfo, role, status, evaluation, navig
                                 </div>
                                 <div className="check-setting">
                                     <Checkbox defaultChecked onCheckedChange={handleCheck} color="orange" />
-                                    <span className="expanded-settings-text">Randomize each attempt</span>
+                                    <span className="expanded-settings-text label">Randomize each attempt</span>
                                 </div>
                                 <div className="slider-setting">
-                                    <span className="expanded-settings-text">Customer Mood</span>
+                                    <span className="expanded-settings-text label">Customer Mood</span>
                                     <Slider defaultValue={[33.3]} color="orange" />
                                     <div className="slider-labels expanded-settings-text">
                                         <p>Calm</p> 
@@ -196,7 +215,7 @@ export default function LessonCard({ lessonInfo, role, status, evaluation, navig
                                     </div>
                                 </div>
                                 <div className="check-setting eval">
-                                    <span className="expanded-settings-text">Evaluation Criteria</span>
+                                    <span className="expanded-settings-text label">Evaluation Criteria</span>
                                     <CheckboxGroup.Root value={criteria} onValueChange={(vals) => setCriteria(vals)}
                                     className="checkbox-group" size="2" color="orange">
                                         <CheckboxGroup.Item value={"Empathy & Tone"}>
@@ -214,7 +233,7 @@ export default function LessonCard({ lessonInfo, role, status, evaluation, navig
                                     </CheckboxGroup.Root>
                                 </div>
                                 <div className="date-picker">
-                                    <span className="expanded-settings-text">Set Due Date*</span>
+                                    <span className="expanded-settings-tex label">Set Due Date*</span>
                                     <input type="date" value={selectedDate ?? ""} onChange={(e) => setSelectedDate(e.target.value)} className="date-input" />
                                 </div>
                             </form>

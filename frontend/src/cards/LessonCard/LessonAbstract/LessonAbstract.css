@@ -4,15 +4,16 @@
     width: 100%;
 }
 .lesson-abstract {
-    border: 1px solid #ebebeb;
-    background-color: white;
+    /*border: 1px solid #ebebeb;
+    background-color: white;*/
     border-radius: 7px;
     padding: 0px 10px;
 }
 
 .lesson-abst {
     font-weight: 600;
-    font-size: 13px;
+    font-size: 14px;
+    color: #323232;
 }
 /*
 .lesson-abstract-thread {

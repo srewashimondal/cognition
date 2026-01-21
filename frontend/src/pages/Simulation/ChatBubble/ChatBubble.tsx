@@ -7,7 +7,7 @@ type ChatBubbleProps = {
     message: MessageType;
     allMessages: MessageType[];
     className?: string;
-    handleClick: () => void;
+    handleClick?: () => void;
 };
 
 export default function ChatBubble({ message, allMessages, className, handleClick }: ChatBubbleProps) {
@@ -38,7 +38,7 @@ export default function ChatBubble({ message, allMessages, className, handleClic
                 </div>) :
                 (<div className={`another-chat-wrapper ${role}`}>
                     <span className="role-text">{(role === "user") ? "You" : name}</span>
-                    <div className={`chat-bubble ${role}`} onClick={() => {if (role === "user") {handleClick();}}}>
+                    <div className={`chat-bubble ${role}`} onClick={() => {if (role === "user") {handleClick?.();}}}>
                         <span className="content-text">{content}</span>
                     </div>
                 </div>)

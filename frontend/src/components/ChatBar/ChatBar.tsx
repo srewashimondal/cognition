@@ -101,7 +101,7 @@ export default function ChatBar({ context, userInput, setUserInput, handleSend, 
     return (
         <div className={`main-chat-wrapper ${context}`} ref={chatBarRef}>
         { (showContext) && 
-            <div className="context-wrapper">
+            <div className={`context-wrapper ${((selectedContext?.length ?? 0) > 0) ? "move-up" : ""}`}>
                 {pageContextState?.map((l) => <div className="context-item" onClick={(e) => {e.stopPropagation(); handleContextClick(l);}}>
                     <span>
                         <img src={typeof l === "string" ? globe_icon : cap_icon} />
