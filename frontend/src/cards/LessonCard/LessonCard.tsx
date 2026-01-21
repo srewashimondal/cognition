@@ -12,15 +12,14 @@ import edit_icon from '../../assets/icons/simulations/grey-edit-icon.svg';
 import refresh_icon from '../../assets/icons/simulations/grey-refresh-icon.svg';
 import check_icon from '../../assets/icons/simulations/grey-check-icon.svg';
 import green_plus from '../../assets/icons/lesson-edit/green-plus.svg';
-import down_chevron from '../../assets/icons/another-black-down-chevron.svg';
-import up_chevron from '../../assets/icons/black-up-chevron.svg';
+import lock_icon from '../../assets/icons/simulations/black-lock-icon.svg';
 import clock_icon from '../../assets/icons/simulations/black-clock-icon.svg';
 import slider_icon from '../../assets/icons/simulations/black-slider-icon.svg';
 
 type LessonProp = {
     lessonInfo: LessonType;
     role: "employer" | "employee";
-    status?: "not begun" | "started" | "completed";
+    status?: "not begun" | "started" | "completed" | "locked";
     evaluation?: LessonEvaluationType;
     navigateToSim?: () => void;
     moduleID?: number;
@@ -31,7 +30,6 @@ export default function LessonCard({ lessonInfo, role, status, evaluation, navig
 
     const id = lessonInfo.id;
     const title = lessonInfo.title;
-    const duration = lessonInfo.duration;
     const dueDate = lessonInfo.dueDate;
 
     const [skills, setSkills] = useState<string[]>(lessonInfo.skills);
@@ -45,13 +43,16 @@ export default function LessonCard({ lessonInfo, role, status, evaluation, navig
 
     const buttonLabelsByStatus = {
         "not begun": "Begin",
-        "started": "Continue"
+        "started": "Continue",
+        "completed": "Review",
+        "locked": "Locked"
     };
 
     const statusLabelbyStatus = {
         "not begun": "Pending",
         "started": "Progress",
-        "completed": "Done"
+        "completed": "Done",
+        "locked": "Locked"
     }
 
     const removeSkill = (skillToRemove: string) => {
@@ -97,7 +98,10 @@ export default function LessonCard({ lessonInfo, role, status, evaluation, navig
             setExpanded(prev => !prev);
             return; 
         }
-        navigateToSim?.();
+
+        if (status !== "locked") {
+            navigateToSim?.();
+        }
     }
 
 
@@ -123,19 +127,20 @@ export default function LessonCard({ lessonInfo, role, status, evaluation, navig
     };
 
     return (
-        <div key={id} className={`lesson-card ${(expanded) ? ("expanded") : ("")}`}>
+        <div key={id} className={`lesson-card ${(expanded) ? ("expanded") : ("")} ${status === "locked" ? "locked" : ""}`}>
             <div className="lesson-card-top">
                 <div className="lesson-info lesson-title-section">
                     <div className="lesson-name-wrapper">
                         <p className="lesson-tag">{id}. Lesson</p>
                         <h3 className="lesson-title">{title}</h3>
+                        {status === "locked" && <p className="lock-warning">Complete Previous Lesson to Unlock</p>}
                     </div>
                     <div className="lesson-meta-wrapper">
                         <div className="lesson-skills time">
                             <span>
                                 <img src={clock_icon} />
                             </span>
-                            10 min
+                            30 min
                         </div>
                         <div className="lesson-skills">
                             <span>Skills</span>
@@ -155,7 +160,7 @@ export default function LessonCard({ lessonInfo, role, status, evaluation, navig
                 </div>
                 {(role === "employee") &&
                 <>
-                    <p className={`lesson-info lesson-duration ${role}`}>{duration}m</p>
+                    {/*<p className={`lesson-info lesson-duration ${role}`}>{duration}m</p>*/}
                     <p className={`lesson-info lesson-due ${role}`}>{dueDate}</p>
                     <div className={`lesson-info lesson-status ${statusLabelbyStatus[status ?? "not begun"]} ${role}`}>
                         <div className="lesson-status-dot" />
@@ -171,8 +176,12 @@ export default function LessonCard({ lessonInfo, role, status, evaluation, navig
                             <img src={refresh_icon} />
                         </div>
                     </div>) :
-                    (<button className={`lesson-action-btn ${statusLabelbyStatus[status ?? "not begun"]}`} onClick={handleNavigateEmployee}>
-                        {(status == "completed") ? (<img src={(expanded) ? (up_chevron) : (down_chevron)} />) : (buttonLabelsByStatus[status ?? "not begun"])}
+                    (<button className={`lesson-action-btn ${buttonLabelsByStatus[status ?? "not begun"]}`} onClick={handleNavigateEmployee}>
+                        {(status === "locked") && 
+                        <span>
+                            <img src={lock_icon} />
+                        </span>}
+                        {buttonLabelsByStatus[status ?? "not begun"]}
                     </button>)
                 }
             </div>

@@ -1,3 +1,59 @@
 .employee-action-panel.module {
     padding-right: 0px;
 }
+
+.list-header-section.employee.dur {
+    opacity: 0;
+}
+
+.modules-header.lesson-pg.employee {
+    border: none;
+    display: flex;
+    align-items: center;
+    gap: 30px;
+}
+
+.modules-header-left {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.modules-header-right {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 55%;
+    height: 100%;
+}
+
+.simulation-lessons-top {
+    background-color: white;
+    border-bottom: 1px solid #eee;
+    margin-bottom: 20px;
+    padding: 18px;
+}
+
+.module-meta-bottom {
+    display: flex;
+    gap: 30px;
+}
+
+.module-meta-item {
+    display: flex;
+    gap: 7px;
+    font-size: 14px;
+}
+
+.module-meta-item img {
+    display: flex;
+    width: 20px;
+}
+
+.difficulty-pill.employee {
+    font-size: 14px;
+}
+
+.simulation-lessons-bottom {
+    padding: 18px;
+}

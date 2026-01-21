@@ -29,3 +29,7 @@
     font-size: 12px;
     font-weight: 500;
 }
+
+.progress-bar-fill.styled1 {
+    background-color: #96D9ED;
+}

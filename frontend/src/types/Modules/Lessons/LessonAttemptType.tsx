@@ -5,7 +5,7 @@ import type { SimulationAttemptType } from "./Simulations/SimulationAttemptType"
 export type LessonAttemptType = {
     attempt_id: number;
     lessonInfo: LessonType;
-    status: "not begun" | "started" | "completed";
+    status: "not begun" | "started" | "completed" | "locked";
     evaluation?: LessonEvaluationType;
     simulations?: SimulationAttemptType[];
 };

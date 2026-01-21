@@ -4,7 +4,7 @@ import type { MessageType } from "./MessageType";
 export type SimulationAttemptType = {
     attempt_id: number;
     simulationInfo: SimulationType;
-    status: "not begun" | "started" | "completed";
+    status: "not begun" | "started" | "completed" | "locked";
     conversationId: string;
     messages: MessageType[];
 };

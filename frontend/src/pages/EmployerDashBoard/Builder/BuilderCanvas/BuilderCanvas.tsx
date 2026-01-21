@@ -211,63 +211,65 @@ export default function BuilderCanvas({ id }: BuilderCanvasProps) {
 
             <div className="canvas-main-wrapper">
                 <div className="canvas-main">
-                    <div className="back-to-modules builder" onClick={() => navigate(`/employer/modules`)}>
-                        <img src={orange_left_arrow} />
-                    </div>
-                    <div className="modules-header lesson-pg">
-                        <div className="builder-header-wrapper">
-                            <div className="builder-page-title">
-                                Builder Studio / Simulation Modules
-                            </div>
-                            {editMode ? 
-                                <div className="title-input-wrapper">
-                                    <span className="edit-mode-icon">
-                                        <img src={edit_icon} />
-                                    </span>
-                                    <div className="title-input">
-                                        <input type="text" placeholder="Enter new title" value={title} onChange={(e) => SetTitle(e.target.value)} />
-                                    </div>
+                    <div className="canvas-main-top">
+                        <div className="back-to-modules builder" onClick={() => navigate(`/employer/modules`)}>
+                            <img src={orange_left_arrow} />
+                        </div>
+                        <div className="modules-header lesson-pg">
+                            <div className="builder-header-wrapper">
+                                <div className="builder-page-title">
+                                    Builder Studio / Simulation Modules
                                 </div>
-                            : <h1>{title}</h1>}
+                                {editMode ? 
+                                    <div className="title-input-wrapper">
+                                        <span className="edit-mode-icon">
+                                            <img src={edit_icon} />
+                                        </span>
+                                        <div className="title-input">
+                                            <input type="text" placeholder="Enter new title" value={title} onChange={(e) => SetTitle(e.target.value)} />
+                                        </div>
+                                    </div>
+                                : <h1>{title}</h1>}
+                            </div>
+                            <div className="global-action-panel">
+                                <div className="builder-action" onClick={() => setEditMode(prev => !prev)}>
+                                    <img src={editMode ? check_icon : edit_icon} />
+                                </div>
+                                <div className="builder-action">
+                                    <img src={refresh_icon} />
+                                </div>
+                                <div className="builder-action-pill" onClick={() => setOpenModal(true)}>
+                                    <span>
+                                        <img src={folder_icon} />
+                                    </span>
+                                    View References {/* In the backend I'll make it so the attached files show "attached" */}
+                                </div>
+                                <div className="builder-action-pill" onClick={handleSave}>
+                                    <span>
+                                        <img src={file_icon} />
+                                    </span>
+                                    Save as Draft
+                                </div>
+                                <ActionButton text={"Deploy"} buttonType={"deploy"} onClick={handleDeploy} disabled={module?.deployed} />
+                            </div>
                         </div>
-                        <div className="global-action-panel">
-                            <div className="builder-action" onClick={() => setEditMode(prev => !prev)}>
-                                <img src={editMode ? check_icon : edit_icon} />
+                        <div className="module-info-builder">
+                            <div className="module-info-line">
+                                <span className="module-info-label">CREATED</span>
+                                <p className="module-info-value">{module?.createTime}</p>
                             </div>
-                            <div className="builder-action">
-                                <img src={refresh_icon} />
-                            </div>
-                            <div className="builder-action-pill" onClick={() => setOpenModal(true)}>
-                                <span>
-                                    <img src={folder_icon} />
-                                </span>
-                                View References {/* In the backend I'll make it so the attached files show "attached" */}
-                            </div>
-                            <div className="builder-action-pill" onClick={handleSave}>
-                                <span>
-                                    <img src={file_icon} />
-                                </span>
-                                Save as Draft
-                            </div>
-                            <ActionButton text={"Deploy"} buttonType={"deploy"} onClick={handleDeploy} disabled={module?.deployed} />
-                        </div>
-                    </div>
-                    <div className="module-info-builder">
-                        <div className="module-info-line">
-                            <span className="module-info-label">CREATED</span>
-                            <p className="module-info-value">{module?.createTime}</p>
-                        </div>
 
-                        <div className="module-info-line">
-                            <span className="module-info-label">DIFFICULTY</span>
-                            <div className={`module-info-value difficulty-pill ${module?.difficulty}`}>{module?.difficulty}</div> {/*lets say this is calculated by lesson info*/}
-                        </div>
+                            <div className="module-info-line">
+                                <span className="module-info-label">DIFFICULTY</span>
+                                <div className={`module-info-value difficulty-pill ${module?.difficulty}`}>{module?.difficulty}</div> {/*lets say this is calculated by lesson info*/}
+                            </div>
 
-                        <div className="module-info-line">
-                            <span className="module-info-label">TOTAL LESSONS</span>
-                            <p className="module-info-value">{lessons?.length} lessons</p> 
+                            <div className="module-info-line">
+                                <span className="module-info-label">TOTAL LESSONS</span>
+                                <p className="module-info-value">{lessons?.length} lessons</p> 
+                            </div>
+                            <div className="builder-filler-space" />
                         </div>
-                        <div className="builder-filler-space" />
                     </div>
                     {/*<div className="module-info-line lesson">
                         <span className="module-info-icon">

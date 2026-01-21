@@ -13,6 +13,16 @@
     transition: 0.2s ease;
 }
 
+.lesson-card.locked {
+    background-color: rgb(243, 243, 243);
+}
+
+.lock-warning {
+    margin: 0;
+    color: rgb(137, 137, 137);
+    font-weight: 600;
+}
+
 .lesson-card.expanded {
     max-height: 3000px;
     box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
@@ -32,7 +42,7 @@
 }
 
 .lesson-title-section {
-    width: 70%;
+    width: 50%;
     display: flex;
     flex-direction: column;
     padding-bottom: 10px
@@ -121,8 +131,7 @@
 }
 
 .lesson-due.employee {
-    margin-left: 0px;
-    margin-right: 125px;
+    margin-right: 130px;
 }
 
 .lesson-duration.employee {
@@ -175,6 +184,10 @@
     background-color: #259800;
 }
 
+.lesson-status.Locked {
+    opacity: 0;
+}
+
 .expand-btn {
     height: 50px;
     display: flex;
@@ -219,35 +232,65 @@
     border: none;
 }
 
-.lesson-action-btn.Progress, .lesson-action-btn.Pending {
+.lesson-action-btn {
     font-size: 12px;
     align-items: center;
     height: 30px;
 }
 
-.lesson-action-btn.Progress {
+.lesson-action-btn.Continue {
     color: white;
     background-color: #FF7F4A;
     border: 1px solid #FF7F4A;
     transition: 0.2s ease;
 }
 
-.lesson-action-btn.Progress:hover {
+.lesson-action-btn.Continue:hover {
     border: 1px solid #FF7F4A;
     color: #FF7F4A;
     background-color: white;
 }
 
-.lesson-action-btn.Pending {
+.lesson-action-btn.Begin {
     color: #FF7F4A;
     background-color: #FFD7C6;
     border: 1px solid #FFD7C6;
     transition: 0.2s ease;
 }
 
-.lesson-action-btn.Pending:hover {
+.lesson-action-btn.Begin:hover {
     border: 1px solid #FFD7C6;
     background-color: white;
+}
+
+.lesson-action-btn.Review {
+    color: #FF7F4A;
+    border: 1px solid #FF7F4A;
+    transition: 0.2s ease;
+}
+
+.lesson-action-btn.Review:hover {
+    border: 1px solid #FF7F4A;
+    background-color: #FF7F4A;
+    color: white;
+}
+
+.lesson-action-btn.Locked {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    background-color: rgb(243, 243, 243);
+}
+
+.lesson-action-btn.Locked:hover {
+    border: none;
+    background-color: rgb(243, 243, 243);
+    cursor: not-allowed;
+}
+
+.lesson-action-btn img {
+    width: 16px;
+    display: flex;
 }
 
 .expanded-settings-text {

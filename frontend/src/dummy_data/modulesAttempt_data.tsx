@@ -137,7 +137,7 @@ export const moduleAttempts: ModuleAttemptType[] = [
         {
           attempt_id: 3,
           lessonInfo: modules[1].lessons![2],
-          status: "not begun",
+          status: "locked",
           simulations: [1, 2, 3].map(
             (simId): SimulationAttemptType => ({
               attempt_id: simId,
@@ -164,7 +164,7 @@ export const moduleAttempts: ModuleAttemptType[] = [
           (lesson, lessonIdx): LessonAttemptType => ({
             attempt_id: lessonIdx + 1,
             lessonInfo: lesson,
-            status: "not begun",
+            status: lessonIdx === 0 ? "not begun" : "locked",
             simulations: [1, 2, 3].map(
               (simId): SimulationAttemptType => ({
                 attempt_id: simId,
