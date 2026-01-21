@@ -5,6 +5,7 @@ import upload_icon from '../../assets/icons/file-upload-icon.svg';
 
 type UploadDropzoneProps = {
     amount: "single" | "multiple";
+    video?: boolean;
     files?: File[];
     setFiles?: React.Dispatch<React.SetStateAction<File[]>>;
     allowedTypes?: string[];
@@ -12,7 +13,7 @@ type UploadDropzoneProps = {
     handleChange?: () => void;
 }
 
-export default function UploadDropzone({ amount, files, setFiles, allowedTypes, onDelete, handleChange }: UploadDropzoneProps) {
+export default function UploadDropzone({ amount, video, files, setFiles, allowedTypes, onDelete, handleChange }: UploadDropzoneProps) {
     const fileInputRef = useRef<HTMLInputElement | null>(null);
     const [dragging, setDragging] = useState(false);
 
@@ -105,7 +106,7 @@ export default function UploadDropzone({ amount, files, setFiles, allowedTypes, 
                                 <img src={upload_icon} />
                                 <div className="dropzone-manual">
                                     <p>
-                                        <strong>Drag and drop map file</strong>
+                                        <strong>Drag and drop {video ? "video" : "map"} file</strong>
                                     </p>
                                     <span>OR</span>
                                     <button

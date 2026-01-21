@@ -39,7 +39,7 @@ export default function Modules() {
           { addSelected && (
               <div className="fab-options">
                 <div className="fab-option" onClick={() => navigate(`/employer/builder`)}>New Simulation Module</div>
-                <div className="fab-option">New Standard Module</div>
+                <div className="fab-option" onClick={() => navigate(`/employer/standard-builder`)}>New Standard Module</div>
                 <div className="fab-options-line" />
               </div>
             )

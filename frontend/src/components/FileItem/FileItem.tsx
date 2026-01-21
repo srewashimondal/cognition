@@ -4,6 +4,9 @@ import pdf_icon from '../../assets/icons/pdf-icon.svg';
 import jpeg_icon from '../../assets/icons/jpeg-icon.svg';
 import png_icon from '../../assets/icons/png-icon.svg';
 import svg_icon from '../../assets/icons/svg-icon.svg';
+import mp4_icon from '../../assets/icons/mp4-icon.svg';
+import mov_icon from '../../assets/icons/mov-icon.svg';
+import webm_icon from '../../assets/icons/webm-icon.svg';
 import x_icon from '../../assets/icons/thin-orange-x.svg'
 import hollow_star from '../../assets/icons/thin-orange-hollow-star.svg';
 import filled_star from '../../assets/icons/thin-orange-filled-star.svg';
@@ -19,7 +22,7 @@ export default function FileItem({ file, removeable, starrable, onClick }: FileI
     const [fill, setFill] = useState(0);
     const [val, setVal] = useState(0);
     const [starred, setStarred] = useState(false);
-  
+    
     useEffect(() => {
         setFill(0);
         const t = setTimeout(() => {setFill(100);}, 10);
@@ -37,13 +40,16 @@ export default function FileItem({ file, removeable, starrable, onClick }: FileI
           {(file.type === "application/pdf") && <img src={pdf_icon} />} 
           {(file.type === "image/jpeg") && <img src={jpeg_icon} />} 
           {(file.type === "image/png") && <img src={png_icon} />} 
-          {(file.type === "image/svg+xml") && <img src={svg_icon} />} 
+          {(file.type === "image/svg+xml") && <img src={svg_icon} />}
+          {(file.type === "video/mp4") && <img src={mp4_icon} />} 
+          {(file.type === "video/webm") && <img src={webm_icon} />} 
+          {(file.type === "video/quicktime") && <img src={mov_icon} />} 
         </span>
   
         <div className="file-info">
             <p className="file-name">{file.name}</p>
 
-            <div className="progress-bar">
+            <div className="progress-bar-hm">
                 <div className="bar-wrapper">
                     <div
                         className="bar-fill"

@@ -1,0 +1,38 @@
+.standard-canvas-bottom {
+    padding: 18px;
+    background-color: #fbfbfb;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+.lesson-title-wrapper.standard {
+    width: 100%;
+}
+
+.lessons-list {
+    width: 95%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.empty-lessons-list {
+    width: 95%;
+    height: 300px;
+    border: 1.5px solid #c6c6c6;
+    border-radius: 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    justify-content: center;
+    align-items: center;
+    color: #909090;
+    font-weight: 500;
+}
+
+.add-lesson-panel {
+    display: flex;
+    gap: 7px;
+}

@@ -1,0 +1,61 @@
+.employer-lesson-card {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    border: 1px solid #E4E4E4;
+    border-radius: 10px;
+    padding: 7px 12px;
+    background-color: white;
+    transition: 0.2s ease;
+}
+
+.employer-lesson-card-top {
+    display: flex;
+    width: 100%;
+    align-items: center;
+    justify-content: space-between;
+    padding: 3px;
+}
+
+.lesson-tag.employer {
+    font-size: 14px;
+}
+
+.lesson-tag-wrapper {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+}
+
+.lesson-tag-wrapper img {
+    width: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.lesson-title.employer {
+    padding: 2px 5px;
+    border: 1px solid #eee;
+    border-radius: 5px;
+    background-color: #f9f9f9;
+    width: 70%;
+}
+
+.lesson-title.employer input {
+    font-weight: 500;
+    font-size: 16px;
+    background-color: #f9f9f9;
+}
+
+.employer-lesson-card-video {
+    padding: 12px;
+}
+
+.video-lesson-settings {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-top: 20px;
+}
