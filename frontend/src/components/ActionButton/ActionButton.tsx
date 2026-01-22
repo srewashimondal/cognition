@@ -20,9 +20,10 @@ type ActionButtonProps = {
     selected?: boolean;
     disabled?: boolean;
     reversed?: boolean;
+    rounded?: boolean;
 }
 
-export default function ActionButton({ text, buttonType, onClick, selected=false, disabled=false, reversed=false }: ActionButtonProps) {    
+export default function ActionButton({ text, buttonType, onClick, selected=false, disabled=false, reversed=false, rounded=false }: ActionButtonProps) {    
     const typeToIcon = {
         "play": {
             "default": white_play_icon,
@@ -51,7 +52,7 @@ export default function ActionButton({ text, buttonType, onClick, selected=false
     }
 
     return (
-        <button type="button" className={`action-button ${buttonType} ${(selected) ? "selected": ""} ${disabled ? "disabled" : ""} ${(reversed ? "reversed" : "")}`} onClick={onClick}>
+        <button type="button" className={`action-button ${buttonType} ${(selected) ? "selected": ""} ${disabled ? "disabled" : ""} ${(reversed ? "reversed" : "")} ${(rounded) ? "rounded": ""}`} onClick={onClick}>
             {(!disabled) &&
             <div className="an-action-swap">
                 <img className={`an-action-icon ${reversed ? "hover" : "default"}`} src={typeToIcon[buttonType]["default"]}/>

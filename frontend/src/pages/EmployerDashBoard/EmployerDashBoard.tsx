@@ -39,12 +39,13 @@ import AIStudioAssignments from './AI Studio/AIStudioAssignments/AIStudioAssignm
 import ProfilePage from "./ProfilePage/ProfilePage";
 import Builder from './Builder/Builder.tsx';
 import StandardBuilder from './StandardBuilder/StandardBuilder.tsx';
+import QuizBuilder from './StandardBuilder/QuizBuilder/QuizBuilder.tsx';
 
 export default function EmployerDashBoard() {
   const [profileOpen, setProfileOpen] = useState(false);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(true);
   const isSimulationPage = useMatch("/employer/simulations/:moduleID/:lessonID/:simIdx");
-  const isBuilderPage = useMatch("employer/builder/:moduleID") || useMatch("/employer/standard-builder");
+  const isBuilderPage = useMatch("employer/builder/:moduleID") || useMatch("/employer/standard-builder") || useMatch("/employer/quiz-builder");
   
   return (
     <div className={`dashboard ${sidebarCollapsed ? "collapsed" : ""} ${isBuilderPage ? "white" : ""}`}>
@@ -202,6 +203,7 @@ export default function EmployerDashBoard() {
             <Route path="builder" element={<Builder />} />
             <Route path="builder/:moduleID" element={<Builder />} />
             <Route path="standard-builder" element={<StandardBuilder />} />
+            <Route path="quiz-builder" element={<QuizBuilder />} /> {/* temporary route */}
             <Route path="*" element={<Navigate to="" />} />
           </Routes>
         </section>

@@ -2,17 +2,20 @@ import type { BaseQuizQuestion } from "./BaseQuestionType";
 
 export type MCQType = BaseQuizQuestion & {
     type: "mcq";
-    options: string[];
-    correctAnswerIndex: number;
-  };
+    image?: string;
+    allowMultiple?: boolean;
+    options?: string[];
+    correctAnswerIndex?: number;
+    correctAnswerIndices?: number[];
+};
 
 export type TrueFalseQuestionType = BaseQuizQuestion & {
-    type: "true_false";
-    correctAnswer: boolean;
+    type: "true false";
+    correctAnswer?: boolean;
 };
 
 export type OpenEndedQuestionType = BaseQuizQuestion & {
-    type: "open_ended";
+    type: "open ended";
     rubric?: string;
     maxLength?: number;
 };

@@ -1,0 +1,22 @@
+.add-lesson-btn.ai {
+    background: rgb(255, 186, 137);
+    font-weight: 600;
+    transition: 0.2s ease;
+    border: none;
+}
+
+.add-lesson-btn.ai:hover {
+    color: white;
+    transform: scale(1.05);
+    border: none;
+}
+
+.questions-list {
+    width: 100%;
+    margin-top: 10px;
+}
+
+.lesson-title-wrapper.standard {
+    padding-left: 10px;
+    padding-right: 40px;
+}

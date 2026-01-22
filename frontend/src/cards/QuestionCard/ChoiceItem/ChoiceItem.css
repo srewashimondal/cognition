@@ -1,0 +1,36 @@
+.choice-item {
+    display: flex;
+    align-items: center;
+    width: 99%;
+    gap: 15px;
+}
+
+.check-choice {
+    border: 2px solid #eee;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    display: flex;
+}
+
+.check-choice.selected {
+    background-color: #96D9ED;
+    border: 2px solid #96D9ED;
+}
+
+.choice-text-wrapper {
+    width: 90%;
+}
+
+.choice-text-wrapper input {
+    width: 100%;
+    background-color: #eee;
+    padding: 7px 10px;
+    font-weight: 400;
+    border-radius: 5px;;
+}
+
+.delete-choice img {
+    width: 18px;
+    display: flex;
+}

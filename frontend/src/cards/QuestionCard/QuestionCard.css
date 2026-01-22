@@ -1,0 +1,178 @@
+.question-card-wrapper {
+    display: flex;
+    gap: 10px;
+    margin: 10px;
+    margin-left: 0;
+    width: 95%;
+}
+
+.question-card {
+    display: flex;
+    flex-direction: column;
+    border: 1px solid #E4E4E4;
+    border-radius: 10px;
+    padding: 7px 12px;
+    background-color: white;
+    transition: 0.2s ease;
+    width: 100%;
+}
+
+.drag-handle.question {
+    background-color: #eee;
+    border-radius: 5px;
+    padding: 4px 0px;
+}
+
+.question-card-header {
+    padding: 3px;
+    padding-bottom: 7px;
+    margin-bottom: 7px;
+    border-bottom: 1px solid #E4E4E4;
+    display: flex;
+    justify-content: space-between;
+}
+
+.question-card-number {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 5px;
+    font-size: 15px;
+    font-weight: 500;
+}
+
+.question-card-content {
+    padding: 7px;
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+}
+
+.question-card-prompt {
+    width: 100%;
+    height: 50px;
+}
+
+.question-card-prompt textarea {
+    border: none;
+    width: 100%;
+    background-color: #eee;
+    border-radius: 5px;
+    padding: 7px;
+    font-family: Instrument Sans, system-ui, sans-serif;
+    resize: none;
+    min-height: 44px;       
+    max-height: 140px;
+    overflow-y: auto; 
+}
+
+.question-card-prompt.expanded {
+    margin-bottom: 30px;
+}
+
+.question-card-prompt.expanded textarea {
+    min-height: 74px; 
+}
+
+textarea::placeholder {
+    font-family: Instrument Sans, system-ui, sans-serif;
+}
+
+.question-card-prompt textarea:focus {
+    outline: none;
+    box-shadow: none;
+}
+  
+.question-card-prompt textarea:focus-visible {
+    outline: none;
+}
+
+.question-card-prompt-row {
+    display: flex;
+    padding: 5px;
+    gap: 5px;
+    justify-content: flex-end;
+}
+
+.question-card-prompt-item {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2px;
+    border: 1px solid #e4e4e4;
+    border-radius: 5px;
+    transition: 0.2s ease;
+}
+
+.question-card-prompt-item:hover {
+    border: 1px solid #e4e4e4;
+    background-color: #e4e4e4;
+}
+
+.question-card-prompt-item img {
+    width: 18px;
+}
+
+.choice-settings {
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    gap: 20px;
+    font-size: 14px;
+}
+
+.switch-item {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+}
+
+.add-choice-btn {
+    padding: 5px 7px;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 5px;
+    background-color: rgb(254, 229, 215);
+    border: 1px solid rgb(254, 229, 215);
+    transition: 0.2s ease;
+}
+
+.add-choice-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.add-choice-btn img {
+    display: flex;
+    width: 18px;
+}
+
+.add-choice-btn:hover {
+    background-color: rgb(238, 207, 190);
+    border: 1px solid rgb(238, 207, 190);
+}
+
+.choices-list {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    margin-bottom: 30px;
+    justify-content: center;
+    align-items: flex-start;
+}
+
+.choices-list.tf {
+    padding-top: 10px;
+}
+
+.check-choice.tf.selected {
+    background-color: rgb(255, 195, 158);
+    border: 2px solid rgb(255, 195, 158);
+}
+
+.choice-item.tf {
+    font-size: 14px;
+}
