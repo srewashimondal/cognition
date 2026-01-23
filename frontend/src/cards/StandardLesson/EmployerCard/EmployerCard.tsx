@@ -3,7 +3,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import UploadDropzone from '../../../components/UploadDropzone/UploadDropzone';
 import ActionButton from '../../../components/ActionButton/ActionButton';
-import { Checkbox, RadioGroup } from "@radix-ui/themes";
+import { RadioGroup, Switch } from "@radix-ui/themes";
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import trash_icon from '../../../assets/icons/simulations/grey-trash-icon.svg';
@@ -27,7 +27,7 @@ export default function EmployerCard({ id, title, type, handleDelete, position }
     const navigate = useNavigate();
     const [titleState, setTitleState] = useState(title);
     const [videoFiles, setVideoFiles] = useState<File[]>([]);
-    const [allowTranscript, setAllowTranscript] = useState(false);
+    const [allowTranscript, setAllowTranscript] = useState(true);
     const [expanded, setExpanded] = useState(false);
     const [selectedDate, setSelectedDate] = useState<string | null>(null);
     const [attemptMode, setAttemptMode] = useState<"unlimited" | "custom">("unlimited");
@@ -98,7 +98,7 @@ export default function EmployerCard({ id, title, type, handleDelete, position }
                                 Video Lesson Settings
                             </div>
                             <div className="check-setting">
-                                <Checkbox defaultChecked onCheckedChange={() => setAllowTranscript(prev => !prev)} color="orange" />
+                                <Switch defaultChecked checked={allowTranscript} onCheckedChange={() => setAllowTranscript(prev => !prev)} color="cyan" size="1" />
                                 <span className="expanded-settings-text">Allow Cognition AI to generate a transcript.</span>
                             </div>
                             <div className="date-picker">
@@ -119,7 +119,7 @@ export default function EmployerCard({ id, title, type, handleDelete, position }
                         </div>
                         <div className="radio-setting">
                             <p className="expanded-settings-text label">Number of Attempts</p>
-                            <RadioGroup.Root defaultValue="unlimited" color="orange" size="1" 
+                            <RadioGroup.Root defaultValue="unlimited" color="cyan" size="1" 
                             value={attemptMode} onValueChange={(value) => setAttemptMode(value as "unlimited" | "custom")}>
                                 <RadioGroup.Item value="unlimited" className="expanded-settings-text">Unlimited</RadioGroup.Item>
                                 <RadioGroup.Item value="custom">
@@ -131,7 +131,7 @@ export default function EmployerCard({ id, title, type, handleDelete, position }
                         </div>
                         <div className="radio-setting">
                             <p className="expanded-settings-text label">Set time limit</p>
-                            <RadioGroup.Root defaultValue="unlimited" color="orange" size="1" 
+                            <RadioGroup.Root defaultValue="unlimited" color="cyan" size="1" 
                             value={timeLimitMode} onValueChange={(value) => setTimeLimitMode(value as "unlimited" | "custom")}>
                                 <RadioGroup.Item value="unlimited" className="expanded-settings-text">Unlimited</RadioGroup.Item>
                                 <RadioGroup.Item value="custom">

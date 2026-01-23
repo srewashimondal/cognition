@@ -7,7 +7,7 @@ import SkillItem from './SkillItem/SkillItem';
 import LessonAbstract from './LessonAbstract/LessonAbstract';
 import ActionButton from '../../components/ActionButton/ActionButton';
 import SkillsPopover from './SkillsPopover/SkillsPopover';
-import { Checkbox, RadioGroup, Slider, CheckboxGroup } from "@radix-ui/themes";
+import { RadioGroup, Slider, CheckboxGroup, Switch } from "@radix-ui/themes";
 import edit_icon from '../../assets/icons/simulations/grey-edit-icon.svg';
 import refresh_icon from '../../assets/icons/simulations/grey-refresh-icon.svg';
 import check_icon from '../../assets/icons/simulations/grey-check-icon.svg';
@@ -210,7 +210,7 @@ export default function LessonCard({ lessonInfo, role, status, evaluation, navig
                                     </RadioGroup.Root>
                                 </div>
                                 <div className="check-setting">
-                                    <Checkbox defaultChecked onCheckedChange={handleCheck} color="orange" />
+                                    <Switch defaultChecked onCheckedChange={handleCheck} color="cyan" size="1" />
                                     <span className="expanded-settings-text label">Randomize each attempt</span>
                                 </div>
                                 <div className="slider-setting">

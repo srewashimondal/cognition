@@ -184,6 +184,8 @@
     overflow: hidden;
     bottom: 95%;
     margin-bottom: 7px;
+    padding: 7px;
+    gap: 2px;
 }
 
 .context-wrapper img {
@@ -212,4 +214,5 @@
 
 .context-item:hover {
     background-color: #e0f8ff;
+    border-radius: 5px;
 }

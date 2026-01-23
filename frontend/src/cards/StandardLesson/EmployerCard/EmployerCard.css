@@ -91,3 +91,9 @@
 .custom-input.time {
     width: 40px;
 }
+
+.check-setting {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+}
