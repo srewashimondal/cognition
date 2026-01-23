@@ -30,7 +30,6 @@ export default function EmployerCard({ id, title, type, handleDelete, position, 
     const [titleState, setTitleState] = useState(title);
     const [videoFiles, setVideoFiles] = useState<File[]>([]);
     const [allowTranscript, setAllowTranscript] = useState(true);
-    const [allowRetake, setAllowRetake] = useState(false);
     const [expanded, setExpanded] = useState(false);
     const [selectedDate, setSelectedDate] = useState<string | null>(null);
     const [attemptMode, setAttemptMode] = useState<"unlimited" | "custom">("unlimited");

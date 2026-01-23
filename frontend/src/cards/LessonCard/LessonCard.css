@@ -17,6 +17,11 @@
     background-color: rgb(243, 243, 243);
 }
 
+.lesson-card.completed {
+    background-color: rgb(240, 255, 242);
+    border: 1px solid rgb(207, 235, 211);
+}
+
 .lock-warning {
     margin: 0;
     color: rgb(137, 137, 137);
@@ -82,9 +87,14 @@
 }
 
 .lesson-skills.time {
-    flex-wrap: none;
+    flex-wrap: nowrap;
     flex-direction: row;
-    width: 63px;
+    padding-right: 4px;
+}
+
+.lesson-skills.time.complete {
+    color: #80C579;
+    font-weight: 600;
 }
 
 .lesson-skills img {
@@ -118,10 +128,6 @@
     background-color: #d8f0d2;
 }   
 
-.lesson-due {
-    margin-left: 85px;
-}
-
 .lesson-duration  {
     color: #a3a2a2;
 }
@@ -130,12 +136,8 @@
     color: #a3a2a2;
 }
 
-.lesson-due.employee {
-    margin-right: 130px;
-}
-
-.lesson-duration.employee {
-    margin-right: 160px;
+.lesson-info-filler {
+    width: 10%;
 }
 
 .lesson-status.employee {
@@ -149,6 +151,7 @@
     align-items: center;
     gap: 5px;
     padding: 3px 7px;
+    opacity: 0; /* temp */
 }
 
 .lesson-status-dot {
@@ -268,6 +271,7 @@
     color: #FF7F4A;
     border: 1px solid #FF7F4A;
     transition: 0.2s ease;
+    background-color: #E4FFE7;
 }
 
 .lesson-action-btn.Review:hover {
@@ -333,6 +337,11 @@
     border-radius: 10px;
     padding: 7px;
     margin-bottom: 10px;
+    background-color: white;
+}
+
+.lesson-card.completed .lesson-card-expanded {
+    border: 1px solid rgb(207, 235, 211);
 }
 
 .action-panel {

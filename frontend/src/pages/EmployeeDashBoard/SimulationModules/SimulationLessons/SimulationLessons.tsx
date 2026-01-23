@@ -8,7 +8,7 @@ import ProgressBar from '../../../../components/ProgressBar/ProgressBar';
 import { moduleAttempts } from '../../../../dummy_data/modulesAttempt_data';
 import orange_left_arrow from '../../../../assets/icons/orange-left-arrow.svg';
 import clock_icon from '../../../../assets/icons/simulations/black-clock-icon.svg';
-import notebook_icon from '../../../../assets/icons/simulations/black-notebook-icon.svg'
+import notebook_icon from '../../../../assets/icons/simulations/black-notebook-icon.svg';
 
 export default function SimulationLessons() {
     const navigate = useNavigate();
@@ -82,7 +82,7 @@ export default function SimulationLessons() {
                     <div className="list-header-section employee">{/*Filler*/}</div>
                     <div className="list-header-section employee dur">Duration</div>
                     <div className="list-header-section employee">Due Date</div>
-                    <div className="list-header-section employee">Status</div>
+                    <div className="list-header-section employee dur">Status</div>
                     <div className="list-header-section employee">{/*Filler*/}</div>
                 </div>
 

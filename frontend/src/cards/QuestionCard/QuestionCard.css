@@ -213,7 +213,7 @@ textarea::placeholder {
 }
 
 .choices-list.tf {
-    padding-top: 10px;
+    padding-top: 20px;
 }
 
 .check-choice.tf.selected {

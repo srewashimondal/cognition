@@ -15,6 +15,7 @@ import green_plus from '../../assets/icons/lesson-edit/green-plus.svg';
 import lock_icon from '../../assets/icons/simulations/black-lock-icon.svg';
 import clock_icon from '../../assets/icons/simulations/black-clock-icon.svg';
 import slider_icon from '../../assets/icons/simulations/black-slider-icon.svg';
+import green_check from '../../assets/icons/green-check-icon.svg';
 
 type LessonProp = {
     lessonInfo: LessonType;
@@ -127,7 +128,7 @@ export default function LessonCard({ lessonInfo, role, status, evaluation, navig
     };
 
     return (
-        <div key={id} className={`lesson-card ${(expanded) ? ("expanded") : ("")} ${status === "locked" ? "locked" : ""}`}>
+        <div key={id} className={`lesson-card ${(expanded) ? ("expanded") : ("")} ${status}`}>
             <div className="lesson-card-top">
                 <div className="lesson-info lesson-title-section">
                     <div className="lesson-name-wrapper">
@@ -136,6 +137,14 @@ export default function LessonCard({ lessonInfo, role, status, evaluation, navig
                         {status === "locked" && <p className="lock-warning">Complete Previous Lesson to Unlock</p>}
                     </div>
                     <div className="lesson-meta-wrapper">
+                        { (status === "completed") &&
+                            <div className="lesson-skills time complete">
+                                <span>
+                                    <img src={green_check} />
+                                </span>
+                                Completed
+                            </div>
+                        }
                         <div className="lesson-skills time">
                             <span>
                                 <img src={clock_icon} />

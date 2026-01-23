@@ -1,7 +1,7 @@
 import './EmployerDashBoard.css';
 import { Routes, Route, Navigate, Link, NavLink } from "react-router-dom";
 import { useState } from "react";
-import { useMatch, useLocation } from "react-router-dom";
+import { useLocation } from "react-router-dom";
 import Analytics from "./Analytics/Analytics";
 import Modules from "./Modules/Modules";
 import Lessons from "./Modules/Lessons/Lessons.tsx";

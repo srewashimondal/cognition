@@ -4,7 +4,7 @@ export const standardModule: StandardModuleType[] = [
     {
         id: 1,
         title: "Standards of Conduct",
-        hours: "0:30",
+        hours: "0:40",
         deployed: true,
         createTime: "January 16, 2026",
         numLessons: 3,

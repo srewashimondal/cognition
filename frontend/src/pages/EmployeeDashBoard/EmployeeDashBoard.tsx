@@ -1,7 +1,7 @@
 import './EmployeeDashBoard.css';
 import { Routes, Route, Navigate, Link, NavLink } from "react-router-dom";
 import { useState } from "react";
-import { useMatch, useLocation } from "react-router-dom";
+import { useMatch } from "react-router-dom";
 import logo from '../../assets/branding/cognition-logo.png';
 import bell from '../../assets/icons/bell.svg';
 import down_chevron from '../../assets/icons/black-down-chevron.svg';
@@ -20,6 +20,7 @@ import EmployeeResources from './Resources/EmployeeResources';
 import EmployeeSettings from './Settings/EmployeeSettings';
 import SimulationLessons from './SimulationModules/SimulationLessons/SimulationLessons';
 import SimulationPage from '../Simulation/SimulationPage';
+import StandardLessons from './StandardModules/StandardLessons/StandardLessons';
 
 import white_home from '../../assets/icons/sidebar/white-home-icon.svg';
 import black_home from '../../assets/icons/sidebar/black-home-icon.svg';
@@ -46,6 +47,7 @@ export default function EmployeeDashBoard() {
     const [sidebarCollapsed, setSidebarCollapsed] = useState(true);
     const isSimulationPage = useMatch("/employee/simulations/:moduleID/:lessonID/:simIdx");
     const isSimulationLesson = useMatch("/employee/simulations/:moduleID");
+    const isStandardLesson = useMatch("/employee/standard-modules/:moduleID");
 
     return (
     <div className={`dashboard employee ${sidebarCollapsed ? "collapsed" : ""}`}>
@@ -207,7 +209,7 @@ export default function EmployeeDashBoard() {
           </div>
         </header>
 
-        <section className={`content employee ${(isSimulationPage || isSimulationLesson) ? "no-padding" : ""}`}>
+        <section className={`content employee ${(isSimulationPage || isSimulationLesson || isStandardLesson) ? "no-padding" : ""}`}>
           <Routes>
             <Route index element={<EmployeeHome />} />
             <Route path="simulations" element={<SimulationModules />} />
@@ -217,6 +219,7 @@ export default function EmployeeDashBoard() {
             <Route path="simulation-view" element={<SimulationView />} />*/}
             <Route path="schedule" element={<Schedule />} />
             <Route path="standard-modules" element={<StandardModules />} />
+            <Route path="standard-modules/:moduleID" element={<StandardLessons />} />
             <Route path="resources" element={<EmployeeResources />} />
             <Route path="settings" element={<EmployeeSettings />} />
             <Route path="*" element={<Navigate to="" />} />

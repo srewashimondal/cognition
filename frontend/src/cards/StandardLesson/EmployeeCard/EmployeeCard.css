@@ -1,0 +1,127 @@
+.employee-card {
+    display: flex;
+    flex-direction: row;
+    width: 90%;
+    border: 1px solid #E4E4E4;
+    border-radius: 10px;
+    padding: 18px;
+    background-color: white;
+    gap: 25px;
+    align-items: center;
+}
+
+.employee-card.quiz {
+    justify-content: space-between;
+    padding-right: 7%;
+}
+
+.employee-card.completed {
+    background-color: rgb(240, 255, 242);
+    border: 1px solid rgb(207, 235, 211);
+}
+
+.employee-card.locked {
+    background-color: rgb(243, 243, 243);
+}
+
+.employee-card .builder-action-pill {
+    font-size: 16px;
+}
+
+.card-thumbnail-wrapper {
+    position: relative;
+    width: 170px;
+    height: 100px;
+}
+
+.card-thumbnail {
+    width: 170px;
+    height: 100px;
+    outline: 2px solid #9FE0DF;
+    border-radius: 5px;
+}
+
+.card-thumbnail img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 5px;
+    opacity: 0.8;
+}
+
+.play-button {
+    position: absolute;
+    width: 60px;
+    height: 60px;
+    left: 55px;
+    top: 20px;
+    opacity: 0.9;
+    transition: 0.2s ease;
+}
+
+.play-button:hover {
+    opacity: 1;
+}
+
+.card-content {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: center;
+}
+
+.card-content .lesson-tag-wrapper p {
+    font-size: 14px;
+}
+
+.card-title {
+    font-size: 20px;
+    margin: 0;
+}
+
+.card-meta {
+    display: flex;
+    gap: 20px;
+}
+
+.card-meta-item {
+    font-size: 14px;
+    display: flex;
+    gap: 7px;
+    font-weight: 500;
+    align-items: center;
+    justify-content: center;
+}
+
+.card-meta-item img {
+    width: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.card-meta-item.complete {
+    color: #80C579;
+}
+
+.locked-tag {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 7px;
+}
+
+.locked-instr {
+    font-size: 14px;
+    color: #a8a8a8;
+    font-weight: 500;
+}
+
+.builder-action-pill.quiz {
+    border: 1px solid #FF4B00;
+    color: #FF4B00;
+}
+
+.builder-action-pill.quiz img {
+    transform: rotate(180deg);
+}
