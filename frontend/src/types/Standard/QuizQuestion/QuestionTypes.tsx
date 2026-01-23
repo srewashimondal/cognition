@@ -2,7 +2,6 @@ import type { BaseQuizQuestion } from "./BaseQuestionType";
 
 export type MCQType = BaseQuizQuestion & {
     type: "mcq";
-    image?: string;
     allowMultiple?: boolean;
     options?: string[];
     correctAnswerIndex?: number;

@@ -25,8 +25,8 @@
 
 .lesson-card.expanded {
     max-height: 3000px;
-    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
-    transform: scale(1.01);
+    /*box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
+    transform: scale(1.01);*/
 }
 
 .lesson-card-top {
@@ -201,6 +201,7 @@
     border: none;
 }
 
+/*
 .lesson-card:has(.builder-action:hover) {
     box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
     transform: scale(1.01);
@@ -209,7 +210,7 @@
 .lesson-card:has(.lesson-action-btn:hover) {
     box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
     transform: scale(1.01);
-}
+}*/
 
 .expand-btn.expanded img {
     width: 70%;

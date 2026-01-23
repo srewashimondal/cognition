@@ -50,7 +50,8 @@
 
 .question-card-prompt {
     width: 100%;
-    height: 50px;
+    background-color: #eee;
+    border-radius: 5px;
 }
 
 .question-card-prompt textarea {
@@ -111,6 +112,53 @@ textarea::placeholder {
 
 .question-card-prompt-item img {
     width: 18px;
+}
+
+.upload-wrapper {
+    position: relative;
+    width: 80px;
+    height: 80px;
+}
+
+.img-section {
+    width: 100%;
+    height: 100px;
+    background-color: #eee;
+    padding: 10px;
+    border-radius: 5px;
+}
+
+.uploaded-img {
+    width: 100%;
+    height: 100%;
+    outline: 2px solid #b8b8b8;
+    border-radius: 5px;
+    opacity: 0.9;
+}
+
+.uploaded-img img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.image-x {
+    width: 20px;
+    height: 20px;
+    background-color: #eee;
+    border: 1px solid #b0b0b0;
+    display: flex;
+    border-radius: 50%;
+    position: absolute;
+    right: 2px;
+    top: 2px;
+    opacity: 0.8;
+    padding: 1px;
+}
+
+.image-x img {
+    width: 100%;
+    height: 100%;
 }
 
 .choice-settings {

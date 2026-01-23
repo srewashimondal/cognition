@@ -1,4 +1,5 @@
 import './QuestionCard.css';
+import { useRef, useState, useEffect } from 'react';
 import ChoiceItem from './ChoiceItem/ChoiceItem';
 import type { QuizQuestionType } from '../../types/Standard/QuizQuestion/QuestionTypes';
 import { useSortable } from "@dnd-kit/sortable";
@@ -10,6 +11,7 @@ import mic_icon from '../../assets/icons/quiz-question/black-mic-icon.svg';
 import img_icon from '../../assets/icons/quiz-question/black-image-icon.svg';
 import plus_icon from '../../assets/icons/simulations/black-plus-icon.svg';
 import white_check from '../../assets/icons/white-check.svg';
+import x_icon from '../../assets/icons/simulations/grey-x-icon.svg';
 
 type QuestionCardProps = {
     question: QuizQuestionType;
@@ -27,6 +29,19 @@ export default function QuestionCard({ question, handleDelete, position, onUpdat
         transform: CSS.Transform.toString(transform),
         transition,
     };
+
+    const fileInputRef = useRef<HTMLInputElement | null>(null);
+    const [imagePreview, setImagePreview] = useState<string | null>(null);
+    useEffect(() => {
+        if (!question.image) {
+            setImagePreview(null);
+            return;
+        }
+        const url = URL.createObjectURL(question.image);
+        setImagePreview(url);
+
+        return () => URL.revokeObjectURL(url);
+    }, [question.image]);
 
     const handleTypeChange = (newType: QuizQuestionType["type"]) => {
         switch (newType) {
@@ -146,8 +161,9 @@ export default function QuestionCard({ question, handleDelete, position, onUpdat
                     <div className="question-card-number">
                         Question {position}
                         <div className="question-card-prompt-row">
-                            <div className="question-card-prompt-item">
+                            <div className="question-card-prompt-item" onClick={() => fileInputRef.current?.click()}>
                                 <img src={img_icon} />
+                                <input type="file" hidden ref={fileInputRef} accept="image/*" onChange={(e) => onUpdate(id, {image: e.target.files?.[0]})} />
                             </div>
                             <div className="question-card-prompt-item">
                                 <img src={mic_icon} />
@@ -155,6 +171,18 @@ export default function QuestionCard({ question, handleDelete, position, onUpdat
                         </div>
                     </div>
                     <div className={`question-card-prompt ${(type === "open ended" ? "expanded" : "")}`}>
+                        { (question.image) &&
+                            <div className="img-section">
+                                <div className="upload-wrapper">
+                                    <div className="uploaded-img">
+                                        <img src={imagePreview ?? ""} />
+                                    </div>
+                                    <div className="image-x" onClick={() => {setImagePreview(null); onUpdate(id, { image: null }); }}>
+                                        <img src={x_icon} />
+                                    </div>
+                                </div>
+                            </div>
+                        }
                         <textarea placeholder="Enter question prompt" value={question.prompt ?? ""} 
                         onChange={(e) => onUpdate(question.id, { prompt: e.target.value })} />
                     </div>
