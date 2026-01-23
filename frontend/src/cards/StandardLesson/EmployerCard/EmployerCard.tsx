@@ -128,10 +128,6 @@ export default function EmployerCard({ id, title, type, handleDelete, position, 
                             </span>
                             Quiz Settings
                         </div>
-                        <div className="check-setting">
-                                <Switch defaultChecked checked={allowRetake} onCheckedChange={() => setAllowRetake(prev => !prev)} color="cyan" size="1" />
-                                <span className="expanded-settings-text">Allow retake?</span>
-                            </div>
                         <div className="radio-setting">
                             <p className="expanded-settings-text label">Number of Attempts</p>
                             <RadioGroup.Root defaultValue="unlimited" color="cyan" size="1" 
