@@ -1,7 +1,7 @@
 import './EmployeeDashBoard.css';
 import { Routes, Route, Navigate, Link, NavLink } from "react-router-dom";
 import { useState } from "react";
-import { useMatch } from "react-router-dom";
+import { useMatch, useLocation } from "react-router-dom";
 import logo from '../../assets/branding/cognition-logo.png';
 import bell from '../../assets/icons/bell.svg';
 import down_chevron from '../../assets/icons/black-down-chevron.svg';
@@ -44,7 +44,8 @@ import blue_controller from '../../assets/icons/sidebar/blue-controller-icon.svg
 export default function EmployeeDashBoard() {
     const [profileOpen, setProfileOpen] = useState(false);
     const [sidebarCollapsed, setSidebarCollapsed] = useState(true);
-    const isSimulationPage = useMatch("/employee/simulations/:moduleID/:lessonID/:simIdx") || useMatch("/employee/simulations/:moduleID");
+    const isSimulationPage = useMatch("/employee/simulations/:moduleID/:lessonID/:simIdx");
+    const isSimulationLesson = useMatch("/employee/simulations/:moduleID");
 
     return (
     <div className={`dashboard employee ${sidebarCollapsed ? "collapsed" : ""}`}>
@@ -206,7 +207,7 @@ export default function EmployeeDashBoard() {
           </div>
         </header>
 
-        <section className={`content employee ${isSimulationPage ? "no-padding" : ""}`}>
+        <section className={`content employee ${(isSimulationPage || isSimulationLesson) ? "no-padding" : ""}`}>
           <Routes>
             <Route index element={<EmployeeHome />} />
             <Route path="simulations" element={<SimulationModules />} />

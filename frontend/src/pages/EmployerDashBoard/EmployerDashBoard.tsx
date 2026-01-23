@@ -1,7 +1,7 @@
 import './EmployerDashBoard.css';
 import { Routes, Route, Navigate, Link, NavLink } from "react-router-dom";
 import { useState } from "react";
-import { useMatch } from "react-router-dom";
+import { useMatch, useLocation } from "react-router-dom";
 import Analytics from "./Analytics/Analytics";
 import Modules from "./Modules/Modules";
 import Lessons from "./Modules/Lessons/Lessons.tsx";
@@ -44,9 +44,10 @@ import QuizBuilder from './StandardBuilder/QuizBuilder/QuizBuilder.tsx';
 export default function EmployerDashBoard() {
   const [profileOpen, setProfileOpen] = useState(false);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(true);
-  const isSimulationPage = useMatch("/employer/simulations/:moduleID/:lessonID/:simIdx");
-  const isBuilderPage = useMatch("employer/builder/:moduleID") || useMatch("/employer/standard-builder") || useMatch("/employer/quiz-builder") || useMatch("/employer/standard-builder/:moduleID");
-  
+  const { pathname } = useLocation();
+  const isBuilderPage = pathname.includes("builder");
+  const isSimulationPage = pathname.includes("simulations");
+
   return (
     <div className={`dashboard ${sidebarCollapsed ? "collapsed" : ""} ${isBuilderPage ? "white" : ""}`}>
       {/* Sidebar */}
