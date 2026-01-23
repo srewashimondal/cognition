@@ -64,6 +64,10 @@ export default function EmployeeCard({ lesson, status }: EmployeeCardProps) {
                     <img src={orange_left_arrow} />
                 </span>
             </div>}
+            {(lesson.type === "quiz" && status === "completed") &&
+            <div className="builder-action-pill">
+                Review
+            </div>}
             {(status === "locked") &&
             <div className="locked-tag">  
                 <span>
