@@ -1,12 +1,13 @@
 import './StandardBuilder.css';
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import ActionButton from '../../../components/ActionButton/ActionButton';
 import EmployerCard from '../../../cards/StandardLesson/EmployerCard/EmployerCard';
 import type { StandardLessonType } from '../../../types/Standard/StandardLessons';
 import { DndContext, closestCenter } from "@dnd-kit/core";
 import { SortableContext, verticalListSortingStrategy } from "@dnd-kit/sortable";
 import { arrayMove } from "@dnd-kit/sortable";
+import { standardModule } from '../../../dummy_data/standard_data';
 import orange_left_arrow from '../../../assets/icons/orange-left-arrow.svg';
 import edit_icon from '../../../assets/icons/simulations/grey-edit-icon.svg';
 import check_icon from '../../../assets/icons/simulations/grey-check-icon.svg';
@@ -17,10 +18,15 @@ import blue_plus_icon from '../../../assets/icons/simulations/blue-plus-icon.svg
 
 export default function StandardBuilder() {
     const navigate = useNavigate();
+    const { moduleID } = useParams();
+    const isNewDraft = !moduleID;
+    const id = !isNewDraft ? Number(moduleID) : null;
+    const module = !isNewDraft ? standardModule.find(m => m.id === id) : null;
+    const lessonsList = !isNewDraft ? module?.lessons : null;
 
     const [editMode, setEditMode] = useState(false);
-    const [title, setTitle] = useState("New Module Title");
-    const [lessons, setLessons] = useState<StandardLessonType[]>([]);
+    const [title, setTitle] = useState(module?.title ?? "New Module Title");
+    const [lessons, setLessons] = useState<StandardLessonType[]>(lessonsList ?? []);
     const [lessonToDelete, setLessonToDelete] = useState<StandardLessonType | null>(null);
 
     const handleDeploy = () => {
@@ -74,6 +80,10 @@ export default function StandardBuilder() {
           const newIndex = prev.findIndex(l => l.id === over.id);
           return arrayMove(prev, oldIndex, newIndex);
         });
+    };
+
+    const handleNavigateQuiz = (moduleID: number, quizID: number) => {
+        navigate(`/employer/standard-builder/${moduleID}/${quizID}`)
     };
 
     return (
@@ -180,8 +190,8 @@ export default function StandardBuilder() {
                             : <>
                                 <DndContext collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
                                     <SortableContext items={lessons.map(l => l.id)} strategy={verticalListSortingStrategy}>
-                                        {lessons.map((l, i) => <EmployerCard key={l.id} id={l.id} title={l.title} type={l.type} 
-                                        handleDelete={() => setLessonToDelete(l)} position={i + 1} />)}
+                                        {lessons.map((l, i) => <EmployerCard key={l.id} id={l.id} title={l.title} type={l.type} isNewDraft={l.title === "New Quiz Title"}
+                                        handleDelete={() => setLessonToDelete(l)} position={i + 1} navigateQuiz={() => handleNavigateQuiz(id ?? 0, l.id)} />)}
                                     </SortableContext>
                                 </DndContext>
                             </>

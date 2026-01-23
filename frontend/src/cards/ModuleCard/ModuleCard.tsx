@@ -1,6 +1,7 @@
 import './ModuleCard.css'
 import { useNavigate } from 'react-router-dom';
 import type { ModuleType } from '../../types/Modules/ModuleType';
+import type { StandardModuleType } from '../../types/Standard/StandardModule';
 import ProgressBar from '../../components/ProgressBar/ProgressBar';
 import clock_icon from '../../assets/icons/clock-icon.svg';
 import form_icon from '../../assets/icons/form-icon.svg';
@@ -12,14 +13,15 @@ import black_edit from '../../assets/icons/black-edit-icon.svg';
 import orange_edit from '../../assets/icons/orange-edit-icon.svg';
 
 type ModuleProp = {
-    moduleInfo: ModuleType;
+    moduleInfo: ModuleType | StandardModuleType;
+    type: "simulation" | "standard";
     role: "employer" | "employee";
     status?: "not begun" | "started" | "completed";
     percent?: number;
     style?: boolean;
 };
 
-export default function ModuleCard({ moduleInfo, role, status, percent, style }: ModuleProp) {
+export default function ModuleCard({ moduleInfo, type, role, status, percent, style }: ModuleProp) {
     const navigate = useNavigate();
     const bannerColorByID = ["module1", "module2", "module3", "module4", "module5", "module6"];
 
@@ -35,7 +37,7 @@ export default function ModuleCard({ moduleInfo, role, status, percent, style }:
             <div className="card-top">
               <div className={`banner ${bannerColorByID[moduleInfo.id - 1]}`} >
                 {(role === "employer") &&
-                <button className="edit-btn" onClick={() => navigate(`/employer/builder/${moduleInfo.id}`)}>
+                <button className="edit-btn" onClick={() => navigate(`/employer/${(type === "simulation") ? "builder" : "standard-builder"}/${moduleInfo.id}`)}>
                   <div className="edit-swap">
                     <img className="edit-icon default" src={black_edit} />
                     <img className="edit-icon hover" src={orange_edit} />

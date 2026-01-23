@@ -21,13 +21,16 @@ type EmployerCardProps = {
     type: "video" | "quiz";
     handleDelete: () => void;
     position: number;
+    isNewDraft: boolean;
+    navigateQuiz: () => void;
 };
 
-export default function EmployerCard({ id, title, type, handleDelete, position }: EmployerCardProps) {
+export default function EmployerCard({ id, title, type, handleDelete, position, isNewDraft, navigateQuiz }: EmployerCardProps) {
     const navigate = useNavigate();
     const [titleState, setTitleState] = useState(title);
     const [videoFiles, setVideoFiles] = useState<File[]>([]);
     const [allowTranscript, setAllowTranscript] = useState(true);
+    const [allowRetake, setAllowRetake] = useState(false);
     const [expanded, setExpanded] = useState(false);
     const [selectedDate, setSelectedDate] = useState<string | null>(null);
     const [attemptMode, setAttemptMode] = useState<"unlimited" | "custom">("unlimited");
@@ -44,6 +47,14 @@ export default function EmployerCard({ id, title, type, handleDelete, position }
 
     const handlePreview = () => {
         /* nothing for now */
+    };
+
+    const handleNavigate = () => {
+        if (isNewDraft) {
+            navigate(`/employer/quiz-builder`);
+            return;
+        }
+        navigateQuiz();
     };
 
     return (
@@ -73,7 +84,7 @@ export default function EmployerCard({ id, title, type, handleDelete, position }
                         <img src={trash_icon} />
                     </div>
                     {(type === "quiz") && 
-                    <div className="builder-action-pill" onClick={() => navigate(`/employer/quiz-builder`)}>
+                    <div className="builder-action-pill" onClick={handleNavigate}>
                         Edit Quiz
                         <span>
                             <img src={right_arrow_icon} />
@@ -117,6 +128,10 @@ export default function EmployerCard({ id, title, type, handleDelete, position }
                             </span>
                             Quiz Settings
                         </div>
+                        <div className="check-setting">
+                                <Switch defaultChecked checked={allowRetake} onCheckedChange={() => setAllowRetake(prev => !prev)} color="cyan" size="1" />
+                                <span className="expanded-settings-text">Allow retake?</span>
+                            </div>
                         <div className="radio-setting">
                             <p className="expanded-settings-text label">Number of Attempts</p>
                             <RadioGroup.Root defaultValue="unlimited" color="cyan" size="1" 

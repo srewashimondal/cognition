@@ -2,35 +2,56 @@ import "./Modules.css";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { modules } from '../../../dummy_data/modules_data.tsx';
+import { standardModule } from "../../../dummy_data/standard_data.tsx";
 import ModuleCard from '../../../cards/ModuleCard/ModuleCard.tsx';
 import add_cta from '../../../assets/icons/add-cta.svg';
+
+type Tab = "simulations" | "standard";
 
 export default function Modules() {
   const navigate = useNavigate();
   const [addSelected, setAddSelected] = useState(false);
+  const [activeTab, setActiveTab] = useState<Tab>("simulations");
 
   return (
     <div className="modules-page">
       {/* Header */}
-      <div className="modules-header">
+      <div className="modules-header mod">
         <div>
           <h1>Modules Catalog</h1>
           <p>Access and review past training sessions</p>
         </div>
+      </div>
 
+      <div className="modules-tab-wrapper">
+        <div className="modules-tab">
+          <span className={`module-tab ${activeTab === "simulations" ? "active" : ""}`}
+            onClick={() => setActiveTab("simulations")}>
+            SIMULATION MODULES
+          </span>
+          <span className={`module-tab ${activeTab === "standard" ? "active" : ""}`}
+            onClick={() => setActiveTab("standard")}>
+            STANDARD MODULES
+          </span>
+        </div>
       </div>
 
       {/* Grid */}
-      <div className="modules-grid">
-        {modules.map((m) => (<ModuleCard moduleInfo={m} role={"employer"} />))}
-      </div>
-
-      {/* Pagination */} {/* Note: maybe make a pagination component laterr */}
+      { (activeTab === "simulations") ?
+        <div className="modules-grid">
+          {modules.map((m) => (<ModuleCard moduleInfo={m} type={"simulation"} role={"employer"} />))}
+        </div> :
+        <div className="modules-grid">
+          {standardModule.map((m) => (<ModuleCard moduleInfo={m} type={"standard"} role={"employer"} />))}
+        </div>
+      }
+      {/* Pagination  
       <div className="pagination">
         <button disabled>{"<"}</button>
         <button className="active">1</button>
         <button>{">"}</button>
       </div>
+      */}
 
       {/* Floating Add Button */}
       <>

@@ -8,6 +8,4 @@ export type StandardModuleType = {
   lessons: StandardLessonType[];
   deployed?: boolean;
   createTime: string;
-  difficulty: "Beginner" | "Intermediate" | "Advanced";
-  references: string[];
 };

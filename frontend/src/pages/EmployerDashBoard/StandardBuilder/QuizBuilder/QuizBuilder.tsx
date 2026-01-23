@@ -1,9 +1,10 @@
 import './QuizBuilder.css';
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import ActionButton from '../../../../components/ActionButton/ActionButton';
 import QuestionCard from '../../../../cards/QuestionCard/QuestionCard';
 import type { QuizQuestionType } from '../../../../types/Standard/QuizQuestion/QuestionTypes';
+import { standardModule } from '../../../../dummy_data/standard_data';
 import { DndContext, closestCenter } from "@dnd-kit/core";
 import { SortableContext, verticalListSortingStrategy } from "@dnd-kit/sortable";
 import { arrayMove } from "@dnd-kit/sortable";
@@ -17,9 +18,17 @@ import ai_icon from '../../../../assets/icons/simulations/white-ai-icon.svg';
 
 export default function QuizBuilder () {
     const navigate = useNavigate();
+    const { moduleID, quizID } = useParams();
+    const isNewDraft = !moduleID;
+    const moduleId = !isNewDraft ? Number(moduleID) : null;
+    const quizId = !isNewDraft ? Number(quizID) : null;
+    const module = !isNewDraft ? standardModule.find(m => m.id === moduleId) : null;
+    const quiz = !isNewDraft ? module?.lessons.find(l => (l.type === "quiz" && l.id === quizId)) : null;
+    const questionsList = (quiz && quiz.type === "quiz") ? quiz?.questions : null;
+
     const [editMode, setEditMode] = useState(false);
-    const [title, setTitle] = useState("New Quiz Title");
-    const [questions, setQuestions] = useState<QuizQuestionType[]>([]);
+    const [title, setTitle] = useState(quiz?.title ?? "New Quiz Title");
+    const [questions, setQuestions] = useState<QuizQuestionType[]>(questionsList ?? []);
     const [questionToDelete, setQuestionToDelete] = useState<QuizQuestionType | null>(null);
 
     const handleAddQuestion = () => {
@@ -60,7 +69,14 @@ export default function QuizBuilder () {
             q.id === id ? { ...q, ...updates } : q
         ));
     };
-      
+    
+    const handleBack = () => {
+        if (moduleId) {
+            navigate(`/employer/standard-builder/${moduleID}`);
+            return;
+        }
+        navigate(`/employer/standard-builder`);
+    };
 
     return (
         <div className="quiz-builder-page">
@@ -78,7 +94,7 @@ export default function QuizBuilder () {
             }
             <div className="standard-canvas-wrapper">
                 <div className="standard-canvas-top">
-                    <div className="back-to-modules builder" onClick={() => navigate(`/employer/standard-builder`)}> {/* temporary route */}
+                    <div className="back-to-modules builder" onClick={handleBack}> {/* temporary route */}
                         <img src={orange_left_arrow} />
                     </div>
                     <div className="modules-header lesson-pg">

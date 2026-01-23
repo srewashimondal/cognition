@@ -79,7 +79,7 @@ export default function SimulationModules() {
             </div>
 
             <div className="modules-grid">
-                {moduleAttempts.map((m) => (<ModuleCard moduleInfo={m.moduleInfo} role={"employee"} status={m.status} percent={m.percent} style={true} />))}
+                {moduleAttempts.map((m) => (<ModuleCard moduleInfo={m.moduleInfo} type={"simulation"} role={"employee"} status={m.status} percent={m.percent} style={true} />))}
             </div>
 
             <div className="filler-space"></div>

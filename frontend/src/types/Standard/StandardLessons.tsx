@@ -1,9 +1,14 @@
 import type { QuizQuestionType } from "./QuizQuestion/QuestionTypes";
 
 export type VideoLessonType = {
-    videoFileId: string;        
-    filename: string;
-    durationSeconds: number;
+    id: number;
+    title: string;
+    type: "video";
+    duration?: number;
+    dueDate?: string;
+    videoFileId?: string;        
+    filename?: string;
+    durationSeconds?: number;
     thumbnailUrl?: string;     
     transcript?: string[];      
     requireCompletion?: boolean;  
@@ -11,16 +16,14 @@ export type VideoLessonType = {
 };
 
 export type QuizLessonType = {
-  questions: QuizQuestionType[];
+  id: number;
+  title: string;
+  type: "quiz";
+  duration?: number;
+  dueDate?: string;
+  questions?: QuizQuestionType[];
   passingScore?: number;
   allowRetake?: boolean;
 };
 
-export type StandardLessonType = {
-  id: number;
-  type: "video" | "quiz";
-  title: string;
-  duration?: number;
-  dueDate?: string;
-  content?: VideoLessonType | QuizLessonType;
-};
+export type StandardLessonType = VideoLessonType | QuizLessonType;
