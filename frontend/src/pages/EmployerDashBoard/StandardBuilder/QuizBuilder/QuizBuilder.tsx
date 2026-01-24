@@ -72,10 +72,10 @@ export default function QuizBuilder () {
     
     const handleBack = () => {
         if (moduleId) {
-            navigate(`/employer/standard-builder/${moduleID}`);
+            navigate(`/employer/modules/standard-builder/${moduleID}`);
             return;
         }
-        navigate(`/employer/standard-builder`);
+        navigate(`/employer/modules/standard-builder`);
     };
 
     return (

@@ -201,12 +201,12 @@ export default function EmployerDashBoard() {
               element={<AIStudioAssignments />}
             />
             <Route path="settings" element={<Settings />} />
-            <Route path="builder" element={<Builder />} />
-            <Route path="builder/:moduleID" element={<Builder />} />
-            <Route path="standard-builder" element={<StandardBuilder />} />
-            <Route path="standard-builder/:moduleID" element={<StandardBuilder />} />
-            <Route path="quiz-builder" element={<QuizBuilder />} /> {/* temporary route */}
-            <Route path="standard-builder/:moduleID/:quizID" element={<QuizBuilder />} />
+            <Route path="modules/builder" element={<Builder />} />
+            <Route path="modules/builder/:moduleID" element={<Builder />} />
+            <Route path="modules/standard-builder" element={<StandardBuilder />} />
+            <Route path="modules/standard-builder/:moduleID" element={<StandardBuilder />} />
+            <Route path="modules/quiz-builder" element={<QuizBuilder />} /> {/* temporary route */}
+            <Route path="modules/standard-builder/:moduleID/:quizID" element={<QuizBuilder />} />
             <Route path="*" element={<Navigate to="" />} />
           </Routes>
         </section>

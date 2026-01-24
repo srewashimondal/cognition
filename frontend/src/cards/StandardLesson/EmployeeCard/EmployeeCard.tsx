@@ -17,7 +17,7 @@ type EmployeeCardProps = {
 
 export default function EmployeeCard({ lesson, status }: EmployeeCardProps) {
     return (
-        <div className={`employee-card ${status} ${lesson.type}`}>
+        <div className={`employee-card-item status-${status} lesson-${lesson.type}`}>
             {(lesson.type === "video") &&
             <div className="card-thumbnail-wrapper">
                 <div className="card-thumbnail">

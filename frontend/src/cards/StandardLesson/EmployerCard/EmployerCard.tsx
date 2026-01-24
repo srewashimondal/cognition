@@ -50,7 +50,7 @@ export default function EmployerCard({ id, title, type, handleDelete, position, 
 
     const handleNavigate = () => {
         if (isNewDraft) {
-            navigate(`/employer/quiz-builder`);
+            navigate(`/employer/modules/quiz-builder`);
             return;
         }
         navigateQuiz();

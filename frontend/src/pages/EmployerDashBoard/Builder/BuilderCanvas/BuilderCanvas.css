@@ -339,6 +339,12 @@
     height: 100%;
     box-shadow: 0 6px 20px rgba(0, 0, 0, 0.10);
     padding-bottom: 80px;
+    animation: slideIn 0.25s ease-out;
+}
+
+@keyframes slideIn {
+    from { transform: translateX(100%); }
+    to { transform: translateX(0); }
 }
 
 .x-icon-wrapper.panel {

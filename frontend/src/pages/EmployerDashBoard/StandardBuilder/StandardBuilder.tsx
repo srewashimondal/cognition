@@ -83,7 +83,7 @@ export default function StandardBuilder() {
     };
 
     const handleNavigateQuiz = (moduleID: number, quizID: number) => {
-        navigate(`/employer/standard-builder/${moduleID}/${quizID}`)
+        navigate(`/employer/modules/standard-builder/${moduleID}/${quizID}`)
     };
 
     return (

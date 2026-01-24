@@ -17,10 +17,7 @@
     background-color: rgb(243, 243, 243);
 }
 
-.lesson-card.completed {
-    background-color: rgb(240, 255, 242);
-    border: 1px solid rgb(207, 235, 211);
-}
+
 
 .lock-warning {
     margin: 0;
@@ -271,7 +268,6 @@
     color: #FF7F4A;
     border: 1px solid #FF7F4A;
     transition: 0.2s ease;
-    background-color: #E4FFE7;
 }
 
 .lesson-action-btn.Review:hover {

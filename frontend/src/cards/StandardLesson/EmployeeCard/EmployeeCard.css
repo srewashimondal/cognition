@@ -1,4 +1,4 @@
-.employee-card {
+.employee-card-item {
     display: flex;
     flex-direction: row;
     width: 90%;
@@ -10,18 +10,19 @@
     align-items: center;
 }
 
-.employee-card.quiz {
+.employee-card-item.lesson-quiz {
     justify-content: space-between;
     padding-right: 7%;
 }
 
-.employee-card.completed {
+.employee-card.status-completed {
     background-color: rgb(240, 255, 242);
     border: 1px solid rgb(207, 235, 211);
 }
 
-.employee-card.locked {
+.employee-card-item.status-locked {
     background-color: rgb(243, 243, 243);
+    cursor: not-allowed;
 }
 
 .employee-card .builder-action-pill {

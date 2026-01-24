@@ -59,8 +59,8 @@ export default function Modules() {
         <div className="fab-wrapper">
           { addSelected && (
               <div className="fab-options">
-                <div className="fab-option" onClick={() => navigate(`/employer/builder`)}>New Simulation Module</div>
-                <div className="fab-option" onClick={() => navigate(`/employer/standard-builder`)}>New Standard Module</div>
+                <div className="fab-option" onClick={() => navigate(`/employer/modules/builder`)}>New Simulation Module</div>
+                <div className="fab-option" onClick={() => navigate(`/employer/modules/standard-builder`)}>New Standard Module</div>
                 <div className="fab-options-line" />
               </div>
             )

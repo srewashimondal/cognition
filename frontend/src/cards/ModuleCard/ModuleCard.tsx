@@ -29,7 +29,7 @@ export default function ModuleCard({ moduleInfo, type, role, status, percent, st
       if (status === "completed") {
         return;
       }
-      navigate(`/employee/${type === "simulation" ? "simulations" : "standard-modules"}/${moduleInfo.id}`);
+      navigate(`/employee/modules/${type === "simulation" ? "simulations" : "standard-modules"}/${moduleInfo.id}`);
     };
 
     return (
@@ -37,7 +37,7 @@ export default function ModuleCard({ moduleInfo, type, role, status, percent, st
             <div className="card-top">
               <div className={`banner ${bannerColorByID[moduleInfo.id - 1]}`} >
                 {(role === "employer") &&
-                <button className="edit-btn" onClick={() => navigate(`/employer/${(type === "simulation") ? "builder" : "standard-builder"}/${moduleInfo.id}`)}>
+                <button className="edit-btn" onClick={() => navigate(`/employer/modules/${(type === "simulation") ? "builder" : "standard-builder"}/${moduleInfo.id}`)}>
                   <div className="edit-swap">
                     <img className="edit-icon default" src={black_edit} />
                     <img className="edit-icon hover" src={orange_edit} />
