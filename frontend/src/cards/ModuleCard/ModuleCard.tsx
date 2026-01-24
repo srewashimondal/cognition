@@ -29,7 +29,7 @@ export default function ModuleCard({ moduleInfo, type, role, status, percent, st
       if (status === "completed") {
         return;
       }
-      navigate(`/employee/modules/${type === "simulation" ? "simulations" : "standard-modules"}/${moduleInfo.id}`);
+      navigate(`/employee/${type === "simulation" ? "simulations" : "standard-modules"}/${moduleInfo.id}`);
     };
 
     return (
