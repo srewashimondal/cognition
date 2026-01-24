@@ -30,6 +30,7 @@ export default function EmployerCard({ id, title, type, handleDelete, position, 
     const [titleState, setTitleState] = useState(title);
     const [videoFiles, setVideoFiles] = useState<File[]>([]);
     const [allowTranscript, setAllowTranscript] = useState(true);
+    const [allowSummary, setAllowSummary] = useState(true);
     const [expanded, setExpanded] = useState(false);
     const [selectedDate, setSelectedDate] = useState<string | null>(null);
     const [attemptMode, setAttemptMode] = useState<"unlimited" | "custom">("unlimited");
@@ -110,6 +111,10 @@ export default function EmployerCard({ id, title, type, handleDelete, position, 
                             <div className="check-setting">
                                 <Switch defaultChecked checked={allowTranscript} onCheckedChange={() => setAllowTranscript(prev => !prev)} color="cyan" size="1" />
                                 <span className="expanded-settings-text">Allow Cognition AI to generate a transcript.</span>
+                            </div>
+                            <div className="check-setting">
+                                <Switch defaultChecked checked={allowSummary} onCheckedChange={() => setAllowSummary(prev => !prev)} color="cyan" size="1" />
+                                <span className="expanded-settings-text">Allow Cognition AI to generate section-based summaries.</span>
                             </div>
                             <div className="date-picker">
                                 <span className="expanded-settings-text label">Set Due Date*</span>
