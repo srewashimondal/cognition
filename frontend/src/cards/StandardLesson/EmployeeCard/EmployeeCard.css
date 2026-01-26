@@ -38,7 +38,7 @@
 .card-thumbnail {
     width: 170px;
     height: 100px;
-    outline: 2px solid #9FE0DF;
+    /*outline: 2px solid #9FE0DF;*/
     border-radius: 5px;
 }
 
@@ -58,6 +58,9 @@
     top: 20px;
     opacity: 0.9;
     transition: 0.2s ease;
+    cursor: pointer;
+    pointer-events: auto;
+    z-index: 10;
 }
 
 .play-button:hover {

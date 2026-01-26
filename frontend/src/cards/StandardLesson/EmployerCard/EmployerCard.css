@@ -97,3 +97,15 @@
     align-items: center;
     justify-content: flex-start;
 }
+
+.slider-setting.quiz {
+    margin-left: 0;
+    width: 70%;
+}
+
+.slider-labels.quiz {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}

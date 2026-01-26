@@ -1,4 +1,5 @@
 import type { QuizQuestionType } from "./QuizQuestion/QuestionTypes";
+import type { TranscriptType } from "./TranscriptType";
 
 export type VideoLessonType = {
     id: number;
@@ -10,7 +11,7 @@ export type VideoLessonType = {
     filename?: string;
     durationSeconds?: number;
     thumbnailUrl?: string;     
-    transcript?: string[];      
+    transcript?: TranscriptType[];      
     requireCompletion?: boolean;  
     allowPlaybackSpeed?: boolean;
 };

@@ -3,7 +3,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import UploadDropzone from '../../../components/UploadDropzone/UploadDropzone';
 import ActionButton from '../../../components/ActionButton/ActionButton';
-import { RadioGroup, Switch } from "@radix-ui/themes";
+import { RadioGroup, Switch, Slider } from "@radix-ui/themes";
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import trash_icon from '../../../assets/icons/simulations/grey-trash-icon.svg';
@@ -38,6 +38,7 @@ export default function EmployerCard({ id, title, type, handleDelete, position, 
     const [timeLimitMode, setTimeLimitMode] = useState<"unlimited" | "custom">("unlimited");
     const [timeLimitMin, setTimeLimitMin] = useState<number | "">("");
     const [timeLimitHour, setTimeLimitHour] = useState<number | "">("");
+    const [benchmark, setBenchmark] = useState<number[]>([70]);
 
     const { attributes, listeners, setNodeRef, transform, transition } = useSortable({ id: id });
     const style = {
@@ -160,6 +161,13 @@ export default function EmployerCard({ id, title, type, handleDelete, position, 
                                     <span>minutes</span>
                                 </RadioGroup.Item>
                             </RadioGroup.Root>
+                        </div>
+                        <div className="slider-setting quiz">
+                                <span className="expanded-settings-text label">Set passing benchmark</span>
+                            <div className="slider-labels expanded-settings-text quiz">
+                                <Slider defaultValue={benchmark} value={benchmark} onValueChange={setBenchmark} color="orange" step={5} max={95} />
+                                {benchmark}%
+                            </div>
                         </div>
                         <div className="date-picker">
                             <span className="expanded-settings-text label">Set Due Date*</span>

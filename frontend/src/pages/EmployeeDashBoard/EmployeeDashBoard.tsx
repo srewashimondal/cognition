@@ -21,6 +21,7 @@ import EmployeeSettings from './Settings/EmployeeSettings';
 import SimulationLessons from './SimulationModules/SimulationLessons/SimulationLessons';
 import SimulationPage from '../Simulation/SimulationPage';
 import StandardLessons from './StandardModules/StandardLessons/StandardLessons';
+import StandardLessonPage from '../StandardLesson/StandardLessonPage';
 
 import white_home from '../../assets/icons/sidebar/white-home-icon.svg';
 import black_home from '../../assets/icons/sidebar/black-home-icon.svg';
@@ -48,6 +49,7 @@ export default function EmployeeDashBoard() {
     const isSimulationPage = useMatch("/employee/simulations/:moduleID/:lessonID/:simIdx");
     const isSimulationLesson = useMatch("/employee/simulations/:moduleID");
     const isStandardLesson = useMatch("/employee/standard-modules/:moduleID");
+    const isStandardLessonPg = useMatch("/employee/standard-modules/:moduleID/:lessonID");
 
     return (
     <div className={`dashboard employee ${sidebarCollapsed ? "collapsed" : ""}`}>
@@ -209,7 +211,7 @@ export default function EmployeeDashBoard() {
           </div>
         </header>
 
-        <section className={`content employee ${(isSimulationPage || isSimulationLesson || isStandardLesson) ? "no-padding" : ""}`}>
+        <section className={`content employee ${(isSimulationPage || isSimulationLesson || isStandardLesson || isStandardLessonPg ) ? "no-padding" : ""}`}>
           <Routes>
             <Route index element={<EmployeeHome />} />
             <Route path="simulations" element={<SimulationModules />} />
@@ -220,6 +222,7 @@ export default function EmployeeDashBoard() {
             <Route path="schedule" element={<Schedule />} />
             <Route path="standard-modules" element={<StandardModules />} />
             <Route path="standard-modules/:moduleID" element={<StandardLessons />} />
+            <Route path="standard-modules/:moduleID/:lessonID" element={<StandardLessonPage />} />
             <Route path="resources" element={<EmployeeResources />} />
             <Route path="settings" element={<EmployeeSettings />} />
             <Route path="*" element={<Navigate to="" />} />

@@ -16,6 +16,10 @@ export default function StandardLessons() {
     const moduleInfo = moduleAttempt?.moduleInfo;
     const lessonAttempts = moduleAttempt?.lessons;
 
+    const handleNavigate = (moduleId: number, lessonId: number) => {
+        navigate(`/employee/standard-modules/${moduleId}/${lessonId}`);
+    };
+
     return (
         <div className="standard-lessons-page">
             <div className="simulation-lessons-top">
@@ -52,8 +56,11 @@ export default function StandardLessons() {
                 </div>
             </div>
             <div className="simulation-lessons-bottom">
+                <div className="lessons-list-header-employer standard">
+                    <div className="list-header-section lsn employee standard">Lesson</div>
+                </div>
                 <div className="lessons-list">
-                    {lessonAttempts?.map((l) => (<EmployeeCard lesson={l.lessonInfo} status={l.status} />))}
+                    {lessonAttempts?.map((l) => (<EmployeeCard lesson={l.lessonInfo} status={l.status} handleNavigate={() => handleNavigate(id, l.lessonInfo.id)}/>))}
                 </div>
             </div>
             <div className="filler-space" />

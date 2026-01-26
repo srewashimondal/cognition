@@ -12,18 +12,18 @@ import orange_left_arrow from '../../../assets/icons/orange-left-arrow.svg';
 type EmployeeCardProps = {
     lesson: StandardLessonType;
     status?: "not begun" | "started" | "completed" | "locked";
-    moduleID?: number;
+    handleNavigate: () => void;
 };
 
-export default function EmployeeCard({ lesson, status }: EmployeeCardProps) {
+export default function EmployeeCard({ lesson, status, handleNavigate }: EmployeeCardProps) {
     return (
-        <div className={`employee-card-item status-${status} lesson-${lesson.type}`}>
+        <div className={`employee-card-item status-${status} lesson-${lesson.type}`} onClick={handleNavigate}>
             {(lesson.type === "video") &&
             <div className="card-thumbnail-wrapper">
                 <div className="card-thumbnail">
                     <img src={lesson.thumbnailUrl} />
                 </div>
-                <img className="play-button" src={play_button} />
+                <img className="play-button" src={play_button} onClick={handleNavigate} />
             </div>}
             <div className="card-content">
                 <div className="lesson-tag-wrapper">

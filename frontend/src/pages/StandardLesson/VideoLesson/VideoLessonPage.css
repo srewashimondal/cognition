@@ -1,0 +1,103 @@
+.video-lesson-page {
+    display: flex;
+    width: 100%;
+    height: 100%;
+}
+
+.video-portion {
+    width: 60%;
+    background-color: #ffffff;
+    border-right: 1px solid #eee;
+    padding: 18px;
+}
+
+.video-title h1 {
+    margin: 0;
+    font-size: 20px;
+}
+
+.video-wrapper {
+    width: 100%;
+    margin-top: 20px;
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.video-wrapper video {
+    width: 90%;
+    border-radius: 10px;
+}
+
+.play-button.for-video {
+    position: absolute;
+    width: 100px;
+    height: 100px;
+    top: 35%;
+    left: 42%;
+}
+
+.video-under {
+    display: flex;
+    flex-direction: column;
+}
+
+.video-under-tabs {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 30px;
+    margin-left: 30px;
+    margin-top: 5px;
+    margin-bottom: 10px;
+}
+
+.video-under-tab {
+    padding: 7px 16px;
+    color: #A5A5A5;
+    cursor: pointer;
+}
+
+.video-under-tab.active {
+    color: black;
+    font-weight: 500;
+    border-bottom: 2px solid #4CC3E8;
+}
+
+.video-under-content {
+    height: 40vh;
+}
+
+.video-under-notes {
+    display: flex;
+    justify-content: center;
+}
+
+.video-under-notes {
+    height: 100%;
+    margin-bottom: 20px;
+    overflow-y: auto;
+
+}
+
+.video-under-notes textarea {
+    border: none;
+    width: 90%;
+    border-radius: 5px;
+    padding: 7px;
+    font-family: Instrument Sans, system-ui, sans-serif;
+    resize: none;
+    min-height: 44px;       
+    max-height: 140px;
+    overflow-y: auto; 
+}
+
+.video-under-notes textarea:focus {
+    outline: none;
+    box-shadow: none;
+}
+  
+.video-under-notes textarea:focus-visible {
+    outline: none;
+}
