@@ -2,7 +2,6 @@ import './VideoLessonPage.css';
 import { useState, useRef } from 'react';
 import AITranscript from './AITranscript/AITranscript';
 import type { VideoLessonType } from '../../../types/Standard/StandardLessons';
-import video_test from '../../../assets/videos/video_test.mp4';
 import left_arrow from '../../../assets/icons/orange-left-arrow.svg';
 import play_button from '../../../assets/icons/video-play-icon.svg';
 
@@ -40,7 +39,7 @@ export default function VideoLessonPage({ lesson, handleBack, moduleTitle }: Vid
                 </div>
                 <div className="video-wrapper">
 
-                    <video ref={videoRef} src={video_test} controls={isPlaying} preload="metadata" 
+                    <video ref={videoRef} src={"https://ik.imagekit.io/u769f98qs/video_test.mp4"} controls={isPlaying} preload="metadata" 
                     onPause={() => setIsPlaying(false)} onEnded={() => setIsPlaying(false)} 
                     onTimeUpdate={() => setCurrentTime(videoRef.current?.currentTime ?? 0)} />
 
