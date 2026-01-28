@@ -11,7 +11,7 @@ import globe_icon from '../../assets/icons/simulations/black-globe-icon.svg';
 import cap_icon from '../../assets/icons/simulations/black-cap-icon.svg';
 
 type ChatBarProps = {
-    context: "builder" | "module" | "simulation";
+    context: "builder" | "module" | "simulation" | "summary";
     userInput: string;
     setUserInput: (userInput: string) => void;
     handleSend: () => void;
@@ -36,7 +36,8 @@ export default function ChatBar({ context, userInput, setUserInput, handleSend, 
     const contextToPlaceholder = {
         "builder": "Describe your idea",
         "module": "Tell Cognition AI what to adjust",
-        "simulation": "Enter your response"
+        "simulation": "Enter your response",
+        "summary": "Any questions?"
     };
 
     const handleContextClick = (l: string | LessonType) => {

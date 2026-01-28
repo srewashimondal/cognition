@@ -1,5 +1,6 @@
 import type { StandardModuleType } from "../types/Standard/StandardModule";
 import { transcript } from './video_transcript.tsx';
+import { summaries } from "./sectionSummaries.tsx";
 
 export const standardModule: StandardModuleType[] = [
     {
@@ -20,7 +21,8 @@ export const standardModule: StandardModuleType[] = [
                 filename: "Professional_Conduct.mov",
                 durationSeconds: 600,
                 thumbnailUrl: "https://plus.unsplash.com/premium_photo-1683141052679-942eb9e77760?fm=jpg&q=60&w=3000&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8cmV0YWlsfGVufDB8fDB8fHww",
-                transcript: transcript
+                transcript: transcript,
+                summaries: summaries
             },
             {
                 id: 2,
@@ -32,7 +34,8 @@ export const standardModule: StandardModuleType[] = [
                 filename: "Handling_Customers.mov",
                 durationSeconds: 600,
                 thumbnailUrl: "https://t4.ftcdn.net/jpg/06/09/96/33/360_F_609963349_1re1J0uIy8RyEXqoOoHPPiypN5Vf2G0D.jpg",
-                transcript: transcript
+                transcript: transcript,
+                summaries: summaries
             },
             {
                 id: 3,
@@ -40,6 +43,8 @@ export const standardModule: StandardModuleType[] = [
                 title: "Standards of Conduct Knowledge Check",
                 duration: 10,
                 dueDate: "May 10, 2026",
+                passingScore: 50,
+                numberOfRetakes: 3,
                 questions: [
                     {
                         id: 1,
@@ -72,6 +77,8 @@ export const standardModule: StandardModuleType[] = [
                 title: "Professional Conduct in Customer Interactions",
                 duration: 10,
                 dueDate: "May 11, 2026",
+                passingScore: 50,
+                numberOfRetakes: 3,
                 questions: [
                     {
                         id: 1,

@@ -22,12 +22,12 @@ export default function StandardLessonPage() {
 
     switch (lesson.type) {
         case "video":
-        return <VideoLessonPage lesson={lesson} handleBack={handleBack} moduleTitle={moduleTitle ?? ""} />;
+            return <VideoLessonPage lesson={lesson} handleBack={handleBack} moduleTitle={moduleTitle ?? ""} />;
 
         case "quiz":
-        return <QuizLessonPage />;
+            return <QuizLessonPage lessonAttempt={lessonAttempt} handleBack={handleBack} moduleTitle={moduleTitle ?? ""} />;
 
         default:
-        return <div>Unsupported lesson type</div>;
+            return <div>Unsupported lesson type</div>;
     }
 }

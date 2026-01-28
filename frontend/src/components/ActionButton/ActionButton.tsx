@@ -11,11 +11,13 @@ import white_form_icon from '../../assets/icons/actions/white-form-icon.svg';
 import orange_form_icon from '../../assets/icons/actions/orange-form-icon.svg';
 import white_paperclip_icon from '../../assets/icons/actions/white-paperclip-icon.svg';
 import orange_paperclip_icon from '../../assets/icons/actions/orange-paperclip-icon.svg';
+import white_right_arrow_icon from '../../assets/icons/actions/white-right-arrow-icon.svg';
+import orange_right_arrow_icon from '../../assets/icons/actions/orange-right-arrow-icon.svg';
 
 
 type ActionButtonProps = {
     text: string;
-    buttonType: "play" | "save" | "refresh" | "deploy" | "read" | "attach";
+    buttonType: "play" | "save" | "refresh" | "deploy" | "read" | "attach" | "go";
     onClick?: () => void; 
     selected?: boolean;
     disabled?: boolean;
@@ -48,6 +50,10 @@ export default function ActionButton({ text, buttonType, onClick, selected=false
         "attach": {
             "default": white_paperclip_icon,
             "hover": orange_paperclip_icon
+        },
+        "go": {
+            "default": white_right_arrow_icon,
+            "hover": orange_right_arrow_icon
         }
     }
 

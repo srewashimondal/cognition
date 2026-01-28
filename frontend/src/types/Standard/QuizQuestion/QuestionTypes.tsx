@@ -21,4 +21,7 @@ export type OpenEndedQuestionType = BaseQuizQuestion & {
 
 export type QuizQuestionType = MCQType | TrueFalseQuestionType | OpenEndedQuestionType;
 
-  
+export type QuestionAttemptType = {
+    question: QuizQuestionType;
+    answer: number | boolean | string;
+};

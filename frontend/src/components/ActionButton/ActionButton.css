@@ -90,3 +90,7 @@
 .action-button.deploy.disabled:hover {
     background-color: #dedede;
 }
+
+.action-button.go {
+    flex-direction: row-reverse;
+}

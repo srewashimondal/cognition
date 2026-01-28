@@ -12,7 +12,7 @@ export const standardModuleAttempt: StandardModuleAttempt[] =
             {
                 attempt_id: 1,
                 lessonInfo: standardModule[0].lessons[0],
-                status: "completed"
+                status: "completed",
             },
             {
                 attempt_id: 2,
@@ -22,12 +22,13 @@ export const standardModuleAttempt: StandardModuleAttempt[] =
             {
                 attempt_id: 3,
                 lessonInfo: standardModule[0].lessons[2],
-                status: "not begun"
+                status: "not begun",
+                score: 60 // temp
             },
             {
                 attempt_id: 4,
                 lessonInfo: standardModule[0].lessons[3],
-                status: "locked"
+                status: "locked",
             }
         ]
     }

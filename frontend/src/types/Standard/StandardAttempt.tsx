@@ -1,10 +1,13 @@
 import type { StandardModuleType } from "./StandardModule";
 import type { StandardLessonType } from "./StandardLessons";
+import type { QuestionAttemptType } from "./QuizQuestion/QuestionTypes";
 
 export type StandardLessonAttempt = {
     attempt_id: number;
     lessonInfo: StandardLessonType;
     status: "not begun" | "started" | "completed" | "locked";
+    questionAnswers?: QuestionAttemptType[];
+    score?: number;
 };
 
 export type StandardModuleAttempt = {

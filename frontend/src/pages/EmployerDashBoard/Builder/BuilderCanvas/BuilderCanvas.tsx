@@ -333,8 +333,7 @@ export default function BuilderCanvas({ id }: BuilderCanvasProps) {
                     <div className="ai-panel-chat-space" ref={transcriptRef}>
                             {chatMessages.length === 0 && <div className="scroll-spacer" />}
                             {chatMessages.filter(m => m.role !== "assistant").map((m, i, arr) => 
-                            <ChatBubble key={m.id} message={m} allMessages={chatMessages} 
-                            className={i === arr.length - 1 ? "last-message" : i === 0 ? "first-message": ""} />)}    
+                            <ChatBubble key={m.id} message={m} className={i === arr.length - 1 ? "last-message" : i === 0 ? "first-message": ""} />)}    
                     </div>
                     <div className="builder-chat-wrapper">
                         <ChatBar context={"module"} userInput={userInput} setUserInput={setUserInput} 
