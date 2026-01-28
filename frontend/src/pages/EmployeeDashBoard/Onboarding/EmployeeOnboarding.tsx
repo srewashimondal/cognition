@@ -1,17 +1,15 @@
-import './EmployerOnboarding.css';
 import { useState } from 'react';
-import OBMain from './OBMain/OBMain';
 import ProgressBar from '../../../components/ProgressBar/ProgressBar';
-import type { OnboardingData } from '../../../types/Onboarding/OnboardingData';
+import OBMain from './OBMain.tsx';
+import type { EmployeeOnboardingData } from '../../../types/Onboarding/OnboardingData';
 import white_check from '../../../assets/icons/white-check.svg';
 
-export default function EmployerOnboarding() {
+export default function EmployeeOnboarding() {
     const steps = {
         "Profile Setup": ["Personal Info", "Account Preferences"],
-        "Create Workspace": ["Workspace Info", "Store Info", "Team Details"],
-        "Tailor Cognition AI": ["Training Materials", "POS Integration", "Store Layout", "Simulation Preferences"],
-        "Invite & Launch": ["Invite Team", "Launch"]
-     } as const;
+        "Learning Setup": ["Role Information", "Learning Preferences"],
+        "Start Learning": ["Start Learning"]
+    }
 
     const [stepIndex, setStepIndex] = useState(0);
     const [subStepIndex, setSubStepIndex] = useState(0);
@@ -41,57 +39,37 @@ export default function EmployerOnboarding() {
           setSubStepIndex(prevSubsteps.length - 1);
         }
     };
-      
 
-    const [data, setData] = useState<OnboardingData>({
+    const [data, setData] = useState<EmployeeOnboardingData>({
         fullName: "",
         workEmail: "",
-        jobTitle: "",
+        jobTitle: [],
         displayName: "",
         profilePicture: null,
         notificationPreference: [],
-        workspaceName: "",
-        workspaceIcon: null,
-        accessibilityPref: false,
-        storeName: "",
-        retailCategory: "Beauty & Cosmetics",
-        storeFormat: "Standalone Store",
-        numEmployees: [0,100],
-        expLevel: "",
-        challenge: [],
-        uploadedPDF: [],
-        posProvider: "",
-        selectedSettings: ["Sync Inventory", "Sync Products"],
-        map: null,
-        type: "Aisles",
-        scenTypes: [],
-        difficultyLevel: "Beginner",
+        confidence: "Still learning",
+        customerInteraction: "Low",
+        haveADHD: false,
+        learningPreference: [],
+        improvements: []
     });
 
-    const updateData = (updates: Partial<OnboardingData>) => {
+    const updateData = (updates: Partial<EmployeeOnboardingData>) => {
         setData(d => ({ ...d, ...updates}));
     };
 
     const [activeFormId, setActiveFormId] = useState<string | null>(null);
-    
+
     const SUBSECTION_FLOW = [
         "personal-info-form",
         "account-preferences-form",
-        "workspace-info-form",
-        "store-info-form",
-        "team-details-form",
-        "training-materials-form",
-        "pos-integration-form",
-        "store-layout-form",
-        "simulation-preferences-form",
-        "invite-team-form",
-        "launch-workspace",
+        "role-info-form",
+        "learning-preferences-form",
+        "start-learning"
     ] as const;
 
     const currentSubIdx = activeFormId ? SUBSECTION_FLOW.indexOf(activeFormId as any) : 0;
-    const percent = (activeFormId !== "invite-team-form") ? 
-                    ((activeFormId !== "launch-workspace") ?
-                        (Math.floor((currentSubIdx / 11) * 100)) : 100) : 95;
+    const percent = (activeFormId !== "start-learning") ? (Math.floor((currentSubIdx / 5) * 100)) : 100;
 
 
     return (
@@ -105,7 +83,7 @@ export default function EmployerOnboarding() {
                     <div className="sidebar-steps">
                         <div className="sidebar-line" />
                         {stepTitles.map((title, index) => {
-                                const isCompleted = (index < stepIndex) || (activeFormId === "launch-workspace");
+                                const isCompleted = (index < stepIndex) || (activeFormId === "start-learning");
                                 const isCurrent = index === stepIndex;
 
                                 return (
@@ -132,7 +110,6 @@ export default function EmployerOnboarding() {
                                 );
                             })}
                     </div>
-
                 </div>
                 <div className="ob-main">
                     <OBMain data={data} updateData={updateData} activeFormId={activeFormId} setActiveFormId={setActiveFormId} stepTitle={currentStepTitle} substeps={substeps} subStep={subStepIndex}
@@ -142,3 +119,4 @@ export default function EmployerOnboarding() {
         </div>
     );
 }
+

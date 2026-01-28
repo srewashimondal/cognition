@@ -41,9 +41,9 @@ export default function WorkspaceInfo({ data, updateData, registerFormId, onNext
                 direction={"You may change the icon of your workspace now if you wish."}
                 meta={"pfp"}/>
 
-                <Question question={"Accessibility Preferences"} input_type={"checkbox"} 
+                <Question question={"Accessibility Preferences"} input_type={"switch"} 
                 value={data.accessibilityPref} onChange={(v) => updateData({ accessibilityPref: v})} 
-                options={["ADHD Focus"]} />
+                placeholder={"ADHD Focus"} />
 
             </form>
         </div>

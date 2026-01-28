@@ -31,7 +31,7 @@ export default function StoreInfo({ data, updateData, registerFormId, onNext }: 
                 options={["Beauty & Cosmetics", "Drugstore & Pharmacy", 
                 "General Retail", "Electronics & Tech", "Apparel & Fashion", "Specialty Retail", "Home Goods", "Grocery", "Sporting Goods & Hobbies"]}/>
 
-                <Question question={"Store Format*"} input_type={"radio"} 
+                <Question question={"Store Format*"} input_type={"select"} 
                 value={data.storeFormat} onChange={(v) => updateData({ storeFormat: v})} 
                 direction={"Select an option."} required={true}
                 options={["Standalone Store", "Mall Location", "Department Store Section"]}/>

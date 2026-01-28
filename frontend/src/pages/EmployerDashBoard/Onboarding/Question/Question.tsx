@@ -1,18 +1,15 @@
 import './Question.css';
-import { Slider, CheckboxGroup } from "@radix-ui/themes";
+import { Slider, CheckboxGroup, Select, Switch } from "@radix-ui/themes";
 import { useState, useRef } from 'react';
 import FileItem from '../../../../components/FileItem/FileItem';
 import default_icon from '../../../../assets/icons/default-icon.svg';
 import icon_stroke from '../../../../assets/icons/icon-stroke.svg';
 import add_cta from '../../../../assets/icons/add-cta.svg';
-import checkmark from '../../../../assets/icons/check-icon.svg';
-import chevron_down from '../../../../assets/icons/chevron-down.svg';
-import orange_check from '../../../../assets/icons/orange-check.svg';
 import upload_icon from '../../../../assets/icons/upload-icon.svg';
 
 type QuestionProps = {
     question: string;
-    input_type: "text" | "email" | "checkbox" | "radio" | "range" | "select" | "file" | "image" | "image-buttons";
+    input_type: "text" | "email" | "checkbox" | "radio" | "range" | "select" | "file" | "image" | "image-buttons" | "switch";
     value?: any;
     onChange?: (value: any) => void;
     options?: string[];
@@ -25,7 +22,6 @@ type QuestionProps = {
 
 export default function Question({ question, input_type, value, onChange, options=[], fileOptions=[], direction, placeholder, meta, required }: QuestionProps) {
     const fileInputRef = useRef<HTMLInputElement | null>(null);
-    const [open, setOpen] = useState(false);
     const [dragging, setDragging] = useState(false);
 
     const allowedTypes = [
@@ -63,7 +59,7 @@ export default function Question({ question, input_type, value, onChange, option
 
             case "select":
                 return (
-                    <div className="select-root">
+                    /*<div className="select-root">
                         <button type="button" onClick={() => (setOpen(!open))}>
                             <span className="select-label">{value}</span>
                             <span className="select-chevron">
@@ -87,7 +83,15 @@ export default function Question({ question, input_type, value, onChange, option
                                 ))}
                             </ul>
                         )}
-                    </div>
+                    </div>*/
+                    <Select.Root defaultValue={value} value={value} onValueChange={(v) => {onChange?.(v)}}>
+                        <Select.Trigger />
+                        <Select.Content color="orange">
+                            {options.map(o => 
+                                <Select.Item key={o} value={o}>{o}</Select.Item>
+                            )}
+                        </Select.Content>
+                    </Select.Root>
                 );
 
             case "radio":
@@ -118,6 +122,14 @@ export default function Question({ question, input_type, value, onChange, option
                         </CheckboxGroup.Item>
                       ))}
                     </CheckboxGroup.Root>
+                  );
+
+                case "switch": 
+                  return (
+                    <div className="switch-item">
+                      <Switch checked={value} onCheckedChange={v => onChange?.(v)} className="checkbox-item" color="cyan" />
+                          {placeholder}
+                    </div>
                   );
 
                 case "file":

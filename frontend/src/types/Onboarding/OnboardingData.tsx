@@ -7,7 +7,7 @@ export type OnboardingData = {
     notificationPreference: string[];
     workspaceName: string;
     workspaceIcon: File | null;
-    accessibilityPref: string[];
+    accessibilityPref: boolean;
     storeName: string;
     retailCategory: string;
     storeFormat: string;
@@ -21,4 +21,18 @@ export type OnboardingData = {
     type: string; 
     scenTypes: string[];
     difficultyLevel: string;
+};
+
+export type EmployeeOnboardingData = {
+    fullName: string;
+    workEmail: string;
+    jobTitle: string[];
+    displayName: string;
+    profilePicture: File | null;
+    notificationPreference: string[];
+    confidence: string;
+    customerInteraction: string;
+    haveADHD: boolean;
+    learningPreference: string[];
+    improvements: string[];
 };

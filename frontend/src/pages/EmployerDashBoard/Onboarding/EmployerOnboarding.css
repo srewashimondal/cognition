@@ -5,6 +5,7 @@
     justify-content: center;
     align-items: center;
     position: relative;
+    font-family: Instrument Sans, system-ui, sans-serif;
 }
 
 .ob-modal {
@@ -17,7 +18,7 @@
     max-height: 80vh;
     border-radius: 20px;
     overflow: hidden;
-    border: 2px solid #F5F5F5;
+    border: 1px solid #F5F5F5;
     position: absolute;
 }
 
@@ -31,8 +32,10 @@ ob-main {
 
 .ob-sidebar {
     background-color: #F5F5F5;
+    background-color: rgb(251, 251, 251);
+    border: 1px solid #F5F5F5;
     flex: 0 0 220px;
-    border-radius: 16px;
+    border-radius: 10px;
     display: flex;
     flex-direction: column;
     justify-content: flex-start;

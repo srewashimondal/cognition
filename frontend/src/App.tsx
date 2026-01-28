@@ -7,6 +7,7 @@ import EmployerDashBoard from './pages/EmployerDashBoard/EmployerDashBoard.tsx';
 import Login from './pages/auth/Login/Login.tsx';
 import Signup from './pages/auth/Signup/Signup.tsx';
 import EmployerOnboarding from './pages/EmployerDashBoard/Onboarding/EmployerOnboarding.tsx';
+import EmployeeOnboarding from './pages/EmployeeDashBoard/Onboarding/EmployeeOnboarding.tsx';
 
 function App() {
   return (
@@ -19,6 +20,7 @@ function App() {
       <Route path='/signup/employee' element={<Signup role="employee"/>}/>
       <Route path='/signup/employer' element={<Signup role="employer"/>}/>
       <Route path='/employer-onboarding' element={<EmployerOnboarding />} />
+      <Route path='/employee-onboarding' element={<EmployeeOnboarding />} />
     </Routes>
   )
 }

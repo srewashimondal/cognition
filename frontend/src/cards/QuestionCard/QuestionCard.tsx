@@ -37,7 +37,7 @@ export default function QuestionCard({ question, handleDelete, position, onUpdat
             setImagePreview(null);
             return;
         }
-        const url = URL.createObjectURL(question.image);
+        const url = typeof question.image === "string" ? question.image : URL.createObjectURL(question.image);
         setImagePreview(url);
 
         return () => URL.revokeObjectURL(url);

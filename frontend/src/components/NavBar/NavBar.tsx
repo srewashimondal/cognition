@@ -15,11 +15,13 @@ export default function NavBar({ login=true }: NavBarProps) {
             </Link>
         </div>
         <div className="nav-div">
-            <p>Why Cognition</p>
+            {/*<p>Why Cognition</p>
             <p>Products</p>
-            <p>Pricing</p>
+            <p>Pricing</p>*/}
             <Link className="hyper-link" to="/employer"><p>Employer DashBoard</p></Link>
             <Link className="hyper-link" to="/employee"><p>Employee DashBoard</p></Link>
+            <Link className="hyper-link" to="/employer-onboarding"><p>Employer Onboarding</p></Link>
+            <Link className="hyper-link" to="/employee-onboarding"><p>Employee Onboarding</p></Link>
         </div>
         <div className="login-div">
             {
