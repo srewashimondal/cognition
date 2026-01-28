@@ -150,7 +150,6 @@ function QuizPage({ lesson, moduleTitle, onClick }: { lesson: QuizLessonType | n
 
         return () => clearTimeout(t);
     }, [pendingSubmit, questionAnswers.length, questions?.length]);
-     
 
     const total = questions?.length ?? 1;
     const percent = pendingSubmit ? 100 : Math.floor(((questionAnswers.length) / total) * 100);
@@ -167,9 +166,16 @@ function QuizPage({ lesson, moduleTitle, onClick }: { lesson: QuizLessonType | n
         });
     };
 
-    const timeLeft = useCountdown(10 * 60); 
-    const minutes = Math.floor(timeLeft / 60);
-    const seconds = timeLeft % 60;
+    const duration = lesson?.duration;
+    const timeLeft = useCountdown(typeof duration === "number" ? duration * 60 : null);
+    const minutes = typeof timeLeft === "number" ? Math.floor(timeLeft / 60) : null;
+    const seconds = typeof timeLeft === "number" ? timeLeft % 60 : null;
+
+    useEffect(() => {
+        if (timeLeft === 0) {
+            onClick();
+        }
+    }, [timeLeft]);
    
     return (
         <div className="quiz-page">
@@ -187,7 +193,7 @@ function QuizPage({ lesson, moduleTitle, onClick }: { lesson: QuizLessonType | n
                     </span>
                     <div className="quiz-time">
                         <p className="time-left">
-                            {minutes} : {seconds.toString().padStart(2, "0")}
+                            {minutes}:{seconds!.toString().padStart(2, "0")}
                         </p>
                         <p className="time-left-label">Time Left</p>
                     </div>
@@ -289,17 +295,26 @@ function QuizComplete({ lesson, onClick, handleBack }: { lesson: QuizLessonType 
     );
 }
 
-function useCountdown(initialSeconds: number) {
-    const [timeLeft, setTimeLeft] = useState(initialSeconds);
+function useCountdown(initialSeconds: number | null) {
+    const [timeLeft, setTimeLeft] = useState<number | null>(initialSeconds);
+  
     useEffect(() => {
-    if (timeLeft <= 0) return;
-    
-    const interval = setInterval(() => {
-    setTimeLeft(t => t - 1);
-    }, 1000);
-    
-    return () => clearInterval(interval);
-    }, [timeLeft]);
-    
+        if (initialSeconds == null) return;
+
+        setTimeLeft(initialSeconds);
+  
+        const interval = setInterval(() => {
+        setTimeLeft(prev => {
+            if (prev == null || prev <= 1) {
+            clearInterval(interval);
+            return 0;
+            }
+            return prev - 1;
+        });
+        }, 1000);
+  
+        return () => clearInterval(interval);
+    }, [initialSeconds]);
+  
     return timeLeft;
 }
