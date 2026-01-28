@@ -56,7 +56,8 @@ export const standardModule: StandardModuleType[] = [
                             "Greeting customers promptly and maintaining a respectful tone",
                             "Ignoring minor customer concerns if they don’t affect sales"
                         ],
-                        correctAnswerIndex: 2
+                        correctAnswerIndex: 2,
+                        image: "https://t3.ftcdn.net/jpg/02/36/30/26/360_F_236302629_eYWFuIC7SWcr9zxoVcAcrjjSYQQkWrs1.jpg"
                     },
                     {
                         id: 2,
@@ -90,7 +91,7 @@ export const standardModule: StandardModuleType[] = [
                             "Greeting customers promptly and maintaining a respectful tone",
                             "Ignoring minor customer concerns if they don’t affect sales"
                         ],
-                        correctAnswerIndex: 2
+                        correctAnswerIndex: 2,
                     },
                     {
                         id: 2,

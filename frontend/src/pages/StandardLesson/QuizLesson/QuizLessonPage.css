@@ -204,7 +204,7 @@
 }
 
 .question-wrapper {
-    height: 78%;
+    min-height: 78%;
 }
 
 .quiz-page-footer {

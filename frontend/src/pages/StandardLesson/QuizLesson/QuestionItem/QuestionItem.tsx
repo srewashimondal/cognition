@@ -63,6 +63,11 @@ export default function QuestionItem({ idx, question, answer, onAnswer }: Questi
         <div className="question-item">
             <div className="question-prompt-wrapper">
                 <p className="question-num">Question {idx}</p>
+                {question?.image &&
+                    (typeof question.image === "string" ? 
+                    (<img className="question-img" src={question.image} />) : 
+                    (<img className="question-img" src={URL.createObjectURL(question.image)} />))
+                }
                 <p className="question-prompt">{question?.prompt}</p>
             </div>
             <div className={`question-answers ${questionType}`}>

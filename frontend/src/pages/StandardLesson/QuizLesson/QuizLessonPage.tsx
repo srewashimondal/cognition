@@ -167,6 +167,10 @@ function QuizPage({ lesson, moduleTitle, onClick }: { lesson: QuizLessonType | n
         });
     };
 
+    const timeLeft = useCountdown(10 * 60); 
+    const minutes = Math.floor(timeLeft / 60);
+    const seconds = timeLeft % 60;
+   
     return (
         <div className="quiz-page">
             <div className="quiz-page-header">
@@ -182,7 +186,9 @@ function QuizPage({ lesson, moduleTitle, onClick }: { lesson: QuizLessonType | n
                         <img src={timer_icon} />
                     </span>
                     <div className="quiz-time">
-                        <p className="time-left">10 : 00</p>
+                        <p className="time-left">
+                            {minutes} : {seconds.toString().padStart(2, "0")}
+                        </p>
                         <p className="time-left-label">Time Left</p>
                     </div>
                 </div>
@@ -281,4 +287,19 @@ function QuizComplete({ lesson, onClick, handleBack }: { lesson: QuizLessonType 
             </div>
         </div>
     );
+}
+
+function useCountdown(initialSeconds: number) {
+    const [timeLeft, setTimeLeft] = useState(initialSeconds);
+    useEffect(() => {
+    if (timeLeft <= 0) return;
+    
+    const interval = setInterval(() => {
+    setTimeLeft(t => t - 1);
+    }, 1000);
+    
+    return () => clearInterval(interval);
+    }, [timeLeft]);
+    
+    return timeLeft;
 }

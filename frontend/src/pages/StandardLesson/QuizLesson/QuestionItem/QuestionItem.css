@@ -12,6 +12,11 @@
     font-weight: 500;
 }
 
+.question-img {
+    width: 400px;
+    border-radius: 5px;;
+}
+
 .question-prompt {
     font-size: 20px;
     font-weight: 600;
