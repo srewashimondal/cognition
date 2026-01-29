@@ -1,6 +1,7 @@
 import './Signup.css';
 import { useState } from 'react';
 import { Link } from "react-router-dom";
+import { Tooltip } from "@radix-ui/themes";
 import mail from '../../../assets/icons/mail.svg';
 import lock from '../../../assets/icons/lock.svg';
 import eye_on from '../../../assets/icons/eye_on.svg';
@@ -68,9 +69,11 @@ export default function Signup({ role="employee" }: SignupProps) {
                                 <img src={lock} alt="lock icon"/>
                             </span>
                             <input type={viewPassword ? "text" : "password"} required placeholder="Password" value={password} onChange={(e) => setPassword(e.target.value)}/>
-                            <span className="eye-icon" onClick={() => setViewPassword(!viewPassword)}>
-                                <img src={viewPassword ? eye_on : eye_off} alt="view password icon"/>
-                            </span>
+                            <Tooltip content={viewPassword ? "Hide password" : "Show password"}>
+                                <span className="eye-icon" onClick={() => setViewPassword(!viewPassword)}>
+                                    <img src={viewPassword ? eye_on : eye_off} alt="view password icon"/>
+                                </span>
+                            </Tooltip>
                         </div>
 
                         <div className="password-wrapper">
@@ -79,9 +82,11 @@ export default function Signup({ role="employee" }: SignupProps) {
                                         <img src={lock} alt="lock icon"/>
                                     </span>
                                     <input type={viewReEnteredPassword ? "text" : "password"} required placeholder="Re-enter Password" value={reEnteredPassword} onChange={(e) => setReEnteredPassword(e.target.value)}/>
-                                    <span className="eye-icon" onClick={() => setViewReEnteredPassword(!viewReEnteredPassword)}>
-                                        <img src={viewReEnteredPassword ? eye_on : eye_off} alt="view password icon"/>
-                                    </span>
+                                    <Tooltip content={viewReEnteredPassword ? "Hide password" : "Show password"}>
+                                        <span className="eye-icon" onClick={() => setViewReEnteredPassword(!viewReEnteredPassword)}>
+                                            <img src={viewReEnteredPassword ? eye_on : eye_off} alt="view password icon"/>
+                                        </span>
+                                    </Tooltip>
                             </div>
                             {(reEnteredPassword) && (password !== reEnteredPassword) && (<ErrorMessage message={"Passwords must match."} />)}
                         </div>

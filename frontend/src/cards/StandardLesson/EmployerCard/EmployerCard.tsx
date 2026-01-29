@@ -78,7 +78,7 @@ export default function EmployerCard({ id, title, type, handleDelete, position, 
                     </div>
                 </div>
                 <div className="local-action-panel">
-                    <Tooltip content={expanded ? "Close lesson settings" : "Open lesson settings"}>
+                    <Tooltip content={expanded ? "Close" : "Lesson settings"}>
                         <div className="builder-action" onClick={() => setExpanded(prev => !prev)}>
                             <img src={expanded ? up_chevron : down_chevron} />
                         </div>           

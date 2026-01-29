@@ -320,7 +320,7 @@ export default function BuilderCanvas({ id }: BuilderCanvasProps) {
                         <div className="filler-space" />
                     </div>
                     { !openAIPanel &&
-                    <Tooltip content="Open AI assistant">
+                    <Tooltip content="AI assistant">
                         <div className="open-ai-toggle" onClick={() => setOpenAIPanel(prev => !prev)}>
                             <img src={white_ai_icon} />
                         </div>

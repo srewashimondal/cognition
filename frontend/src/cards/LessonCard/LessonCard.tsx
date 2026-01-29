@@ -179,12 +179,12 @@ export default function LessonCard({ lessonInfo, role, status, evaluation, navig
                 </>}
                 { (role === "employer") ?
                     (<div className="local-action-panel">
-                        <Tooltip content={expanded ? "Close lesson settings" : "Open lesson settings"}>
+                        <Tooltip content={expanded ? "Save" : "Edit"}>
                             <div className="builder-action" onClick={() => setExpanded(prev => !prev)}>
                                 <img src={expanded ? check_icon : edit_icon} />
                             </div>
                         </Tooltip>
-                        <Tooltip content="Refresh lesson">
+                        <Tooltip content="Refresh">
                             <div className="builder-action">
                                 <img src={refresh_icon} />
                             </div>

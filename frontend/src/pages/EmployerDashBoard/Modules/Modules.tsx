@@ -66,7 +66,7 @@ export default function Modules() {
               </div>
             )
           }
-          <Tooltip content={addSelected ? "Exit create" : "Create new module"}>
+          <Tooltip content={addSelected ? "Exit create" : "New module"}>
             <button className={`fab ${addSelected ? "selected" : ""}`} onClick={() => setAddSelected(prev => !prev)}>
               <img src={add_cta}/>
             </button>

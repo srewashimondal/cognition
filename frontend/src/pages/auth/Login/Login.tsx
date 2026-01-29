@@ -1,5 +1,6 @@
 import './Login.css';
 import { useState } from 'react';
+import { Tooltip } from "@radix-ui/themes";
 import { Link, useNavigate } from "react-router-dom";
 import mail from '../../../assets/icons/mail.svg';
 import lock from '../../../assets/icons/lock.svg';
@@ -49,9 +50,11 @@ export default function Login() {
                                 <img src={lock} alt="lock icon"/>
                             </span>
                             <input type={viewPassword ? "text" : "password"} required placeholder="Password" value={password} onChange={(e) => setPassword(e.target.value)}/>
-                            <span className="eye-icon" onClick={() => setViewPassword(!viewPassword)}>
-                                <img src={viewPassword ? eye_on : eye_off} alt="view password icon"/>
-                            </span>
+                            <Tooltip content={viewPassword ? "Hide password" : "Show password"}>
+                                <span className="eye-icon" onClick={() => setViewPassword(!viewPassword)}>
+                                    <img src={viewPassword ? eye_on : eye_off} alt="view password icon"/>
+                                </span>
+                            </Tooltip>
                         </div>
                         <p className="cta">Forgot Password?</p>
                     </div>
