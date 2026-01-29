@@ -24,7 +24,7 @@ export default function EmployerHome() {
       <div className="welcome-banner">
         <div className="welcome-left">
           <h3 className="welcome-title">
-            Welcome back, Alex! <span className="wave">👋</span>
+            Welcome back, Alex! <span className="wave"></span>
           </h3>
           <p className="welcome-subtitle">
             Shape the future of learning with innovative courses

@@ -6,7 +6,7 @@ export default function EmployeeHome() {
             {/* Welcome Banner */}
             <div className="welcome-banner">
                 <div className="welcome-content">
-                    <h1>Welcome back, Alex! 👋</h1>
+                    <h1>Welcome back, Alex! </h1>
                     <p>Continue your learning journey and achieve your goals</p>
                 </div>
                 <div className="welcome-icon">
