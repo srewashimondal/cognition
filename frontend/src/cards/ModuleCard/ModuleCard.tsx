@@ -27,6 +27,7 @@ export default function ModuleCard({ moduleInfo, type, role, status, percent, st
 
     const handleNavigateEmployee = () => {
       if (status === "completed") {
+        navigate(`/employee/simulations/${moduleInfo.id}/performance`);
         return;
       }
       navigate(`/employee/${type === "simulation" ? "simulations" : "standard-modules"}/${moduleInfo.id}`);

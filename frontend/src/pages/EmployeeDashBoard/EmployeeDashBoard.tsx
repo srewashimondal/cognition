@@ -42,6 +42,7 @@ import blue_vl from '../../assets/icons/sidebar/blue-vl-icon.svg';
 import white_controller from '../../assets/icons/sidebar/white-controller-icon.svg';
 import black_controller from '../../assets/icons/sidebar/black-controller-icon.svg';
 import blue_controller from '../../assets/icons/sidebar/blue-controller-icon.svg';
+import SimulationPerformance from './SimulationModules/SimulationLessons/SimulationPerformance/SimulationPerformance';
 
 
 export default function EmployeeDashBoard() {
@@ -226,6 +227,7 @@ export default function EmployeeDashBoard() {
             <Route path="simulations/:moduleID/:lessonID/:simIdx" element={<SimulationPage role={"employee"} />} />
             {/*<Route path="simulation-lesson-view" element={<SimulationLessonView />} />
             <Route path="simulation-view" element={<SimulationView />} />*/}
+            <Route path="simulations/:moduleId/performance" element={<SimulationPerformance />}/>
             <Route path="schedule" element={<Schedule />} />
             <Route path="standard-modules" element={<StandardModules />} />
             <Route path="standard-modules/:moduleID" element={<StandardLessons />} />

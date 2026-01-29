@@ -241,11 +241,12 @@
   margin-bottom: 48px;
   border-radius: 20px;
   background: linear-gradient(
-    135deg,
-    #5b1fa6,
-    #3b3aa6,
-    #1f3a8a
-  );
+  135deg,
+  #bee1ff 0%,
+  #7cc7ff 40%,
+  #00A6FF 100%
+);
+
   color: #ffffff;
   margin: 10px 0 28px;
   position: relative;
@@ -333,7 +334,11 @@
 .icon.primary {
   top: 0;
   right: 0;
-  background: linear-gradient(135deg, #8b5cf6, #60a5fa);
+  background: linear-gradient(
+    135deg,
+    #82c8ed,
+    #C4F9FF
+  );
 }
 
 .icon.secondary {
