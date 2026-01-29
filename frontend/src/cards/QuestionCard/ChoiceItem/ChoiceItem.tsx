@@ -1,4 +1,5 @@
 import './ChoiceItem.css';
+import { Tooltip } from "@radix-ui/themes";
 import white_check from '../../../assets/icons/white-check.svg';
 import trash_icon from '../../../assets/icons/simulations/grey-trash-icon.svg';
 
@@ -21,9 +22,11 @@ export default function ChoiceItem({ id, content, isCorrect, onSelect, onUpdate,
                 <input type="text" placeholder="Enter choice" value={content} onChange={(e) => onUpdate(id, e.target.value)} />
             </div>
             <div />
-            <div className="delete-choice" onClick={() => onDelete(id)}>
-                <img src={trash_icon} />
-            </div>
+            <Tooltip content="Delete choice">
+                <div className="delete-choice" onClick={() => onDelete(id)}>
+                    <img src={trash_icon} />
+                </div>
+            </Tooltip>
         </div>
     );
 };

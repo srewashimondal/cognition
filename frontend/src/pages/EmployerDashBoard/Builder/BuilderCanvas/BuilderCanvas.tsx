@@ -1,6 +1,7 @@
 import './BuilderCanvas.css';
 import { useEffect, useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { Tooltip } from "@radix-ui/themes";
 import ActionButton from '../../../../components/ActionButton/ActionButton';
 import LessonCard from '../../../../cards/LessonCard/LessonCard';
 import ChatBar from '../../../../components/ChatBar/ChatBar';
@@ -212,9 +213,11 @@ export default function BuilderCanvas({ id }: BuilderCanvasProps) {
             <div className="canvas-main-wrapper">
                 <div className="canvas-main">
                     <div className="canvas-main-top">
-                        <div className="back-to-modules builder" onClick={() => navigate(`/employer/modules`)}>
-                            <img src={orange_left_arrow} />
-                        </div>
+                        <Tooltip content="Back">
+                            <div className="back-to-modules builder" onClick={() => navigate(`/employer/modules`)}>
+                                <img src={orange_left_arrow} />
+                            </div>
+                        </Tooltip>
                         <div className="modules-header lesson-pg">
                             <div className="builder-header-wrapper">
                                 <div className="builder-page-title">
@@ -232,12 +235,16 @@ export default function BuilderCanvas({ id }: BuilderCanvasProps) {
                                 : <h1>{title}</h1>}
                             </div>
                             <div className="global-action-panel">
-                                <div className="builder-action" onClick={() => setEditMode(prev => !prev)}>
-                                    <img src={editMode ? check_icon : edit_icon} />
-                                </div>
-                                <div className="builder-action">
-                                    <img src={refresh_icon} />
-                                </div>
+                                <Tooltip content={editMode ? "Save edits" : "Edit title"}>
+                                    <div className="builder-action" onClick={() => setEditMode(prev => !prev)}>
+                                        <img src={editMode ? check_icon : edit_icon} />
+                                    </div>
+                                </Tooltip>
+                                <Tooltip content="Refresh module">
+                                    <div className="builder-action">
+                                        <img src={refresh_icon} />
+                                    </div>
+                                </Tooltip>
                                 <div className="builder-action-pill" onClick={() => setOpenModal(true)}>
                                     <span>
                                         <img src={folder_icon} />
@@ -313,9 +320,11 @@ export default function BuilderCanvas({ id }: BuilderCanvasProps) {
                         <div className="filler-space" />
                     </div>
                     { !openAIPanel &&
-                    <div className="open-ai-toggle" onClick={() => setOpenAIPanel(prev => !prev)}>
-                        <img src={white_ai_icon} />
-                    </div>}
+                    <Tooltip content="Open AI assistant">
+                        <div className="open-ai-toggle" onClick={() => setOpenAIPanel(prev => !prev)}>
+                            <img src={white_ai_icon} />
+                        </div>
+                    </Tooltip>}
                 </div>
                 { openAIPanel &&
                 <div className="ai-side-panel">

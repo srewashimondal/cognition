@@ -1,6 +1,7 @@
 import './LessonCard.css';
 import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { Tooltip } from "@radix-ui/themes";
 import type { LessonType } from '../../types/Modules/Lessons/LessonType';
 import type { LessonEvaluationType } from '../../types/Modules/Lessons/LessonEvaluationType';
 import SkillItem from './SkillItem/SkillItem';
@@ -178,12 +179,16 @@ export default function LessonCard({ lessonInfo, role, status, evaluation, navig
                 </>}
                 { (role === "employer") ?
                     (<div className="local-action-panel">
-                        <div className="builder-action" onClick={() => setExpanded(prev => !prev)}>
-                            <img src={expanded ? check_icon : edit_icon} />
-                        </div>
-                        <div className="builder-action">
-                            <img src={refresh_icon} />
-                        </div>
+                        <Tooltip content={expanded ? "Close lesson settings" : "Open lesson settings"}>
+                            <div className="builder-action" onClick={() => setExpanded(prev => !prev)}>
+                                <img src={expanded ? check_icon : edit_icon} />
+                            </div>
+                        </Tooltip>
+                        <Tooltip content="Refresh lesson">
+                            <div className="builder-action">
+                                <img src={refresh_icon} />
+                            </div>
+                        </Tooltip>
                     </div>) :
                     (<button className={`lesson-action-btn ${buttonLabelsByStatus[status ?? "not begun"]}`} onClick={handleNavigateEmployee}>
                         {(status === "locked") && 

@@ -2,6 +2,7 @@ import './EmployeeDashBoard.css';
 import { Routes, Route, Navigate, Link, NavLink } from "react-router-dom";
 import { useState } from "react";
 import { useMatch } from "react-router-dom";
+import { Tooltip } from "@radix-ui/themes";
 import logo from '../../assets/branding/cognition-logo.png';
 import bell from '../../assets/icons/bell.svg';
 import down_chevron from '../../assets/icons/black-down-chevron.svg';
@@ -182,31 +183,37 @@ export default function EmployeeDashBoard() {
             />
           </div>*/}
 
-          <div className="sidebar-toggle" onClick={() => setSidebarCollapsed(prev => !prev)} >
-            <img src={sidebar_icon} />
-          </div>
+          <Tooltip content={sidebarCollapsed ? "Open sidebar" : "Close sidebar"}>
+            <div className="sidebar-toggle" onClick={() => setSidebarCollapsed(prev => !prev)} >
+              <img src={sidebar_icon} />
+            </div>
+          </Tooltip>
 
           <div className="topbar-right">
-            <div className="notif">
-              <span className="bell">
-                <img src={bell}/>
-              </span>
-              <span className="notif-dot" />
-            </div>
+            <Tooltip content="View notifications">
+              <div className="notif">
+                <span className="bell">
+                  <img src={bell}/>
+                </span>
+                <span className="notif-dot" />
+              </div>
+            </Tooltip>
 
-            <div
-              className="user-menu"
-              onClick={() => setProfileOpen(prev => !prev)}
-            >
-              <img
-                src="https://i.etsystatic.com/30289585/r/il/3f982c/4322819070/il_fullxfull.4322819070_tn35.jpg"
-                className="avatar"
-              />
-              <span className="username">Harsh</span>
-              <span className="caret">
-                {(profileOpen) ? <img src={left_chevron} /> : <img src={down_chevron} />}
-              </span>
-            </div>
+            <Tooltip content="View profile">
+              <div
+                className="user-menu"
+                onClick={() => setProfileOpen(prev => !prev)}
+              >
+                <img
+                  src="https://i.etsystatic.com/30289585/r/il/3f982c/4322819070/il_fullxfull.4322819070_tn35.jpg"
+                  className="avatar"
+                />
+                <span className="username">Harsh</span>
+                <span className="caret">
+                  {(profileOpen) ? <img src={left_chevron} /> : <img src={down_chevron} />}
+                </span>
+              </div>
+            </Tooltip>
 
           </div>
         </header>

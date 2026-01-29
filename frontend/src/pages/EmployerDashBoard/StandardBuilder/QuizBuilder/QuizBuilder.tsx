@@ -8,6 +8,7 @@ import { standardModule } from '../../../../dummy_data/standard_data';
 import { DndContext, closestCenter } from "@dnd-kit/core";
 import { SortableContext, verticalListSortingStrategy } from "@dnd-kit/sortable";
 import { arrayMove } from "@dnd-kit/sortable";
+import { Tooltip } from "@radix-ui/themes";
 import orange_left_arrow from '../../../../assets/icons/orange-left-arrow.svg';
 import edit_icon from '../../../../assets/icons/simulations/grey-edit-icon.svg';
 import check_icon from '../../../../assets/icons/simulations/grey-check-icon.svg';
@@ -94,9 +95,11 @@ export default function QuizBuilder () {
             }
             <div className="standard-canvas-wrapper">
                 <div className="standard-canvas-top">
-                    <div className="back-to-modules builder" onClick={handleBack}> {/* temporary route */}
-                        <img src={orange_left_arrow} />
-                    </div>
+                    <Tooltip content="Back">
+                        <div className="back-to-modules builder" onClick={handleBack}> {/* temporary route */}
+                            <img src={orange_left_arrow} />
+                        </div>
+                    </Tooltip>
                     <div className="modules-header lesson-pg">
                         <div className="builder-header-wrapper">
                             <div className="builder-page-title">
@@ -114,9 +117,11 @@ export default function QuizBuilder () {
                             : <h1>{title}</h1>}
                         </div>
                         <div className="global-action-panel">
-                            <div className="builder-action" onClick={() => setEditMode(prev => !prev)}>
-                                <img src={editMode ? check_icon : edit_icon} />
-                            </div>
+                            <Tooltip content={editMode ? "Save edits" : "Edit title"}>
+                                <div className="builder-action" onClick={() => setEditMode(prev => !prev)}>
+                                    <img src={editMode ? check_icon : edit_icon} />
+                                </div>
+                            </Tooltip>
                             <ActionButton text={"Save Quiz"} buttonType={"save"} rounded={true}  />
                         </div>
                     </div>

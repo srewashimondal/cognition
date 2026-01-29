@@ -1,6 +1,7 @@
 import "./Modules.css";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { Tooltip } from "@radix-ui/themes";
 import { modules } from '../../../dummy_data/modules_data.tsx';
 import { standardModule } from "../../../dummy_data/standard_data.tsx";
 import ModuleCard from '../../../cards/ModuleCard/ModuleCard.tsx';
@@ -65,9 +66,11 @@ export default function Modules() {
               </div>
             )
           }
-          <button className={`fab ${addSelected ? "selected" : ""}`} onClick={() => setAddSelected(prev => !prev)}>
-            <img src={add_cta}/>
-          </button>
+          <Tooltip content={addSelected ? "Exit create" : "Create new module"}>
+            <button className={`fab ${addSelected ? "selected" : ""}`} onClick={() => setAddSelected(prev => !prev)}>
+              <img src={add_cta}/>
+            </button>
+          </Tooltip>
         </div>
       </>
     </div>

@@ -4,7 +4,7 @@ import ChoiceItem from './ChoiceItem/ChoiceItem';
 import type { QuizQuestionType } from '../../types/Standard/QuizQuestion/QuestionTypes';
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
-import { Select, Separator, Switch } from "@radix-ui/themes";
+import { Select, Separator, Switch, Tooltip } from "@radix-ui/themes";
 import drag_icon from '../../assets/icons/grey-drag-icon.svg';
 import trash_icon from '../../assets/icons/simulations/grey-trash-icon.svg';
 import mic_icon from '../../assets/icons/quiz-question/black-mic-icon.svg';
@@ -152,22 +152,28 @@ export default function QuestionCard({ question, handleDelete, position, onUpdat
                         </Select.Content>
                     </Select.Root>
                     <div className="local-action-panel">
-                        <div className="builder-action" onClick={handleDelete}>
-                            <img src={trash_icon} />
-                        </div>
+                        <Tooltip content="Delete question">
+                            <div className="builder-action" onClick={handleDelete}>
+                                <img src={trash_icon} />
+                            </div>
+                        </Tooltip>
                     </div>
                 </div>
                 <div className="question-card-content">
                     <div className="question-card-number">
                         Question {position}
                         <div className="question-card-prompt-row">
-                            <div className="question-card-prompt-item" onClick={() => fileInputRef.current?.click()}>
-                                <img src={img_icon} />
-                                <input type="file" hidden ref={fileInputRef} accept="image/*" onChange={(e) => onUpdate(id, {image: e.target.files?.[0]})} />
-                            </div>
-                            <div className="question-card-prompt-item">
-                                <img src={mic_icon} />
-                            </div>
+                            <Tooltip content="Upload image">
+                                <div className="question-card-prompt-item" onClick={() => fileInputRef.current?.click()}>
+                                    <img src={img_icon} />
+                                    <input type="file" hidden ref={fileInputRef} accept="image/*" onChange={(e) => onUpdate(id, {image: e.target.files?.[0]})} />
+                                </div>
+                            </Tooltip>
+                            <Tooltip content="Dictate">
+                                <div className="question-card-prompt-item">
+                                    <img src={mic_icon} />
+                                </div>
+                            </Tooltip>
                         </div>
                     </div>
                     <div className={`question-card-prompt ${(type === "open ended" ? "expanded" : "")}`}>

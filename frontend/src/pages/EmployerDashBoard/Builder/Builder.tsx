@@ -1,5 +1,6 @@
 import './Builder.css';
 import { useState } from 'react';
+import { Tooltip } from "@radix-ui/themes";
 import { useParams, useNavigate } from 'react-router-dom';
 import ChatBar from '../../../components/ChatBar/ChatBar';
 import ActionButton from '../../../components/ActionButton/ActionButton';
@@ -135,9 +136,11 @@ export default function Builder() {
                         </div>
                     </div>
                 </div>}
-                <div className="back-to-modules" onClick={() => navigate(`/employer/modules`)}>
-                    <img src={orange_left_arrow} />
-                </div>
+                <Tooltip content="Go back">
+                    <div className="back-to-modules builder" onClick={() => navigate(`/employer/modules`)}>
+                        <img src={orange_left_arrow} />
+                    </div>
+                </Tooltip>
                 {(voiceMode) ? 
                 <div className="voice-receiver">
                     <div className="voice-circle" /> 

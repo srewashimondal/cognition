@@ -1,4 +1,5 @@
 import './StandardLessons.css';
+import { Tooltip } from "@radix-ui/themes";
 import { useParams, useNavigate } from 'react-router-dom';
 import ProgressBar from '../../../../components/ProgressBar/ProgressBar';
 import EmployeeCard from '../../../../cards/StandardLesson/EmployeeCard/EmployeeCard';
@@ -23,9 +24,11 @@ export default function StandardLessons() {
     return (
         <div className="standard-lessons-page">
             <div className="simulation-lessons-top">
-                <div className="back-to-modules" onClick={() => navigate(`/employee/standard-modules`)}>
-                    <img src={orange_left_arrow} />
-                </div>
+                <Tooltip content="Back">
+                    <div className="back-to-modules" onClick={() => navigate(`/employee/standard-modules`)}>
+                        <img src={orange_left_arrow} />
+                    </div>
+                </Tooltip>
 
                 {/*<div className={`lesson-banner ${bannerColorByID[(moduleInfo?.id ?? 1) - 1]}`} />*/}
         

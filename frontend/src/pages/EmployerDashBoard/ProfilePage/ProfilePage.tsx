@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import "./ProfilePage.css";
+import { Tooltip } from "@radix-ui/themes";
 import default_icon from '../../../assets/icons/default-icon.svg';
 import icon_stroke from '../../../assets/icons/icon-stroke.svg';
 import add_cta from '../../../assets/icons/add-cta.svg';
@@ -72,12 +73,16 @@ export default function ProfilePage({ open, onClose }: ProfilePageProps) {
           (<div className="avatar-wrapper pfp-upload-container">
             <img src={displayIcon} className="uploaded-image"/>
             <img src={icon_stroke} className="img-frame"/>
-            <img src={add_cta} className="pfp-add" onClick={() => fileInputRef.current?.click()}/>
+            <Tooltip content="Update profile picture">
+              <img src={add_cta} className="pfp-add" onClick={() => fileInputRef.current?.click()}/>
+            </Tooltip>
             <input ref={fileInputRef} type="file" accept="image/*" hidden onChange={(e) => {const file = e.target.files?.[0]; if (file) setUploadedPFP(file);}}/>
           </div>) :
           (<div className="pfp-upload">
               <img src={default_icon} className="pfp-base"/>
-              <img src={add_cta} className="pfp-add" onClick={() => fileInputRef.current?.click()}/>
+              <Tooltip content="Update profile picture">
+                <img src={add_cta} className="pfp-add" onClick={() => fileInputRef.current?.click()}/>
+              </Tooltip>
               <input ref={fileInputRef} type="file" accept="image/*" hidden onChange={(e) => {const file = e.target.files?.[0]; if (file) setUploadedPFP(file);}}/>
           </div>)}
 

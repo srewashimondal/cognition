@@ -170,7 +170,7 @@
 .fab-wrapper {
   display: flex;
   flex-direction: column;
-  height: 60px;
+  height: 80px;
   position: fixed;
   bottom: 24px;
   right: 24px;
@@ -183,8 +183,8 @@
   position: fixed;
   bottom: 24px;
   right: 24px;
-  width: 40px;
-  height: 40px;
+  width: 60px;
+  height: 60px;
   border-radius: 50%;
   background: #FF4B00;
   color: white;
@@ -221,7 +221,7 @@
 
 .fab-options {
   position: fixed;
-  bottom: 80px;
+  bottom: 100px;
   right: 24px;
   display: flex;
   justify-content: center;
@@ -258,7 +258,7 @@
   height: 18%;
   background-color: #C6C6C6; 
   z-index: 999;
-  bottom: 6%;
+  bottom: 8%;
   right: 45px;
 }
 

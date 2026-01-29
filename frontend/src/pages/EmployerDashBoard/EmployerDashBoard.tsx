@@ -2,6 +2,7 @@ import './EmployerDashBoard.css';
 import { Routes, Route, Navigate, Link, NavLink } from "react-router-dom";
 import { useState } from "react";
 import { useLocation } from "react-router-dom";
+import { Tooltip } from "@radix-ui/themes";
 import Analytics from "./Analytics/Analytics";
 import Modules from "./Modules/Modules";
 import Lessons from "./Modules/Lessons/Lessons.tsx";
@@ -158,34 +159,42 @@ export default function EmployerDashBoard() {
             />
           </div>*/ }
 
-          <div className="sidebar-toggle" onClick={() => setSidebarCollapsed(prev => !prev)}>
-            <img src={sidebar_icon} />
-          </div>
-
-          <div className="topbar-right">
-            <div className="notif">
-              <span className="bell">
-                <img src={bell}/>
-              </span>
-              <span className="notif-dot" />
+          <Tooltip content={sidebarCollapsed ? "Open sidebar" : "Close sidebar"}>
+            <div className="sidebar-toggle" onClick={() => setSidebarCollapsed(prev => !prev)}>
+              <img src={sidebar_icon} />
             </div>
+          </Tooltip>
 
-            <div
-              className="user-menu"
-              onClick={() => setProfileOpen(true)}
-            >
-              <img
-                src="https://i.etsystatic.com/30289585/r/il/3f982c/4322819070/il_fullxfull.4322819070_tn35.jpg"
-                className="avatar"
-              />
-              <span className="username">Harsh</span>
-              <span className="caret">
-                <img src={down_chevron} />
-              </span>
-            </div>
+            <div className="topbar-right">
+
+              <Tooltip content="View notifications">
+                <div className="notif">
+                    <span className="bell">
+                      <img src={bell}/>
+                    </span>
+                    <span className="notif-dot" />
+                </div>
+              </Tooltip>
+          
+            <Tooltip content={profileOpen ? "Exit profile" : "View profile"}>
+              <div
+                className="user-menu"
+                onClick={() => setProfileOpen(true)}
+              >
+                <img
+                  src="https://i.etsystatic.com/30289585/r/il/3f982c/4322819070/il_fullxfull.4322819070_tn35.jpg"
+                  className="avatar"
+                />
+                <span className="username">Harsh</span>
+                <span className="caret">
+                  <img src={down_chevron} />
+                </span>
+              </div>
+            </Tooltip>
 
           </div>
         </header>
+
 
         <section className={`content employer ${(isSimulationPage || isBuilderPage) ? "no-padding" : ""}`}>
           <Routes>

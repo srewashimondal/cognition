@@ -3,7 +3,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import UploadDropzone from '../../../components/UploadDropzone/UploadDropzone';
 import ActionButton from '../../../components/ActionButton/ActionButton';
-import { RadioGroup, Switch, Slider } from "@radix-ui/themes";
+import { RadioGroup, Switch, Slider, Tooltip } from "@radix-ui/themes";
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import trash_icon from '../../../assets/icons/simulations/grey-trash-icon.svg';
@@ -78,12 +78,16 @@ export default function EmployerCard({ id, title, type, handleDelete, position, 
                     </div>
                 </div>
                 <div className="local-action-panel">
-                    <div className="builder-action" onClick={() => setExpanded(prev => !prev)}>
-                        <img src={expanded ? up_chevron : down_chevron} />
-                    </div>               
-                    <div className="builder-action" onClick={handleDelete}>
-                        <img src={trash_icon} />
-                    </div>
+                    <Tooltip content={expanded ? "Close lesson settings" : "Open lesson settings"}>
+                        <div className="builder-action" onClick={() => setExpanded(prev => !prev)}>
+                            <img src={expanded ? up_chevron : down_chevron} />
+                        </div>           
+                    </Tooltip>
+                    <Tooltip content="Delete lesson">
+                        <div className="builder-action" onClick={handleDelete}>
+                            <img src={trash_icon} />
+                        </div>
+                    </Tooltip>
                     {(type === "quiz") && 
                     <div className="builder-action-pill" onClick={handleNavigate}>
                         Edit Quiz

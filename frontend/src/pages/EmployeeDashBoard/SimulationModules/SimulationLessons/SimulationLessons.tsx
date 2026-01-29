@@ -1,5 +1,6 @@
 import './SimulationLessons.css';
 import { useEffect } from 'react';
+import { Tooltip } from "@radix-ui/themes";
 import { useParams, useNavigate } from 'react-router-dom';
 import LessonCard from '../../../../cards/LessonCard/LessonCard';
 import ActionButton from '../../../../components/ActionButton/ActionButton';
@@ -42,10 +43,11 @@ export default function SimulationLessons() {
     return (
         <div className="simulation-lessons-pg">
             <div className="simulation-lessons-top">
-                <div className="back-to-modules" onClick={() => navigate(`/employee/simulations`)}>
-                    <img src={orange_left_arrow} />
-                </div>
-
+                <Tooltip content="Back">
+                    <div className="back-to-modules" onClick={() => navigate(`/employee/simulations`)}>
+                        <img src={orange_left_arrow} />
+                    </div>
+                </Tooltip>
                 {/*<div className={`lesson-banner ${bannerColorByID[(moduleInfo?.id ?? 1) - 1]}`} />*/}
         
                 <div className="modules-header lesson-pg employee">
