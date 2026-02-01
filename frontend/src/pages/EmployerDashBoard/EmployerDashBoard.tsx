@@ -13,8 +13,9 @@ import Settings from "./Settings/Settings";
 import SimulationPage from '../Simulation/SimulationPage.tsx';
 import logo from '../../assets/branding/cognition-logo.png';
 import bell from '../../assets/icons/bell.svg';
-import down_chevron from '../../assets/icons/black-down-chevron.svg';
+// import down_chevron from '../../assets/icons/black-down-chevron.svg';
 import sidebar_icon from '../../assets/icons/sidebar-icon.svg';
+import { employer } from '../../dummy_data/user_data.tsx';
 
 import white_home from '../../assets/icons/sidebar/white-home-icon.svg';
 import black_home from '../../assets/icons/sidebar/black-home-icon.svg';
@@ -182,13 +183,13 @@ export default function EmployerDashBoard() {
                 onClick={() => setProfileOpen(true)}
               >
                 <img
-                  src="https://i.etsystatic.com/30289585/r/il/3f982c/4322819070/il_fullxfull.4322819070_tn35.jpg"
+                  src={employer.profilePicture}
                   className="avatar"
                 />
-                <span className="username">Harsh</span>
+                {/*<span className="username">{employer.fullName}</span>
                 <span className="caret">
                   <img src={down_chevron} />
-                </span>
+                </span>*/}
               </div>
             </Tooltip>
 
@@ -221,7 +222,7 @@ export default function EmployerDashBoard() {
         </section>
       </main>
 
-      <ProfilePage open={profileOpen} onClose={() => setProfileOpen(false)} />
+      <ProfilePage open={profileOpen} onClose={() => setProfileOpen(false)} user={employer} />
         
     </div>
   );

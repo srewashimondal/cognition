@@ -23,6 +23,7 @@ import SimulationLessons from './SimulationModules/SimulationLessons/SimulationL
 import SimulationPage from '../Simulation/SimulationPage';
 import StandardLessons from './StandardModules/StandardLessons/StandardLessons';
 import StandardLessonPage from '../StandardLesson/StandardLessonPage';
+import { employee } from '../../dummy_data/user_data';
 
 import white_home from '../../assets/icons/sidebar/white-home-icon.svg';
 import black_home from '../../assets/icons/sidebar/black-home-icon.svg';
@@ -206,13 +207,13 @@ export default function EmployeeDashBoard() {
                 onClick={() => setProfileOpen(prev => !prev)}
               >
                 <img
-                  src="https://i.etsystatic.com/30289585/r/il/3f982c/4322819070/il_fullxfull.4322819070_tn35.jpg"
+                  src={employee.profilePicture}
                   className="avatar"
                 />
-                <span className="username">Harsh</span>
+                {/*<span className="username">{employee.fullName}</span>
                 <span className="caret">
                   {(profileOpen) ? <img src={left_chevron} /> : <img src={down_chevron} />}
-                </span>
+                </span>*/}
               </div>
             </Tooltip>
 
@@ -239,7 +240,7 @@ export default function EmployeeDashBoard() {
         </section>
       </main>
 
-      <ProfilePage open={profileOpen} onClose={() => setProfileOpen(false)} />
+      <ProfilePage open={profileOpen} onClose={() => setProfileOpen(false)} user={employee} />
         
     </div>
     );
