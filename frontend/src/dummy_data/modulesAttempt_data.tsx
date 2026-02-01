@@ -34,6 +34,8 @@ export const moduleAttempts: ModuleAttemptType[] = [
       moduleInfo: modules[0],
       status: "completed",
       percent: 100,
+      score: 100,
+      completionDate: "January 25, 2026",
       lessons: modules[0].lessons!.map(
         (lesson, lessonIdx): LessonAttemptType => ({
           attempt_id: lessonIdx + 1,

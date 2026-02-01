@@ -54,6 +54,11 @@ export default function EmployeeDashBoard() {
     const isStandardLesson = useMatch("/employee/standard-modules/:moduleID");
     const isStandardLessonPg = useMatch("/employee/standard-modules/:moduleID/:lessonID");
 
+    const mockCurrentUser = {
+      id: "employee-1",
+      role: "employee",
+    };
+
     return (
     <div className={`dashboard employee ${sidebarCollapsed ? "collapsed" : ""}`}>
       {/* Sidebar */}
@@ -240,7 +245,7 @@ export default function EmployeeDashBoard() {
         </section>
       </main>
 
-      <ProfilePage open={profileOpen} onClose={() => setProfileOpen(false)} user={employee} />
+      <ProfilePage open={profileOpen} onClose={() => setProfileOpen(false)} user={employee} viewer={mockCurrentUser} />
         
     </div>
     );

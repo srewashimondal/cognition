@@ -16,4 +16,6 @@ export type StandardModuleAttempt = {
     status?: "not begun" | "completed" | "started";
     percent?: number;
     lessons?: StandardLessonAttempt[];
+    completionDate?: string;
+    score?: number;
 };

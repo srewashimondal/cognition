@@ -112,6 +112,7 @@
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 14px;
+  margin-top: 10px;
 }
 
 .employee-card {

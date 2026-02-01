@@ -7,4 +7,6 @@ export type ModuleAttemptType = {
     status?: "not begun" | "completed" | "started";
     percent?: number;
     lessons?: LessonAttemptType[];
+    completionDate?: string;
+    score?: number;
 }

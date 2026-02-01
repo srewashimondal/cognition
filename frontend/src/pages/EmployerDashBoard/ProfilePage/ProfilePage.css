@@ -5,7 +5,6 @@
   z-index: 999;
 }
 
-
 .profile-drawer {
   position: fixed;
   top: 0;
@@ -56,7 +55,8 @@
 }
 
 .builder-action.close-btn:hover {
-  background-color: #ffb795;
+  background-color: #7da0ce;
+  border-color: white;
 }
 
 .profile-hero {
@@ -110,6 +110,7 @@
   margin: 0;
   font-weight: 700;
   color: white;
+  margin-top: 10px;
 }
 
 .display-name-input-wrapper {
@@ -118,6 +119,8 @@
   gap: 6px; 
   width: fit-content;
   justify-content: center;
+  flex-direction: column;
+  margin-top: 10px;
 }
 
 .display-name-input {
@@ -261,6 +264,7 @@
   flex-direction: column;
   gap: 10px;
   padding: 20px;
+  padding-top: 5px;
 }
 
 .drawer-btn {
@@ -303,4 +307,156 @@
 .drawer-btn img {
   width: 16px;
   display: flex;
+}
+
+.tab-title {
+  display: flex;
+  gap: 10px;
+}
+
+.tab-title img {
+  width: 20px;
+  transform: rotate(180deg);
+}
+
+.progress-list {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  align-items: center;
+  height: 34vh;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+.completed-module-item {
+  display: flex;
+  width: 95%;
+  margin: 10px;
+  border: 1px solid #eee;
+  border-radius: 10px;
+  padding: 10px;
+  justify-content: space-between;
+}
+
+.completed-module-item-left {
+  display: flex;
+  flex-direction: column;
+  width: 80%;
+}
+
+.completed-module-item-name {
+  display: flex;
+  gap: 7px;
+}
+
+.completed-module-item-name h4 {
+  color: black;
+  font-size: 16px;
+  line-height: 0.9;
+}
+
+.completed-module-item-meta {
+  font-size: 12px;
+  padding: 7px;
+  padding-left: 0;
+  padding-bottom: 0;
+}
+
+.completed-module-item-meta p {
+  margin: 0;
+}
+
+.completed-module-item-score {
+  --percent: 0;
+  --ring-color: rgb(99, 197, 145);
+  --ring-bg: rgb(222, 249, 235);
+
+  display: flex;
+  width: 40px;
+  height: 40px;
+  justify-content: center;
+  align-items: center;
+  border-radius: 50%;
+  font-weight: 500;
+  background: conic-gradient(
+    var(--ring-color) calc(var(--percent) * 1%),
+    var(--ring-bg) 0
+  );
+  position: relative;
+}
+
+.completed-module-item-score::before {
+  content: "";
+  position: absolute;
+  inset: 3px;            
+  background: white;
+  border-radius: 50%;
+}
+
+.completed-module-item-score.green {
+  --ring-color: rgb(99, 197, 145);
+  --ring-bg: rgb(222, 249, 235);
+  color: rgb(32, 138, 82);
+}
+
+.completed-module-item-score.blue {
+  --ring-color: #3B82F6;  
+  --ring-bg: #E0ECFF;  
+  color: #1E40AF;  
+}
+
+.completed-module-item-score.orange {
+  --ring-color: #F97316;   
+  --ring-bg: #FFE7D1; 
+  color: #9A3412;  
+}
+
+.completed-module-item-score.red {
+  --ring-color: rgb(235, 90, 90);
+  --ring-bg: rgb(255, 220, 220);
+  color: rgb(150, 40, 40);
+}
+
+.completed-module-item-score p {
+  position: absolute;
+}
+
+.completed-module-item-meta-item {
+  display: flex;
+  gap: 5px;
+}
+
+.completed-module-item-meta-item img {
+  width: 16px;
+}
+
+.badge-item {
+  display: flex;
+  width: 95%;
+  margin: 10px;
+  border: 1px solid #eee;
+  border-radius: 10px;
+  padding: 15px;
+  gap: 10px;
+}
+
+.badge-item-name {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.badge-item-name h4, p {
+  margin: 0;
+}
+
+.badge-item-name h4 {
+  color: black;
+  font-size: 16px;
+  line-height: 0.9;
+}
+
+.badge-item-name p {
+  font-size: 12px;
 }

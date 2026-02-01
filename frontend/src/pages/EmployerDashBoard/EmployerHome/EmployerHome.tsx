@@ -1,10 +1,14 @@
 import "./EmployerHome.css";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { janeCooper } from "../../../dummy_data/user_data";
+import ProfilePage from "../ProfilePage/ProfilePage";
 
 const employees = Array.from({ length: 9 });
 
-export default function EmployerHome() {
+export default function EmployerHome({ viewer }: { viewer: Record<string, string> }) {
   const [search, setSearch] = useState("");
+  const [profileOpen, setProfileOpen] = useState(false);
+  const [chosenProfile, setChosenProfile] = useState<number | null>(null); // change to a different key later
 
   const visibleEmployees = employees.filter(() => {
   if (!search) return true;
@@ -16,6 +20,14 @@ export default function EmployerHome() {
     );
   });
 
+  useEffect(() => {
+    if (profileOpen) return;
+
+    if (!profileOpen && chosenProfile !== null) {
+      setChosenProfile(null);
+    }
+
+  }, [profileOpen]);
 
   return (
   
@@ -262,14 +274,15 @@ export default function EmployerHome() {
 
                   {/* Main info */}
                   <div className="employee-main">
-                    <img src={`https://i.pravatar.cc/64?img=${i + 10}`} />
+                    <img src={`https://i.pravatar.cc/64?img=${i + 10}`} 
+                    onClick={() => {setProfileOpen(true); setChosenProfile(i)}} />
                     <div>
-                      <p className="employee-name">Jane Cooper</p>
-                      <p className="employee-email">janecooper@gmail.com</p>
+                      <p className="employee-name">{janeCooper.fullName}</p>
+                      <p className="employee-email">{janeCooper.jobTitle}</p>
                     </div>
                   </div>
 
-                  {/* Role row */}
+                  {/* Role row 
                   <div className="employee-role">
                     <span className="role-pill">
                       <span className="dot" />
@@ -277,7 +290,7 @@ export default function EmployerHome() {
                     </span>
                     <span className="divider" />
                     <span className="role-title">Sr. Accountant</span>
-                  </div>
+                  </div> */}
 
         <hr />
 
@@ -289,7 +302,7 @@ export default function EmployerHome() {
                 </div>
                 <div>
                   <p className="meta-label">Join Date</p>
-                  <p>Feb 23, 2025</p>
+                  <p>{janeCooper.joinDate}</p>
                 </div>
               </div>
       </div>
@@ -298,6 +311,8 @@ export default function EmployerHome() {
       </div>
 
       </div>
+
+      <ProfilePage key={chosenProfile} open={profileOpen} onClose={() => setProfileOpen(false)} user={janeCooper} viewer={viewer} tempPfp={`https://i.pravatar.cc/64?img=${(chosenProfile ?? 0) + 10}`} />
     </div>
   );
 }

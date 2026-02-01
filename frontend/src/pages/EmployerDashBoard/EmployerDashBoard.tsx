@@ -50,6 +50,11 @@ export default function EmployerDashBoard() {
   const isBuilderPage = pathname.includes("builder");
   const isSimulationPage = pathname.includes("simulations");
 
+  const mockCurrentUser = {
+    id: "employer-1",
+    role: "employer",
+  };
+
   return (
     <div className={`dashboard ${sidebarCollapsed ? "collapsed" : ""} ${isBuilderPage ? "white" : ""}`}>
       {/* Sidebar */}
@@ -199,7 +204,7 @@ export default function EmployerDashBoard() {
 
         <section className={`content employer ${(isSimulationPage || isBuilderPage) ? "no-padding" : ""}`}>
           <Routes>
-            <Route index element={<EmployerHome />} />
+            <Route index element={<EmployerHome viewer={mockCurrentUser} />} />
             <Route path="analytics" element={<Analytics />} />
             <Route path="modules" element={<Modules />} />
             <Route path="modules/:id" element={<Lessons />} />
@@ -222,7 +227,7 @@ export default function EmployerDashBoard() {
         </section>
       </main>
 
-      <ProfilePage open={profileOpen} onClose={() => setProfileOpen(false)} user={employer} />
+      <ProfilePage open={profileOpen} onClose={() => setProfileOpen(false)} user={employer} viewer={mockCurrentUser} />
         
     </div>
   );
