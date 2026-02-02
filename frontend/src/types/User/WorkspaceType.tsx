@@ -1,5 +1,6 @@
 import type { EmployeeUserType, EmployerUserType } from "./UserType"
-import type { GenericModuleType } from "./UserType";
+import type { ModuleType } from "../Modules/ModuleType";
+import type { StandardModuleType } from "../Standard/StandardModule";
 
 export type StoreType = {
     storeName: string;
@@ -13,6 +14,7 @@ export type WorkspaceType = {
     icon: string;
     admins: EmployerUserType[];
     employees: EmployeeUserType[];
-    allModules: GenericModuleType[];
+    simulationModules: ModuleType[];
+    standardModules: StandardModuleType[];
     store: StoreType;
 }

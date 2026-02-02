@@ -106,7 +106,7 @@ export default function ProfilePage({ open, onClose, user, viewer, tempPfp }: Pr
     "star": star_icon,
     "bolt": bolt_icon,
     "map": map_icon
-  }
+  };
 
   return (
     <>

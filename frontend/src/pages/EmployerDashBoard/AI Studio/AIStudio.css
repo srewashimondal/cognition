@@ -27,7 +27,11 @@
 }
 
 .ai-studio-prompt-header {
-    line-height: 0.8;
+    line-height: 1;
+}
+
+.ai-studio-prompt-header p {
+  margin: 5px;
 }
 
 .ai-studio-prompt {

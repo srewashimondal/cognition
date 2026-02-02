@@ -2,17 +2,18 @@ import "./Modules.css";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Tooltip } from "@radix-ui/themes";
-import { modules } from '../../../dummy_data/modules_data.tsx';
-import { standardModule } from "../../../dummy_data/standard_data.tsx";
+import type { WorkspaceType } from "../../../types/User/WorkspaceType.tsx";
 import ModuleCard from '../../../cards/ModuleCard/ModuleCard.tsx';
 import add_cta from '../../../assets/icons/add-cta.svg';
 
 type Tab = "simulations" | "standard";
 
-export default function Modules() {
+export default function Modules({ workspace }: { workspace: WorkspaceType}) {
   const navigate = useNavigate();
   const [addSelected, setAddSelected] = useState(false);
   const [activeTab, setActiveTab] = useState<Tab>("simulations");
+  const modules = workspace.simulationModules;
+  const standardModules = workspace.standardModules;
 
   return (
     <div className="modules-page">
@@ -43,7 +44,7 @@ export default function Modules() {
           {modules.map((m) => (<ModuleCard moduleInfo={m} type={"simulation"} role={"employer"} />))}
         </div> :
         <div className="modules-grid">
-          {standardModule.map((m) => (<ModuleCard moduleInfo={m} type={"standard"} role={"employer"} />))}
+          {standardModules.map((m) => (<ModuleCard moduleInfo={m} type={"standard"} role={"employer"} />))}
         </div>
       }
       {/* Pagination  

@@ -16,6 +16,7 @@ import bell from '../../assets/icons/bell.svg';
 // import down_chevron from '../../assets/icons/black-down-chevron.svg';
 import sidebar_icon from '../../assets/icons/sidebar-icon.svg';
 import { employer } from '../../dummy_data/user_data.tsx';
+import { workspace } from '../../dummy_data/workspace_data.tsx';
 
 import white_home from '../../assets/icons/sidebar/white-home-icon.svg';
 import black_home from '../../assets/icons/sidebar/black-home-icon.svg';
@@ -67,7 +68,17 @@ export default function EmployerDashBoard() {
                 <img src={logo}/>
               </span>
             </Link>
-            {(!sidebarCollapsed) && <span className="logo-text">Workspace</span>}
+            {(!sidebarCollapsed) && <span className="logo-text">Cognition</span>}
+          </div>
+
+          <div className="workspace-title">
+            <img className="avatar" src={workspace.icon} />
+            {(!sidebarCollapsed) && 
+              <div className="workspace-label">
+                <p>Workspace</p>
+                <h4>{workspace.name}</h4>
+              </div>
+            }
           </div>
         
 
@@ -206,7 +217,7 @@ export default function EmployerDashBoard() {
           <Routes>
             <Route index element={<EmployerHome viewer={mockCurrentUser} />} />
             <Route path="analytics" element={<Analytics />} />
-            <Route path="modules" element={<Modules />} />
+            <Route path="modules" element={<Modules workspace={workspace}/>} />
             <Route path="modules/:id" element={<Lessons />} />
             <Route path="simulations/:moduleID/:lessonID/:simIdx" element={<SimulationPage role={"employer"} />} />
             <Route path="resources" element={<Resources />} />

@@ -2,6 +2,8 @@ import './SimulationPerformance.css';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useState, useMemo } from 'react';
 import { moduleAttempts } from '../../../../../dummy_data/modulesAttempt_data';
+import back_arrow from '../../../../../assets/icons/orange-left-arrow.svg';
+import ActionButton from '../../../../../components/ActionButton/ActionButton';
 
 export default function SimulationPerformance() {
   console.log("SimulationPerformance mounted");
@@ -53,14 +55,34 @@ export default function SimulationPerformance() {
     return `${totalMinutes} min`;
   }, [moduleAttempt]);
 
-  const completionDate = useMemo(() => {
+  const completionDate = moduleAttempt.completionDate;
+  
+  /*useMemo(() => {
     if (moduleAttempt.lessons && moduleAttempt.lessons.length > 0) {
       return moduleAttempt.lessons[moduleAttempt.lessons.length - 1].lessonInfo.dueDate;
     }
     return 'N/A';
-  }, [moduleAttempt]);
+  }, [moduleAttempt]);*/
 
-  const overallScore = moduleAttempt.percent || 0;
+  const overallScore = moduleAttempt.score || 0;
+
+  const colorByScore = (score: number) => {
+    if (score > 89) {
+      return "green";
+    }
+
+    if (score < 89 && score > 79) {
+      return "blue"
+    }
+
+    if (score < 79 && score > 59) {
+      return "orange"
+    }
+
+    if (score < 59) {
+      return "red"
+    }
+  };
 
   const performanceData = {
     moduleTitle: moduleAttempt.moduleInfo.title,
@@ -117,10 +139,7 @@ export default function SimulationPerformance() {
         <div className="header-content">
           <div className="header-left">
             <button className="back-btn" onClick={() => navigate(-1)}>
-              <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-                <path d="M10 12L6 8L10 4" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-              </svg>
-              Back
+              <img src={back_arrow} />
             </button>
             <div className="header-text">
               <h1>Module Performance</h1>
@@ -149,14 +168,14 @@ export default function SimulationPerformance() {
                 cx="60" 
                 cy="60" 
                 r="54" 
-                className="score-progress-circle"
+                className={`score-progress-circle ${colorByScore(overallScore)}`}
                 style={{
                   strokeDasharray: `${(performanceData.overallScore / 100) * 339.292} 339.292`
                 }}
               />
             </svg>
-            <div className="score-text">
-              <span className="score-number">{performanceData.overallScore}</span>
+            <div className="score-text" >
+              <span className={`score-number ${colorByScore(overallScore)}`}>{performanceData.overallScore}</span>
               <span className="score-label">Overall Score</span>
             </div>
           </div>
@@ -337,15 +356,8 @@ export default function SimulationPerformance() {
 
       {/* Action Buttons */}
       <div className="performance-actions">
-        <button className="action-btn secondary" onClick={() => navigate(-1)}>
-          Return to Modules
-        </button>
-        <button className="action-btn primary">
-          <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-            <path d="M8 2V14M2 8H14" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
-          </svg>
-          Retake Module
-        </button>
+        <ActionButton buttonType={"play"} text={"Retake Module"} />
+        <ActionButton buttonType={"go"} text={"Return to Modules"} reversed={true} onClick={() => navigate(-1)}/>
       </div>
     </div>
   );

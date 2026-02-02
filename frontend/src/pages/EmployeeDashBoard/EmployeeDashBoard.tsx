@@ -5,8 +5,6 @@ import { useMatch } from "react-router-dom";
 import { Tooltip } from "@radix-ui/themes";
 import logo from '../../assets/branding/cognition-logo.png';
 import bell from '../../assets/icons/bell.svg';
-import down_chevron from '../../assets/icons/black-down-chevron.svg';
-import left_chevron from '../../assets/icons/black-left-chevron.svg';
 import sidebar_icon from '../../assets/icons/sidebar-icon.svg';
 import ProfilePage from "../EmployerDashBoard/ProfilePage/ProfilePage";
 /*
@@ -24,6 +22,7 @@ import SimulationPage from '../Simulation/SimulationPage';
 import StandardLessons from './StandardModules/StandardLessons/StandardLessons';
 import StandardLessonPage from '../StandardLesson/StandardLessonPage';
 import { employee } from '../../dummy_data/user_data';
+import { workspace } from '../../dummy_data/workspace_data';
 
 import white_home from '../../assets/icons/sidebar/white-home-icon.svg';
 import black_home from '../../assets/icons/sidebar/black-home-icon.svg';
@@ -53,6 +52,7 @@ export default function EmployeeDashBoard() {
     const isSimulationLesson = useMatch("/employee/simulations/:moduleID");
     const isStandardLesson = useMatch("/employee/standard-modules/:moduleID");
     const isStandardLessonPg = useMatch("/employee/standard-modules/:moduleID/:lessonID");
+    const isPerformancePg = useMatch("/employee/simulations/:moduleId/performance");
 
     const mockCurrentUser = {
       id: "employee-1",
@@ -69,9 +69,18 @@ export default function EmployeeDashBoard() {
                 <img src={logo}/>
               </span>
             </Link>
-            {(!sidebarCollapsed) && <span className="logo-text">Workspace</span>}
+            {(!sidebarCollapsed) && <span className="logo-text">Cognition</span>}
           </div>
         
+          <div className="workspace-title">
+            <img className="avatar" src={workspace.icon} />
+            {(!sidebarCollapsed) && 
+              <div className="workspace-label">
+                <p>Workspace</p>
+                <h4>{workspace.name}</h4>
+              </div>
+            }
+          </div>
 
         <nav className="nav">
           <NavLink
@@ -225,7 +234,7 @@ export default function EmployeeDashBoard() {
           </div>
         </header>
 
-        <section className={`content employee ${(isSimulationPage || isSimulationLesson || isStandardLesson || isStandardLessonPg ) ? "no-padding" : ""}`}>
+        <section className={`content employee ${(isSimulationPage || isSimulationLesson || isStandardLesson || isStandardLessonPg || isPerformancePg) ? "no-padding" : ""}`}>
           <Routes>
             <Route index element={<EmployeeHome />} />
             <Route path="simulations" element={<SimulationModules />} />

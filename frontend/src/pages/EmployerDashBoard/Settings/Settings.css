@@ -19,8 +19,8 @@
 }
 
 .settings-tabs .active {
-  color: #f97316;
-  border-bottom: 2px solid #f97316;
+  color: #FF4B00;
+  border-bottom: 2px solid #FF4B00;
   font-weight: 600;
 }
 
@@ -126,18 +126,28 @@ button {
 
 
 button.primary {
-  background: #f97316;
+  background: #FF4B00;
   color: #fff;
+  border: 1px solid #FF4B00;
+  transition: 0.2s ease;
 }
 
 button.primary:hover {
-  background: #ffa768;
+  background-color: white;
+  border: 1px solid #FF4B00;
+  color: #FF4B00;
 }
 
 button.secondary {
   background: transparent;
   border: 1px solid #6f7785;
   color: #6b7280;
+  transition: 0.2s ease;
+}
+
+button.secondary:hover {
+  border: 1px solid #FF4B00;
+  color: #FF4B00;
 }
 
 .settings-page .actions {

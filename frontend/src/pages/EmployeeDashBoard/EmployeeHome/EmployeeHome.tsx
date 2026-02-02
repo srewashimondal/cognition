@@ -25,7 +25,6 @@ export default function EmployeeHome() {
                             <span className="stat-change positive">+2 this month</span>
                         </div>
                     </div>
-                    <button className="see-details-btn">See Details →</button>
                 </div>
                 <div className="stat-card">
                     <div className="stat-content">
@@ -36,7 +35,6 @@ export default function EmployeeHome() {
                             <span className="stat-change">Upcoming</span>
                         </div>
                     </div>
-                    <button className="see-details-btn">See Details →</button>
                 </div>
                 <div className="stat-card">
                     <div className="stat-content">
@@ -47,7 +45,6 @@ export default function EmployeeHome() {
                             <span className="stat-change positive">+5% improvement</span>
                         </div>
                     </div>
-                    <button className="see-details-btn">See Details →</button>
                 </div>
                 <div className="stat-card">
                     <div className="stat-content">
@@ -58,7 +55,6 @@ export default function EmployeeHome() {
                             <span className="stat-change">Earned</span>
                         </div>
                     </div>
-                    <button className="see-details-btn">See Details →</button>
                 </div>
             </div>
 
@@ -279,7 +275,8 @@ export default function EmployeeHome() {
                 </div>
             </div>
 
-            {/* Recommended Courses */}
+        {/*
+
             <div className="section">
                 <div className="section-header">
                     <h2>💡 Recommended For You</h2>
@@ -328,7 +325,7 @@ export default function EmployeeHome() {
                 </div>
             </div>
 
-            {/* Recent Enrolled Webinar */}
+         
             <div className="section">
                 <div className="section-header">
                     <h2>Recent Enrolled Webinar (8)</h2>
@@ -369,6 +366,7 @@ export default function EmployeeHome() {
                     </div>
                 </div>
             </div>
+            */}
         </div>
     );
 }

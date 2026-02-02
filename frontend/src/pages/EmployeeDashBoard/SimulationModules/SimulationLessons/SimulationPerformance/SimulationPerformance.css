@@ -3,9 +3,9 @@
   --color-background: #fafafa;
   --color-surface: #ffffff;
   
-  --color-primary: #f97316;
-  --color-primary-light: #fb923c;
-  --color-primary-dark: #ea580c;
+  --color-primary: #FF4B00;
+  --color-primary-light: #ff7033;
+  --color-primary-dark: rgb(253, 154, 100);
   
   --color-success: #15803d;
   --color-success-light: #e8f7ee;
@@ -83,6 +83,7 @@
   justify-content: space-between;
   gap: 24px;
   flex-wrap: wrap;
+  width: 100%;
 }
 
 .header-left {
@@ -204,6 +205,22 @@
   transition: stroke-dasharray 1s cubic-bezier(0.4, 0, 0.2, 1) 0.3s;
 }
 
+.score-progress-circle.green {
+  stroke: rgb(99, 197, 145);
+}
+
+.score-progress-circle.blue {
+  stroke: #3B82F6;
+}
+
+.score-progress-circle.orange {
+  stroke: #F97316;
+}
+
+.score-progress-circle.red {
+  stroke: rgb(235, 90, 90);
+}
+
 .score-text {
   position: absolute;
   top: 50%;
@@ -219,6 +236,22 @@
   color: var(--color-primary);
   line-height: 1;
   letter-spacing: -1px;
+}
+
+.score-number.green {
+  color: rgb(32, 138, 82);
+}
+
+.score-number.blue {
+  color: #1E40AF;
+}
+
+.score-number.orange {
+  color: #9A3412;
+}
+
+.score-number.red {
+  color: rgb(150, 40, 40);
 }
 
 .score-label {
