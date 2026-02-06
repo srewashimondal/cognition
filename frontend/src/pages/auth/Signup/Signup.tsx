@@ -9,6 +9,10 @@ import eye_off from '../../../assets/icons/eye_off.svg';
 import gradient from '../../../assets/illustrations/gradient.jpg';
 import NavBar from '../../../components/NavBar/NavBar.tsx';
 import ErrorMessage from '../../../components/ErrorMessage/ErrorMessage.tsx';
+import { createUserWithEmailAndPassword } from "firebase/auth";
+import { auth } from "../../../firebase";
+import { useNavigate } from "react-router-dom";
+
 
 type SignupProps = {
     role: "employee" | "employer";
@@ -20,12 +24,44 @@ export default function Signup({ role="employee" }: SignupProps) {
     const [reEnteredPassword, setReEnteredPassword] = useState("");
     const [viewPassword, setViewPassword] = useState(false);
     const [viewReEnteredPassword, setViewReEnteredPassword] = useState(false);
+    const [error, setError] = useState<string | null>(null);
+    const [loading, setLoading] = useState(false);
+    const navigate = useNavigate();
+    
 
-    function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+    async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
         e.preventDefault();
-        console.log(email, password);
-        {/* put in backend logic later */}
+
+        if (password !== reEnteredPassword) {
+            setError("Passwords must match.");
+            return;
+        }
+
+        setError(null);
+        setLoading(true);
+
+        try {
+            const userCredential = await createUserWithEmailAndPassword(
+                auth,
+                email,
+                password
+            );
+
+            const user = userCredential.user;
+
+            if (role === "employer") {
+                navigate("/employer");
+            } else {
+                navigate("/employee");
+            }
+
+        } catch (err: any) {
+            setError(err.message);
+        } finally {
+            setLoading(false);
+        }
     }
+
 
     return (
         <div className="signup-page">
@@ -90,7 +126,11 @@ export default function Signup({ role="employee" }: SignupProps) {
                             </div>
                             {(reEnteredPassword) && (password !== reEnteredPassword) && (<ErrorMessage message={"Passwords must match."} />)}
                         </div>
-                        <button className="signin-button" type="submit">Create Account</button>
+                        {error && <ErrorMessage message={error} />}
+                        <button className="signin-button" type="submit" disabled={loading}>
+                            {loading ? "Creating account..." : "Create Account"}
+                        </button>
+
                     </form>
                 </div>
             </div>
