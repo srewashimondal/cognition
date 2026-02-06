@@ -7,20 +7,42 @@ import lock from '../../../assets/icons/lock.svg';
 import eye_on from '../../../assets/icons/eye_on.svg';
 import eye_off from '../../../assets/icons/eye_off.svg';
 import NavBar from '../../../components/NavBar/NavBar.tsx';
+import { signInWithEmailAndPassword } from "firebase/auth";
+import { auth } from "../../../firebase";
 
 export default function Login() {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [viewPassword, setViewPassword] = useState(false);
     const navigate = useNavigate();
+    const [error, setError] = useState<string | null>(null);
+    const [loading, setLoading] = useState(false);
 
-    function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+
+    async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
         e.preventDefault();
-        console.log(email, password);
-        if (email === "employer@gmail.com" && password === "employer") {
-            navigate("/employer");
+        setError(null);
+        setLoading(true);
+
+        try {
+            const userCredential = await signInWithEmailAndPassword(
+                auth,
+                email,
+                password
+            );
+
+            const user = userCredential.user;
+
+            if (user.email?.includes("employer")) {
+                navigate("/employer");
+            } else {
+                navigate("/employee");
+            }
+        } catch (err: any) {
+            setError(err.message);
+        } finally {
+            setLoading(false);
         }
-        {/* put in backend logic later */}
     }
 
     return (
@@ -59,7 +81,11 @@ export default function Login() {
                         <p className="cta">Forgot Password?</p>
                     </div>
 
-                    <button className="signin-button" type="submit">Sign in</button>
+                    {error && <p className="error-text">{"Incorrect username or password. Please try again."}</p>}
+                    <button className="signin-button" type="submit" disabled={loading}>
+                        {loading ? "Signing in..." : "Sign in"}
+                    </button>
+
                 </form>
             </div>
         </div>
