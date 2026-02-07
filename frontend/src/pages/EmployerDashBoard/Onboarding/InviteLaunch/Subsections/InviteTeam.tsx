@@ -6,12 +6,12 @@ import orange_download_icon from '../../../../../assets/icons/orange-download-ic
 import white_download_icon from '../../../../../assets/icons/white-download-icon.svg';
 import temp_qrcode from '../../../../../assets/illustrations/temp_qr_code.png';
 
-export default function InviteTeam({ registerFormId, onNext }: {registerFormId: (id: string) => void, onNext: () => void;}) {
+export default function InviteTeam({ registerFormId, onNext }: {registerFormId?: (id: string) => void, onNext?: () => void;}) {
     const formId = "invite-team-form";
 
     useEffect(() => {
-        registerFormId(formId);
-        return () => registerFormId(""); 
+        registerFormId?.(formId);
+        return () => registerFormId?.(""); 
     }, []);
 
 
@@ -27,7 +27,7 @@ export default function InviteTeam({ registerFormId, onNext }: {registerFormId: 
 
     function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
         e.preventDefault();
-        onNext();
+        onNext?.();
         {/* put in backend logic later */}
     }
     
@@ -45,7 +45,7 @@ export default function InviteTeam({ registerFormId, onNext }: {registerFormId: 
                             <span>Generate a Shareable Link</span>
                         </button>
                     </div>
-                    <div className="a-divider"></div>
+                    {/*<div className="a-divider"></div>*/}
                     <div className="qr-code-share">
                         <div className="download-btn-wrapper">
                             <button type="button" className="download-btn" onClick={handleDownload}>

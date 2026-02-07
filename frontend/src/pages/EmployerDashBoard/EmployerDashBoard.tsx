@@ -215,7 +215,7 @@ export default function EmployerDashBoard() {
 
         <section className={`content employer ${(isSimulationPage || isBuilderPage) ? "no-padding" : ""}`}>
           <Routes>
-            <Route index element={<EmployerHome viewer={mockCurrentUser} />} />
+            <Route index element={<EmployerHome viewer={mockCurrentUser} workspace={workspace} />} />
             <Route path="analytics" element={<Analytics />} />
             <Route path="modules" element={<Modules workspace={workspace}/>} />
             <Route path="modules/:id" element={<Lessons />} />

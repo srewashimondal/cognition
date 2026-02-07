@@ -2,6 +2,9 @@ import "./EmployerHome.css";
 import { useState, useEffect } from "react";
 import { janeCooper } from "../../../dummy_data/user_data";
 import ProfilePage from "../ProfilePage/ProfilePage";
+import type { WorkspaceType } from "../../../types/User/WorkspaceType";
+import WorkspaceHero from "../../../components/WorkspaceHero/WorkspaceHero";
+import InviteTeam from "../Onboarding/InviteLaunch/Subsections/InviteTeam";
 
 import users_icon from '../../../assets/icons/white-users-icon.svg';
 import trending_up from '../../../assets/icons/green-trending-up-icon.svg';
@@ -11,6 +14,7 @@ import prize_icon from '../../../assets/icons/white-prize-icon.svg';
 import clock_icon from '../../../assets/icons/white-clock-icon.svg';
 import leaderboard_icon from '../../../assets/icons/orange-leaderboard-icon.svg';
 import warning_icon from '../../../assets/icons/orange-warning-icon.svg';
+import x_icon from '../../../assets/icons/simulations/grey-x-icon.svg';
 
 const employees = Array.from({ length: 9 });
 
@@ -111,11 +115,12 @@ const needAttention = [
   }
 ];
 
-export default function EmployerHome({ viewer }: { viewer: Record<string, string> }) {
+export default function EmployerHome({ viewer, workspace }: { viewer: Record<string, string>, workspace: WorkspaceType }) {
   const [search, setSearch] = useState("");
   const [profileOpen, setProfileOpen] = useState(false);
   const [chosenProfile, setChosenProfile] = useState<number | null>(null); // change to a different key later
   const [showAll, setShowAll] = useState(false);
+  const [openModal, setOpenModal] = useState(false);
 
   const visibleEmployees = employees.filter(() => {
   if (!search) return true;
@@ -144,7 +149,7 @@ export default function EmployerHome({ viewer }: { viewer: Record<string, string
   
     <div className="employer-dashboard">
       {/* Welcome Banner */}
-      <div className="welcome-banner">
+      {/*<div className="welcome-banner">
         <div className="welcome-left">
           <h3 className="welcome-title">
             Welcome back, Harsh! <span className="wave"></span>
@@ -175,7 +180,9 @@ export default function EmployerHome({ viewer }: { viewer: Record<string, string
             <div className="icon secondary" />
           </div>
         </div>
-      </div>
+      </div> */}
+
+      <WorkspaceHero role={"employer"} workspace={workspace} onClick={() => setOpenModal(true)} />
 
       {/* Analytics Overview */}
       <div className="analytics-header">
@@ -541,6 +548,22 @@ export default function EmployerHome({ viewer }: { viewer: Record<string, string
       </div>
 
       <ProfilePage key={chosenProfile} open={profileOpen} onClose={() => setProfileOpen(false)} user={janeCooper} viewer={viewer} tempPfp={`https://i.pravatar.cc/64?img=${(chosenProfile ?? 0) + 10}`} />
+
+      { openModal &&
+        <div className="modal-overlay" onClick={() => setOpenModal(false)}>
+          <div className="modal">
+            <div className="x-icon-wrapper-modal">
+              <div className="x-icon" onClick={() => setOpenModal(false)}>
+                <img src={x_icon} />
+              </div>
+            </div>
+            <div className="invite-team-wrapper">
+              <InviteTeam />
+            </div>
+          </div>
+        </div>
+      }
+
     </div>
   );
 }

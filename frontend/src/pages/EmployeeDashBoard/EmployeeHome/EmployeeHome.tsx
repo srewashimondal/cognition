@@ -2,8 +2,10 @@ import './EmployeeHome.css';
 import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import ModuleCard from '../../../cards/ModuleCard/ModuleCard';
+import WorkspaceHero from '../../../components/WorkspaceHero/WorkspaceHero';
 import type { EmployeeUserType } from '../../../types/User/UserType';
 import type { EmployerUserType } from '../../../types/User/UserType';
+import type { WorkspaceType } from '../../../types/User/WorkspaceType';
 
 import trending_up from '../../../assets/icons/green-trending-up-icon.svg';
 import chart_icon from '../../../assets/icons/white-line-chart-icon.svg';
@@ -35,7 +37,7 @@ const aiInsights = [
     },
 ];
 
-export default function EmployeeHome({ user }: { user: EmployeeUserType | EmployerUserType }) {
+export default function EmployeeHome({ user, workspace }: { user: EmployeeUserType | EmployerUserType,  workspace: WorkspaceType}) {
     const navigate = useNavigate();
     useEffect(() => {
         window.scrollTo({ top: 0, left: 0, behavior: "instant" });
@@ -44,7 +46,7 @@ export default function EmployeeHome({ user }: { user: EmployeeUserType | Employ
     return (
         <div className="employee-home">
             {/* Welcome Banner */}
-            <div className="welcome-banner">
+           {/* <div className="welcome-banner">
                 <div className="welcome-content">
                     <h1>Welcome back, Alex! </h1>
                     <p>Continue your learning journey and achieve your goals</p>
@@ -52,7 +54,9 @@ export default function EmployeeHome({ user }: { user: EmployeeUserType | Employ
                 <div className="welcome-icon">
                     <div className="icon-placeholder"></div>
                 </div>
-            </div>
+            </div> */}
+            
+            <WorkspaceHero role={"employee"} workspace={workspace} />
 
             {/*
             

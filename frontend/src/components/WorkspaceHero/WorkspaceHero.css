@@ -1,0 +1,117 @@
+.workspace-hero {
+    position: relative;
+    width: 100%;
+    margin-bottom: 30px;
+}
+
+.workspace-banner {
+    width: 100%;
+    height: 220px;           
+    object-fit: cover;
+    display: block;
+    border-radius: 20px;
+}
+
+.workspace-banner.employee {
+    background: linear-gradient(
+        135deg,
+        #f3c9bc 0%,
+        #FF9B73 35%,
+        #FF4B00 100%
+  );
+    color: #ffffff;
+    margin: 10px 0 28px;
+    position: relative;
+    overflow: hidden;
+}
+
+.workspace-banner.employer {
+    background: linear-gradient(
+        135deg,
+        #bee1ff 0%,
+        #7cc7ff 40%,
+        #00A6FF 100%
+    );
+    color: #ffffff;
+    margin: 10px 0 28px;
+    position: relative;
+    overflow: hidden;
+}
+
+.share-icon {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    transition: 0.2s ease;
+}
+
+.share-icon img {
+    width: 22px;
+}
+
+.share-icon:hover {
+    background-color: rgba(240, 255, 255, 0.329);
+}
+
+.workspace-hero-content {
+    position: absolute;
+    left: 32px;
+    bottom: 20px;          
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+  
+.workspace-avatar {
+    width: 88px;
+    height: 88px;
+    border-radius: 16px;    
+    object-fit: cover;
+    background: white;
+    padding: 6px;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+}
+
+.workspace-title.no-bottom {
+    font-size: 28px;
+    font-weight: 600;
+    color: white;
+    border-bottom: none;
+    margin-bottom: 0;
+    padding-bottom: 0;
+}
+
+.workspace-meta-wrapper {
+    display: flex;
+    flex-direction: column;
+}
+
+.workspace-meta {
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    color: white;
+    gap: 7px;
+}
+
+.workspace-meta-item {
+    color: rgba(250, 250, 250, 0.962);
+    font-size: 14px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.workspace-meta-item img {
+    width: 20px;
+}
+
+
+  

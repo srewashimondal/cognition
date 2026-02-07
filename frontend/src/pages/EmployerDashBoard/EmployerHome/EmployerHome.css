@@ -936,3 +936,13 @@
 .leaderboard-stats.red h4 {
   color: #f54e38;
 }
+
+.invite-team-wrapper {
+  padding: 10px;
+}
+
+.x-icon-wrapper-modal {
+  display: flex;
+  justify-content: flex-end;
+  width: 100%;
+}
