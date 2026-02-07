@@ -209,7 +209,7 @@ export default function EmployerHome({ viewer }: { viewer: Record<string, string
               +12% this week
             </div>
             <h3 className="analytics-value">84%</h3>
-            <span className="analytics-change">Average simulation score</span>
+            <span className="analytics-change">Average lesson score</span>
             <p className="analytics-label">across this week</p>
           </div>
           <div className="analytics-icon orange">
@@ -238,7 +238,7 @@ export default function EmployerHome({ viewer }: { viewer: Record<string, string
           <div className="analytics-left">
             <h3 className="analytics-value">12.5</h3>
             <span className="analytics-change">minutes on average</span>
-            <p className="analytics-label">time per simulation</p>
+            <p className="analytics-label">time per lesson</p>
           </div>
           <div className="analytics-icon orange">
             <img src={clock_icon} />

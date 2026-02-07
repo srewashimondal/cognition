@@ -8,6 +8,7 @@ export const standardModuleAttempt: StandardModuleAttempt[] =
         moduleInfo: standardModule[0],
         status: "started",
         percent: 50,
+        score: 98,
         lessons: [
             {
                 attempt_id: 1,

@@ -5,6 +5,36 @@ import ModuleCard from '../../../cards/ModuleCard/ModuleCard';
 import type { EmployeeUserType } from '../../../types/User/UserType';
 import type { EmployerUserType } from '../../../types/User/UserType';
 
+import trending_up from '../../../assets/icons/green-trending-up-icon.svg';
+import chart_icon from '../../../assets/icons/white-line-chart-icon.svg';
+import prize_icon from '../../../assets/icons/white-prize-icon.svg';
+import clock_icon from '../../../assets/icons/white-clock-icon.svg';
+import lessons_completed from '../../../assets/icons/white-lessons-completed-icon.svg';
+import ai_icon from '../../../assets/icons/simulations/white-ai-icon.svg';
+
+const aiInsights = [
+    {
+        title: "💚 Strong Empathy Skills",
+        description: "You consistently demonstrate excellent empathy in customer interactions, scoring 95% in tone and emotional intelligence.",
+        suggestion: "Keep it up! Your empathy is a standout skill."
+    },
+    {
+        title: "📚 Product Knowledge Gap",
+        description: "AI detected you hesitate when discussing technical specifications. You scored 78% on product detail questions.",
+        suggestion: "Review the 'Electronics Features Guide' to boost confidence."
+    },
+    {
+        title: "⚡ Faster Response Times",
+        description: "Your average response time is 8 seconds. Top performers respond in 5-6 seconds while maintaining quality.",
+        suggestion: "Practice the 'Quick Assessment Framework' to speed up without sacrificing accuracy."
+    },
+    {
+        title: "🎯 Conflict De-escalation Master",
+        description: "You've successfully de-escalated 12 difficult customer scenarios this week with a 92% satisfaction rate.",
+        suggestion: "Amazing work! You're in the top 10% for this skill."
+    },
+];
+
 export default function EmployeeHome({ user }: { user: EmployeeUserType | EmployerUserType }) {
     const navigate = useNavigate();
     useEffect(() => {
@@ -69,6 +99,69 @@ export default function EmployeeHome({ user }: { user: EmployeeUserType | Employ
                 </div>
             </div> 
             */}
+
+            <div className="section">
+                <div className="section-header">
+                    <h2>Performance Overview</h2>
+                </div>
+
+                <div className="analytics-grid">
+                    <div className="analytics-card">
+                        <div className="analytics-left">
+                            <div className="analytics-change-pill green">
+                            <span>
+                                <img src={trending_up} />
+                            </span>
+                            +12% this week
+                            </div>
+                            <h3 className="analytics-value">87%</h3>
+                            <span className="analytics-change">Average score</span>
+                            <p className="analytics-label">across all lessons</p>
+                        </div>
+                        <div className="analytics-icon orange">
+                            <img src={chart_icon} />
+                        </div>
+                    </div>
+                    <div className="analytics-card">
+                    <div className="analytics-left">
+                        <div className="analytics-change-pill green">
+                        <span>
+                            <img src={trending_up} />
+                        </span>
+                        +8% this week
+                        </div>
+                        <h3 className="analytics-value">7</h3>
+                        <span className="analytics-change">Lessons completed this week</span>
+                        <p className="analytics-label">of 22 total</p>
+                    </div>
+                    <div className="analytics-icon orange">
+                        <img src={lessons_completed} />
+                    </div>
+                    </div>
+
+                    <div className="analytics-card">
+                        <div className="analytics-left">
+                            <h3 className="analytics-value">3</h3>
+                            <span className="analytics-change">Badges earned</span>
+                            <p className="analytics-label">Keep it up!</p>
+                        </div>
+                        <div className="analytics-icon orange">
+                            <img src={prize_icon} />
+                        </div>
+                    </div>
+
+                    <div className="analytics-card">
+                        <div className="analytics-left">
+                            <h3 className="analytics-value">6.5</h3>
+                            <span className="analytics-change">hours invested</span>
+                            <p className="analytics-label">time across lessons</p>
+                        </div>
+                        <div className="analytics-icon orange">
+                            <img src={clock_icon} />
+                        </div>
+                    </div>
+                </div>
+            </div>
 
             <div className="section">
                 <div className="section-header">
@@ -379,6 +472,33 @@ export default function EmployeeHome({ user }: { user: EmployeeUserType | Employ
                 </div>
             </div>
             */}
+
+            <div className="ai-powered-insights">
+                <div className="ai-powered-insights-top">
+                    <div className="ai-icon-wrapper">
+                        <img src={ai_icon} />
+                    </div>
+                    <div className="ai-powered-insights-title">
+                        <h3>AI-Powered Insights</h3>
+                        <p>Personalized feedback to help you improve</p>
+                    </div>
+                </div>
+                <div className="ai-feedback-grid">
+                    { aiInsights.map((a) =>
+                        <div className="ai-feedback-item">
+                            <h4>{a.title}</h4>
+                            <p>{a.description}</p>
+                            <div className="improved-msg ai">
+                                <div className="blue-thing ai" />
+                                <div className="improved-msg-content ai">
+                                    {a.suggestion}
+                                </div>
+                            </div>
+                        </div>
+                    )}
+                </div>
+            </div>
+
         </div>
     );
 }

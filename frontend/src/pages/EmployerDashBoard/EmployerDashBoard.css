@@ -25,7 +25,6 @@
   display: grid;
   grid-template-columns: 1fr 1fr 0.8fr;
   gap: 20px;
-  margin-top: 20px;
   align-items: stretch;
 }
 
@@ -509,7 +508,7 @@
   display: grid;
   grid-template-columns: 2fr 1fr 1fr; 
   gap: 20px;
-  margin-top: 20px;
+  margin-top: 10px;
 }
 
 /*Hours Spent*/
@@ -833,7 +832,7 @@
   display: grid;
   grid-template-columns: 2fr 1fr;
   gap: 20px;
-  margin-top: 20px;
+  margin-top: 10px;
 }
 
 .modules-header .card-title {

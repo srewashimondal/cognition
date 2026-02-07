@@ -67,6 +67,7 @@ export const moduleAttempts: ModuleAttemptType[] = [
       moduleInfo: modules[1],
       status: "started",
       percent: 50,
+      score: 92,
       lessons: [
         // Lesson 1 – all simulations completed
         {
