@@ -167,6 +167,7 @@ textarea::placeholder {
     align-items: center;
     gap: 20px;
     font-size: 14px;
+    margin-top: 10px;
 }
 
 .switch-item {
@@ -210,6 +211,10 @@ textarea::placeholder {
     margin-bottom: 30px;
     justify-content: center;
     align-items: flex-start;
+}
+
+.choices-list.mcq {
+    margin-top: 20px;
 }
 
 .choices-list.tf {

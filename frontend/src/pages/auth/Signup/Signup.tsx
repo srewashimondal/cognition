@@ -124,9 +124,19 @@ export default function Signup({ role="employee" }: SignupProps) {
                                         </span>
                                     </Tooltip>
                             </div>
-                            {(reEnteredPassword) && (password !== reEnteredPassword) && (<ErrorMessage message={"Passwords must match."} />)}
+                            {(reEnteredPassword) && (password !== reEnteredPassword) && (
+                                <div className="error-wrapper">
+                                    <ErrorMessage message={"Passwords must match."} />
+                                </div>
+                            )}
                         </div>
-                        {error && <ErrorMessage message={error} />}
+
+                            {error && 
+                            <div className="error-wrapper">
+                                <ErrorMessage message={error} />
+                            </div>
+                            }
+
                         <button className="signin-button" type="submit" disabled={loading}>
                             {loading ? "Creating account..." : "Create Account"}
                         </button>

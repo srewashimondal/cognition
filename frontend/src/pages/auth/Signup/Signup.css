@@ -91,3 +91,7 @@
     color: red;
     font-size: 12px;
 }
+
+.error-wrapper {
+    margin-top: 10px;
+}

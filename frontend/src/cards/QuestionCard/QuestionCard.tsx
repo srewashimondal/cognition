@@ -203,7 +203,7 @@ export default function QuestionCard({ question, handleDelete, position, onUpdat
                                     <span>Allow Multiple Answers</span>
                                 </div>
                             </div>
-                            <div className="choices-list">
+                            <div className="choices-list mcq">
                                 {
                                     question.options?.map((o, i) => <ChoiceItem key={i} content={o} id={i} 
                                     isCorrect={question.allowMultiple ? question.correctAnswerIndices?.includes(i) ?? false : question.correctAnswerIndex === i} 

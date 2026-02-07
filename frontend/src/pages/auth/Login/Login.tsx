@@ -7,6 +7,7 @@ import lock from '../../../assets/icons/lock.svg';
 import eye_on from '../../../assets/icons/eye_on.svg';
 import eye_off from '../../../assets/icons/eye_off.svg';
 import NavBar from '../../../components/NavBar/NavBar.tsx';
+import ErrorMessage from '../../../components/ErrorMessage/ErrorMessage.tsx';
 import { signInWithEmailAndPassword } from "firebase/auth";
 import { auth } from "../../../firebase";
 
@@ -81,7 +82,7 @@ export default function Login() {
                         <p className="cta">Forgot Password?</p>
                     </div>
 
-                    {error && <p className="error-text">{"Incorrect username or password. Please try again."}</p>}
+                    {error && <ErrorMessage message={"Incorrect username or password. Please try again."} />}
                     <button className="signin-button" type="submit" disabled={loading}>
                         {loading ? "Signing in..." : "Sign in"}
                     </button>
