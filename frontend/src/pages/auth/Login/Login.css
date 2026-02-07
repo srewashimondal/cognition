@@ -44,6 +44,7 @@
     font-size: 12px;
     transition: 0.25s ease, transform 0.15s ease;
     cursor: pointer;
+    margin-top: 12px;
 }
 
 .cta:hover {
