@@ -1,5 +1,10 @@
 import { useEffect, useMemo, useState } from "react";
 import "./Schedule.css";
+import ActionButton from "../../../components/ActionButton/ActionButton";
+import edit_icon from '../../../assets/icons/simulations/grey-edit-icon.svg';
+import check_icon from '../../../assets/icons/simulations/grey-check-icon.svg';
+import trash_icon from '../../../assets/icons/simulations/grey-trash-icon.svg';
+import x_icon from '../../../assets/icons/simulations/grey-x-icon.svg';
 
 type View = "monthly" | "weekly" | "daily";
 
@@ -10,6 +15,8 @@ type CalendarEvent = {
   start?: string; 
   end?: string;   
   color?: "red" | "yellow" | "purple" | "green" | "blue";
+  description?: string;
+  completed?: boolean;
 };
 
 function pad(n: number) {
@@ -118,6 +125,7 @@ export default function Schedule() {
         id: crypto.randomUUID(),
         ...draft,
         title: draft.title.trim(),
+        completed: false,
       },
     ]);
     setIsModalOpen(false);
@@ -139,11 +147,47 @@ export default function Schedule() {
     window.scrollTo({ top: 0, left: 0, behavior: "instant" });
   }, []);
 
+  const [selectedEvent, setSelectedEvent] = useState<CalendarEvent | null>(null);
+  const [eventEditMode, setEventEditMode] = useState(false);
+
+  function formatDateLong(dateStr: string): string {
+    const date = new Date(dateStr + "T00:00:00"); // prevents timezone bugs
+  
+    return date.toLocaleDateString("en-US", {
+      weekday: "long",
+      month: "long",
+      day: "numeric",
+    });
+  }
+
+  function formatTimeAMPM(time: string): string {
+    const [hourStr, minute] = time.split(":");
+    let hour = Number(hourStr);
+  
+    const ampm = hour >= 12 ? "PM" : "AM";
+    hour = hour % 12 || 12;
+  
+    return `${hour}:${minute} ${ampm}`;
+  }
+
+  function handleEventUpdate(
+    eventId: string,
+    updates: Partial<CalendarEvent>
+  ) {
+    setEvents(prevEvents =>
+      prevEvents.map(event =>
+        event.id === eventId
+          ? { ...event, ...updates }
+          : event
+      )
+    );
+  }
+
   return (
     <div className="schedule-page">
       {/* Top bar */}
       <div className="schedule-top">
-        <div className="schedule-title">Calendar</div>
+        <div className="schedule-title">Schedule</div>
 
         <div className="schedule-tabs">
           <button className={view === "monthly" ? "tab active" : "tab"} onClick={() => setView("monthly")}>
@@ -159,9 +203,7 @@ export default function Schedule() {
 
         <div className="schedule-actions">
           <button className="ghost-btn">Filter</button>
-          <button className="primary-btn" onClick={() => openAddEvent()}>
-            + Add Event
-          </button>
+          <ActionButton buttonType={"add"} text={"New Event"} onClick={() => openAddEvent()} />
         </div>
       </div>
 
@@ -224,12 +266,12 @@ export default function Schedule() {
 
                       <div className="events">
                         {dayEvents.slice(0, 3).map((ev) => (
-                          <div key={ev.id} className={`event-pill ${ev.color ?? "red"}`}>
-                            <span className="event-title">
+                          <div key={ev.id} className={`event-pill ${ev.color ?? "red"}`} onClick={() => setSelectedEvent(ev)}>
+                            <span className={`event-title ${ev.completed ? "completed" : ""}`}>
                               {ev.title}
-                              {ev.start && ev.end ? `  ${ev.start} - ${ev.end}` : ""}
+                              {ev.start && ev.end ? `  ${formatTimeAMPM(ev.start)} - ${formatTimeAMPM(ev.end)}` : ""}
                             </span>
-                            <button
+                            {/*<button
                               className="event-x"
                               onClick={(e) => {
                                 e.stopPropagation();
@@ -238,7 +280,7 @@ export default function Schedule() {
                               title="Delete"
                             >
                               ×
-                            </button>
+                            </button>*/}
                           </div>
                         ))}
 
@@ -288,11 +330,11 @@ export default function Schedule() {
                     setDraft((p) => ({ ...p, color: e.target.value as CalendarEvent["color"] }))
                   }
                 >
-                  <option value="red">Design Review</option>
-                  <option value="yellow">Meeting</option>
-                  <option value="purple">Discussion</option>
-                  <option value="green">Research</option>
-                  <option value="blue">Other</option>
+                  <option value="red">Red</option>
+                  <option value="yellow">Yellow</option>
+                  <option value="purple">Purple</option>
+                  <option value="green">Green</option>
+                  <option value="blue">Blue</option>
                 </select>
               </label>
             </div>
@@ -321,9 +363,7 @@ export default function Schedule() {
               <button className="ghost-btn" onClick={() => setIsModalOpen(false)}>
                 Cancel
               </button>
-              <button className="primary-btn" onClick={addEvent}>
-                Add
-              </button>
+              <ActionButton buttonType={"add"} text={"Add"} onClick={addEvent} />
             </div>
 
             <div className="hint">
@@ -332,6 +372,58 @@ export default function Schedule() {
           </div>
         </div>
       )}
+
+      {/*Selected Event Modal*/}
+      { selectedEvent &&
+        <div className="modal-overlay" onClick={() => setSelectedEvent(null)}>
+          <div className="modal event" onClick={(e) => e.stopPropagation()}>
+            <div className="event-action-panel">
+              <div className="builder-action event" onClick={() => setEventEditMode(prev => !prev)} >
+                <img src={eventEditMode ? check_icon : edit_icon} />
+              </div>
+              <div className="builder-action event" onClick={() => {deleteEvent(selectedEvent.id); setSelectedEvent(null);}} >
+                <img src={trash_icon} />
+              </div>
+              <div className="x-icon" onClick={() => setSelectedEvent(null)}>
+                <img src={x_icon} />
+              </div>
+            </div>
+            <div className="modal-title event">
+              <div className={`event-color ${selectedEvent.color}`} />
+              {selectedEvent.title}
+            </div>
+            <div className="event-meta-wrapper">
+              <div className="event-color" />
+              <div className="event-meta">
+                <p>{formatDateLong(selectedEvent.date)} ⋅{formatTimeAMPM(selectedEvent.start ?? "")} {selectedEvent.end? ` - ${formatTimeAMPM(selectedEvent.end)}` : ""}</p>
+              </div>
+            </div>
+            { eventEditMode ?
+              <textarea placeholder="Add event description" value={selectedEvent.description} 
+              onChange={(e) => {
+                const newDescription = e.target.value;
+                setSelectedEvent(prev => prev ? { ...prev, description: newDescription } : prev);
+                handleEventUpdate(selectedEvent.id, {
+                  description: newDescription,
+                });
+              }} />
+              : <p className="event-desc">{selectedEvent.description}</p>
+            }
+            <div className="final-actions">
+              <button className={`builder-action-pill ${selectedEvent.completed ? "complete" : ""}`} 
+              onClick={() => {
+                const newCompleted = !selectedEvent.completed;
+                setSelectedEvent(prev => prev ? { ...prev, completed: newCompleted } : prev);
+                handleEventUpdate(selectedEvent.id, { completed: newCompleted });
+              }} >
+                {selectedEvent.completed && <img src={check_icon} />}
+                {selectedEvent.completed ? "Complete" : "Mark as Completed"}
+              </button>
+            </div>
+          </div>
+        </div>
+      }
+
     </div>
   );
 }
