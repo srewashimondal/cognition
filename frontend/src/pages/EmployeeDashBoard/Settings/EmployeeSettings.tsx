@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import "./EmployeeSettings.css";
 
 type Tab = "account" | "security" | "notifications" | "interface" ;
@@ -6,6 +6,10 @@ type Tab = "account" | "security" | "notifications" | "interface" ;
 
 export default function EmployeeSettings() {
   const [activeTab, setActiveTab] = useState<Tab>("account");
+
+  useEffect(() => {
+    window.scrollTo({ top: 0, left: 0, behavior: "instant" });
+  }, []);
 
   return (
     <div className="settings-page">

@@ -1,5 +1,5 @@
 import './Builder.css';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Tooltip } from "@radix-ui/themes";
 import { useParams, useNavigate } from 'react-router-dom';
 import ChatBar from '../../../components/ChatBar/ChatBar';
@@ -69,6 +69,10 @@ export default function Builder() {
     const [userInput, setUserInput] = useState("");
     const [attachedFiles, setAttachedFiles] = useState<string[]>([]); // change to File[] later
     const [voiceMode, setVoiceMode] = useState(false);
+
+    useEffect(() => {
+        window.scrollTo({ top: 0, left: 0, behavior: "instant" });
+    }, []);
 
     const handleSend = () => {
         /* nothing for now */

@@ -10,4 +10,5 @@ export type ModuleType = {
     createTime: string;
     difficulty: string;
     references: string[]; // change to File later
+    kind: "simulation";
 };

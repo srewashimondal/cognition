@@ -10,6 +10,7 @@ export const standardModule: StandardModuleType[] = [
         deployed: true,
         createTime: "January 16, 2026",
         numLessons: 3,
+        kind: "standard",
         lessons: [
             {
                 id: 1,

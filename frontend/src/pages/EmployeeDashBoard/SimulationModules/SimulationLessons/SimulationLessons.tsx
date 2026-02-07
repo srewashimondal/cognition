@@ -44,7 +44,7 @@ export default function SimulationLessons() {
         <div className="simulation-lessons-pg">
             <div className="simulation-lessons-top">
                 <Tooltip content="Back">
-                    <div className="back-to-modules" onClick={() => navigate(`/employee/simulations`)}>
+                    <div className="back-to-modules" onClick={() => navigate(-1)}>
                         <img src={orange_left_arrow} />
                     </div>
                 </Tooltip>

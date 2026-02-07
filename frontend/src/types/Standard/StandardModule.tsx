@@ -8,4 +8,5 @@ export type StandardModuleType = {
   lessons: StandardLessonType[];
   deployed?: boolean;
   createTime: string;
+  kind: "standard";
 };

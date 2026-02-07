@@ -25,7 +25,7 @@ export default function StandardLessons() {
         <div className="standard-lessons-page">
             <div className="simulation-lessons-top">
                 <Tooltip content="Back">
-                    <div className="back-to-modules" onClick={() => navigate(`/employee/standard-modules`)}>
+                    <div className="back-to-modules" onClick={() => navigate(-1)}>
                         <img src={orange_left_arrow} />
                     </div>
                 </Tooltip>

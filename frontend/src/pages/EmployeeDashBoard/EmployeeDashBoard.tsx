@@ -236,7 +236,7 @@ export default function EmployeeDashBoard() {
 
         <section className={`content employee ${(isSimulationPage || isSimulationLesson || isStandardLesson || isStandardLessonPg || isPerformancePg) ? "no-padding" : ""}`}>
           <Routes>
-            <Route index element={<EmployeeHome />} />
+            <Route index element={<EmployeeHome user={employee} />} />
             <Route path="simulations" element={<SimulationModules />} />
             <Route path="simulations/:moduleID" element={<SimulationLessons />} />
             <Route path="simulations/:moduleID/:lessonID/:simIdx" element={<SimulationPage role={"employee"} />} />

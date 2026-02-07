@@ -1,4 +1,5 @@
 import "./EmployeeResources.css";
+import { useEffect } from "react";
 
 const resourceSections = [
   {
@@ -52,6 +53,10 @@ const resourceSections = [
 ];
 
 export default function EmployeeResources() {
+  useEffect(() => {
+    window.scrollTo({ top: 0, left: 0, behavior: "instant" });
+  }, []);
+  
   return (
     <div className="resources-page">
       {/* Header */}

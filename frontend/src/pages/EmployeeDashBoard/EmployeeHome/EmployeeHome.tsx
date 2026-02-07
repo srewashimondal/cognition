@@ -1,6 +1,16 @@
 import './EmployeeHome.css';
+import { useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import ModuleCard from '../../../cards/ModuleCard/ModuleCard';
+import type { EmployeeUserType } from '../../../types/User/UserType';
+import type { EmployerUserType } from '../../../types/User/UserType';
 
-export default function EmployeeHome() {
+export default function EmployeeHome({ user }: { user: EmployeeUserType | EmployerUserType }) {
+    const navigate = useNavigate();
+    useEffect(() => {
+        window.scrollTo({ top: 0, left: 0, behavior: "instant" });
+    }, []);
+
     return (
         <div className="employee-home">
             {/* Welcome Banner */}
@@ -14,7 +24,8 @@ export default function EmployeeHome() {
                 </div>
             </div>
 
-            {/* Stats Overview */}
+            {/*
+            
             <div className="stats-grid">
                 <div className="stat-card">
                     <div className="stat-content">
@@ -56,56 +67,15 @@ export default function EmployeeHome() {
                         </div>
                     </div>
                 </div>
-            </div>
+            </div> 
+            */}
 
-            {/* Learning Progress & Goals Section */}
-            <div className="two-column-section">
-                {/* Learning Streak */}
-                <div className="streak-card">
-                    <div className="streak-header">
-                        <h3>🔥 Learning Streak</h3>
-                    </div>
-                    <div className="streak-content">
-                        <div className="streak-number">5 Days</div>
-                        <p className="streak-text">Keep it up! You're on a roll</p>
-                        <div className="streak-days">
-                            <div className="day-circle active">M</div>
-                            <div className="day-circle active">T</div>
-                            <div className="day-circle active">W</div>
-                            <div className="day-circle active">T</div>
-                            <div className="day-circle active">F</div>
-                            <div className="day-circle">S</div>
-                            <div className="day-circle">S</div>
-                        </div>
-                    </div>
-                </div>
-
-                {/* Monthly Learning Goal */}
-                <div className="goal-card">
-                    <div className="goal-header">
-                        <h3>🎯 Monthly Learning Goal</h3>
-                    </div>
-                    <div className="goal-content">
-                        <div className="goal-stats">
-                            <span className="goal-current">12</span>
-                            <span className="goal-divider">/</span>
-                            <span className="goal-target">20 hours</span>
-                        </div>
-                        <div className="goal-progress-bar">
-                            <div className="goal-progress-fill" style={{width: '60%'}}></div>
-                        </div>
-                        <p className="goal-text">60% complete - You're doing great!</p>
-                    </div>
-                </div>
-            </div>
-
-            {/* Upcoming Deadlines */}
             <div className="section">
                 <div className="section-header">
                     <h2>Upcoming Deadlines</h2>
                 </div>
                 <div className="deadlines-list">
-                    <div className="deadline-item urgent">
+                    <div className="deadline-item urgent" onClick={() => navigate("/employee/standard-modules/1/3")}>
                         <div className="deadline-date">
                             <div className="date-box">
                                 <span className="date-day">24</span>
@@ -113,7 +83,7 @@ export default function EmployeeHome() {
                             </div>
                         </div>
                         <div className="deadline-info">
-                            <h4>Customer Service Excellence - Final Quiz</h4>
+                            <h4>Standards of Conduct Knowledge Check</h4>
                             <p>Due in 3 days</p>
                         </div>
                         <div className="deadline-badge urgent-badge">Urgent</div>
@@ -147,14 +117,18 @@ export default function EmployeeHome() {
                 </div>
             </div>
 
-            {/* Recent Enrolled Courses */}
             <div className="section">
                 <div className="section-header">
-                    <h2>Recent Enrolled Course (12)</h2>
+                    <h2>Recent Enrolled Course (2)</h2>
                     <button className="view-all-btn">View All</button>
                 </div>
                 <div className="courses-grid">
-                    <div className="course-card">
+                    {user.role === "employee" &&
+                        <>
+                            {user.modulesInProgress.map((m) => <ModuleCard moduleInfo={m.moduleInfo} role={"employee"} type={m.moduleInfo.kind} status={m.status} percent={m.percent} style={true} />)}
+                        </>
+                    }
+                    {/*<div className="course-card">
                         <div className="course-thumbnail">
                             <div className="course-preview figma-preview">
                                 <div className="preview-content">
@@ -237,12 +211,51 @@ export default function EmployeeHome() {
                                 <div className="progress-fill" style={{width: '90%'}}></div>
                             </div>
                         </div>
+                    </div> */}
+                </div>
+            </div>
+
+            <div className="two-column-section">
+                <div className="streak-card">
+                    <div className="streak-header">
+                        <h3>Learning Streak</h3>
+                    </div>
+                    <div className="streak-content">
+                        <div className="streak-number">5 Days</div>
+                        <p className="streak-text">Keep it up! You're on a roll</p>
+                        <div className="streak-days">
+                            <div className="day-circle active">M</div>
+                            <div className="day-circle active">T</div>
+                            <div className="day-circle active">W</div>
+                            <div className="day-circle active">T</div>
+                            <div className="day-circle active">F</div>
+                            <div className="day-circle">S</div>
+                            <div className="day-circle">S</div>
+                        </div>
+                    </div>
+                </div>
+
+                
+                <div className="goal-card">
+                    <div className="goal-header">
+                        <h3>Monthly Learning Goal</h3>
+                    </div>
+                    <div className="goal-content">
+                        <div className="goal-stats">
+                            <span className="goal-current">12</span>
+                            <span className="goal-divider">/</span>
+                            <span className="goal-target">20 hours</span>
+                        </div>
+                        <div className="goal-progress-bar">
+                            <div className="goal-progress-fill" style={{width: '60%'}}></div>
+                        </div>
+                        <p className="goal-text">60% complete - You're doing great!</p>
                     </div>
                 </div>
             </div>
 
-            {/* Skills & Badges */}
-            <div className="section">
+            
+            {/*<div className="section">
                 <div className="section-header">
                     <h2>🏅 Skills & Badges Earned</h2>
                     <button className="view-all-btn">View All</button>
@@ -275,8 +288,7 @@ export default function EmployeeHome() {
                 </div>
             </div>
 
-        {/*
-
+    
             <div className="section">
                 <div className="section-header">
                     <h2>💡 Recommended For You</h2>

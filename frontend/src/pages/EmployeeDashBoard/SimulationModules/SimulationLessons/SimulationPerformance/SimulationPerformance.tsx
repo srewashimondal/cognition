@@ -1,6 +1,6 @@
 import './SimulationPerformance.css';
 import { useParams, useNavigate } from 'react-router-dom';
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { moduleAttempts } from '../../../../../dummy_data/modulesAttempt_data';
 import back_arrow from '../../../../../assets/icons/orange-left-arrow.svg';
 import ActionButton from '../../../../../components/ActionButton/ActionButton';
@@ -131,6 +131,10 @@ export default function SimulationPerformance() {
       { scenario: "Alternative Suggestions", correct: 5, total: 7, accuracy: 71 }
     ]
   };
+
+  useEffect(() => {
+    window.scrollTo({ top: 0, left: 0, behavior: "instant" });
+  }, []);
 
   return (
     <div className="simulation-performance">

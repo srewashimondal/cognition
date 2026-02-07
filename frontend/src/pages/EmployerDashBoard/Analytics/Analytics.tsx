@@ -1,7 +1,7 @@
 import './Analytics.css';
 import FullCalendar from '@fullcalendar/react';
 import dayGridPlugin from '@fullcalendar/daygrid';
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import search_icon from '../../../assets/icons/lesson-edit/grey-search.svg';
 
 //To Do
@@ -53,6 +53,10 @@ export default function Analytics() {
       )
     );
   };
+
+  useEffect(() => {
+    window.scrollTo({ top: 0, left: 0, behavior: "instant" });
+  }, []);
 
   return (
     <>

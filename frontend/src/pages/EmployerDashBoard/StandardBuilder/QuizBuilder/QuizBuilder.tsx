@@ -1,5 +1,5 @@
 import './QuizBuilder.css';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import ActionButton from '../../../../components/ActionButton/ActionButton';
 import QuestionCard from '../../../../cards/QuestionCard/QuestionCard';
@@ -31,6 +31,10 @@ export default function QuizBuilder () {
     const [title, setTitle] = useState(quiz?.title ?? "New Quiz Title");
     const [questions, setQuestions] = useState<QuizQuestionType[]>(questionsList ?? []);
     const [questionToDelete, setQuestionToDelete] = useState<QuizQuestionType | null>(null);
+
+    useEffect(() => {
+        window.scrollTo({ top: 0, left: 0, behavior: "instant" });
+    }, []);
 
     const handleAddQuestion = () => {
         setQuestions(prev => {

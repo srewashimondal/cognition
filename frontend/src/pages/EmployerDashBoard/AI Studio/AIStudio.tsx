@@ -1,5 +1,5 @@
 import './AIStudio.css';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Question from '../Onboarding/Question/Question';
 import UploadDropzone from '../../../components/UploadDropzone/UploadDropzone';
 import ActionButton from '../../../components/ActionButton/ActionButton';
@@ -13,6 +13,10 @@ export default function AIStudio() {
     const [posProvider, setPOSProvider] = useState("");
     const [selectedSettings, setSelectedSettings] = useState<string[]>(["Sync Inventory", "Sync Products"]);
     const [changesMade, setChangesMade] = useState(false);
+
+    useEffect(() => {
+        window.scrollTo({ top: 0, left: 0, behavior: "instant" });
+    }, []);
 
     const allowedTypes = [
         "application/pdf",

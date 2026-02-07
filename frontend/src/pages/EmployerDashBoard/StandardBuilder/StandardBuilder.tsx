@@ -1,5 +1,5 @@
 import './StandardBuilder.css';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import ActionButton from '../../../components/ActionButton/ActionButton';
 import EmployerCard from '../../../cards/StandardLesson/EmployerCard/EmployerCard';
@@ -29,6 +29,10 @@ export default function StandardBuilder() {
     const [title, setTitle] = useState(module?.title ?? "New Module Title");
     const [lessons, setLessons] = useState<StandardLessonType[]>(lessonsList ?? []);
     const [lessonToDelete, setLessonToDelete] = useState<StandardLessonType | null>(null);
+
+    useEffect(() => {
+        window.scrollTo({ top: 0, left: 0, behavior: "instant" });
+    }, []);
 
     const handleDeploy = () => {
         /* Nothing for now */

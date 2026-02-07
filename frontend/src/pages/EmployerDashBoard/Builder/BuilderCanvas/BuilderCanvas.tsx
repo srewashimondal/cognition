@@ -159,8 +159,11 @@ export default function BuilderCanvas({ id }: BuilderCanvasProps) {
       
         el.scrollTop = el.scrollHeight;
     }, [chatMessages]);
+
+    useEffect(() => {
+        window.scrollTo({ top: 0, left: 0, behavior: "instant" });
+    }, []);
       
-    
     return (
         <div className="builder-canvas-page">
             {(openModal) && <div className="attach-overlay">

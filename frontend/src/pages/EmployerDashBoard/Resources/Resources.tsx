@@ -1,4 +1,4 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import "./Resources.css";
 
 type ResourceItem = {
@@ -49,6 +49,10 @@ export default function Resources() {
   const [sections, setSections] = useState<ResourceSection[]>(initialSections);
   const [activeFile, setActiveFile] = useState<ResourceItem | null>(null);
   const fileInputRefs = useRef<HTMLInputElement[]>([]);
+
+  useEffect(() => {
+    window.scrollTo({ top: 0, left: 0, behavior: "instant" });
+  }, []);
 
   const handleFileUpload = (sectionIndex: number, file: File) => {
     setSections((prev) =>

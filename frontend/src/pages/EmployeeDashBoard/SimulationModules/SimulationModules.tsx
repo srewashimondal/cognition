@@ -1,4 +1,5 @@
 import './SimulationModules.css';
+import { useEffect } from 'react';
 import { moduleAttempts } from '../../../dummy_data/modulesAttempt_data';
 import ModuleCard from '../../../cards/ModuleCard/ModuleCard';
 
@@ -69,6 +70,10 @@ const modules: ModuleAttemptType[] = [
 ];
 */
 export default function SimulationModules() {
+    useEffect(() => {
+        window.scrollTo({ top: 0, left: 0, behavior: "instant" });
+    }, []);
+
     return (
         <div className="employee-modules">
             <div className="modules-header">

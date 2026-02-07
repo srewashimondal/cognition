@@ -9,6 +9,7 @@ export const modules: ModuleType[] = [
       createTime: "January 16, 2025 10:00AM",
       difficulty: "Intermediate",
       references: ["Document1", "Document2", "Document3"],
+      kind: "simulation",
       lessons: [
         {
           id: 1,
@@ -72,6 +73,7 @@ export const modules: ModuleType[] = [
       createTime: "January 16, 2025 10:00AM",
       difficulty: "Intermediate",
       references: ["POS & Inventory Procedures", "Employee Handbook", "Customer Service Guidelines"],
+      kind: "simulation",
       lessons: [
         {
           id: 1,
@@ -135,6 +137,7 @@ export const modules: ModuleType[] = [
       createTime: "January 16, 2025 10:00AM",
       difficulty: "Intermediate",
       references: ["Document1", "Document2", "Document3"],
+      kind: "simulation",
       lessons: [
         {
           id: 1,
@@ -198,6 +201,7 @@ export const modules: ModuleType[] = [
       createTime: "January 16, 2025 10:00AM",
       difficulty: "Intermediate",
       references: ["Document1", "Document2", "Document3"],
+      kind: "simulation",
       lessons: [
         {
           id: 1,
@@ -261,6 +265,7 @@ export const modules: ModuleType[] = [
       createTime: "January 16, 2025 10:00AM",
       difficulty: "Intermediate",
       references: ["Document1", "Document2", "Document3"],
+      kind: "simulation",
       lessons: [
         {
           id: 1,
@@ -324,6 +329,7 @@ export const modules: ModuleType[] = [
       createTime: "January 16, 2025 10:00AM",
       difficulty: "Intermediate",
       references: ["Document1", "Document2", "Document3"],
+      kind: "simulation",
       lessons: [
         {
           id: 1,

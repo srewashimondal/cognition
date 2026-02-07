@@ -1,10 +1,15 @@
 import './HomePage.css';
+import { useEffect } from 'react';
 import NavBar from '../../components/NavBar/NavBar.tsx';
 import Hero from './sections/Hero/Hero.tsx';
 import HowItWorks from './sections/HowItWorks/HowItWorks.tsx';
 import Features from './sections/Features/Features.tsx';
 
 export default function HomePage() {
+    useEffect(() => {
+        window.scrollTo({ top: 0, left: 0, behavior: "instant" });
+    }, []);
+
     return (
         <div className="home-page">
             <NavBar />

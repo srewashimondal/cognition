@@ -1,5 +1,5 @@
 import "./Modules.css";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Tooltip } from "@radix-ui/themes";
 import type { WorkspaceType } from "../../../types/User/WorkspaceType.tsx";
@@ -14,6 +14,10 @@ export default function Modules({ workspace }: { workspace: WorkspaceType}) {
   const [activeTab, setActiveTab] = useState<Tab>("simulations");
   const modules = workspace.simulationModules;
   const standardModules = workspace.standardModules;
+
+  useEffect(() => {
+    window.scrollTo({ top: 0, left: 0, behavior: "instant" });
+  }, []);
 
   return (
     <div className="modules-page">

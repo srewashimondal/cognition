@@ -306,7 +306,7 @@
     margin: 0 0 0.5rem 0;
 }
 
-.course-title {
+/*.course-title {
     font-size: 1rem;
     font-weight: 600;
     color: #1a1a1a;
@@ -316,7 +316,7 @@
     -webkit-line-clamp: 2;
     -webkit-box-orient: vertical;
     overflow: hidden;
-}
+}*/
 
 .course-meta {
     display: flex;
@@ -626,6 +626,7 @@
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
     transition: transform 0.2s, box-shadow 0.2s;
     border: 1px solid #e5e7eb;
+    cursor: pointer;
 }
 
 .deadline-item:hover {
