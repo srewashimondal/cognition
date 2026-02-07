@@ -405,3 +405,18 @@
   justify-content: flex-end;
   margin-top: 20px;
 }
+
+.modal-title.event input {
+  background: none;
+  margin: 0;
+  font-size: 16px;
+  font-weight: 800;
+}
+
+.modal-title.event img {
+  width: 14px;
+}
+
+.event-meta-edit-wrapper {
+  padding: 7px;
+}

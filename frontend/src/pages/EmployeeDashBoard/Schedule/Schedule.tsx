@@ -390,7 +390,16 @@ export default function Schedule() {
             </div>
             <div className="modal-title event">
               <div className={`event-color ${selectedEvent.color}`} />
-              {selectedEvent.title}
+              { eventEditMode && <img src={edit_icon} /> }
+              {eventEditMode ? <input type="text" placeholder="Enter new title" value={selectedEvent.title} 
+                onChange={(e) =>
+                { const newTitle = e.target.value;
+                  setSelectedEvent(prev => prev ? { ...prev, title: newTitle } : prev);
+                  handleEventUpdate(selectedEvent.id, {
+                    title: newTitle,
+                  });
+                }}
+              /> : selectedEvent.title}
             </div>
             <div className="event-meta-wrapper">
               <div className="event-color" />
@@ -398,6 +407,86 @@ export default function Schedule() {
                 <p>{formatDateLong(selectedEvent.date)} ⋅{formatTimeAMPM(selectedEvent.start ?? "")} {selectedEvent.end? ` - ${formatTimeAMPM(selectedEvent.end)}` : ""}</p>
               </div>
             </div>
+            { eventEditMode &&
+                <div className="event-meta-edit-wrapper">
+                  <div className="row">
+                    <label className="field">
+                      <span>Date</span>
+                      <input
+                        type="date"
+                        value={selectedEvent.date}
+                        onChange={(e) => 
+                          { const newDate = e.target.value;
+                            setSelectedEvent(prev => prev ? { ...prev, date: newDate } : prev);
+                            handleEventUpdate(selectedEvent.id, {
+                              date: newDate,
+                            });
+                          }
+                        }
+                      />
+                    </label>
+
+                    <label className="field">
+                      <span>Color</span>
+                      <select
+                        value={selectedEvent.color}
+                        onChange={(e) =>
+                          { if (!selectedEvent) return;
+
+                            const newColor = e.target.value as CalendarEvent["color"];
+                        
+                            const updatedEvent: CalendarEvent = {
+                              ...selectedEvent,
+                              color: newColor,
+                            };
+                        
+                            setSelectedEvent(updatedEvent);
+                            handleEventUpdate(selectedEvent.id, { color: newColor });
+                          }}
+                      >
+                        <option value="red">Red</option>
+                        <option value="yellow">Yellow</option>
+                        <option value="purple">Purple</option>
+                        <option value="green">Green</option>
+                        <option value="blue">Blue</option>
+                      </select>
+                    </label>
+                  </div>
+
+                  <div className="row">
+                    <label className="field">
+                      <span>Start</span>
+                      <input
+                        type="time"
+                        value={selectedEvent.start ?? ""}
+                        onChange={(e) => {
+                          const newStart = e.target.value;
+                          setSelectedEvent(prev => prev ? { ...prev, start: newStart } : prev);
+                          handleEventUpdate(selectedEvent.id, {
+                            start: newStart,
+                          });
+                        }}
+                      />
+                    </label>
+
+                    <label className="field">
+                      <span>End</span>
+                      <input
+                        type="time"
+                        value={selectedEvent.end ?? ""}
+                        onChange={(e) => 
+                          { const newEnd = e.target.value;
+                            setSelectedEvent(prev => prev ? { ...prev, end: newEnd } : prev);
+                            handleEventUpdate(selectedEvent.id, {
+                              end: newEnd,
+                            });
+                          }
+                        }
+                      />
+                    </label>
+                  </div>
+                </div>
+              }
             { eventEditMode ?
               <textarea placeholder="Add event description" value={selectedEvent.description} 
               onChange={(e) => {
