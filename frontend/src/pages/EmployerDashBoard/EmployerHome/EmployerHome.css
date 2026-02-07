@@ -881,7 +881,7 @@
   justify-content: space-between;
   padding: 10px 20px;
   border: 2px solid #eee;
-  border-radius: 20px;
+  border-radius: 10px;
 }
 
 .leaderboard-item h2, .leaderboard-item h3, .leaderboard-item h4, .leaderboard-item p {

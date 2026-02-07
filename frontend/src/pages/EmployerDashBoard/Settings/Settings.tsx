@@ -1,8 +1,14 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import "./Settings.css";
+import eye_on from '../../../assets/icons/eye_on.svg';
+import eye_off from '../../../assets/icons/eye_off.svg';
+import default_icon from '../../../assets/icons/default-icon.svg';
+import icon_stroke from '../../../assets/icons/icon-stroke.svg';
+import add_cta from '../../../assets/icons/add-cta.svg';
+import { workspace } from "../../../dummy_data/workspace_data";
+import { Tooltip, Select } from "@radix-ui/themes";
 
-type Tab = "account" | "security" | "notifications" | "interface" | "payments";
-
+type Tab = "account" | "notifications" | "interface" | "payments" | "workspace";
 
 export default function Settings() {
   const [activeTab, setActiveTab] = useState<Tab>("account");
@@ -19,15 +25,22 @@ export default function Settings() {
           className={activeTab === "account" ? "active" : ""}
           onClick={() => setActiveTab("account")}
         >
-          Account Setting
+          Account Settings
         </span>
 
         <span
+          className={activeTab === "workspace" ? "active" : ""}
+          onClick={() => setActiveTab("workspace")}
+        >
+          Workspace Settings
+        </span>
+
+        {/*<span
           className={activeTab === "security" ? "active" : ""}
           onClick={() => setActiveTab("security")}
         >
           Login & Security
-        </span>
+        </span>*/}
 
         <span
           className={activeTab === "notifications" ? "active" : ""}
@@ -51,21 +64,24 @@ export default function Settings() {
         </span>
       </div>
 
-      <hr />
 
       {/* CONTENT */}
       {activeTab === "account" && <AccountSettings />}
-      {activeTab === "security" && <SecuritySettings />}
+      {activeTab === "workspace" && <WorkspaceSettings />}
+      {/*activeTab === "security" && <SecuritySettings />*/}
       {activeTab === "notifications" && <NotificationSettings />}
       {activeTab === "interface" && <InterfaceSettings />}
       {activeTab === "payments" && <PaymentsSettings />}
+      
     </div>
   );
 }
 
 function AccountSettings() {
+
   return (
-    <>
+    <div className="account-settings">
+      <h3 className="security-title">Account Information</h3>
       <div className="form-grid">
         <div>
           <label>Full name</label>
@@ -77,7 +93,7 @@ function AccountSettings() {
           <input placeholder="Please enter your email" />
         </div>
 
-        <div>
+        {/*<div>
           <label>Username</label>
           <input placeholder="Please enter your username" />
         </div>
@@ -85,23 +101,29 @@ function AccountSettings() {
         <div>
           <label>Phone number</label>
           <input placeholder="Please enter your phone number" />
-        </div>
+        </div>*/}
       </div>
 
-      <div className="bio-section">
+      {/*<div className="bio-section">
         <label>Bio</label>
         <textarea placeholder="Write your Bio here e.g your hobbies, interests ETC" />
-      </div>
+      </div>*/}
 
       <div className="actions">
-        <button className="primary">Update Profile</button>
+        <button className="primary">Save Changes</button>
         <button className="secondary">Reset</button>
       </div>
-    </>
+      <div className="security-wrapper">
+        {SecuritySettings()}
+      </div>
+    </div>
   );
 }
 
 function SecuritySettings() {
+  const [viewCurrentPassword, setViewCurrentPassword] = useState(false);
+  const [viewNewPassword, setViewNewPassword] = useState(false);
+
   return (
     <div className="security-section">
       {/* Header */}
@@ -114,14 +136,18 @@ function SecuritySettings() {
       <div className="form-grid">
         <div className="password-field">
           <label>Current password</label>
-          <input type="password" placeholder="••••••••" />
-          <span className="eye">👁</span>
+          <input type={viewCurrentPassword ? "text" : "password"} placeholder="••••••••" />
+          <span className="eye" onClick={() => setViewCurrentPassword(prev => !prev)} >
+            <img src={viewCurrentPassword ? eye_on : eye_off} />
+          </span>
         </div>
 
         <div className="password-field">
           <label>New password</label>
-          <input type="password" placeholder="Enter new password" />
-          <span className="eye">👁</span>
+          <input type={viewNewPassword ? "text" : "password"} placeholder="Enter new password" />
+          <span className="eye" onClick={() => setViewNewPassword(prev => !prev)}>
+            <img src={viewNewPassword ? eye_on : eye_off} />
+          </span>
         </div>
       </div>
 
@@ -479,6 +505,108 @@ function PaymentsSettings() {
           </>
         )}
       </div>
+    </div>
+  );
+}
+
+function WorkspaceSettings() {
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
+  const [uploadedPFP, setUploadedPFP] = useState<string | File>(workspace.icon ?? "");
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [workspaceTitle, setWorkspaceTitle] = useState(workspace.name);
+  const [storeTitle, setStoreTitle] = useState(workspace.store.storeName);
+  const [category, setCategory] = useState(workspace.store.category);
+  const [format, setFormat] = useState(workspace.store.storeFormat);
+
+  useEffect(() => {
+    if (typeof uploadedPFP === "string") {
+        setImagePreview(null);
+        return;
+    }
+    const url = URL.createObjectURL(uploadedPFP);
+    setImagePreview(url);
+
+    return () => URL.revokeObjectURL(url);
+  }, [uploadedPFP]);
+  const displayIcon = imagePreview ?? (typeof uploadedPFP === "string" ? uploadedPFP : undefined);
+
+  const storeCategories = ["Beauty & Cosmetics", "Drugstore & Pharmacy","General Retail", "Electronics & Tech", "Apparel & Fashion", "Specialty Retail", "Home Goods", "Grocery", "Sporting Goods & Hobbies"];
+  type storeCategory = "Beauty & Cosmetics" | "Drugstore & Pharmacy"| "General Retail" | "Electronics & Tech" | "Apparel & Fashion" | "Specialty Retail" | "Home Goods" | "Grocery" | "Sporting Goods & Hobbies";
+
+  const storeFormats = ["Standalone Store", "Mall Location", "Department Store Section"];
+  type storeFormat = "Standalone Store" | "Mall Location" | "Department Store Section";
+
+  return (
+    <div className="workspace-settings">
+      <h3 className="security-title">Workspace Information</h3>
+      <div className="form-grid workspace">
+        <label>Workspace Icon</label>
+        {(imagePreview || uploadedPFP) ? 
+          (<div className="avatar-wrapper pfp-upload-container">
+            <img src={displayIcon} className="uploaded-image"/>
+            <img src={icon_stroke} className="img-frame"/>
+            <Tooltip content="Update profile picture">
+                <img src={add_cta} className="pfp-add" onClick={() => fileInputRef.current?.click()}/>
+            </Tooltip>
+            <input ref={fileInputRef} type="file" accept="image/*" hidden onChange={(e) => {const file = e.target.files?.[0]; if (file) setUploadedPFP(file);}}/>
+          </div>) :
+          (<div className="pfp-upload">
+              <img src={default_icon} className="pfp-base"/>
+              <Tooltip content="Update workspace icon">
+                  <img src={add_cta} className="pfp-add" onClick={() => fileInputRef.current?.click()}/>
+              </Tooltip>
+              <input ref={fileInputRef} type="file" accept="image/*" hidden onChange={(e) => {const file = e.target.files?.[0]; if (file) setUploadedPFP(file);}}/>
+          </div>)}
+          
+          <div>
+            <label>Workspace Name</label>
+            <input placeholder="Update workspace name" type="text" value={workspaceTitle} onChange={(e) => setWorkspaceTitle(e.target.value)} />
+          </div>
+
+          <div className="actions workspace">
+            <button className="primary">Save Changes</button>
+            <button className="secondary">Reset</button>
+          </div>
+        </div>
+        <div className="store-info-wrapper">
+          <h3 className="security-title">Store Information</h3>
+          <div className="form-grid workspace">
+            <div>
+              <label>Store Name</label>
+              <input placeholder="Update store name" type="text" value={storeTitle} onChange={(e) => setStoreTitle(e.target.value)} />
+            </div>
+            <div>
+              <div className="form-grid-select-item">
+                <label>Store Category</label>
+                <Select.Root defaultValue={category} value={category} onValueChange={(c: storeCategory) => setCategory(c)}>
+                  <Select.Trigger />
+                  <Select.Content color="orange">
+                    {storeCategories.map(c => 
+                      <Select.Item key={c} value={c} >{c}</Select.Item>
+                    )}
+                  </Select.Content>
+                </Select.Root>
+              </div>
+              <div className="form-grid-select-item">
+                <label>Store Format</label>
+                <Select.Root defaultValue={format} value={format} onValueChange={(c: storeFormat) => setFormat(c)}>
+                  <Select.Trigger />
+                  <Select.Content color="orange">
+                    {storeFormats.map(c => 
+                      <Select.Item key={c} value={c} >{c}</Select.Item>
+                    )}
+                  </Select.Content>
+                </Select.Root>
+              </div>
+            </div>
+
+            <div className="actions workspace">
+              <button className="primary">Save Changes</button>
+              <button className="secondary">Reset</button>
+            </div>
+
+          </div>
+        </div>
     </div>
   );
 }

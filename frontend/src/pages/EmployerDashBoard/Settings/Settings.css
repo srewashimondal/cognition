@@ -214,6 +214,11 @@ button.secondary:hover {
   color: #6b7280;
 }
 
+.eye img {
+  width: 18px;
+  height: 18px;
+}
+
 .password-strength {
   display: flex;
   align-items: center;
@@ -554,4 +559,32 @@ button.secondary:hover {
   display: flex;
   gap: 12px;
   margin-top: 18px;
+}
+
+.account-settings {
+  display: flex;
+  flex-direction: column;
+}
+
+.security-wrapper {
+  margin-top: 40px;
+}
+
+.form-grid.workspace {
+  display: flex;
+  width: 60%;
+  flex-direction: column;
+  justify-content: space-around;
+}
+
+.store-info-wrapper {
+  margin-top: 40px;
+}
+
+.form-grid-select-item {
+  width: 100%;
+}
+
+.actions.workspace {
+  margin-top: 0;;
 }
