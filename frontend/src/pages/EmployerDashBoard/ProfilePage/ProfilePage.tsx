@@ -7,7 +7,7 @@ import default_icon from '../../../assets/icons/default-icon.svg';
 import icon_stroke from '../../../assets/icons/icon-stroke.svg';
 import add_cta from '../../../assets/icons/add-cta.svg';
 import wavy_check from '../../../assets/icons/wavy-check-icon.svg';
-import trophy_icon from '../../../assets/icons/trophy-icon.svg';
+import trophy_icon from '../../../assets/icons/badges/black-medal-icon-2.svg';
 import right_chevron from '../../../assets/icons/chevron-right-icon.svg';
 import log_out_icon from '../../../assets/icons/log-out-icon.svg';
 import edit_icon from '../../../assets/icons/white-edit-icon.svg';
@@ -202,7 +202,7 @@ export default function ProfilePage({ open, onClose, user, viewer, tempPfp }: Pr
                     <img src={trophy_icon}/>
                     <div className="progress-item-name">
                       <h3>{user.achievements.length}</h3>
-                      <p>achievement{user.achievements.length !== 1 ? "s" : ""}</p>
+                      <p>badge{user.achievements.length !== 1 ? "s" : ""}</p>
                     </div>
                   </div>
                   <img src={right_chevron} />

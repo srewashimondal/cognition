@@ -8,7 +8,7 @@ import { Tooltip } from "@radix-ui/themes";
 
 import trending_up from '../../../assets/icons/green-trending-up-icon.svg';
 import chart_icon from '../../../assets/icons/white-line-chart-icon.svg';
-import prize_icon from '../../../assets/icons/white-prize-icon.svg';
+import prize_icon from '../../../assets/icons/badges/white-medal-icon.svg';
 import clock_icon from '../../../assets/icons/white-clock-icon.svg';
 import lessons_completed from '../../../assets/icons/white-lessons-completed-icon.svg';
 import star_icon from '../../../assets/icons/badges/star-icon.svg';
@@ -16,6 +16,10 @@ import bolt_icon from '../../../assets/icons/badges/bolt-icon.svg';
 import map_icon from '../../../assets/icons/badges/map-icon.svg';
 import right_arrow from '../../../assets/icons/white-right-arrow.svg';
 import ai_icon from '../../../assets/icons/simulations/white-ai-icon.svg';
+
+import black_clock from '../../../assets/icons/simulations/black-clock-icon.svg';
+import bar_chart_icon from '../../../assets/icons/black-bar-chart-icon.svg';
+import black_prize from '../../../assets/icons/badges/black-medal-icon-1.svg';
 
 //To Do
   /*const initialTodos = [
@@ -256,7 +260,12 @@ export default function Analytics() {
 
         {/* Hours Spent */}
         <div className="card hours-card">
-          <h3 className="card-title">Hours Spent</h3>
+          <div className="card-title">
+            <span>
+              <img src={black_clock} />
+            </span>
+            Hours Breakdown
+          </div>
 
           <div className="hours-legend">
             <span><span className="dot study" /> Study</span>
@@ -307,7 +316,12 @@ export default function Analytics() {
 
         {/* Performance */}
         <div className="card performance-card">
-          <h3 className="card-title">Performance</h3>
+          <div className="card-title">
+            <span>
+              <img src={bar_chart_icon} />
+            </span>
+            Performance
+          </div>
 
           <div className="performance-inner">
             <div className="performance-header">
@@ -407,7 +421,12 @@ export default function Analytics() {
         </div>*/}
 
         <div className="card">
-          <h3 className="card-title">Badges</h3>
+          <div className="card-title">
+            <span>
+              <img src={black_prize} />
+            </span>
+            Badges
+          </div>
           <div className="progress-list">
               {janeCooper.achievements.map((a) => 
                 <div className="badge-item">

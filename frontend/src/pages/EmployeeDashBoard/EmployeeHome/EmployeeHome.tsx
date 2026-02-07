@@ -7,7 +7,7 @@ import type { EmployerUserType } from '../../../types/User/UserType';
 
 import trending_up from '../../../assets/icons/green-trending-up-icon.svg';
 import chart_icon from '../../../assets/icons/white-line-chart-icon.svg';
-import prize_icon from '../../../assets/icons/white-prize-icon.svg';
+import prize_icon from '../../../assets/icons/badges/white-medal-icon.svg';
 import clock_icon from '../../../assets/icons/white-clock-icon.svg';
 import lessons_completed from '../../../assets/icons/white-lessons-completed-icon.svg';
 import ai_icon from '../../../assets/icons/simulations/white-ai-icon.svg';

@@ -314,6 +314,15 @@
   font-size: 14px;
   font-weight: 600;
   margin-bottom: 12px;
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  gap: 7px;
+}
+
+.card-title img {
+  display: flex;
+  width: 16px;
 }
 
 /*Courses*/
