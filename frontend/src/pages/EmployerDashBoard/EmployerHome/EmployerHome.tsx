@@ -22,7 +22,8 @@ const modulePerformance = [
   {
     title: "Store Orientation and Navigation",
     avgScore: 78,
-    completion: 82
+    completion: 82,
+    totalEnrolled: 156
   },
   {
     title: "Product Knowledge & Inventory",

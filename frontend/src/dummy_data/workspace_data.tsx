@@ -7,7 +7,7 @@ import { employee, janeCooper } from "./user_data";
 export const workspace: WorkspaceType = {
     id: "workspace-1",
     name: "Acme Retail",
-    icon: "https://i.pinimg.com/1200x/20/4c/9b/204c9b1aa56c67d23bc247a401c10530.jpg",
+    icon: "https://i.pinimg.com/736x/c2/af/6e/c2af6e4f4ef43d2afda4b24894d3f3b8.jpg",
     admins: [employer],
     employees: [employee, janeCooper],
     simulationModules: modules,

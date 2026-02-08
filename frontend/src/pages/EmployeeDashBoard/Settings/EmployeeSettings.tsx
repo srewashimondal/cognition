@@ -1,5 +1,7 @@
 import { useState, useEffect } from "react";
 import "./EmployeeSettings.css";
+import eye_on from '../../../assets/icons/eye_on.svg';
+import eye_off from '../../../assets/icons/eye_off.svg';
 
 type Tab = "account" | "security" | "notifications" | "interface" ;
 
@@ -22,12 +24,12 @@ export default function EmployeeSettings() {
           Account Setting
         </span>
 
-        <span
+        {/*<span
           className={activeTab === "security" ? "active" : ""}
           onClick={() => setActiveTab("security")}
         >
           Login & Security
-        </span>
+        </span>*/}
 
         <span
           className={activeTab === "notifications" ? "active" : ""}
@@ -49,7 +51,7 @@ export default function EmployeeSettings() {
 
       {/* CONTENT */}
       {activeTab === "account" && <AccountSettings />}
-      {activeTab === "security" && <SecuritySettings />}
+      {/*activeTab === "security" && <SecuritySettings />*/}
       {activeTab === "notifications" && <NotificationSettings />}
       {activeTab === "interface" && <InterfaceSettings />}
     </div>
@@ -58,7 +60,8 @@ export default function EmployeeSettings() {
 
 function AccountSettings() {
   return (
-    <>
+    <div className="account-settings">
+      <h3 className="security-title">Account Information</h3>
       <div className="form-grid">
         <div>
           <label>Full name</label>
@@ -87,14 +90,20 @@ function AccountSettings() {
       </div>
 
       <div className="actions">
-        <button className="primary">Update Profile</button>
+        <button className="primary">Save Changes</button>
         <button className="secondary">Reset</button>
       </div>
-    </>
+      <div className="security-wrapper">
+        {SecuritySettings()}
+      </div>
+    </div>
   );
 }
 
 function SecuritySettings() {
+  const [viewCurrentPassword, setViewCurrentPassword] = useState(false);
+  const [viewNewPassword, setViewNewPassword] = useState(false);
+
   return (
     <div className="security-section">
       {/* Header */}
@@ -107,14 +116,18 @@ function SecuritySettings() {
       <div className="form-grid">
         <div className="password-field">
           <label>Current password</label>
-          <input type="password" placeholder="••••••••" />
-          <span className="eye">👁</span>
+          <input type={viewCurrentPassword ? "text" : "password"} placeholder="••••••••" />
+          <span className="eye" onClick={() => setViewCurrentPassword(prev => !prev)}>
+            <img src={viewCurrentPassword ? eye_on : eye_off}/>
+          </span>
         </div>
 
         <div className="password-field">
           <label>New password</label>
-          <input type="password" placeholder="Enter new password" />
-          <span className="eye">👁</span>
+          <input type={viewNewPassword ? "text" : "password"} placeholder="Enter new password" />
+          <span className="eye" onClick={() => setViewNewPassword(prev => !prev)}>
+            <img src={viewNewPassword ? eye_on : eye_off} />
+          </span>
         </div>
       </div>
 
