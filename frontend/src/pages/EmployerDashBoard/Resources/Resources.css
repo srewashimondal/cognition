@@ -62,7 +62,9 @@
 
 /* Add file button */
 .add-file-btn {
-  background: #f97316;
+  display: flex;
+  gap: 5px;
+  background: #FF9E76;
   color: white;
   border: none;
   padding: 6px 14px;
@@ -74,7 +76,12 @@
 }
 
 .add-file-btn:hover {
-  background: #ea580c;
+  background: rgb(223, 93, 23);
+}
+
+.add-file-btn img {
+  width: 14px;
+  display: flex;
 }
 
 /* List */

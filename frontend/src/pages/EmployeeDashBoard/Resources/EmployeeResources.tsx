@@ -1,5 +1,6 @@
 import "./EmployeeResources.css";
 import { useEffect } from "react";
+import note_icon from '../../../assets/icons/orange-note-icon.svg';
 
 const resourceSections = [
   {
@@ -88,9 +89,11 @@ export default function EmployeeResources() {
             <ul className="resource-list">
               {section.items.map((item) => (
                 <li key={item} className="resource-item">
-                  <span className="doc-icon">📄</span>
+                  <span className="doc-icon">
+                    <img src={note_icon}/>
+                  </span>
                   <span className="doc-name">{item}</span>
-                  <button className="view-btn">View</button>
+                  <button className="view-btn-1">View</button>
                 </li>
               ))}
             </ul>

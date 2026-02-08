@@ -1,9 +1,10 @@
 import { useState, useRef, useEffect } from "react";
 import "./Resources.css";
+import white_plus from '../../../assets/icons/actions/white-plus-icon.svg';
 
 type ResourceItem = {
   name: string;
-  file: File;
+  file: File | null;
 };
 
 type ResourceSection = {
@@ -20,14 +21,48 @@ const initialSections: ResourceSection[] = [
     icon: "🏢",
     tone: "policies",
     description: "Company-wide policies all employees must review",
-    items: [],
+    items: [
+      {
+        name: "Sexual Harassment Policy",
+        file: null
+      },
+      {
+        name: "Code of Conduct",
+        file: null
+      },
+      {
+        name: "Equal Opportunity Policy",
+        file: null
+      },
+      {
+        name: "Photo & Media Consent Waiver",
+        file: null
+      }
+    ],
   },
   {
     title: "HR & Forms",
     icon: "🧾",
     tone: "hr",
     description: "Forms for requests, documentation, and approvals",
-    items: [],
+    items: [
+      {
+        name: "Request for Time Off",
+        file: null
+      },
+      {
+        name: "Doctor’s Excusal Form",
+        file: null
+      },
+      {
+        name: "Employee Information Update Form",
+        file: null
+      },
+      {
+        name: "Incident Report Form",
+        file: null
+      }
+    ],
   },
   {
     title: "Training & Operations",
@@ -91,12 +126,30 @@ export default function Resources() {
               </h3>
               <p>{section.description}</p>
 
+              <ul className="resource-list">
+              {section.items.map((item, idx) => (
+                <li key={idx} className="resource-item">
+                  <span className="doc-icon">📄</span>
+                  <span className="doc-name">{item.name}</span>
+                  <button
+                    className="view-btn-1"
+                    onClick={() => setActiveFile(item)}
+                  >
+                    View
+                  </button>
+                </li>
+                ))}
+              </ul>
+
               {/* Add file */}
               <button
                 className="add-file-btn"
                 onClick={() => fileInputRefs.current[sectionIndex]?.click()}
               >
-                + Add File
+                <span>
+                  <img src={white_plus} />
+                </span>
+                Add File
               </button>
 
               <input
@@ -113,20 +166,6 @@ export default function Resources() {
               />
             </div>
 
-            <ul className="resource-list">
-              {section.items.map((item, idx) => (
-                <li key={idx} className="resource-item">
-                  <span className="doc-icon">📄</span>
-                  <span className="doc-name">{item.name}</span>
-                  <button
-                    className="view-btn"
-                    onClick={() => setActiveFile(item)}
-                  >
-                    View
-                  </button>
-                </li>
-              ))}
-            </ul>
           </div>
         ))}
       </div>
@@ -152,30 +191,32 @@ export default function Resources() {
             </div>
 
             <div className="modal-body">
-              {activeFile.file.type.includes("pdf") && (
+              {activeFile.file?.type.includes("pdf") && (
                 <iframe
                   src={URL.createObjectURL(activeFile.file)}
                   title="PDF Preview"
                 />
               )}
 
-              {activeFile.file.type.startsWith("image/") && (
+              {activeFile.file?.type.startsWith("image/") && (
                 <img
                   src={URL.createObjectURL(activeFile.file)}
                   alt="Preview"
                 />
               )}
 
-              {!activeFile.file.type.includes("pdf") &&
-                !activeFile.file.type.startsWith("image/") && (
+              {!activeFile.file?.type !== null &&
+              !activeFile.file?.type.includes("pdf") &&
+                !activeFile.file?.type.startsWith("image/") && (
                   <div className="file-fallback">
                     <p>Preview not available.</p>
+                    {activeFile.file &&
                     <a
                       href={URL.createObjectURL(activeFile.file)}
                       download={activeFile.name}
                     >
                       Download File
-                    </a>
+                    </a>}
                   </div>
                 )}
             </div>
