@@ -25,9 +25,9 @@ export default function NavBar({ login=true }: NavBarProps) {
         </div>
         <div className="login-div">
             {
-                (login) && <Link to="/login">
-                                <button className="login-button">Login</button>
-                            </Link>
+            (login) && <Link to="/login">
+                            <button className="login-button">Login</button>
+                        </Link>
             }
         </div>
     </div>);

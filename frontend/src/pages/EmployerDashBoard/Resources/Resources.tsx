@@ -69,14 +69,48 @@ const initialSections: ResourceSection[] = [
     icon: "🎓",
     tone: "training",
     description: "Guidelines to support daily retail operations",
-    items: [],
+    items: [
+      {
+        name: "Employee Handbook",
+        file: null
+      },
+      {
+        name: "Store Training Standards",
+        file: null
+      },
+      {
+        name: "Customer Service Guidelines",
+        file: null
+      },
+      {
+        name: "POS & Inventory Procedures",
+        file: null
+      }
+    ],
   },
   {
     title: "Safety & Compliance",
     icon: "🛡️",
     tone: "safety",
     description: "Safety instructions and emergency information",
-    items: [],
+    items: [
+      {
+        name: "Workplace Safety Guidelines",
+        file: null
+      },
+      {
+        name: "Emergency Evacuation Plan",
+        file: null
+      },
+      {
+        name: "Health & Sanitation Protocols",
+        file: null
+      },
+      {
+        name: "Labor Law Notices",
+        file: null
+      }
+    ],
   },
 ];
 

@@ -2,17 +2,18 @@
     display: flex;
     justify-content: space-between;
     width: 100%;
-    position: fixed;
+    position: absolute;
     top: 0;
     left: 0;
-    z-index: 1000;
-    height: 100px;
+    /*z-index: 999;*/
+    height: 70px;
     background: white;
     margin: 0;
     font-family: Instrument Sans, system-ui, sans-serif;
+    padding-top: 20px;
 }
 
-.navbar::after {
+/*.navbar::after {
     content: "";
     position: absolute;
     left: 0;
@@ -26,7 +27,7 @@
       rgba(255, 255, 255, 0)
     );
     pointer-events: none;
-  }
+  }*/
 
 .logo-div {
     display: flex;
@@ -38,6 +39,7 @@
     width: 60px;
     height: 55px;
     transition: box-shadow 0.25s ease, transform 0.25s ease;
+    z-index: 2000;
 }
 
 .logo:hover {
@@ -60,24 +62,26 @@
 }
 
 .login-button {
-    border-radius: 20px;
-    background-color: #FFBC70;
+    border-radius: 25px;
+    padding: 7px 20px;
+    background-color: #FF4B00;
     color: white;
     margin-bottom: 10px;
     transition: 0.25s ease, transform 0.15s ease;
-    border-color: #FFBC70;
+    border-color: #FF4B00;
     border-width: 2px;
 }
 
 .login-button:hover {
     background-color: white;
-    color: #FFBC70;
-    border-color: #FFBC70;
+    color: #FF4B00;
+    border-color: #FF4B00;
     border-width: 2px;
 }
 
 .hyper-link {
     transition: 0.25s ease, transform 0.15s ease;
+    z-index: 2000;
 }
 
 .hyper-link:hover {
