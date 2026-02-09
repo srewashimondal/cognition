@@ -62,6 +62,8 @@
     width: 100%;
     justify-content: space-between;
     padding: 40px;
+    padding-left: 90px;
+    padding-right: 90px;
 }
 
 .hero-page img {
@@ -85,6 +87,7 @@
 .hero-highlight {
     color: #6ecff6;
 }
+
 
 .hero-bold {
     font-weight: 600;
@@ -239,7 +242,7 @@
 }
 
 .sec3-page {
-    padding: 30px;
+    padding: 50px;
     margin-top: 100px;
     width: 100%;
 }
