@@ -116,6 +116,10 @@ function QuizPage({ lesson, moduleTitle, onClick }: { lesson: QuizLessonType | n
     const [questionAnswers, setQuestionAnswers] = useState<QuestionAttemptType[]>([]);
     const [error, setError] = useState<string | null>(null);
 
+    useEffect(() => {
+        window.scrollTo({ top: 0, left: 0, behavior: "instant" });
+    }, []);
+
     const handleBack = () => {
         setCurrentQuestionIdx(i => i - 1);
     };
@@ -259,6 +263,10 @@ function QuizComplete({ lesson, onClick, handleBack }: { lesson: QuizLessonType 
         setFill(0);
         const t = setTimeout(() => {setFill(60);}, 100);
         return () => clearTimeout(t);
+    }, []);
+
+    useEffect(() => {
+        window.scrollTo({ top: 0, left: 0, behavior: "instant" });
     }, []);
 
     return (

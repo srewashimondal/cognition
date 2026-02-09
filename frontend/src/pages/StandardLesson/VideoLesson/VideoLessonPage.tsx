@@ -37,6 +37,10 @@ export default function VideoLessonPage({ lesson, handleBack, moduleTitle }: Vid
     const [userInput, setUserInput] = useState("");
     const [showTranscript, setShowTranscript] = useState(false);
 
+    useEffect(() => {
+        window.scrollTo({ top: 0, left: 0, behavior: "instant" });
+    }, []);
+    
     const handlePlay = () => {
         videoRef.current?.play();
         setIsPlaying(true);
