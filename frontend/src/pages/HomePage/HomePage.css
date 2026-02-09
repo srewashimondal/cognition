@@ -122,7 +122,7 @@
 
 .hero-cta:hover {
     border: 1px solid #70D2F0;
-    background-color: white;
+    background-color: transparent;
     color: #70D2F0;
 }
 
