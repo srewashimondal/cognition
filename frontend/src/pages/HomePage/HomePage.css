@@ -61,11 +61,11 @@
     display: flex;
     width: 100%;
     justify-content: space-between;
-    padding: 30px;
+    padding: 40px;
 }
 
 .hero-page img {
-    width: 520px;
+    width: 560px;
 }
 
 .hero-left {
@@ -79,7 +79,7 @@
 .hero-left h1 {
     line-height: 1.1;
     font-weight: 500;
-    font-size: 54px;
+    font-size: 68px;
 }
 
 .hero-highlight {
