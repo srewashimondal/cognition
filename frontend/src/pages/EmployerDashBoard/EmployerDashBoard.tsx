@@ -15,7 +15,6 @@ import logo from '../../assets/branding/cognition-logo.png';
 import bell from '../../assets/icons/bell.svg';
 // import down_chevron from '../../assets/icons/black-down-chevron.svg';
 import sidebar_icon from '../../assets/icons/sidebar-icon.svg';
-import { employer } from '../../dummy_data/user_data.tsx';
 import { workspace } from '../../dummy_data/workspace_data.tsx';
 
 import white_home from '../../assets/icons/sidebar/white-home-icon.svg';
@@ -50,6 +49,11 @@ export default function EmployerDashBoard() {
   const { pathname } = useLocation();
   const isBuilderPage = pathname.includes("builder");
   const isSimulationPage = pathname.includes("simulations");
+  const storedUser = sessionStorage.getItem("currentUser");
+  const currentUser = storedUser ? JSON.parse(storedUser) : null;
+
+if (!currentUser) return null;
+
 
   const mockCurrentUser = {
     id: "employer-1",
@@ -199,7 +203,7 @@ export default function EmployerDashBoard() {
                 onClick={() => setProfileOpen(true)}
               >
                 <img
-                  src={employer.profilePicture}
+                  src={currentUser.profilePicture}
                   className="avatar"
                 />
                 {/*<span className="username">{employer.fullName}</span>
@@ -238,7 +242,7 @@ export default function EmployerDashBoard() {
         </section>
       </main>
 
-      <ProfilePage open={profileOpen} onClose={() => setProfileOpen(false)} user={employer} viewer={mockCurrentUser} />
+      <ProfilePage open={profileOpen} onClose={() => setProfileOpen(false)} user={currentUser} viewer={mockCurrentUser} />
         
     </div>
   );
