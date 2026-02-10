@@ -32,12 +32,20 @@ type Tab = "Progress" | "Modules" | "Badges";
 export default function ProfilePage({ open, onClose, user, viewer, tempPfp }: ProfilePageProps) {
   const isOwnProfile = user.role === "employee" ? user.employeeID === viewer.id : user.employerID === viewer.id;
   const fileInputRef = useRef<HTMLInputElement | null>(null);
-  const [uploadedPFP, setUploadedPFP] = useState<string | File>(tempPfp ?? user.profilePicture ?? "");
+  const DEFAULT_PFP = "https://upload.wikimedia.org/wikipedia/commons/a/ac/Default_pfp.jpg";
+  const [uploadedPFP, setUploadedPFP] = useState<string | File>(
+    tempPfp ?? user.profilePicture ?? DEFAULT_PFP
+  );
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [editMode, setEditMode] = useState(false);
   const [currentTab, setCurrentTab] = useState<Tab>("Progress");
-  const [displayName, setDisplayName] = useState(user.fullName);
+  const [displayName, setDisplayName] = useState(user.fullName ?? "");
   const [error, setError] = useState<string | null>(null);
+  
+  useEffect(() => {
+    setDisplayName(user.fullName ?? "");
+  }, [user.fullName]);
+
 
   useEffect(() => {
       if (typeof uploadedPFP === "string") {

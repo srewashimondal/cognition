@@ -7,6 +7,7 @@ import logo from '../../assets/branding/cognition-logo.png';
 import bell from '../../assets/icons/bell.svg';
 import sidebar_icon from '../../assets/icons/sidebar-icon.svg';
 import ProfilePage from "../EmployerDashBoard/ProfilePage/ProfilePage";
+import { workspace } from '../../dummy_data/workspace_data';
 /*
 import SimulationLessonView from './SimulationLessonView/SimulationLessonView/SimulationLessonView';
 import SimulationView from './SimulationView/SimulationView';
@@ -21,8 +22,6 @@ import SimulationLessons from './SimulationModules/SimulationLessons/SimulationL
 import SimulationPage from '../Simulation/SimulationPage';
 import StandardLessons from './StandardModules/StandardLessons/StandardLessons';
 import StandardLessonPage from '../StandardLesson/StandardLessonPage';
-import { employee } from '../../dummy_data/user_data';
-import { workspace } from '../../dummy_data/workspace_data';
 
 import white_home from '../../assets/icons/sidebar/white-home-icon.svg';
 import black_home from '../../assets/icons/sidebar/black-home-icon.svg';
@@ -53,6 +52,10 @@ export default function EmployeeDashBoard() {
     const isStandardLesson = useMatch("/employee/standard-modules/:moduleID");
     const isStandardLessonPg = useMatch("/employee/standard-modules/:moduleID/:lessonID");
     const isPerformancePg = useMatch("/employee/simulations/:moduleId/performance");
+    const storedUser = sessionStorage.getItem("currentUser");
+    const currentUser = storedUser ? JSON.parse(storedUser) : null;
+    if (!currentUser) return null;
+
 
     const mockCurrentUser = {
       id: "employee-1",
@@ -221,7 +224,7 @@ export default function EmployeeDashBoard() {
                 onClick={() => setProfileOpen(prev => !prev)}
               >
                 <img
-                  src={employee.profilePicture}
+                  src={currentUser.profilePicture}
                   className="avatar"
                 />
                 {/*<span className="username">{employee.fullName}</span>
@@ -236,7 +239,7 @@ export default function EmployeeDashBoard() {
 
         <section className={`content employee ${(isSimulationPage || isSimulationLesson || isStandardLesson || isStandardLessonPg || isPerformancePg) ? "no-padding" : ""}`}>
           <Routes>
-            <Route index element={<EmployeeHome user={employee} workspace={workspace} />} />
+            <Route index element={<EmployeeHome user={currentUser} workspace={workspace} />} />
             <Route path="simulations" element={<SimulationModules />} />
             <Route path="simulations/:moduleID" element={<SimulationLessons />} />
             <Route path="simulations/:moduleID/:lessonID/:simIdx" element={<SimulationPage role={"employee"} />} />
@@ -254,7 +257,7 @@ export default function EmployeeDashBoard() {
         </section>
       </main>
 
-      <ProfilePage open={profileOpen} onClose={() => setProfileOpen(false)} user={employee} viewer={mockCurrentUser} />
+      <ProfilePage open={profileOpen} onClose={() => setProfileOpen(false)} user={currentUser} viewer={mockCurrentUser} />
         
     </div>
     );

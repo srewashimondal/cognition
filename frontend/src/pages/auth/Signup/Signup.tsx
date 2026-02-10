@@ -10,7 +10,8 @@ import gradient from '../../../assets/illustrations/gradient.jpg';
 import NavBar from '../../../components/NavBar/NavBar.tsx';
 import ErrorMessage from '../../../components/ErrorMessage/ErrorMessage.tsx';
 import { createUserWithEmailAndPassword } from "firebase/auth";
-import { auth } from "../../../firebase";
+import { auth, db } from "../../../firebase";
+import { doc, setDoc, serverTimestamp } from "firebase/firestore";
 import { useNavigate } from "react-router-dom";
 
 
@@ -22,6 +23,7 @@ export default function Signup({ role="employee" }: SignupProps) {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [reEnteredPassword, setReEnteredPassword] = useState("");
+    const [fullName, setFullName] = useState("");
     const [viewPassword, setViewPassword] = useState(false);
     const [viewReEnteredPassword, setViewReEnteredPassword] = useState(false);
     const [error, setError] = useState<string | null>(null);
@@ -49,11 +51,48 @@ export default function Signup({ role="employee" }: SignupProps) {
 
             const user = userCredential.user;
 
+            await setDoc(doc(db, "users", user.uid), {
+                uid: user.uid,
+                email: user.email,
+                fullName,
+                role,
+
+                // shared defaults
+                profilePicture: "",
+                notifPreference: "In-App",
+                workspaceID: "workspace-1",
+                joinDate: new Date().toLocaleString("en-US", {
+                    month: "long",
+                    year: "numeric",
+                }),
+
+                // role-based 
+                ...(role === "employee"
+                    ? {
+                        employeeID: user.uid,
+                        jobTitle: "Sales Associate",
+                        assignedModules: [],
+                        completedModules: [],
+                        modulesInProgress: [],
+                        achievements: [],
+                        averageScore: 0,
+                        totalHours: 0,
+                    }
+                    : {
+                        employerID: user.uid,
+                        jobTitle: "Manager",
+                    }),
+
+                createdAt: serverTimestamp(),
+                });
+
+
             if (role === "employer") {
                 navigate("/employer");
             } else {
                 navigate("/employee");
             }
+
 
         } catch (err: any) {
             setError(err.message);
@@ -93,6 +132,15 @@ export default function Signup({ role="employee" }: SignupProps) {
                         </div>
                     </div>
                     <form onSubmit={handleSubmit}>
+                        <div className="input-wrapper">
+                        <input
+                            type="text"
+                            required
+                            placeholder="Full Name"
+                            value={fullName}
+                            onChange={(e) => setFullName(e.target.value)}
+                        />
+                        </div>
                         <div className="input-wrapper">
                             <span className="input-icon">
                                 <img src={mail} alt="mail icon"/>

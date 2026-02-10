@@ -9,7 +9,8 @@ import eye_off from '../../../assets/icons/eye_off.svg';
 import NavBar from '../../../components/NavBar/NavBar.tsx';
 import ErrorMessage from '../../../components/ErrorMessage/ErrorMessage.tsx';
 import { signInWithEmailAndPassword } from "firebase/auth";
-import { auth } from "../../../firebase";
+import { doc, getDoc } from "firebase/firestore";
+import { auth, db } from "../../../firebase";
 
 export default function Login() {
     const [email, setEmail] = useState("");
@@ -33,12 +34,23 @@ export default function Login() {
             );
 
             const user = userCredential.user;
+            const uid = user.uid;
+            const userDoc = await getDoc(doc(db, "users", uid));
 
-            if (user.email?.includes("employer")) {
+            if (!userDoc.exists()) {
+                throw new Error("User profile not found.");
+            }
+
+            const userData = userDoc.data();
+            sessionStorage.setItem("currentUser", JSON.stringify(userData));
+
+
+            if (userData.role === "employer") {
                 navigate("/employer");
             } else {
                 navigate("/employee");
             }
+
         } catch (err: any) {
             setError(err.message);
         } finally {
