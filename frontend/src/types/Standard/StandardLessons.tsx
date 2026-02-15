@@ -24,6 +24,7 @@ export type VideoLessonType = {
     requireCompletion?: boolean;  
     allowPlaybackSpeed?: boolean;
     summaries?: SectionSummary[];
+    videoFilePath?: string;
 };
 
 export type QuizLessonType = {

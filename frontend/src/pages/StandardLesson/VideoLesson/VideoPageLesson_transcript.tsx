@@ -5,6 +5,7 @@ import ChatBubble from '../../Simulation/ChatBubble/ChatBubble';
 import ChatBar from '../../../components/ChatBar/ChatBar';
 import type { VideoLessonType } from '../../../types/Standard/StandardLessons';
 import type { MessageType } from '../../../types/Modules/Lessons/Simulations/MessageType';
+import type { TranscriptType } from '../../../types/Standard/TranscriptType';
 import left_arrow from '../../../assets/icons/orange-left-arrow.svg';
 import play_button from '../../../assets/icons/video-play-icon.svg';
 import right_chevron from '../../../assets/icons/chevron-right-icon.svg';
@@ -31,12 +32,10 @@ export default function VideoLessonPage({ lesson, handleBack, moduleTitle }: Vid
     const [userInput, setUserInput] = useState("");
     const [showTranscript, setShowTranscript] = useState(false);
     const [isGeneratingAI, setIsGeneratingAI] = useState(false);
+    const [isGeneratingTranscript, setIsGeneratingTranscript] = useState(false);
     const [generatedSummaries, setGeneratedSummaries] = useState(lesson.summaries ?? []);
+    const [transcript, setTranscript] = useState<TranscriptType[]>(lesson.transcript ?? []);
     const [errorMessage, setErrorMessage] = useState<string | null>(null);
-    const [transcriptData, setTranscriptData] = useState([]);
-    const [videoDuration, setVideoDuration] = useState(0);
-    const FIRESTORE_ID = "oahhToo3UsqgrYb9OOqt";
-
 
     useEffect(() => {
         window.scrollTo({ top: 0, left: 0, behavior: "instant" });
@@ -46,25 +45,6 @@ export default function VideoLessonPage({ lesson, handleBack, moduleTitle }: Vid
         videoRef.current?.play();
         setIsPlaying(true);
     };
-
-    useEffect(() => {
-        const fetchTranscript = async () => {
-            try {
-                const response = await fetch(`http://localhost:8000/ai/lesson/${FIRESTORE_ID}/transcript`);
-
-                if (!response.ok) return;
-
-                const data = await response.json();
-                setTranscriptData(data.transcript);
-                setVideoDuration(data.duration);
-            } catch (err) {
-                console.error("Error fetching transcript:", err);
-            }
-        };
-
-        fetchTranscript();
-    }, [lesson.id]);
-
 
     const handleSend = () => {
         if (!userInput.trim()) return;
@@ -101,18 +81,70 @@ export default function VideoLessonPage({ lesson, handleBack, moduleTitle }: Vid
         el.scrollTop = el.scrollHeight;
     }, [chatMessages]);
 
-    const generateAISummaries = async () => {
+    const generateTranscript = async () => {
+        if (!lesson.videoFilePath) {
+            setErrorMessage("Video file path is missing. Please ensure the video is properly uploaded.");
+            return;
+        }
 
+        try {
+            setIsGeneratingTranscript(true);
+            setErrorMessage(null);
+
+            const payload = {
+                lesson_id: lesson.id.toString(),
+                video_path: lesson.videoFilePath,
+            };
+
+            console.log("Generating transcript with payload:", payload);
+
+            const response = await fetch("http://localhost:8000/ai/generate-video-transcript", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify(payload),
+            });
+
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.detail || `HTTP error! status: ${response.status}`);
+            }
+
+            const data = await response.json();
+            console.log("Transcript generated:", data);
+
+            if (data.transcript) {
+                setTranscript(data.transcript);
+                setErrorMessage(null);
+            }
+
+        } catch (error) {
+            console.error("Error generating transcript:", error);
+            setErrorMessage(
+                error instanceof Error 
+                    ? `Failed to generate transcript: ${error.message}`
+                    : "An unexpected error occurred while generating transcript"
+            );
+        } finally {
+            setIsGeneratingTranscript(false);
+        }
+    };
+
+    const generateAISummaries = async () => {
+        if (!lesson.videoFilePath) {
+            setErrorMessage("Video file path is missing. Please ensure the video is properly uploaded.");
+            return;
+        }
 
         try {
             setIsGeneratingAI(true);
             setErrorMessage(null);
 
             const payload = {
-                lesson_id: "oahhToo3UsqgrYb9OOqt",
-                video_path: "trainingVideos/video1.mp4",
+                lesson_id: lesson.id.toString(),
+                video_path: lesson.videoFilePath,
             };
-
 
             console.log("Generating AI summaries with payload:", payload);
 
@@ -135,6 +167,10 @@ export default function VideoLessonPage({ lesson, handleBack, moduleTitle }: Vid
             if (data.sections) {
                 setGeneratedSummaries(data.sections);
                 setErrorMessage(null);
+            }
+            
+            if (data.transcript) {
+                setTranscript(data.transcript);
             }
 
         } catch (error) {
@@ -233,7 +269,7 @@ export default function VideoLessonPage({ lesson, handleBack, moduleTitle }: Vid
                         
                         <button 
                             onClick={generateAISummaries}
-                            disabled={isGeneratingAI}
+                            disabled={isGeneratingAI || !lesson.videoFilePath}
                             className="generate-ai-btn"
                             style={{
                                 opacity: isGeneratingAI || !lesson.videoFilePath ? 0.6 : 1,
@@ -282,7 +318,7 @@ export default function VideoLessonPage({ lesson, handleBack, moduleTitle }: Vid
                                 </div>
                                 <div className="ai-transcript-wrapper">
                                     <AITranscript 
-                                        transcript={transcriptData}
+                                        transcript={transcript} 
                                         currentTime={currentTime} 
                                         videoRef={videoRef} 
                                         isVisible={showTranscript}
@@ -291,13 +327,28 @@ export default function VideoLessonPage({ lesson, handleBack, moduleTitle }: Vid
                             </>
                         ) : (
                             <div className="view-transcript-btn-wrapper">
-                                <button 
-                                    className="view-transcript-btn" 
-                                    type="button" 
-                                    onClick={() => setShowTranscript(true)}
-                                >
-                                    View Transcript
-                                </button>
+                                {transcript.length === 0 ? (
+                                    <button 
+                                        className="view-transcript-btn" 
+                                        type="button" 
+                                        onClick={generateTranscript}
+                                        disabled={isGeneratingTranscript || !lesson.videoFilePath}
+                                        style={{
+                                            opacity: isGeneratingTranscript || !lesson.videoFilePath ? 0.6 : 1,
+                                            cursor: isGeneratingTranscript || !lesson.videoFilePath ? 'not-allowed' : 'pointer'
+                                        }}
+                                    >
+                                        {isGeneratingTranscript ? "Generating Transcript..." : "Generate Transcript"}
+                                    </button>
+                                ) : (
+                                    <button 
+                                        className="view-transcript-btn" 
+                                        type="button" 
+                                        onClick={() => setShowTranscript(true)}
+                                    >
+                                        View Transcript
+                                    </button>
+                                )}
                             </div>
                         )}
                     </>
