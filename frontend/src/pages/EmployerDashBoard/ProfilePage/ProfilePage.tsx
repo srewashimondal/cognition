@@ -23,14 +23,14 @@ interface ProfilePageProps {
   open: boolean;
   onClose: () => void;
   user: EmployeeUserType | EmployerUserType;
-  viewer: Record<string, string>; // change to EmployeeUserType | EmployerUserType later
+  viewer: EmployeeUserType | EmployerUserType;
   tempPfp?: string; // remove later
 }
 
 type Tab = "Progress" | "Modules" | "Badges";
 
 export default function ProfilePage({ open, onClose, user, viewer, tempPfp }: ProfilePageProps) {
-  const isOwnProfile = user.role === "employee" ? user.employeeID === viewer.id : user.employerID === viewer.id;
+  const isOwnProfile = user.role === "employee" ? user.employeeID === viewer.uid : user.employerID === viewer.uid;
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const DEFAULT_PFP = "https://upload.wikimedia.org/wikipedia/commons/a/ac/Default_pfp.jpg";
   const [uploadedPFP, setUploadedPFP] = useState<string | File>(

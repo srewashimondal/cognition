@@ -100,7 +100,7 @@ export default function QuizBuilder () {
             <div className="standard-canvas-wrapper">
                 <div className="standard-canvas-top">
                     <Tooltip content="Back">
-                        <div className="back-to-modules builder" onClick={handleBack}> {/* temporary route */}
+                        <div className="back-to-modules builder" onClick={() => navigate(-1)}> {/* temporary route */}
                             <img src={orange_left_arrow} />
                         </div>
                     </Tooltip>

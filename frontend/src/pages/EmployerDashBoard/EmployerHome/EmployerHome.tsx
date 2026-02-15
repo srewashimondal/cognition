@@ -5,7 +5,7 @@ import ProfilePage from "../ProfilePage/ProfilePage";
 import type { WorkspaceType } from "../../../types/User/WorkspaceType";
 import WorkspaceHero from "../../../components/WorkspaceHero/WorkspaceHero";
 import InviteTeam from "../Onboarding/InviteLaunch/Subsections/InviteTeam";
-
+import type { EmployerUserType } from "../../../types/User/UserType";
 import users_icon from '../../../assets/icons/white-users-icon.svg';
 import trending_up from '../../../assets/icons/green-trending-up-icon.svg';
 import chart_icon from '../../../assets/icons/white-line-chart-icon.svg';
@@ -116,7 +116,20 @@ const needAttention = [
   }
 ];
 
-export default function EmployerHome({ viewer, workspace }: { viewer: Record<string, string>, workspace: WorkspaceType }) {
+export default function EmployerHome({ viewer, workspace }: { viewer: EmployerUserType, workspace: WorkspaceType }) {
+
+  console.log("EmployerHome rendering with:", { viewer, workspace });
+  
+  if (!workspace) {
+    console.error("Workspace is undefined in EmployerHome!");
+    return <div>Error: Workspace not available</div>;
+  }
+
+  if (!viewer) {
+    console.error("Viewer is undefined in EmployerHome!");
+    return <div>Error: User not available</div>;
+  }
+
   const [search, setSearch] = useState("");
   const [profileOpen, setProfileOpen] = useState(false);
   const [chosenProfile, setChosenProfile] = useState<number | null>(null); // change to a different key later
@@ -149,8 +162,7 @@ export default function EmployerHome({ viewer, workspace }: { viewer: Record<str
   return (
   
     <div className="employer-dashboard">
-      {/* Welcome Banner */}
-      {/*<div className="welcome-banner">
+      {/*<div className="welcome-banner"> DO NOT UNCOMMENT
         <div className="welcome-left">
           <h3 className="welcome-title">
             Welcome back, Harsh! <span className="wave"></span>
@@ -185,7 +197,6 @@ export default function EmployerHome({ viewer, workspace }: { viewer: Record<str
 
       <WorkspaceHero role={"employer"} workspace={workspace} onClick={() => setOpenModal(true)} />
 
-      {/* Analytics Overview */}
       <div className="analytics-header">
         <h3 className="section-title">Acme Retail Analytics Overview</h3>
       </div>
@@ -255,7 +266,7 @@ export default function EmployerHome({ viewer, workspace }: { viewer: Record<str
       </div>
 
 
-      {/*
+      {/* do not uncomment
       <div className="charts-grid">
         <div className="chart-card">
           <h4 className="chart-title">Weekly Learner Activity</h4>

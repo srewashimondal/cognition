@@ -1,6 +1,7 @@
 import type { EmployeeUserType, EmployerUserType } from "./UserType"
 import type { ModuleType } from "../Modules/ModuleType";
 import type { StandardModuleType } from "../Standard/StandardModule";
+import type { DocumentReference } from "firebase/firestore";
 
 export type StoreType = {
     storeName: string;
@@ -15,6 +16,7 @@ export type WorkspaceType = {
     admins: EmployerUserType[];
     employees: EmployeeUserType[];
     simulationModules: ModuleType[];
-    standardModules: StandardModuleType[];
+    standardModules: DocumentReference[]; // was StandardModuleType[]
     store: StoreType;
+    storeID: DocumentReference;
 }

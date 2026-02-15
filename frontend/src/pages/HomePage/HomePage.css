@@ -156,7 +156,7 @@
     display: flex;
     justify-content: center;
     gap: 100px;
-    margin-top: 130px;
+    margin-top: 60px;
 }
 
 .sec2-middle-card {
@@ -210,7 +210,7 @@
 }
 
 .sec2-bottom {
-    margin-top: 150px;
+    margin-top: 170px;
     display: flex;
     flex-direction: column;
     align-items: center;

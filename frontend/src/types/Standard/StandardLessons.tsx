@@ -3,7 +3,7 @@ import type { TranscriptType } from "./TranscriptType";
 import type { MessageType } from "../Modules/Lessons/Simulations/MessageType";
 
 export type SectionSummary = {
-    id: number;
+    id: string;
     title: string;
     start: number;
     end: number;
@@ -11,12 +11,15 @@ export type SectionSummary = {
 };
 
 export type VideoLessonType = {
-    id: number;
+    id: string;
+    isTemp?: boolean;
+    orderNumber: number;
     title: string;
     type: "video";
     duration?: number;
-    dueDate?: string;
-    videoFileId?: string;        
+    dueDate?: string | null;
+    videoFilePath?: string;   
+    pendingVideoFile?: File;     
     filename?: string;
     durationSeconds?: number;
     thumbnailUrl?: string;     
@@ -24,17 +27,24 @@ export type VideoLessonType = {
     requireCompletion?: boolean;  
     allowPlaybackSpeed?: boolean;
     summaries?: SectionSummary[];
+    allowTranscript?: boolean;
+    allowSummary?: boolean;
 };
 
 export type QuizLessonType = {
-    id: number;
+    id: string;
+    isTemp?: boolean;
+    orderNumber: number;
     title: string;
     type: "quiz";
+    timeLimitMode?: "unlimited" | "custom";
+    timeLimitHour?: number;
+    timeLimitMinute?: number;
     duration?: number;
-    dueDate?: string;
+    dueDate?: string | null;
     questions?: QuizQuestionType[];
     passingScore?: number;
-    allowRetake?: boolean;
+    retakeMode?: "unlimited" | "custom";
     numberOfRetakes?: number;
 };
 

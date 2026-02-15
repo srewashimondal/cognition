@@ -16,9 +16,10 @@ type FileItemProps = {
     removeable?: boolean;
     starrable?: boolean;
     onClick?: () => void;
+    isUploading?: boolean;
 }
 
-export default function FileItem({ file, removeable, starrable, onClick }: FileItemProps) {
+export default function FileItem({ file, removeable, starrable, onClick, isUploading }: FileItemProps) {
     const [fill, setFill] = useState(0);
     const [val, setVal] = useState(0);
     const [starred, setStarred] = useState(false);
@@ -46,10 +47,10 @@ export default function FileItem({ file, removeable, starrable, onClick }: FileI
           {(file.type === "video/quicktime") && <img src={mov_icon} />} 
         </span>
   
-        <div className="file-info">
+        <div className={`file-info ${!isUploading ? "uploaded": ""}`}>
             <p className="file-name">{file.name}</p>
 
-            <div className="progress-bar-hm">
+            {isUploading && <div className="progress-bar-hm">
                 <div className="bar-wrapper">
                     <div
                         className="bar-fill"
@@ -57,7 +58,7 @@ export default function FileItem({ file, removeable, starrable, onClick }: FileI
                     />
                 </div>
                 {(val === 100) && <span className="progress-amt">{val}%</span>}
-            </div>
+            </div>}
         </div>
         <span className="removeable-actions">
             {(removeable) && <span className="file-icon remove" onClick={onClick}>

@@ -25,6 +25,10 @@
     justify-content: flex-end;
 }
 
+.file-info.uploaded {
+    justify-content: center;
+}
+
 .file-name {
     font-size: 10px;
 }

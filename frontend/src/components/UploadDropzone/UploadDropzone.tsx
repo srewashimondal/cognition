@@ -16,10 +16,15 @@ type UploadDropzoneProps = {
 export default function UploadDropzone({ amount, video, files, setFiles, allowedTypes, onDelete, handleChange }: UploadDropzoneProps) {
     const fileInputRef = useRef<HTMLInputElement | null>(null);
     const [dragging, setDragging] = useState(false);
+    const [isUploading, setIsUploading] = useState(false);
 
     const addFiles = (newFiles: File[]) => {
-        setFiles?.(prev => [...prev, ...newFiles]);
-        handleChange?.();
+        setIsUploading(true);
+        setTimeout(() => {
+            setFiles?.(prev => [...prev, ...newFiles]);
+            setIsUploading(false);
+            handleChange?.();
+        }, 2000);
     };
 
     switch (amount) {
@@ -54,7 +59,8 @@ export default function UploadDropzone({ amount, video, files, setFiles, allowed
                             {Array.isArray(files) && (
                                 <ul className="file-list">
                                     {files.map((file: File) => (
-                                        <FileItem key={file.name} file={file} removeable={true} starrable={true} onClick={() => onDelete?.(file)}/>
+                                        <FileItem key={file.name} file={file} removeable={true} starrable={true} onClick={() => onDelete?.(file)}
+                                        isUploading={isUploading} />
                                     ))}
                                 </ul>
                             )}

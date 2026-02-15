@@ -7,6 +7,7 @@ export type GenericModuleType = ModuleType | StandardModuleType;
 export type GenericModuleAttempt = ModuleAttemptType | StandardModuleAttempt;
 
 export type BaseUserType = {
+    uid: string;
     email: string;
     fullName: string;
     role: "employee" | "employer";

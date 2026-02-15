@@ -1,6 +1,6 @@
 import type { SectionSummary } from "../types/Standard/StandardLessons"; 
 
-export const summaries: SectionSummary[] = [
+export const summaries: any | SectionSummary[] = [
     {
         id: 1,
         title: "Introduction & Importance of Inventory Management",

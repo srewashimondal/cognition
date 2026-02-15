@@ -2,9 +2,9 @@ import type { StandardModuleType } from "../types/Standard/StandardModule";
 import { transcript } from './video_transcript.tsx';
 import { summaries } from "./sectionSummaries.tsx";
 
-export const standardModule: StandardModuleType[] = [
+export const standardModule: any | StandardModuleType[] = [
     {
-        id: 1,
+        id: "1",
         title: "Standards of Conduct",
         hours: "0:40",
         deployed: true,

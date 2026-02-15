@@ -15,7 +15,10 @@ import logo from '../../assets/branding/cognition-logo.png';
 import bell from '../../assets/icons/bell.svg';
 // import down_chevron from '../../assets/icons/black-down-chevron.svg';
 import sidebar_icon from '../../assets/icons/sidebar-icon.svg';
-import { workspace } from '../../dummy_data/workspace_data.tsx';
+// import { workspace } from '../../dummy_data/workspace_data.tsx'; // keep this in case
+import { useAuth } from "../../context/AuthProvider.tsx"; 
+import { useWorkspace } from '../../context/WorkspaceProvider.tsx';
+import defaultIcon from '../../assets/icons/default-icon.svg';
 
 import white_home from '../../assets/icons/sidebar/white-home-icon.svg';
 import black_home from '../../assets/icons/sidebar/black-home-icon.svg';
@@ -44,28 +47,57 @@ import StandardBuilder from './StandardBuilder/StandardBuilder.tsx';
 import QuizBuilder from './StandardBuilder/QuizBuilder/QuizBuilder.tsx';
 
 export default function EmployerDashBoard() {
+  console.log("EmployerDashboard mounted");
+
   const [profileOpen, setProfileOpen] = useState(false);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(true);
   const { pathname } = useLocation();
   const isBuilderPage = pathname.includes("builder");
   const isSimulationPage = pathname.includes("simulations");
-  const storedUser = sessionStorage.getItem("currentUser");
-  const currentUser = storedUser ? JSON.parse(storedUser) : null;
+  
+  const { user, loading: authLoading } = useAuth();
+  const { workspace, loading: workspaceLoading } = useWorkspace();
 
-if (!currentUser) return null;
+  // Log the current state
+  console.log("Current state:", { 
+    authLoading, 
+    workspaceLoading, 
+    hasUser: !!user, 
+    hasWorkspace: !!workspace,
+    userRole: user?.role 
+  });
 
+  // Show loading if either auth or workspace is loading
+  if (authLoading || workspaceLoading) {
+    // console.log("Still loading...", { authLoading, workspaceLoading });
+    return (
+      <div style={{ 
+        display: 'flex', 
+        justifyContent: 'center', 
+        alignItems: 'center', 
+        height: '100vh' 
+      }}>
+        Loading...
+      </div>
+    );
+  }
 
-  const mockCurrentUser = {
-    id: "employer-1",
-    role: "employer",
-  };
+  // After loading is complete, check for user
+  if (!user) {
+    // console.log("No user, redirecting");
+    return <Navigate to="/login" replace />;
+  }
+
+  // After loading is complete, check for workspace
+  if (!workspace) return null;
+
+  console.log("Rendering full dashboard with workspace:", workspace.name);
 
   return (
     <div className={`dashboard ${sidebarCollapsed ? "collapsed" : ""} ${isBuilderPage ? "white" : ""}`}>
       {/* Sidebar */}
       
       <aside className="sidebar">
-        
           <div className="logo">
             <Link to="/">
               <span className="logo-img">
@@ -203,7 +235,7 @@ if (!currentUser) return null;
                 onClick={() => setProfileOpen(true)}
               >
                 <img
-                  src={currentUser.profilePicture}
+                  src={user.profilePicture ?? defaultIcon}
                   className="avatar"
                 />
                 {/*<span className="username">{employer.fullName}</span>
@@ -216,13 +248,13 @@ if (!currentUser) return null;
           </div>
         </header>
 
-
+        { user && user?.role === "employer" && 
         <section className={`content employer ${(isSimulationPage || isBuilderPage) ? "no-padding" : ""}`}>
           <Routes>
-            <Route index element={<EmployerHome viewer={mockCurrentUser} workspace={workspace} />} />
+            <Route index element={<EmployerHome viewer={user} workspace={workspace} />} />
             <Route path="analytics" element={<Analytics />} />
             <Route path="modules" element={<Modules workspace={workspace}/>} />
-            <Route path="modules/:id" element={<Lessons />} />
+            {/* <Route path="modules/:id" element={<Lessons />} />
             <Route path="simulations/:moduleID/:lessonID/:simIdx" element={<SimulationPage role={"employer"} />} />
             <Route path="resources" element={<Resources />} />
             <Route path="ai-studio" element={<AIStudio />} />
@@ -232,17 +264,17 @@ if (!currentUser) return null;
             />
             <Route path="settings" element={<Settings />} />
             <Route path="modules/builder" element={<Builder />} />
-            <Route path="modules/builder/:moduleID" element={<Builder />} />
+            <Route path="modules/builder/:moduleID" element={<Builder />} /> */}
             <Route path="modules/standard-builder" element={<StandardBuilder />} />
             <Route path="modules/standard-builder/:moduleID" element={<StandardBuilder />} />
-            <Route path="modules/quiz-builder" element={<QuizBuilder />} /> {/* temporary route */}
-            <Route path="modules/standard-builder/:moduleID/:quizID" element={<QuizBuilder />} />
-            <Route path="*" element={<Navigate to="" />} />
-          </Routes>
-        </section>
+            <Route path="modules/quiz-builder" element={<QuizBuilder />} /> 
+            <Route path="modules/standard-builder/:moduleID/:quizID" element={<QuizBuilder />} /> 
+            <Route path="*" element={<Navigate to="/employer" replace/>} /> 
+          </Routes> 
+        </section> }
       </main>
 
-      <ProfilePage open={profileOpen} onClose={() => setProfileOpen(false)} user={currentUser} viewer={mockCurrentUser} />
+      {profileOpen && <ProfilePage open={profileOpen} onClose={() => setProfileOpen(false)} user={user} viewer={user} />}
         
     </div>
   );
