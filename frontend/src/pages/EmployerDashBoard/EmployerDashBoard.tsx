@@ -58,7 +58,6 @@ export default function EmployerDashBoard() {
   const { user, loading: authLoading } = useAuth();
   const { workspace, loading: workspaceLoading } = useWorkspace();
 
-  // Log the current state
   console.log("Current state:", { 
     authLoading, 
     workspaceLoading, 
@@ -67,9 +66,7 @@ export default function EmployerDashBoard() {
     userRole: user?.role 
   });
 
-  // Show loading if either auth or workspace is loading
   if (authLoading || workspaceLoading) {
-    // console.log("Still loading...", { authLoading, workspaceLoading });
     return (
       <div style={{ 
         display: 'flex', 
@@ -82,13 +79,10 @@ export default function EmployerDashBoard() {
     );
   }
 
-  // After loading is complete, check for user
   if (!user) {
-    // console.log("No user, redirecting");
     return <Navigate to="/login" replace />;
   }
 
-  // After loading is complete, check for workspace
   if (!workspace) return null;
 
   console.log("Rendering full dashboard with workspace:", workspace.name);

@@ -7,7 +7,9 @@ import logo from '../../assets/branding/cognition-logo.png';
 import bell from '../../assets/icons/bell.svg';
 import sidebar_icon from '../../assets/icons/sidebar-icon.svg';
 import ProfilePage from "../EmployerDashBoard/ProfilePage/ProfilePage";
-import { workspace } from '../../dummy_data/workspace_data';
+// import { workspace } from '../../dummy_data/workspace_data';
+import { useAuth } from "../../context/AuthProvider.tsx"; 
+import { useWorkspace } from '../../context/WorkspaceProvider.tsx';
 /*
 import SimulationLessonView from './SimulationLessonView/SimulationLessonView/SimulationLessonView';
 import SimulationView from './SimulationView/SimulationView';
@@ -52,15 +54,38 @@ export default function EmployeeDashBoard() {
     const isStandardLesson = useMatch("/employee/standard-modules/:moduleID");
     const isStandardLessonPg = useMatch("/employee/standard-modules/:moduleID/:lessonID");
     const isPerformancePg = useMatch("/employee/simulations/:moduleId/performance");
-    const storedUser = sessionStorage.getItem("currentUser");
-    const currentUser = storedUser ? JSON.parse(storedUser) : null;
-    if (!currentUser) return null;
+    
+    const { user, loading: authLoading } = useAuth();
+    const { workspace, loading: workspaceLoading } = useWorkspace();
 
+    console.log("Current state:", { 
+      authLoading, 
+      workspaceLoading, 
+      hasUser: !!user, 
+      hasWorkspace: !!workspace,
+      userRole: user?.role 
+    });
 
-    const mockCurrentUser = {
-      id: "employee-1",
-      role: "employee",
-    };
+    if (authLoading || workspaceLoading) {
+      return (
+        <div style={{ 
+          display: 'flex', 
+          justifyContent: 'center', 
+          alignItems: 'center', 
+          height: '100vh' 
+        }}>
+          Loading...
+        </div>
+      );
+    }
+
+    if (!user) {
+      return <Navigate to="/login" replace />;
+    }
+
+    if (!workspace) return null;
+
+    console.log("Rendering full dashboard with workspace:", workspace.name);
 
     return (
     <div className={`dashboard employee ${sidebarCollapsed ? "collapsed" : ""}`}>
