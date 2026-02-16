@@ -46,6 +46,7 @@ export type QuizLessonType = {
     passingScore?: number;
     retakeMode?: "unlimited" | "custom";
     numberOfRetakes?: number;
+    lastModified?: number;
 };
 
 export type StandardLessonType = VideoLessonType | QuizLessonType;

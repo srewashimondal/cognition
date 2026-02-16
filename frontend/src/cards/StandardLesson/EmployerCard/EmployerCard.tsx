@@ -103,10 +103,10 @@ export default function EmployerCard({ handleDelete, lesson, isNewDraft, navigat
     };
 
     const handleNavigate = () => {
-        if (isNewDraft) {
+        /*if (isNewDraft) {
             navigate(`/employer/modules/quiz-builder`);
             return;
-        }
+        }*/
         navigateQuiz();
     };
 

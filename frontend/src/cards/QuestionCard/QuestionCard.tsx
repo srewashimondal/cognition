@@ -37,11 +37,18 @@ export default function QuestionCard({ question, handleDelete, position, onUpdat
             setImagePreview(null);
             return;
         }
-        const url = typeof question.image === "string" ? question.image : URL.createObjectURL(question.image);
-        setImagePreview(url);
-
-        return () => URL.revokeObjectURL(url);
+        if (question.image instanceof File) {
+            const url = URL.createObjectURL(question.image);
+            setImagePreview(url);
+    
+            return () => {
+                URL.revokeObjectURL(url);
+            };
+        } else {
+            setImagePreview(question.image);
+        }
     }, [question.image]);
+    
 
     const handleTypeChange = (newType: QuizQuestionType["type"]) => {
         switch (newType) {

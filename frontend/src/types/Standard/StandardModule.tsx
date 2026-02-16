@@ -11,4 +11,5 @@ export type StandardModuleType = {
   deployed?: boolean;
   createTime: string;
   kind: "standard";
+  lastModified?: string;
 };

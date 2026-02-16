@@ -1,7 +1,7 @@
 import './StandardBuilder.css';
 import { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { doc, getDoc, updateDoc, collection, addDoc, deleteDoc } from 'firebase/firestore';
+import { doc, getDoc, updateDoc, collection, addDoc, deleteDoc, arrayUnion } from 'firebase/firestore';
 import { ref, uploadBytes, deleteObject } from 'firebase/storage';
 import { db, storage } from '../../../firebase';
 import type { DocumentReference } from 'firebase/firestore';
@@ -13,6 +13,7 @@ import { DndContext, closestCenter } from "@dnd-kit/core";
 import { SortableContext, verticalListSortingStrategy } from "@dnd-kit/sortable";
 import { arrayMove } from "@dnd-kit/sortable";
 import { Tooltip } from "@radix-ui/themes";
+import { formatTimestampString } from '../../../utils/Utils';
 // import { standardModule } from '../../../dummy_data/standard_data';
 import orange_left_arrow from '../../../assets/icons/orange-left-arrow.svg';
 import edit_icon from '../../../assets/icons/simulations/grey-edit-icon.svg';
@@ -37,9 +38,11 @@ export default function StandardBuilder() {
     const [lessons, setLessons] = useState<StandardLessonType[]>([]);
     const [lessonToDelete, setLessonToDelete] = useState<StandardLessonType | null>(null);
     const [createdTime, setCreatedTime] = useState("");
+    const [lastModified, setLastModified] = useState(new Date().toISOString());
     const [deletedLessonIds, setDeletedLessonIds] = useState<string[]>([]);
     // const [deletedVideoPaths, setDeletedVideoPaths] = useState<string[]>([]);
     const [deletedVideos, setDeletedVideos] = useState<{path: string, lessonId: string}[]>([]);
+    const [openDeployModal, setDeployModal] = useState(false);
 
     useEffect(() => {
         async function fetchModule() {
@@ -79,7 +82,14 @@ export default function StandardBuilder() {
                                         id: ref.id,
                                         title: lessonData.title,
                                         type: "quiz",
-                                        orderNumber: lessonData.orderNumber || 1
+                                        orderNumber: lessonData.orderNumber || 1,
+                                        dueDate: lessonData.dueDate,
+                                        duration: lessonData.duration,
+                                        questions: lessonData.questions || [],
+                                        timeLimitMode: lessonData.timeLimitMode,
+                                        passingScore: lessonData.passingScore,
+                                        retakeMode: lessonData.retakeMode,
+                                        numberOfRetakes: lessonData.numberOfRetakes
                                     } as QuizLessonType;
                                 }
                             }
@@ -98,6 +108,7 @@ export default function StandardBuilder() {
                     setTitle(moduleData.title);
                     setLessons(lessonsData);
                     setCreatedTime(moduleData.createTime || "Unknown");
+                    setLastModified(moduleData.lastModified || "Unknown");
                 } else {
                     console.error("Module not found");
                 }
@@ -115,7 +126,36 @@ export default function StandardBuilder() {
         window.scrollTo({ top: 0, left: 0, behavior: "instant" });
     }, []);
 
+    const validateLessonsForDeploy = (): boolean => {
+        for (const lesson of lessons) {
+            if (!lesson.title || lesson.title.trim() === "" || lesson.title === "New Lesson Title" || lesson.title === "New Quiz Title") {
+                return false;
+            }
+            if (!lesson.dueDate) {
+                return false;
+            }
+            if (lesson.type === "video") {
+                if (!lesson.videoFilePath && !lesson.pendingVideoFile) {
+                    return false;
+                }
+            }
+                if (lesson.type === "quiz") {
+                if (!lesson.questions || lesson.questions.length === 0) {
+                    return false;
+                }
+            }
+        }
+    
+        return true;
+    };
+    
+
     const handleDeploy = async () => {
+        const isValid = validateLessonsForDeploy();
+        if (!isValid) {
+            setDeployModal(true);
+        }
+
         try {
             const moduleRef = doc(db, "standardModules", moduleID!);
             await updateDoc(moduleRef, {
@@ -306,7 +346,6 @@ export default function StandardBuilder() {
                             passingScore: lesson.passingScore || 70,
                             retakeMode: lesson.retakeMode || "unlimited",
                             numberOfRetakes: lesson.numberOfRetakes || null,
-                            questions: lesson.questions || [],
                         });
                     }
                     
@@ -335,6 +374,7 @@ export default function StandardBuilder() {
             }
             setDeletedVideos([]);
             setDeletedLessonIds([]);
+            setLastModified(moduleData.lastModified);
             console.log("Module saved successfully!");   
         } catch (error) {
             console.error("Error saving module:", error);
@@ -369,7 +409,8 @@ export default function StandardBuilder() {
                 orderNumber: newOrder
             };
 
-            return [...prev, newLesson];
+            const updatedLessons = [...prev, newLesson];
+            return updatedLessons;
         });
     };
 
@@ -458,28 +499,64 @@ export default function StandardBuilder() {
     };
     
 
-    const handleNavigateQuiz = (moduleID: string, quizID: string) => {
-        navigate(`/employer/modules/standard-builder/${moduleID}/${quizID}`)
-    };
+    const handleNavigateQuiz = async (moduleID: string, quizID: string) => {
+        const lesson = lessons.find(l => l.id === quizID);
+    
+        if (!lesson || lesson.type !== "quiz") return;
 
-    function formatTimestamp(timestamp: string) {
-        if (!timestamp) return 'Unknown';
+        if (!lesson.isTemp) {
+            const lessonRef = doc(db, "standardLessons", quizID);
         
-        const secondsMatch = timestamp.match(/seconds=(\d+)/);  
-        if (!secondsMatch) return 'Invalid date';
+            await updateDoc(lessonRef, {
+                title: lesson.title,
+                orderNumber: lesson.orderNumber,
+                dueDate: lesson.dueDate || null,
+                timeLimitMode: lesson.timeLimitMode || "unlimited",
+                passingScore: lesson.passingScore || 70,
+                duration: lesson.duration || 0,
+                lastModified: new Date().toISOString()
+            });
         
-        const seconds = parseInt(secondsMatch[1]);
-        const date = new Date(seconds * 1000);
+            navigate(`/employer/modules/standard-builder/${moduleID}/${quizID}`);
+            return;
+        }
         
-        return date.toLocaleString('en-US', {
-            month: 'long',
-            day: '2-digit',
-            year: 'numeric',
-            hour: '2-digit',
-            minute: '2-digit',
-            hour12: true
-        }).replace(' at ', ' ').replace(/\s(?=[AP]M$)/, '');
-    }
+    
+        try {
+            const lessonsCollection = collection(db, "standardLessons");
+    
+            const newLessonRef = await addDoc(lessonsCollection, {
+                title: lesson.title,
+                type: "quiz",
+                orderNumber: lesson.orderNumber,
+                dueDate: lesson.dueDate || null,
+                timeLimitMode: lesson.timeLimitMode || "unlimited",
+                passingScore: lesson.passingScore || 70,
+                duration: 0
+            });
+    
+            const moduleRef = doc(db, "standardModules", moduleID);
+    
+            await updateDoc(moduleRef, {
+                lessonRefs: arrayUnion(doc(db, "standardLessons", newLessonRef.id)),
+                lastModified: new Date().toISOString()
+            });
+    
+            setLessons(prev =>
+                prev.map(l =>
+                    l.id === quizID
+                        ? { ...l, id: newLessonRef.id, isTemp: false }
+                        : l
+                )
+            );
+            
+            console.log("moduleID:", moduleID);
+            navigate(`/employer/modules/standard-builder/${moduleID}/${newLessonRef.id}`);
+    
+        } catch (error) {
+            console.error("Error creating quiz before navigation:", error);
+        }
+    };
 
     const updateLessonTitle = (lessonId: string, newTitle: string) => {
         setLessons(prev => prev.map(lesson => 
@@ -561,10 +638,24 @@ export default function StandardBuilder() {
                 </div>
             </div>
             }
+
+            {(openDeployModal) && <div className="delete-modal-overlay">
+            <div className="delete-modal">
+                <h3>Module Not Ready for Deployment</h3>
+                <p>Some lessons are incomplete. Please ensure every lesson has a title, due date, and required content before deploying.</p>
+                    <div className="delete-modal-actions">
+                        <button className="delete-btn" onClick={() => setDeployModal(false)}>
+                            OK
+                        </button>
+                    </div>
+                </div>
+            </div>
+            }
+            
             <div className="standard-canvas-wrapper">
                 <div className="standard-canvas-top">
                     <Tooltip content="Back">
-                        <div className="back-to-modules builder" onClick={() => navigate(-1)}>
+                        <div className="back-to-modules builder" onClick={async () => {await handleSave(); navigate(-1);}}>
                             <img src={orange_left_arrow} />
                         </div>
                     </Tooltip>
@@ -602,8 +693,8 @@ export default function StandardBuilder() {
 
                     <div className="module-info-builder">
                         <div className="module-info-line">
-                            <span className="module-info-label">CREATED</span>
-                            <p className="module-info-value">{formatTimestamp(String(createdTime))}</p>
+                            <span className="module-info-label">LAST MODIFIED</span>
+                            <p className="module-info-value">{formatTimestampString(lastModified)}</p>
                         </div>
 
                         <div className="module-info-line">

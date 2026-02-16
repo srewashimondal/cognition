@@ -3,8 +3,13 @@ import { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import ActionButton from '../../../../components/ActionButton/ActionButton';
 import QuestionCard from '../../../../cards/QuestionCard/QuestionCard';
+import type { QuizLessonType } from '../../../../types/Standard/StandardLessons';
 import type { QuizQuestionType } from '../../../../types/Standard/QuizQuestion/QuestionTypes';
-import { standardModule } from '../../../../dummy_data/standard_data';
+import { doc, getDoc, updateDoc, collection, addDoc, deleteDoc, arrayUnion } from 'firebase/firestore';
+import { db, storage } from '../../../../firebase';
+import { ref, uploadBytes, deleteObject } from 'firebase/storage';
+import { formatTimestampString } from '../../../../utils/Utils';
+// import { standardModule } from '../../../../dummy_data/standard_data';
 import { DndContext, closestCenter } from "@dnd-kit/core";
 import { SortableContext, verticalListSortingStrategy } from "@dnd-kit/sortable";
 import { arrayMove } from "@dnd-kit/sortable";
@@ -18,23 +23,59 @@ import blue_plus_icon from '../../../../assets/icons/simulations/blue-plus-icon.
 import ai_icon from '../../../../assets/icons/simulations/white-ai-icon.svg';
 
 export default function QuizBuilder () {
-    const navigate = useNavigate();
-    const { moduleID, quizID } = useParams();
-    const isNewDraft = !moduleID;
-    const moduleId = !isNewDraft ? Number(moduleID) : null;
-    const quizId = !isNewDraft ? Number(quizID) : null;
-    const module = !isNewDraft ? standardModule.find(m => m.id === moduleId) : null;
-    const quiz = !isNewDraft ? module?.lessons.find(l => (l.type === "quiz" && l.id === quizId)) : null;
-    const questionsList = (quiz && quiz.type === "quiz") ? quiz?.questions : null;
-
-    const [editMode, setEditMode] = useState(false);
-    const [title, setTitle] = useState(quiz?.title ?? "New Quiz Title");
-    const [questions, setQuestions] = useState<QuizQuestionType[]>(questionsList ?? []);
-    const [questionToDelete, setQuestionToDelete] = useState<QuizQuestionType | null>(null);
-
     useEffect(() => {
         window.scrollTo({ top: 0, left: 0, behavior: "instant" });
     }, []);
+
+    const navigate = useNavigate();
+    const { moduleID, quizID } = useParams();
+    const [quiz, setQuiz] = useState<QuizLessonType | null>(null);
+    const [loading, setLoading] = useState(true);
+    const [openSaveModal, setOpenSaveModal] = useState(false);
+    const [saving, setSaving] = useState(false);
+    const [lastModified, setLastModified] = useState(new Date().toISOString());
+
+    useEffect(() => {
+    if (!quizID) return;
+
+    const fetchQuiz = async () => {
+        try {
+        const quizRef = doc(db, "standardLessons", quizID);
+        const snap = await getDoc(quizRef);
+
+        if (snap.exists()) {
+            const data = snap.data();
+            if (data.type === "quiz") {
+            setQuiz({
+                id: quizID,
+                ...data
+            } as QuizLessonType);
+            }
+        }
+        } catch (err) {
+        console.error("Error fetching quiz:", err);
+        } finally {
+        setLoading(false);
+        }
+    };
+
+    fetchQuiz();
+    }, [quizID]);
+
+
+    const [editMode, setEditMode] = useState(false);
+    const [title, setTitle] = useState(quiz?.title ?? "New Quiz Title");
+    const [questions, setQuestions] = useState<QuizQuestionType[]>([]);
+    const [questionToDelete, setQuestionToDelete] = useState<QuizQuestionType | null>(null);
+    const [deletedImages, setDeletedImages] = useState<string[]>([]);
+
+
+    useEffect(() => {
+        if (!quiz) return;
+      
+        setTitle(quiz.title || "New Quiz Title");
+        setQuestions(quiz.questions || []);
+      }, [quiz]);
 
     const handleAddQuestion = () => {
         setQuestions(prev => {
@@ -45,6 +86,7 @@ export default function QuizBuilder () {
                 prompt: "",
                 type: "mcq",
                 options: ["Choice 1", "Choice 2"],
+                correctAnswerIndex: 0
             };
 
             return [...prev, newQuestion];
@@ -69,19 +111,99 @@ export default function QuizBuilder () {
     };
 
     const updateQuestion = (id: number, updates: Partial<QuizQuestionType>) => {
-        setQuestions((prev) =>
-            prev.map((q) =>
-            q.id === id ? { ...q, ...updates } : q
-        ));
+        setQuestions(prev =>
+          prev.map(q => {
+            if (q.id !== id) return q;
+                if ("image" in updates && updates.image === null && typeof q.image === "string") {
+                    setDeletedImages(prev => [...prev, q.image as string]);
+                }
+            return { ...q, ...updates };
+          })
+        );
+    };
+      
+
+    const handleSaveQuiz = async () => {
+        if (!quizID) return;
+
+        setSaving(true);
+
+        const processedQuestions = await Promise.all(
+            questions.map(async (q) => {
+                let imagePath = q.image;
+            
+                if (q.image instanceof File) {
+                    const timestamp = Date.now();
+                    const storagePath = `quizImages/${timestamp}-${q.image.name}`;
+                    const imageRef = ref(storage, storagePath);
+                
+                    await uploadBytes(imageRef, q.image);
+                
+                    imagePath = storagePath;
+                }
+            
+                return {
+                    ...q,
+                    image: imagePath ?? null
+                };
+            })
+        );
+
+        for (const question of questions) {
+
+            if (!question.prompt || question.prompt.trim() === "") {
+                setOpenSaveModal(true);
+                return;
+            }
+    
+            if (question.type === "mcq") {
+                if (!question.options || question.options.length === 0) {
+                    setOpenSaveModal(true);
+                    return;
+                }
+
+                const hasEmptyOption = question.options.some(
+                    opt => !opt || opt.trim() === "" || /^choice\s*\d+$/i.test(opt.trim())
+                );
+    
+                if (hasEmptyOption) {
+                    setOpenSaveModal(true);
+                    return;
+                }
+            }
+        }
+          
+        try {
+            const quizRef = doc(db, "standardLessons", quizID);
+
+            for (const path of deletedImages) {
+                try {
+                    const imageRef = ref(storage, path);
+                    await deleteObject(imageRef);
+                    console.log("Deleted image from storage:", path);
+                } catch (err) {
+                    console.error("Error deleting image:", err);
+                }
+            }
+          
+            setDeletedImages([]);
+            
+            const newTimestamp = new Date().toISOString();
+            await updateDoc(quizRef, {
+                title,
+                questions: processedQuestions,
+                duration: processedQuestions.length * 2,
+                lastModified: newTimestamp
+            });          
+            setLastModified(newTimestamp);
+            console.log("Quiz saved successfully");
+        } catch (error) {
+            console.error("Error saving quiz:", error);
+        } finally {
+            setSaving(false);
+        }
     };
     
-    const handleBack = () => {
-        if (moduleId) {
-            navigate(`/employer/modules/standard-builder/${moduleID}`);
-            return;
-        }
-        navigate(`/employer/modules/standard-builder`);
-    };
 
     return (
         <div className="quiz-builder-page">
@@ -97,10 +219,20 @@ export default function QuizBuilder () {
                 </div>
             </div>
             }
+            {(openSaveModal) && <div className="delete-modal-overlay">
+            <div className="delete-modal">
+                <h3>Quiz Not Ready for Save</h3>
+                <p>Make sure no questions have empty prompts or choices.</p>
+                    <div className="delete-modal-actions">
+                        <button className="delete-btn" onClick={() => setOpenSaveModal(false)}>OK</button>
+                    </div>
+                </div>
+            </div>
+            }
             <div className="standard-canvas-wrapper">
                 <div className="standard-canvas-top">
                     <Tooltip content="Back">
-                        <div className="back-to-modules builder" onClick={() => navigate(-1)}> {/* temporary route */}
+                        <div className="back-to-modules builder" onClick={async () => {await handleSaveQuiz(); navigate(-1);}}> {/* temporary route */}
                             <img src={orange_left_arrow} />
                         </div>
                     </Tooltip>
@@ -126,14 +258,14 @@ export default function QuizBuilder () {
                                     <img src={editMode ? check_icon : edit_icon} />
                                 </div>
                             </Tooltip>
-                            <ActionButton text={"Save Quiz"} buttonType={"save"} rounded={true}  />
+                            <ActionButton text={saving ? "Saving..." : "Save Quiz"} buttonType={"save"} rounded={true} onClick={handleSaveQuiz} />
                         </div>
                     </div>
 
                     <div className="module-info-builder">
                         <div className="module-info-line">
-                            <span className="module-info-label">CREATED</span>
-                            <p className="module-info-value">January 16, 2025 10:00AM</p>
+                            <span className="module-info-label">LAST MODIFIED</span>
+                            <p className="module-info-value">{formatTimestampString(lastModified)}</p>
                         </div>
 
                         <div className="module-info-line">
