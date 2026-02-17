@@ -27,22 +27,43 @@ export default function StandardModules({ user }: { user: EmployeeUserType }) {
       
                 const snapshot = await getDocs(q);
                 const attempts = await Promise.all(
-                snapshot.docs.map(async (docSnap) => {
-                    const data = docSnap.data();
-                    console.log("data:", data);
-                    console.log("moduleRef:", data.moduleInfo);
-                    const moduleSnap = await getDoc(data.moduleInfo);
-                    return {
-                        id: docSnap.id,
-                        status: data.status,
-                        percent: data.percent,
-                        moduleInfo: moduleSnap.exists()
-                            ? {
+                    snapshot.docs.map(async (docSnap) => {
+                        const data = docSnap.data();
+                        console.log("data:", data);
+                        console.log("moduleRef:", data.moduleInfo);
+                        const moduleSnap = await getDoc(data.moduleInfo);
+                        const moduleInfo = moduleSnap.exists() ? 
+                            {
                                 id: moduleSnap.id,
                                 ...(moduleSnap.data() as Omit<StandardModuleType, "id">),
-                            } : null,
-                    } as StandardModuleAttempt;
-                })
+                            } : null;
+                        const moduleAttemptRef = docSnap.ref;
+                        const lessonSnap = await getDocs(
+                            query(
+                                collection(db, "standardLessonAttempts"),
+                                where("moduleRef", "==", moduleAttemptRef)
+                            )
+                        );
+
+                        const totalLessons = lessonSnap.size;
+                        let completedCount = 0;
+
+                        lessonSnap.docs.forEach((lessonDoc) => {
+                            const lessonData = lessonDoc.data();
+                            if (lessonData.status === "completed") {
+                                completedCount++;
+                            }
+                        });
+
+                        const percent = totalLessons === 0 ? 0 : Math.round((completedCount / totalLessons) * 100);
+                        
+                        return {
+                            id: docSnap.id,
+                            status: data.status,
+                            percent,
+                            moduleInfo
+                        } as StandardModuleAttempt;
+                    })
                 );
       
                 setModuleAttempts(attempts);
@@ -56,7 +77,6 @@ export default function StandardModules({ user }: { user: EmployeeUserType }) {
       
         fetchModuleAttempts();
       }, [user]);
-      
 
 
     return (

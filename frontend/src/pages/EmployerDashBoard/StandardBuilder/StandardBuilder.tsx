@@ -255,6 +255,7 @@ export default function StandardBuilder() {
                     const videoRef = ref(storage, storagePath);
                     await uploadBytes(videoRef, lesson.pendingVideoFile);
                     videoFilePath = storagePath;
+                    // 
                     setLessons(prev =>
                         prev.map(l =>
                             l.id === lesson.id

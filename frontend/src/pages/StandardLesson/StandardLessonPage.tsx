@@ -82,7 +82,7 @@ export default function StandardLessonPage() {
         navigate(`/employee/standard-modules/${moduleID}`);
     };
 
-    if (!lessonAttempt) return <div>Lesson not found</div>;
+    if (!lessonAttempt) return null;
 
     switch (lessonAttempt.lessonInfo.type) {
         case "video":
