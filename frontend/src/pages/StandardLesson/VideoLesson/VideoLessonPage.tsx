@@ -1,5 +1,6 @@
 import './VideoLessonPage.css';
 import { useState, useRef, useEffect } from 'react';
+import { getStorage, ref, getDownloadURL } from "firebase/storage";
 import AITranscript from './AITranscript/AITranscript';
 import ChatBubble from '../../Simulation/ChatBubble/ChatBubble';
 import ChatBar from '../../../components/ChatBar/ChatBar';
@@ -15,8 +16,6 @@ type VideoLessonPageProps = {
     moduleTitle: string;
 };
 
-// type Tab = "AI Transcript" | "Notes";
-
 function formatTime(seconds: number) {
     const m = Math.floor(seconds / 60);
     const s = Math.floor(seconds % 60);
@@ -26,6 +25,7 @@ function formatTime(seconds: number) {
 }
 
 export default function VideoLessonPage({ lesson, handleBack, moduleTitle }: VideoLessonPageProps) {
+    const [videoURL, setVideoURL] = useState<string | null>(null);
     const videoRef = useRef<HTMLVideoElement | null>(null);
     const [isPlaying, setIsPlaying] = useState(false);
     // const [currentTab, setCurrentTab] = useState<Tab>("AI Transcript");
@@ -40,6 +40,24 @@ export default function VideoLessonPage({ lesson, handleBack, moduleTitle }: Vid
     useEffect(() => {
         window.scrollTo({ top: 0, left: 0, behavior: "instant" });
     }, []);
+
+    useEffect(() => {
+        async function fetchVideoURL() {
+          if (!lesson?.videoFilePath) return;
+      
+          try {
+            const storage = getStorage();
+            const storageRef = ref(storage, lesson.videoFilePath);
+            const url = await getDownloadURL(storageRef);
+            setVideoURL(url);
+          } catch (err) {
+            console.error("Error fetching video URL:", err);
+          }
+        }
+      
+        fetchVideoURL();
+    }, [lesson]);
+      
     
     const handlePlay = () => {
         videoRef.current?.play();
@@ -96,7 +114,7 @@ export default function VideoLessonPage({ lesson, handleBack, moduleTitle }: Vid
                 </div>
                 <div className="video-wrapper">
 
-                    <video ref={videoRef} src={"https://ik.imagekit.io/u769f98qs/video_test.mp4"} controls={isPlaying} preload="metadata" 
+                    <video ref={videoRef} src={videoURL ?? ""} controls={isPlaying} preload="metadata" 
                     onPause={() => setIsPlaying(false)} onEnded={() => setIsPlaying(false)} 
                     onTimeUpdate={() => setCurrentTime(videoRef.current?.currentTime ?? 0)} />
 

@@ -30,7 +30,7 @@ export default function EmployeeCard({ lesson, status, handleNavigate }: Employe
                     <span>
                         <img src={lesson.type === "video" ? movie_icon : quiz_icon} />
                     </span>
-                    <p className="lesson-tag employer">{lesson.id}. {lesson.type === "video" && "Video Lesson"} {lesson.type === "quiz" && "Quiz"}</p>
+                    <p className="lesson-tag employer">{lesson.orderNumber}. {lesson.type === "video" && "Video Lesson"} {lesson.type === "quiz" && "Quiz"}</p>
                 </div>
                 <div className="card-title">
                     {lesson.title}

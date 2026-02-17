@@ -2,6 +2,7 @@ import type { ModuleType } from "../Modules/ModuleType";
 import type { StandardModuleType } from "../Standard/StandardModule";
 import type { ModuleAttemptType } from "../Modules/ModuleAttemptType";
 import type { StandardModuleAttempt } from "../Standard/StandardAttempt";
+import { DocumentReference } from "firebase/firestore";
 
 export type GenericModuleType = ModuleType | StandardModuleType;
 export type GenericModuleAttempt = ModuleAttemptType | StandardModuleAttempt;
@@ -14,7 +15,7 @@ export type BaseUserType = {
     jobTitle: string;
     profilePicture?: string;
     notifPreference: "In-App" | "E-mail";
-    workspaceID: string;
+    workspaceID: DocumentReference;
     joinDate: string;
 }
 

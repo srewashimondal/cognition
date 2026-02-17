@@ -7,6 +7,7 @@ import logo from '../../assets/branding/cognition-logo.png';
 import bell from '../../assets/icons/bell.svg';
 import sidebar_icon from '../../assets/icons/sidebar-icon.svg';
 import ProfilePage from "../EmployerDashBoard/ProfilePage/ProfilePage";
+import defaultIcon from '../../assets/icons/default-icon.svg';
 // import { workspace } from '../../dummy_data/workspace_data';
 import { useAuth } from "../../context/AuthProvider.tsx"; 
 import { useWorkspace } from '../../context/WorkspaceProvider.tsx';
@@ -249,7 +250,7 @@ export default function EmployeeDashBoard() {
                 onClick={() => setProfileOpen(prev => !prev)}
               >
                 <img
-                  src={currentUser.profilePicture}
+                  src={user.profilePicture ?? defaultIcon}
                   className="avatar"
                 />
                 {/*<span className="username">{employee.fullName}</span>
@@ -261,28 +262,30 @@ export default function EmployeeDashBoard() {
 
           </div>
         </header>
-
+        
+        { user && user?.role === "employee" &&
         <section className={`content employee ${(isSimulationPage || isSimulationLesson || isStandardLesson || isStandardLessonPg || isPerformancePg) ? "no-padding" : ""}`}>
           <Routes>
-            <Route index element={<EmployeeHome user={currentUser} workspace={workspace} />} />
-            <Route path="simulations" element={<SimulationModules />} />
+            <Route index element={<EmployeeHome user={user} workspace={workspace} />} />
+            {/*<Route path="simulations" element={<SimulationModules />} />
             <Route path="simulations/:moduleID" element={<SimulationLessons />} />
-            <Route path="simulations/:moduleID/:lessonID/:simIdx" element={<SimulationPage role={"employee"} />} />
+            <Route path="simulations/:moduleID/:lessonID/:simIdx" element={<SimulationPage role={"employee"} />} /> */}
             {/*<Route path="simulation-lesson-view" element={<SimulationLessonView />} />
             <Route path="simulation-view" element={<SimulationView />} />*/}
-            <Route path="simulations/:moduleId/performance" element={<SimulationPerformance />}/>
-            <Route path="schedule" element={<Schedule />} />
-            <Route path="standard-modules" element={<StandardModules />} />
+            {/*<Route path="simulations/:moduleId/performance" element={<SimulationPerformance />}/>
+            <Route path="schedule" element={<Schedule />} />*/}
+            <Route path="standard-modules" element={<StandardModules user={user} />} />
             <Route path="standard-modules/:moduleID" element={<StandardLessons />} />
             <Route path="standard-modules/:moduleID/:lessonID" element={<StandardLessonPage />} />
-            <Route path="resources" element={<EmployeeResources />} />
+            {/*<Route path="resources" element={<EmployeeResources />} />
             <Route path="settings" element={<EmployeeSettings />} />
-            <Route path="*" element={<Navigate to="" />} />
+            <Route path="*" element={<Navigate to="" />} />*/}
           </Routes>
         </section>
+        }
       </main>
 
-      <ProfilePage open={profileOpen} onClose={() => setProfileOpen(false)} user={currentUser} viewer={mockCurrentUser} />
+      <ProfilePage open={profileOpen} onClose={() => setProfileOpen(false)} user={user} viewer={user} />
         
     </div>
     );

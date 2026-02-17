@@ -5,7 +5,7 @@ import ActionButton from '../../../../components/ActionButton/ActionButton';
 import QuestionCard from '../../../../cards/QuestionCard/QuestionCard';
 import type { QuizLessonType } from '../../../../types/Standard/StandardLessons';
 import type { QuizQuestionType } from '../../../../types/Standard/QuizQuestion/QuestionTypes';
-import { doc, getDoc, updateDoc, collection, addDoc, deleteDoc, arrayUnion } from 'firebase/firestore';
+import { doc, getDoc, updateDoc } from 'firebase/firestore';
 import { db, storage } from '../../../../firebase';
 import { ref, uploadBytes, deleteObject } from 'firebase/storage';
 import { formatTimestampString } from '../../../../utils/Utils';

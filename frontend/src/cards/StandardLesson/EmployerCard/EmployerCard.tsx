@@ -362,8 +362,7 @@ export default function EmployerCard({ handleDelete, lesson, isNewDraft, navigat
                         </div>
                         <div className="action-panel">
                             <div className="action-panel-left">
-                                <ActionButton buttonType="save" text="Save Changes" /> 
-                                <ActionButton buttonType="play" text="Preview Simulation" />
+                                <ActionButton buttonType="play" text="Preview Quiz" />
                             </div>
                         </div>
                     </div>

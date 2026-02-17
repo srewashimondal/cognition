@@ -19,9 +19,10 @@ type ModuleProp = {
     status?: "not begun" | "started" | "completed";
     percent?: number;
     style?: boolean;
+    attemptId?: string;
 };
 
-export default function ModuleCard({ moduleInfo, type, role, status, percent, style }: ModuleProp) {
+export default function ModuleCard({ moduleInfo, type, role, status, percent, style, attemptId }: ModuleProp) {
     const navigate = useNavigate();
     const bannerColorByID = ["module1", "module2", "module3", "module4", "module5", "module6"];
 
@@ -30,13 +31,13 @@ export default function ModuleCard({ moduleInfo, type, role, status, percent, st
         navigate(`/employee/simulations/${moduleInfo.id}/performance`);
         return;
       }
-      navigate(`/employee/${type === "simulation" ? "simulations" : "standard-modules"}/${moduleInfo.id}`);
+      navigate(`/employee/${type === "simulation" ? "simulations" : "standard-modules"}/${attemptId}`);
     };
 
     return (
         <div key={moduleInfo.id} className="module-card">
             <div className="card-top">
-              <div className={`banner ${bannerColorByID[moduleInfo.id - 1]}`} >
+              <div className={`banner`} >
                 {(role === "employer") &&
                 <button className="edit-btn" onClick={() => navigate(`/employer/modules/${(type === "simulation") ? "builder" : "standard-builder"}/${moduleInfo.id}`)}>
                   <div className="edit-swap">

@@ -8,13 +8,13 @@ import location_icon from '../../assets/icons/white-location-icon.svg';
 import share_icon from '../../assets/icons/white-share-icon.svg';
 import { Tooltip } from "@radix-ui/themes";
 
-type WorkspaceHero = {
+type WorkspaceHeroType = {
     role: "employer" | "employee";
     workspace: WorkspaceType;
     onClick?: () => void;
 };
 
-export default function WorkspaceHero({ role, workspace, onClick }: WorkspaceHero) {
+export default function WorkspaceHero({ role, workspace, onClick }: WorkspaceHeroType) {
     return (
         <div className="workspace-hero">
             {/*<img className="workspace-banner" src={beautyBanner} alt="Workspace banner" />*/}
