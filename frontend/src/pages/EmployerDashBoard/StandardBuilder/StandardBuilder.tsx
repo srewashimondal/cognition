@@ -222,6 +222,8 @@ export default function StandardBuilder() {
     };
 
     const [saving, setSaving] = useState(false);
+    const [isGeneratingSummaries, setIsGeneratingSummaries] = useState(false);
+    const [isGeneratingTranscript, setIsGeneratingTranscript] = useState(false);
     const handleSave = async () => {
         try {
             setSaving(true);
@@ -292,8 +294,6 @@ export default function StandardBuilder() {
                             thumbnailUrl: lesson.thumbnailUrl || null,
                             filename: lesson.filename || null,
                             durationSeconds: lesson.durationSeconds || null,
-                            transcript: lesson.transcript || [],
-                            summaries: lesson.summaries || [],
                         }
                         : {
                             ...baseLessonData,
@@ -307,6 +307,51 @@ export default function StandardBuilder() {
                         };
                     
                     const newLessonRef = await addDoc(lessonsCollection, lessonData);
+                    // this is for generating summaries
+                    if (lesson.type === "video" && videoFilePath && (!lesson.summaries || lesson.summaries.length === 0) && lesson.allowSummary) {
+                        setIsGeneratingSummaries(true);
+                        try {
+                            await fetch("http://localhost:8000/ai/generate-video-summary", {
+                                method: "POST",
+                                headers: {
+                                    "Content-Type": "application/json",
+                                },
+                                body: JSON.stringify({
+                                    lesson_id: newLessonRef.id,
+                                    video_path: videoFilePath,
+                                }),
+                            });
+
+                            console.log("AI summaries generated for new lesson");
+                        } catch (error) {
+                            console.error("AI generation failed:", error);
+                        } finally {
+                            setIsGeneratingSummaries(false);
+                        }
+                    }
+                    // this is for generating a transcript
+                    if (lesson.type === "video" && videoFilePath && (!lesson.transcript || lesson.transcript.length === 0) && lesson.allowTranscript) {
+                        setIsGeneratingTranscript(true);
+                        try {
+                            await fetch("http://localhost:8000/ai/generate-video-transcript", {
+                                method: "POST",
+                                headers: {
+                                    "Content-Type": "application/json",
+                                },
+                                body: JSON.stringify({
+                                    lesson_id: lesson.id,
+                                    video_path: videoFilePath,
+                                }),
+                            });
+                    
+                            console.log("Transcript generated");
+                        } catch (error) {
+                            console.error("Transcript generation failed:", error);
+                        } finally {
+                            setIsGeneratingTranscript(false);
+                        }
+                    }
+
                     setLessons(prev =>
                         prev.map(l =>
                             l.id === lesson.id
@@ -332,9 +377,54 @@ export default function StandardBuilder() {
                             thumbnailUrl: lesson.thumbnailUrl || null,
                             filename: lesson.filename || null,
                             durationSeconds: lesson.durationSeconds || null,
-                            transcript: lesson.transcript || [],
-                            summaries: lesson.summaries || [],
                         });
+                        
+                        // generating summary if lesson alr exits
+                        if (videoFilePath && lesson.pendingVideoFile && (!lesson.summaries || lesson.summaries.length === 0) && lesson.allowSummary) {
+                            setIsGeneratingSummaries(true);
+                            try {
+                                await fetch("http://localhost:8000/ai/generate-video-summary", {
+                                    method: "POST",
+                                    headers: {
+                                        "Content-Type": "application/json",
+                                    },
+                                    body: JSON.stringify({
+                                        lesson_id: lesson.id,
+                                        video_path: videoFilePath,
+                                    }),
+                                });
+                        
+                                console.log("AI summaries regenerated for existing lesson");
+                            } catch (error) {
+                                console.error("AI generation failed:", error);
+                            } finally {
+                                setIsGeneratingSummaries(false);
+                            }
+                        }
+
+                        // generating transcript if lesson alr exists
+                        if (lesson.type === "video" && lesson.pendingVideoFile && (!lesson.transcript || lesson.transcript.length === 0) && lesson.allowTranscript) {
+                            setIsGeneratingTranscript(true);
+                            try {
+                                await fetch("http://localhost:8000/ai/generate-video-transcript", {
+                                    method: "POST",
+                                    headers: {
+                                        "Content-Type": "application/json",
+                                    },
+                                    body: JSON.stringify({
+                                        lesson_id: lesson.id,
+                                        video_path: videoFilePath,
+                                    }),
+                                });
+                        
+                                console.log("Transcript generated");
+                            } catch (error) {
+                                console.error("Transcript generation failed:", error);
+                            } finally {
+                                setIsGeneratingTranscript(false);
+                            }
+                        }
+                        
                     } else {
                         await updateDoc(lessonRef, {
                             title: lesson.title,
@@ -686,7 +776,10 @@ export default function StandardBuilder() {
                                 <span>
                                     <img src={file_icon} />
                                 </span>
-                                {saving ? "Saving..." : "Save as Draft"}
+                                {saving ? 
+                                    isGeneratingSummaries ? "Generating summaries..." 
+                                    : isGeneratingTranscript ? "Generating transcripts..." : "Saving..."
+                                    : "Save as Draft"}
                             </div>
                             <ActionButton text={"Deploy"} buttonType={"deploy"} onClick={handleDeploy}  />
                         </div>
