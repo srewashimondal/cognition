@@ -43,6 +43,9 @@ export default function StandardBuilder() {
     // const [deletedVideoPaths, setDeletedVideoPaths] = useState<string[]>([]);
     const [deletedVideos, setDeletedVideos] = useState<{path: string, lessonId: string}[]>([]);
     const [openDeployModal, setDeployModal] = useState(false);
+    const [unDeployModal, setUnDeployModal] = useState(false);
+    const [anotherDeployModal, setAnotherDeployModal] = useState(false);
+    const [isDeployed, setIsDeployed] = useState(module?.deployed);
 
     useEffect(() => {
         async function fetchModule() {
@@ -149,11 +152,12 @@ export default function StandardBuilder() {
         return true;
     };
     
-
+    
     const handleDeploy = async () => {
         const isValid = validateLessonsForDeploy();
         if (!isValid) {
             setDeployModal(true);
+            return;
         }
 
         try {
@@ -161,8 +165,21 @@ export default function StandardBuilder() {
             await updateDoc(moduleRef, {
                 deployed: true,
             });
+            setIsDeployed(true);
         } catch (error) {
             console.error("Error deploying module:", error);
+        }
+    };
+
+    const handleRollBack = async () => {
+        try {
+            const moduleRef = doc(db, "standardModules", moduleID!);
+            await updateDoc(moduleRef, {
+                deployed: false,
+            });
+            setIsDeployed(false);
+        } catch (error) {
+            console.error("Error rolling back module:", error);
         }
     };
 
@@ -742,6 +759,36 @@ export default function StandardBuilder() {
                 </div>
             </div>
             }
+
+            {(anotherDeployModal) && <div className="delete-modal-overlay">
+            <div className="delete-modal">
+                <h3>Deploy this module?</h3>
+                <p>This module will become visible to employees. Any enrolled users will be able to access it immediately.</p>
+                    <div className="delete-modal-actions">
+                        <button className="cancel-btn" onClick={() => setAnotherDeployModal(false)}>
+                            Cancel
+                        </button>
+                        <button className="delete-btn" onClick={() => {handleDeploy(); setAnotherDeployModal(false);}}>
+                            Deploy
+                        </button>
+                    </div>
+                </div>
+            </div>}
+
+            {(unDeployModal) && <div className="delete-modal-overlay">
+            <div className="delete-modal">
+                <h3>Unpublish this module?</h3>
+                <p>This module will no longer be accessible to employees. Progress data will be preserved.</p>
+                    <div className="delete-modal-actions">
+                        <button className="cancel-btn" onClick={() => setUnDeployModal(false)}>
+                            Cancel
+                        </button>
+                        <button className="delete-btn" onClick={() => {handleRollBack(); setUnDeployModal(false);}}>
+                            Unpublish
+                        </button>
+                    </div>
+                </div>
+            </div>}
             
             <div className="standard-canvas-wrapper">
                 <div className="standard-canvas-top">
@@ -781,7 +828,7 @@ export default function StandardBuilder() {
                                     : isGeneratingTranscript ? "Generating transcripts..." : "Saving..."
                                     : "Save as Draft"}
                             </div>
-                            <ActionButton text={"Deploy"} buttonType={"deploy"} onClick={handleDeploy}  />
+                            <ActionButton text={"Deploy"} buttonType={"deploy"} onClick={() => {if (!isDeployed) {setAnotherDeployModal(true);} else {setUnDeployModal(true);}}} disabled={isDeployed} />
                         </div>
                     </div>
 
