@@ -36,7 +36,13 @@ export default function VideoLessonPage({ lesson, handleBack, moduleTitle }: Vid
     const [chatMessages, setChatMessages] = useState<MessageType[]>([]); // in backend make it so there is 1 chatMessages state/list per section summary
     const [userInput, setUserInput] = useState("");
     const [showTranscript, setShowTranscript] = useState(false);
-
+    /* const lessonId = lesson.id;
+    const [isGeneratingAI, setIsGeneratingAI] = useState(false);
+    const [generatedSummaries, setGeneratedSummaries] = useState(lesson.summaries ?? []);
+    const [errorMessage, setErrorMessage] = useState<string | null>(null);
+    const [transcriptData, setTranscriptData] = useState([]);
+    const [videoDuration, setVideoDuration] = useState(0);
+    */
     useEffect(() => {
         window.scrollTo({ top: 0, left: 0, behavior: "instant" });
     }, []);
@@ -99,6 +105,53 @@ export default function VideoLessonPage({ lesson, handleBack, moduleTitle }: Vid
       
         el.scrollTop = el.scrollHeight;
     }, [chatMessages]);
+
+    /*const generateAISummaries = async () => {
+
+        try {
+            setIsGeneratingAI(true);
+            setErrorMessage(null);
+
+            const payload = {
+                lesson_id: "oahhToo3UsqgrYb9OOqt",
+                video_path: "trainingVideos/video1.mp4",
+            };
+
+
+            console.log("Generating AI summaries with payload:", payload);
+
+            const response = await fetch("http://localhost:8000/ai/generate-video-summary", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify(payload),
+            });
+
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.detail || `HTTP error! status: ${response.status}`);
+            }
+
+            const data = await response.json();
+            console.log("AI summaries generated:", data);
+
+            if (data.sections) {
+                setGeneratedSummaries(data.sections);
+                setErrorMessage(null);
+            }
+
+        } catch (error) {
+            console.error("Error generating AI summaries:", error);
+            setErrorMessage(
+                error instanceof Error 
+                    ? `Failed to generate summaries: ${error.message}`
+                    : "An unexpected error occurred while generating summaries"
+            );
+        } finally {
+            setIsGeneratingAI(false);
+        }
+    }; */
 
     return (
         <div className="video-lesson-page">
