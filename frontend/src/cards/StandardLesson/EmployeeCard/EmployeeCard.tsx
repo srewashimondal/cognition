@@ -11,13 +11,14 @@ import orange_left_arrow from '../../../assets/icons/orange-left-arrow.svg';
 
 type EmployeeCardProps = {
     lesson: StandardLessonType;
-    status?: "not begun" | "started" | "completed" | "locked";
+    status?: "not begun" | "started" | "completed";
+    isLocked?: boolean;
     handleNavigate: () => void;
 };
 
-export default function EmployeeCard({ lesson, status, handleNavigate }: EmployeeCardProps) {
+export default function EmployeeCard({ lesson, status, isLocked, handleNavigate }: EmployeeCardProps) {
     return (
-        <div className={`employee-card-item status-${status} lesson-${lesson.type}`} onClick={handleNavigate}>
+        <div className={`employee-card-item status-${status} ${isLocked ? "locked" : ""} lesson-${lesson.type}`} onClick={handleNavigate}>
             {(lesson.type === "video") &&
             <div className="card-thumbnail-wrapper">
                 <div className="card-thumbnail">
@@ -35,7 +36,7 @@ export default function EmployeeCard({ lesson, status, handleNavigate }: Employe
                 <div className="card-title">
                     {lesson.title}
                 </div>
-                {(status === "locked") && <div className="locked-instr">Complete previous lessons to unlock</div>}
+                {(isLocked) && <div className="locked-instr">Complete previous lessons to unlock</div>}
                 <div className="card-meta">
                     {(status === "completed") && <div className="card-meta-item complete">
                         <span>
@@ -57,7 +58,7 @@ export default function EmployeeCard({ lesson, status, handleNavigate }: Employe
                     </div>}
                 </div>
             </div>
-            {(lesson.type === "quiz" && status !== "completed" && status !== "locked") &&
+            {(lesson.type === "quiz" && status !== "completed" && !isLocked) &&
             <div className="builder-action-pill quiz">
                 Begin Quiz
                 <span>
@@ -68,7 +69,7 @@ export default function EmployeeCard({ lesson, status, handleNavigate }: Employe
             <div className="builder-action-pill">
                 Review
             </div>}
-            {(status === "locked") &&
+            {(isLocked) &&
             <div className="locked-tag">  
                 <span>
                     <img src={lock_icon} />

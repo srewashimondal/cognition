@@ -82,6 +82,19 @@ export default function StandardLessons() {
                 );
                 
                 const filteredLessonAttempts = lessonAttempts.filter(Boolean) as StandardLessonAttempt[];
+                const sorted = filteredLessonAttempts.sort((a, b) => a.lessonInfo.orderNumber - b.lessonInfo.orderNumber);
+                const enriched = sorted.map((lesson, index) => {
+                    if (index === 0) {
+                        return { ...lesson, isLocked: false };
+                    }
+                    const prev = sorted[index - 1];
+                  
+                    return {
+                      ...lesson,
+                      isLocked: prev.status !== "completed",
+                    };
+                });
+
                 const builtModuleInfo = {
                     id: moduleSnap.id,
                     ...(moduleSnap.data() as Omit<StandardModuleType, "id">),
@@ -98,7 +111,7 @@ export default function StandardLessons() {
                 });
                 
                 setModuleInfo(builtModuleInfo);
-                setLessonAttempts(filteredLessonAttempts);
+                setLessonAttempts(enriched);
             } catch (error) {
                 console.error("Error fetching module attempt:", error);
             } finally {
@@ -159,8 +172,7 @@ export default function StandardLessons() {
                     <div className="list-header-section lsn employee standard">Lesson</div>
                 </div>
                 <div className="lessons-list">
-                    {lessonAttempts.slice().sort((a, b) => a.lessonInfo.orderNumber - b.lessonInfo.orderNumber).map((l) => 
-                    (<EmployeeCard lesson={l.lessonInfo} status={l.status} handleNavigate={() => handleNavigate(moduleID, l.id)}/>))}
+                    {lessonAttempts.map((l) => (<EmployeeCard lesson={l.lessonInfo} status={l.status} isLocked={l.isLocked} handleNavigate={() => handleNavigate(moduleID, l.id)}/>))}
                 </div>
             </div>
             <div className="filler-space" />

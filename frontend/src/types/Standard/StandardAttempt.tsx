@@ -7,10 +7,11 @@ import type { MessageType } from "../Modules/Lessons/Simulations/MessageType";
 export type StandardLessonAttempt = {
     id: string;
     lessonInfo: StandardLessonType;
-    status: "not begun" | "started" | "completed" | "locked";
+    status: "not begun" | "started" | "completed";
     questionAnswers?: QuestionAttemptType[];
     score?: number;
     messages?: SectionSummary & MessageType[];
+    isLocked?: boolean;
 };
 
 export type StandardModuleAttempt = {
