@@ -129,6 +129,9 @@ export default function StandardLessons() {
     console.log("moduleInfo:", moduleInfo);
     console.log("lessonAttempts:", lessonAttempts);
 
+    const total = lessonAttempts.length;
+    const completed = lessonAttempts.filter(l => l.status === "completed").length;
+    const percentCompleted = total === 0 ? 0 : Math.round((completed / total) * 100);
 
     return (
         <div className="standard-lessons-page">
@@ -163,7 +166,7 @@ export default function StandardLessons() {
                         </div>
                     </div>
                     <div className="modules-header-right">
-                        <ProgressBar percent={module?.percent ?? 0} style={true} style1={true} />
+                        <ProgressBar percent={percentCompleted} style={true} style1={true} />
                     </div>
                 </div>
             </div>

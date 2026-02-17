@@ -18,7 +18,7 @@ type EmployeeCardProps = {
 
 export default function EmployeeCard({ lesson, status, isLocked, handleNavigate }: EmployeeCardProps) {
     return (
-        <div className={`employee-card-item status-${status} ${isLocked ? "locked" : ""} lesson-${lesson.type}`} onClick={handleNavigate}>
+        <div className={`employee-card-item status-${status} ${isLocked ? "locked" : ""} lesson-${lesson.type}`} onClick={() => {if (!isLocked) {handleNavigate();}}}>
             {(lesson.type === "video") &&
             <div className="card-thumbnail-wrapper">
                 <div className="card-thumbnail">
