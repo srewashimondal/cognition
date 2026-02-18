@@ -1,6 +1,6 @@
 import type { ModuleType } from "../types/Modules/ModuleType";
 
-export const modules: ModuleType[] = [
+export const modules: any | ModuleType[] = [
     {
       id: 1,
       title: "Store Orientation and Navigation",

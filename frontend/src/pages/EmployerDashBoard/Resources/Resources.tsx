@@ -1,10 +1,17 @@
 import { useState, useRef, useEffect } from "react";
 import "./Resources.css";
+import { collection, getDocs, addDoc } from "firebase/firestore";
+import { db, storage } from "../../../firebase";
+import { getDownloadURL, ref, uploadBytes } from "firebase/storage";
+
+import type { WorkspaceType } from "../../../types/User/WorkspaceType";
+import UploadDropzone from "../../../components/UploadDropzone/UploadDropzone";
 import white_plus from '../../../assets/icons/actions/white-plus-icon.svg';
 
 type ResourceItem = {
-  name: string;
-  file: File | null;
+  title: string;
+  section: string;
+  filePath: string;
 };
 
 type ResourceSection = {
@@ -21,7 +28,7 @@ const initialSections: ResourceSection[] = [
     icon: "🏢",
     tone: "policies",
     description: "Company-wide policies all employees must review",
-    items: [
+    items: [/*
       {
         name: "Sexual Harassment Policy",
         file: null
@@ -36,8 +43,8 @@ const initialSections: ResourceSection[] = [
       },
       {
         name: "Photo & Media Consent Waiver",
-        file: null
-      }
+        file: null*
+      }*/
     ],
   },
   {
@@ -45,7 +52,7 @@ const initialSections: ResourceSection[] = [
     icon: "🧾",
     tone: "hr",
     description: "Forms for requests, documentation, and approvals",
-    items: [
+    items: [/*
       {
         name: "Request for Time Off",
         file: null
@@ -62,14 +69,14 @@ const initialSections: ResourceSection[] = [
         name: "Incident Report Form",
         file: null
       }
-    ],
+    */],
   },
   {
     title: "Training & Operations",
     icon: "🎓",
     tone: "training",
     description: "Guidelines to support daily retail operations",
-    items: [
+    items: [/*
       {
         name: "Employee Handbook",
         file: null
@@ -86,14 +93,14 @@ const initialSections: ResourceSection[] = [
         name: "POS & Inventory Procedures",
         file: null
       }
-    ],
+    */],
   },
   {
     title: "Safety & Compliance",
     icon: "🛡️",
     tone: "safety",
     description: "Safety instructions and emergency information",
-    items: [
+    items: [/*
       {
         name: "Workplace Safety Guidelines",
         file: null
@@ -110,31 +117,129 @@ const initialSections: ResourceSection[] = [
         name: "Labor Law Notices",
         file: null
       }
-    ],
+    */],
+  },
+  {
+    title: "Maps",
+    icon: "🗺️",
+    tone: "training",
+    description: "Maps of the store",
+    items: [],
   },
 ];
 
-export default function Resources() {
+export default function Resources({ workspace }: { workspace: WorkspaceType }) {
   const [sections, setSections] = useState<ResourceSection[]>(initialSections);
   const [activeFile, setActiveFile] = useState<ResourceItem | null>(null);
+  const [activeFileUrl, setActiveFileUrl] = useState<string | null>(null);
   const fileInputRefs = useRef<HTMLInputElement[]>([]);
+  const [openUploadModal, setOpenUploadModal] = useState(false);
 
   useEffect(() => {
     window.scrollTo({ top: 0, left: 0, behavior: "instant" });
   }, []);
 
-  const handleFileUpload = (sectionIndex: number, file: File) => {
-    setSections((prev) =>
-      prev.map((section, idx) =>
-        idx === sectionIndex
-          ? {
-              ...section,
-              items: [...section.items, { name: file.name, file }],
-            }
-          : section
-      )
-    );
+  useEffect(() => {
+    const fetchResources = async () => {
+      if (!workspace?.id) return;
+  
+      try {
+        const resourcesRef = collection(
+          db,
+          "workspaces",
+          workspace.id,
+          "resources"
+        );
+  
+        const snapshot = await getDocs(resourcesRef);
+  
+        const fetchedResources: ResourceItem[] = snapshot.docs.map(doc => {
+          const data = doc.data();
+          return {
+            title: data.title,
+            filePath: data.filePath, 
+            section: data.section,
+          };
+        });
+
+        setSections(prevSections =>
+          prevSections.map(section => ({
+            ...section,
+            items: fetchedResources.filter(
+              r => r.section === section.title
+            )
+          }))
+        );
+  
+      } catch (err) {
+        console.error("Error fetching resources:", err);
+      }
+    };
+  
+    fetchResources();
+  }, [workspace]);
+  
+  const handleView = async (item: ResourceItem) => {
+    const fileRef = ref(storage, item.filePath);
+    const url = await getDownloadURL(fileRef);
+  
+    setActiveFile(item);
+    setActiveFileUrl(url);
   };
+
+  const [uploadTitle, setUploadTitle] = useState("");
+  const [uploadFiles, setUploadFiles] = useState<File[]>([]);
+  const [uploadSectionIndex, setUploadSectionIndex] = useState<number | null>(null);
+  const [isUploading, setIsUploading] = useState(false);
+  const handleUploadToFirebase = async () => {
+    if (uploadFiles.length === 0 || !uploadTitle.trim() || uploadSectionIndex === null || !workspace?.id) return;
+  
+    try {
+      setIsUploading(true);
+      const file = uploadFiles[0]; 
+      const storagePath = `trainingDocuments/${file.name}`;
+      const storageRef = ref(storage, storagePath);
+      await uploadBytes(storageRef, file);
+  
+      await addDoc(
+        collection(db, "workspaces", workspace.id, "resources"),
+        {
+          title: uploadTitle.trim(),
+          filePath: storagePath,
+          section: sections[uploadSectionIndex].title,
+        }
+      );
+  
+      setSections(prev =>
+        prev.map((section, idx) =>
+          idx === uploadSectionIndex
+            ? {
+                ...section,
+                items: [
+                  ...section.items,
+                  {
+                    title: uploadTitle.trim(),
+                    filePath: storagePath,
+                    section: section.title
+                  }
+                ]
+              }
+            : section
+        )
+      );
+  
+      setUploadFiles([]);
+      setUploadTitle("");
+      setUploadSectionIndex(null);
+      setOpenUploadModal(false);
+      setIsUploading(false);
+  
+    } catch (err) {
+      console.error("Upload failed:", err);
+    }
+  };
+  
+  
 
   return (
     <div className="resources-page">
@@ -164,10 +269,10 @@ export default function Resources() {
               {section.items.map((item, idx) => (
                 <li key={idx} className="resource-item">
                   <span className="doc-icon">📄</span>
-                  <span className="doc-name">{item.name}</span>
+                  <span className="doc-name">{item.title}</span>
                   <button
                     className="view-btn-1"
-                    onClick={() => setActiveFile(item)}
+                    onClick={() => handleView(item)}
                   >
                     View
                   </button>
@@ -178,7 +283,8 @@ export default function Resources() {
               {/* Add file */}
               <button
                 className="add-file-btn"
-                onClick={() => fileInputRefs.current[sectionIndex]?.click()}
+                /*onClick={() => fileInputRefs.current[sectionIndex]?.click()}*/
+                onClick={() => {setUploadSectionIndex(sectionIndex); setOpenUploadModal(true);}}
               >
                 <span>
                   <img src={white_plus} />
@@ -186,7 +292,7 @@ export default function Resources() {
                 Add File
               </button>
 
-              <input
+              {/*<input
                 type="file"
                 hidden
                 ref={(el) => {
@@ -197,7 +303,7 @@ export default function Resources() {
                     handleFileUpload(sectionIndex, e.target.files[0]);
                   }
                 }}
-              />
+              />*/}
             </div>
 
           </div>
@@ -215,7 +321,7 @@ export default function Resources() {
             onClick={(e) => e.stopPropagation()}
           >
             <div className="modal-header">
-              <h3>{activeFile.name}</h3>
+              <h3>{activeFile.title}</h3>
               <button
                 className="close-btn"
                 onClick={() => setActiveFile(null)}
@@ -225,38 +331,74 @@ export default function Resources() {
             </div>
 
             <div className="modal-body">
-              {activeFile.file?.type.includes("pdf") && (
+              {activeFileUrl?.includes(".pdf") && (
                 <iframe
-                  src={URL.createObjectURL(activeFile.file)}
+                  src={activeFileUrl}
                   title="PDF Preview"
                 />
               )}
 
-              {activeFile.file?.type.startsWith("image/") && (
-                <img
-                  src={URL.createObjectURL(activeFile.file)}
-                  alt="Preview"
-                />
-              )}
+              {activeFileUrl &&
+                  (activeFileUrl.includes(".png") ||
+                  activeFileUrl.includes(".jpg") ||
+                  activeFileUrl.includes(".jpeg") ||
+                  activeFileUrl.includes(".webp")) && (
+                  <img
+                    src={activeFileUrl}
+                    alt="Preview"
+                  />
+                )}
 
-              {!activeFile.file?.type !== null &&
-              !activeFile.file?.type.includes("pdf") &&
-                !activeFile.file?.type.startsWith("image/") && (
+              {activeFileUrl &&
+              !activeFile?.title.toLowerCase().endsWith(".pdf") &&
+              !activeFile?.title.toLowerCase().match(/\.(png|jpg|jpeg|webp)$/) && (
                   <div className="file-fallback">
-                    <p>Preview not available.</p>
-                    {activeFile.file &&
+                    {/*<p>Preview not available.</p>*/}
                     <a
-                      href={URL.createObjectURL(activeFile.file)}
-                      download={activeFile.name}
+                      href={activeFileUrl}
+                      download={activeFile.title}
                     >
                       Download File
-                    </a>}
+                    </a>
                   </div>
                 )}
             </div>
           </div>
         </div>
       )}
+      { openUploadModal &&
+          <div className="modal-overlay" onClick={() => setOpenUploadModal(false)}>
+            <div className="modal-content upload" onClick={(e) => e.stopPropagation()}>
+              <div className="modal-header">
+                <h3>Upload File</h3>
+                <button
+                  className="close-btn"
+                  onClick={() => setOpenUploadModal(false)}
+                >
+                  ✕
+                </button>
+              </div>
+              <div className="modal-body upload">
+                <div>
+                  <label>Title</label>
+                  <div className="input-wrapper type-text">
+                    <input type="text" required placeholder="Enter a title for this file" 
+                    value={uploadTitle} onChange={(e) => setUploadTitle(e.target.value)}/>
+                  </div>
+                </div>
+                <div>
+                  <label>Upload File</label>
+                  <UploadDropzone amount="single" stretch={true}
+                  files={uploadFiles} setFiles={setUploadFiles} 
+                  allowedTypes={["application/pdf", "image/png", "image/jpeg", "image/webp"]}/>
+                </div>
+                <button type="button" className="OK-button" onClick={handleUploadToFirebase} disabled={!uploadFiles.length || !uploadTitle.trim()}>
+                  {isUploading ? "Uploading..." : "Upload"}
+                </button>
+              </div>
+            </div>
+          </div>
+      }
     </div>
   );
 }

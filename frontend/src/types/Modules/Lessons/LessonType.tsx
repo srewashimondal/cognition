@@ -7,7 +7,8 @@ export type LessonType = {
     skills: string[];
     duration: number;
     dueDate: string;
-    numAttempts: number | "unlimited";
+    allowUnlimitedAttempts?: boolean;
+    numAttempts: number;
     randomize?: boolean;
     lessonAbstractInfo?: LessonAbstractType;
 };

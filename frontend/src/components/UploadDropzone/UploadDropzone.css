@@ -5,6 +5,10 @@
     width: 90%;
 }
 
+.upload-container.stretch {
+    width: 100%;
+}
+
 .upload-div.comp {
     width: 100%;
 }
@@ -14,6 +18,10 @@
     display: flex;
     gap: 100px;
     height: 300px;
+}
+
+.upload-container.stretch .dropzone.comp {
+    gap: 50px;
 }
 
 .dropzone.comp img {

@@ -2,6 +2,7 @@ import './UploadDropzone.css';
 import { useState, useRef } from 'react';
 import FileItem from '../FileItem/FileItem.tsx';
 import upload_icon from '../../assets/icons/file-upload-icon.svg';
+import movie_icon from '../../assets/icons/movie-icon.svg';
 
 type UploadDropzoneProps = {
     amount: "single" | "multiple";
@@ -11,9 +12,10 @@ type UploadDropzoneProps = {
     allowedTypes?: string[];
     onDelete?: (file: File) => void;
     handleChange?: () => void;
+    stretch?: boolean;
 }
 
-export default function UploadDropzone({ amount, video, files, setFiles, allowedTypes, onDelete, handleChange }: UploadDropzoneProps) {
+export default function UploadDropzone({ amount, video, files, setFiles, allowedTypes, onDelete, handleChange, stretch }: UploadDropzoneProps) {
     const fileInputRef = useRef<HTMLInputElement | null>(null);
     const [dragging, setDragging] = useState(false);
     const [isUploading, setIsUploading] = useState(false);
@@ -30,7 +32,7 @@ export default function UploadDropzone({ amount, video, files, setFiles, allowed
     switch (amount) {
         case "multiple":
             return (
-                <div className={`upload-container ${amount}`}>
+                <div className={`upload-container ${amount} ${stretch ? "stretch" : ""}`}>
                     <div className={`upload-div comp ${(dragging) ? "dragging" : ""}`} onClick={() => fileInputRef.current?.click()}
                                       onDragOver={(e) => {e.preventDefault(); setDragging(true);}} 
                                       onDragLeave={() => setDragging(false)}
@@ -69,7 +71,7 @@ export default function UploadDropzone({ amount, video, files, setFiles, allowed
             );
             case "single":
                 return (
-                    <div className={`upload-container ${amount}`}>
+                    <div className={`upload-container ${amount} ${stretch ? "stretch" : ""}`}>
                         <div
                             className={`upload-div comp ${dragging ? "dragging" : ""}`}
                             onClick={() => fileInputRef.current?.click()}
@@ -109,10 +111,10 @@ export default function UploadDropzone({ amount, video, files, setFiles, allowed
                                     }}
                                 />
             
-                                <img src={upload_icon} />
+                                <img src={video? movie_icon : upload_icon} />
                                 <div className="dropzone-manual">
                                     <p>
-                                        <strong>Drag and drop {video ? "video" : "map"} file</strong>
+                                        <strong>Drag and drop a file</strong>
                                     </p>
                                     <span>OR</span>
                                     <button

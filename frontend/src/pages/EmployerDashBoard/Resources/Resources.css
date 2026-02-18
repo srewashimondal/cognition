@@ -186,6 +186,7 @@
   border: none;
   font-size: 18px;
   cursor: pointer;
+  color: black;
 }
 
 /* Modal body */
@@ -223,4 +224,26 @@
   margin-top: 12px;
   color: #f97316;
   font-weight: 500;
+}
+
+.modal-content.upload {
+  display: flex;
+  flex-direction: column;
+  width: 700px;
+}
+
+.modal-body.upload {
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.OK-button {
+    background: #ff6a3d; 
+    color: white;
+}
+
+.OK-button:hover {
+  background: #e85a2f;
 }
