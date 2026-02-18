@@ -1,20 +1,21 @@
-import { useState, useRef, useEffect } from "react";
+import { useState, useEffect } from "react";
 import "./Resources.css";
 import { collection, getDocs, addDoc } from "firebase/firestore";
 import { db, storage } from "../../../firebase";
 import { getDownloadURL, ref, uploadBytes } from "firebase/storage";
-
 import type { WorkspaceType } from "../../../types/User/WorkspaceType";
 import UploadDropzone from "../../../components/UploadDropzone/UploadDropzone";
 import white_plus from '../../../assets/icons/actions/white-plus-icon.svg';
+import note_icon from '../../../assets/icons/orange-note-icon.svg';
 
-type ResourceItem = {
+
+export type ResourceItem = {
   title: string;
   section: string;
   filePath: string;
 };
 
-type ResourceSection = {
+export type ResourceSection = {
   title: string;
   icon: string;
   tone: string;
@@ -132,7 +133,6 @@ export default function Resources({ workspace }: { workspace: WorkspaceType }) {
   const [sections, setSections] = useState<ResourceSection[]>(initialSections);
   const [activeFile, setActiveFile] = useState<ResourceItem | null>(null);
   const [activeFileUrl, setActiveFileUrl] = useState<string | null>(null);
-  const fileInputRefs = useRef<HTMLInputElement[]>([]);
   const [openUploadModal, setOpenUploadModal] = useState(false);
 
   useEffect(() => {
@@ -268,7 +268,9 @@ export default function Resources({ workspace }: { workspace: WorkspaceType }) {
               <ul className="resource-list">
               {section.items.map((item, idx) => (
                 <li key={idx} className="resource-item">
-                  <span className="doc-icon">📄</span>
+                  <span className="doc-icon">
+                    <img src={note_icon} />
+                  </span>
                   <span className="doc-name">{item.title}</span>
                   <button
                     className="view-btn-1"
