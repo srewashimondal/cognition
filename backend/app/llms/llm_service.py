@@ -64,6 +64,67 @@ class LLMService:
         
         result = subprocess.run(command, capture_output=True, text=True, check=True)
         return float(result.stdout.strip())
+    
+    def generate_section_chat_response(
+            self,
+            transcript_segments: list,
+            section_summary: dict,
+            conversation_history: list,
+            user_message: str
+        ):
+
+        section_start = section_summary["start"]
+        section_end = section_summary["end"]
+
+        section_transcript = [
+            seg for seg in transcript_segments
+            if section_start <= seg["start"] <= section_end
+        ]
+
+        transcript_text = " ".join([seg["text"] for seg in section_transcript])
+
+        system_prompt = f"""
+    You are Cognition, an AI retail training assistant.
+
+    You are helping an employee understand this training section.
+
+    SECTION TITLE:
+    {section_summary['title']}
+
+    SECTION SUMMARY:
+    {section_summary['canonicalSummary']['content']}
+
+    SECTION TRANSCRIPT:
+    {transcript_text}
+
+    Rules:
+    - Stay focused on this section only.
+    - Be clear, supportive, and professional.
+    - If the question is unrelated, gently redirect.
+    """
+
+        messages = [{"role": "system", "content": system_prompt}]
+
+        for msg in conversation_history:
+            messages.append({
+                "role": msg["role"],
+                "content": msg["content"]
+            })
+
+        messages.append({
+            "role": "user",
+            "content": user_message
+        })
+
+        response = self.client.chat.completions.create(
+            model="gpt-4o-mini",
+            messages=messages,
+            temperature=0.5
+        )
+
+        return response.choices[0].message.content
+
+
 
     def transcribe_audio_with_timestamps(self, audio_path: str) -> list:
         """

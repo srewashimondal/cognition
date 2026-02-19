@@ -9,6 +9,10 @@ import type { MessageType } from '../../../types/Modules/Lessons/Simulations/Mes
 import left_arrow from '../../../assets/icons/orange-left-arrow.svg';
 import play_button from '../../../assets/icons/video-play-icon.svg';
 import right_chevron from '../../../assets/icons/chevron-right-icon.svg';
+import { getAuth } from "firebase/auth";
+const auth = getAuth();
+const user = auth.currentUser;
+
 
 type VideoLessonPageProps = {
     lesson: VideoLessonType;
@@ -64,22 +68,48 @@ export default function VideoLessonPage({ lesson, handleBack, moduleTitle }: Vid
         setIsPlaying(true);
     };
 
-    const handleSend = () => {
-        if (!userInput.trim()) return;
+    const handleSend = async () => {
+        if (!userInput.trim() || !selectedSummary) return;
 
-        setChatMessages(prev => {
-            const lastId = prev.length > 0 ? prev[prev.length - 1].id : 0;
+        const newUserMessage: MessageType = {
+            id: Date.now(),
+            role: "user",
+            content: userInput,
+        };
 
-            const newMessage: MessageType = {
-                id: lastId + 1,
-                role: "user",
-                content: userInput,
+        setChatMessages(prev => [...prev, newUserMessage]);
+
+        const messageToSend = userInput;
+        setUserInput("");
+
+        try {
+            const res = await fetch("http://127.0.0.1:8000/ai/section-chat", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                    lesson_id: lesson.id,
+                    section_id: selectedSummary.id,
+                    user_message: messageToSend,
+                }),
+            });
+
+            const data = await res.json();
+
+            const aiMessage: MessageType = {
+                id: Date.now() + 1,
+                role: "assistant",
+                content: data.response,
             };
 
-            return [...prev, newMessage];
-        });
-        setUserInput("");
+            setChatMessages(prev => [...prev, aiMessage]);
+
+        } catch (err) {
+            console.error("Chat error:", err);
+        }
     };
+
 
     const transcriptRef = useRef<HTMLDivElement | null>(null);
     useEffect(() => {

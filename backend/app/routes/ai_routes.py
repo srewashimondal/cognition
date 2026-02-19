@@ -4,6 +4,9 @@ import firebase_admin
 from firebase_admin import credentials, firestore
 from app.models.schemas import TranscriptRequest, SummaryRequest
 import traceback
+from app.models.schemas import SectionChatRequest
+from firebase_admin.firestore import SERVER_TIMESTAMP
+
 
 router = APIRouter()
 llm = LLMService()
@@ -166,3 +169,66 @@ async def get_lesson_summaries(lesson_id: str):
             status_code=500,
             detail=f"Failed to fetch summaries: {str(e)}"
         )
+    
+
+@router.post("/section-chat")
+async def section_chat(request: SectionChatRequest):
+    try:
+        lesson_ref = db.collection("standardLessons").document(request.lesson_id)
+        lesson_doc = lesson_ref.get()
+
+        if not lesson_doc.exists:
+            raise HTTPException(status_code=404, detail="Lesson not found")
+
+        lesson_data = lesson_doc.to_dict()
+
+        summaries = lesson_data.get("summaries", [])
+        transcript = lesson_data.get("transcript", [])
+
+        section = next(
+            (s for s in summaries if s["id"] == request.section_id),
+            None
+        )
+
+        if not section:
+            raise HTTPException(status_code=404, detail="Section not found")
+
+        chat_ref = (
+            lesson_ref
+            .collection("sectionChats")
+            .document(str(request.section_id))
+            .collection("messages")
+        )
+
+        previous_messages_docs = chat_ref.order_by("timestamp").stream()
+
+        conversation_history = []
+        for doc in previous_messages_docs:
+            conversation_history.append(doc.to_dict())
+
+        ai_response = llm.generate_section_chat_response(
+            transcript_segments=transcript,
+            section_summary=section,
+            conversation_history=conversation_history,
+            user_message=request.user_message
+        )
+
+        chat_ref.add({
+            "role": "user",
+            "content": request.user_message,
+            "timestamp": SERVER_TIMESTAMP
+        })
+
+        chat_ref.add({
+            "role": "assistant",
+            "content": ai_response,
+            "timestamp": SERVER_TIMESTAMP
+        })
+
+        return {
+            "status": "success",
+            "response": ai_response
+        }
+
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
