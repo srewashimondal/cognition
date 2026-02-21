@@ -42,17 +42,25 @@ export default function VideoLessonPage({ lesson, handleBack, moduleTitle }: Vid
     const [chatMessages, setChatMessages] = useState<MessageType[]>([]); // in backend make it so there is 1 chatMessages state/list per section summary
     const [userInput, setUserInput] = useState("");
     const [showTranscript, setShowTranscript] = useState(false);
+    const [currentUser, setCurrentUser] = useState(auth.currentUser);
+
+    useEffect(() => {
+        const unsubscribe = auth.onAuthStateChanged((u) => setCurrentUser(u));
+        return () => unsubscribe();
+    }, []);
 
     useEffect(() => {
         async function loadChat() {
-            if (!selectedSummary) return;
+            if (!selectedSummary || !currentUser?.uid) return;
 
             const messagesRef = collection(
                 db,
-                "standardLessons",
+                "standardLessonAttempts",
                 lesson.id,
+                "users",
+                currentUser?.uid ?? "",
                 "sectionChats",
-                String(selectedSummaryIdx), 
+                String(selectedSummary.id),
                 "messages"
             );
 
@@ -125,6 +133,7 @@ export default function VideoLessonPage({ lesson, handleBack, moduleTitle }: Vid
                 },
                 body: JSON.stringify({
                     lesson_id: lesson.id,
+                    user_id: currentUser?.uid,
                     section_id: selectedSummary.id,
                     user_message: messageToSend,
                 }),

@@ -39,5 +39,6 @@ class SummaryResponse(BaseModel):
 
 class SectionChatRequest(BaseModel):
     lesson_id: str
+    user_id: str
     section_id: int
     user_message: str

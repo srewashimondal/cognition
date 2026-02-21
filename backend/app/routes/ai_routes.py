@@ -181,7 +181,6 @@ async def section_chat(request: SectionChatRequest):
             raise HTTPException(status_code=404, detail="Lesson not found")
 
         lesson_data = lesson_doc.to_dict()
-
         summaries = lesson_data.get("summaries", [])
         transcript = lesson_data.get("transcript", [])
 
@@ -193,8 +192,15 @@ async def section_chat(request: SectionChatRequest):
         if not section:
             raise HTTPException(status_code=404, detail="Section not found")
 
+        attempt_ref = (
+            db.collection("standardLessonAttempts")
+              .document(request.lesson_id)
+              .collection("users")
+              .document(request.user_id)
+        )
+
         chat_ref = (
-            lesson_ref
+            attempt_ref
             .collection("sectionChats")
             .document(str(request.section_id))
             .collection("messages")
@@ -202,9 +208,9 @@ async def section_chat(request: SectionChatRequest):
 
         previous_messages_docs = chat_ref.order_by("timestamp").stream()
 
-        conversation_history = []
-        for doc in previous_messages_docs:
-            conversation_history.append(doc.to_dict())
+        conversation_history = [
+            doc.to_dict() for doc in previous_messages_docs
+        ]
 
         ai_response = llm.generate_section_chat_response(
             transcript_segments=transcript,
