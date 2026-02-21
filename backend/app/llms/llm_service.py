@@ -207,46 +207,46 @@ class LLMService:
         Generate section summaries with timestamps
         """
         prompt = f"""
-You are an AI training assistant analyzing a video transcript.
+            You are an AI training assistant analyzing a video transcript.
 
-Video Duration: {video_duration} seconds
+            Video Duration: {video_duration} seconds
 
-Split the following transcript into 3-6 logical training sections.
-Each section should cover a distinct topic or concept.
+            Split the following transcript into 3-6 logical training sections.
+            Each section should cover a distinct topic or concept.
 
-For each section:
-1. Estimate when it starts and ends (in seconds)
-2. Create a clear, descriptive title
-3. Write a 2-3 sentence summary of the key points
+            For each section:
+            1. Estimate when it starts and ends (in seconds)
+            2. Create a clear, descriptive title
+            3. Write a 2-3 sentence summary of the key points
 
-Return output in this EXACT JSON format:
-{{
-  "sections": [
-    {{
-      "title": "Introduction to Customer Service",
-      "start": 0,
-      "end": 120,
-      "summary": "Overview of customer service principles. Discussion of the importance of first impressions and active listening."
-    }},
-    {{
-      "title": "Handling Difficult Customers",
-      "start": 120,
-      "end": 300,
-      "summary": "Strategies for de-escalating tense situations. Techniques for maintaining professionalism under pressure."
-    }}
-  ]
-}}
+            Return output in this EXACT JSON format:
+            {{
+            "sections": [
+                {{
+                "title": "Introduction to Customer Service",
+                "start": 0,
+                "end": 120,
+                "summary": "Overview of customer service principles. Discussion of the importance of first impressions and active listening."
+                }},
+                {{
+                "title": "Handling Difficult Customers",
+                "start": 120,
+                "end": 300,
+                "summary": "Strategies for de-escalating tense situations. Techniques for maintaining professionalism under pressure."
+                }}
+            ]
+            }}
 
-Rules:
-- First section MUST start at 0
-- Last section MUST end at {video_duration}
-- Sections should not overlap
-- Each section should be 1-3 minutes long
-- Provide realistic timestamps based on content flow
+            Rules:
+            - First section MUST start at 0
+            - Last section MUST end at {video_duration}
+            - Sections should not overlap
+            - Each section should be 1-3 minutes long
+            - Provide realistic timestamps based on content flow
 
-Transcript:
-{transcript}
-"""
+            Transcript:
+            {transcript}
+        """
 
         response = self.client.chat.completions.create(
             model="gpt-4o-mini",

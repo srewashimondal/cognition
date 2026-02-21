@@ -178,15 +178,17 @@ export default function VideoLessonPage({ lesson, handleBack, moduleTitle }: Vid
     return (
         <div className="video-lesson-page">
             <div className="video-portion">
-                <div className="back-to-lessons" onClick={handleBack}>
-                    <img src={left_arrow} />
+                <div className="video-lesson-header">
+                    <div className="back-to-lessons" onClick={handleBack}>
+                        <img src={left_arrow} />
+                    </div>
+                    <div className="builder-page-title">
+                        Simulation Modules / {moduleTitle} / Video Lesson
+                    </div>
                 </div>
                 <div className="video-title">
-                    <div className="builder-page-title">
-                            Simulation Modules / {moduleTitle} / Video Lesson
+                        <h1>{lesson?.title}</h1>
                     </div>
-                    <h1>{lesson?.title}</h1>
-                </div>
                 <div className="video-wrapper">
 
                     <video ref={videoRef} src={videoURL ?? ""} controls={isPlaying} preload="metadata" 
