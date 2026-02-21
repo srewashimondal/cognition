@@ -36,3 +36,8 @@ class SummaryResponse(BaseModel):
     sections: List[SectionSummary]
     transcript: List[TranscriptSegment]
     duration: float
+
+class SectionChatRequest(BaseModel):
+    lesson_id: str
+    section_id: int
+    user_message: str

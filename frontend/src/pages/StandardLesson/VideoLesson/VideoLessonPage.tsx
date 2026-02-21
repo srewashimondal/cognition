@@ -9,6 +9,12 @@ import type { MessageType } from '../../../types/Modules/Lessons/Simulations/Mes
 import left_arrow from '../../../assets/icons/orange-left-arrow.svg';
 import play_button from '../../../assets/icons/video-play-icon.svg';
 import right_chevron from '../../../assets/icons/chevron-right-icon.svg';
+import { getAuth } from "firebase/auth";
+const auth = getAuth();
+const user = auth.currentUser;
+import { collection, query, orderBy, getDocs } from "firebase/firestore";
+import { db } from '../../../firebase';
+
 
 type VideoLessonPageProps = {
     lesson: VideoLessonType;
@@ -36,6 +42,39 @@ export default function VideoLessonPage({ lesson, handleBack, moduleTitle }: Vid
     const [chatMessages, setChatMessages] = useState<MessageType[]>([]); // in backend make it so there is 1 chatMessages state/list per section summary
     const [userInput, setUserInput] = useState("");
     const [showTranscript, setShowTranscript] = useState(false);
+
+    useEffect(() => {
+        async function loadChat() {
+            if (!selectedSummary) return;
+
+            const messagesRef = collection(
+                db,
+                "standardLessons",
+                lesson.id,
+                "sectionChats",
+                String(selectedSummaryIdx), 
+                "messages"
+            );
+
+            const q = query(messagesRef, orderBy("timestamp", "asc"));
+            const snapshot = await getDocs(q);
+
+            const loadedMessages: MessageType[] = snapshot.docs.map((docSnap, index) => {
+                const data = docSnap.data();
+                return {
+                    id: index + 1,
+                    role: data.role,
+                    content: data.content,
+                };
+            });
+
+            setChatMessages(loadedMessages);
+        }
+
+        loadChat();
+    }, [selectedSummary]);
+
+
    
     useEffect(() => {
         window.scrollTo({ top: 0, left: 0, behavior: "instant" });
@@ -64,22 +103,48 @@ export default function VideoLessonPage({ lesson, handleBack, moduleTitle }: Vid
         setIsPlaying(true);
     };
 
-    const handleSend = () => {
-        if (!userInput.trim()) return;
+    const handleSend = async () => {
+        if (!userInput.trim() || !selectedSummary) return;
 
-        setChatMessages(prev => {
-            const lastId = prev.length > 0 ? prev[prev.length - 1].id : 0;
+        const newUserMessage: MessageType = {
+            id: Date.now(),
+            role: "user",
+            content: userInput,
+        };
 
-            const newMessage: MessageType = {
-                id: lastId + 1,
-                role: "user",
-                content: userInput,
+        setChatMessages(prev => [...prev, newUserMessage]);
+
+        const messageToSend = userInput;
+        setUserInput("");
+
+        try {
+            const res = await fetch("http://127.0.0.1:8000/ai/section-chat", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                    lesson_id: lesson.id,
+                    section_id: selectedSummary.id,
+                    user_message: messageToSend,
+                }),
+            });
+
+            const data = await res.json();
+
+            const aiMessage: MessageType = {
+                id: Date.now() + 1,
+                role: "assistant",
+                content: data.response,
             };
 
-            return [...prev, newMessage];
-        });
-        setUserInput("");
+            setChatMessages(prev => [...prev, aiMessage]);
+
+        } catch (err) {
+            console.error("Chat error:", err);
+        }
     };
+
 
     const transcriptRef = useRef<HTMLDivElement | null>(null);
     useEffect(() => {
