@@ -61,7 +61,6 @@ export default function Login() {
     return (
         <div className="login-page">
             <div className="blob blob-1" />
-            <div className="blob blob-3" />
             <NavBar login={false}/>
             <div className="login-wrapper">
                 <h2>Cognition</h2>

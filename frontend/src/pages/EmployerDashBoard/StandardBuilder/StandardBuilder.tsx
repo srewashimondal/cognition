@@ -325,8 +325,9 @@ export default function StandardBuilder() {
                     
                     const newLessonRef = await addDoc(lessonsCollection, lessonData);
                     // this is for generating summaries
-                    if (lesson.type === "video" && videoFilePath && (!lesson.summaries || lesson.summaries.length === 0) && lesson.allowSummary) {
+                    if (lesson.type === "video" && videoFilePath && (!lesson.summaries || lesson.summaries.length === 0) && (lesson.allowSummary ?? true)) {
                         setIsGeneratingSummaries(true);
+                        console.log("Generating summary for:", lesson.title);
                         try {
                             await fetch("http://localhost:8000/ai/generate-video-summary", {
                                 method: "POST",
@@ -345,9 +346,11 @@ export default function StandardBuilder() {
                         } finally {
                             setIsGeneratingSummaries(false);
                         }
+                    } else {
+                        console.log("Could not generate summaries for new:", lesson.title);
                     }
                     // this is for generating a transcript
-                    if (lesson.type === "video" && videoFilePath && (!lesson.transcript || lesson.transcript.length === 0) && lesson.allowTranscript) {
+                    if (lesson.type === "video" && videoFilePath && (!lesson.transcript || lesson.transcript.length === 0) && (lesson.allowTranscript ?? true)) {
                         setIsGeneratingTranscript(true);
                         try {
                             await fetch("http://localhost:8000/ai/generate-video-transcript", {
@@ -397,7 +400,8 @@ export default function StandardBuilder() {
                         });
                         
                         // generating summary if lesson alr exits
-                        if (videoFilePath && lesson.pendingVideoFile && (!lesson.summaries || lesson.summaries.length === 0) && lesson.allowSummary) {
+                        if (videoFilePath && lesson.pendingVideoFile && (!lesson.summaries || lesson.summaries.length === 0) && (lesson.allowSummary ?? true)) {
+                            console.log("Generating summary for:", lesson.title);
                             setIsGeneratingSummaries(true);
                             try {
                                 await fetch("http://localhost:8000/ai/generate-video-summary", {
@@ -417,10 +421,12 @@ export default function StandardBuilder() {
                             } finally {
                                 setIsGeneratingSummaries(false);
                             }
+                        } else {
+                            console.log("Could not generate summary for:", lesson.title);
                         }
 
                         // generating transcript if lesson alr exists
-                        if (lesson.type === "video" && lesson.pendingVideoFile && (!lesson.transcript || lesson.transcript.length === 0) && lesson.allowTranscript) {
+                        if (lesson.type === "video" && lesson.pendingVideoFile && (!lesson.transcript || lesson.transcript.length === 0) && (lesson.allowTranscript ?? true)) {
                             setIsGeneratingTranscript(true);
                             try {
                                 await fetch("http://localhost:8000/ai/generate-video-transcript", {
@@ -793,7 +799,7 @@ export default function StandardBuilder() {
             <div className="standard-canvas-wrapper">
                 <div className="standard-canvas-top">
                     <Tooltip content="Back">
-                        <div className="back-to-modules builder" onClick={async () => {await handleSave(); navigate(-1);}}>
+                        <div className="back-to-modules builder" onClick={async () => { if (isNewDraft && title!=="New Module Title" && lessons.length !== 0) { await handleSave(); } navigate(-1);}}>
                             <img src={orange_left_arrow} />
                         </div>
                     </Tooltip>

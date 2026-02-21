@@ -1,7 +1,12 @@
 .video-lesson-page {
     display: flex;
     width: 100%;
-    height: 100vh;
+    height: 95vh;
+}
+
+.back-to-lessons.video {
+    width: 100%;
+    display: flex;
 }
 
 .video-portion {
@@ -9,6 +14,12 @@
     background-color: #ffffff;
     border-right: 1px solid #eee;
     padding: 18px;
+}
+
+.video-lesson-header {
+    width: 100%; 
+    display: flex;
+    gap: 20px;
 }
 
 .video-title h1 {
@@ -120,11 +131,11 @@
     padding: 10px;
     padding-top: 10px;
     width: 30%;
-    height: 100vh;
-    position: fixed;
+    height: 90vh;
+    /*position: fixed;*/
     top: 64px;
     right: 0;
-    height: calc(100vh - 64px);
+    /*height: calc(100vh - 64px);*/
     overflow-y: auto;
     overflow-x: hidden;
     padding-left: 30px;
