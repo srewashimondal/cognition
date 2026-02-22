@@ -43,6 +43,7 @@ export default function VideoLessonPage({ lesson, handleBack, moduleTitle }: Vid
     const [userInput, setUserInput] = useState("");
     const [showTranscript, setShowTranscript] = useState(false);
     const [currentUser, setCurrentUser] = useState(auth.currentUser);
+    const [isLoading, setIsLoading] = useState(false);
 
     useEffect(() => {
         const unsubscribe = auth.onAuthStateChanged((u) => setCurrentUser(u));
@@ -121,21 +122,18 @@ export default function VideoLessonPage({ lesson, handleBack, moduleTitle }: Vid
         };
 
         setChatMessages(prev => [...prev, newUserMessage]);
-
-        const messageToSend = userInput;
         setUserInput("");
+        setIsLoading(true); 
 
         try {
             const res = await fetch("http://127.0.0.1:8000/ai/section-chat", {
                 method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                },
+                headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
                     lesson_id: lesson.id,
                     user_id: currentUser?.uid,
                     section_id: selectedSummary.id,
-                    user_message: messageToSend,
+                    user_message: userInput, 
                 }),
             });
 
@@ -151,6 +149,8 @@ export default function VideoLessonPage({ lesson, handleBack, moduleTitle }: Vid
 
         } catch (err) {
             console.error("Chat error:", err);
+        } finally {
+            setIsLoading(false); 
         }
     };
 
@@ -240,7 +240,17 @@ export default function VideoLessonPage({ lesson, handleBack, moduleTitle }: Vid
                         />
                         {chatMessages.length === 0 && <div className="scroll-spacer" />}
                         {chatMessages.map((m, i, arr) => 
-                        <ChatBubble key={m.id} message={m} className={i === arr.length - 1 ? "last-message" : i === 0 ? "first-message": ""} />)}    
+                            <ChatBubble key={m.id} message={m} className={i === arr.length - 1 ? "last-message" : i === 0 ? "first-message" : ""} />
+                        )}
+
+                        {isLoading && (
+                            <div className="chat-bubble-wrapper assistant">
+                                <span className="role-text">Cognition</span>
+                                <div className="chat-bubble assistant loading-bubble">
+                                    <div className="spinner" />
+                                </div>
+                            </div>
+                        )}
                     </div>
                     <div className="builder-chat-wrapper">
                         <ChatBar context={"summary"} userInput={userInput} setUserInput={setUserInput} 
