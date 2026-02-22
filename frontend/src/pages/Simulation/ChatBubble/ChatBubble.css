@@ -59,6 +59,10 @@
     background-color: #cef0fb;
 }
 
+.chat-bubble.assistant {
+  background-color: #F0F0F0; 
+}
+
 .assistant-msg {
     font-size: 10px;
     width: 100%;
