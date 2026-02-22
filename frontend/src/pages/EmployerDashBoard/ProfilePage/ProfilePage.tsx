@@ -18,6 +18,9 @@ import notebook_icon from '../../../assets/icons/form-icon.svg';
 import star_icon from '../../../assets/icons/badges/star-icon.svg';
 import bolt_icon from '../../../assets/icons/badges/bolt-icon.svg';
 import map_icon from '../../../assets/icons/badges/map-icon.svg';
+import { signOut } from "firebase/auth";
+import { useNavigate } from "react-router-dom";
+import { auth } from "../../../firebase";
 
 interface ProfilePageProps {
   open: boolean;
@@ -41,6 +44,13 @@ export default function ProfilePage({ open, onClose, user, viewer, tempPfp }: Pr
   const [currentTab, setCurrentTab] = useState<Tab>("Progress");
   const [displayName, setDisplayName] = useState(user.fullName ?? "");
   const [error, setError] = useState<string | null>(null);
+  const navigate = useNavigate();
+
+  const handleLogout = async () => {
+    await signOut(auth);
+    sessionStorage.removeItem("currentUser");
+    navigate("/login");
+  };
   
   useEffect(() => {
     setDisplayName(user.fullName ?? "");
@@ -283,7 +293,7 @@ export default function ProfilePage({ open, onClose, user, viewer, tempPfp }: Pr
         {/* Actions */}
         { isOwnProfile && 
         <section className="profile-actions">
-            <button className="drawer-btn danger">
+            <button className="drawer-btn danger" onClick={handleLogout}>
               Log out
               <span>
                 <img src={log_out_icon}/>
