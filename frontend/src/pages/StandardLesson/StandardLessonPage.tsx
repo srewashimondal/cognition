@@ -86,7 +86,7 @@ export default function StandardLessonPage() {
 
     switch (lessonAttempt.lessonInfo.type) {
         case "video":
-            return <VideoLessonPage lesson={lessonAttempt.lessonInfo} handleBack={handleBack} moduleTitle={moduleTitle ?? ""} />;
+            return <VideoLessonPage lessonAttempt={lessonAttempt} lesson={lessonAttempt.lessonInfo} handleBack={handleBack} moduleTitle={moduleTitle ?? ""} />;
 
         case "quiz":
             return <QuizLessonPage lessonAttempt={lessonAttempt} handleBack={handleBack} moduleTitle={moduleTitle ?? ""} />;

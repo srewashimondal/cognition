@@ -1,0 +1,13 @@
+.ai-typing-text .cursor {
+    display: inline-block;
+    width: 2px;
+    height: 1em;
+    margin-left: 3px;
+    background-color: #FF4B00; 
+    animation: blink 1s infinite;
+}
+  
+@keyframes blink {
+    50% { opacity: 0; }
+}
+  

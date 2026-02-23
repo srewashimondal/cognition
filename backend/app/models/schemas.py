@@ -38,6 +38,7 @@ class SummaryResponse(BaseModel):
     duration: float
 
 class SectionChatRequest(BaseModel):
+    lesson_attempt_id: str
     lesson_id: str
     user_id: str
     section_id: int

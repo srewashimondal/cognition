@@ -1,4 +1,5 @@
 import './ChatBubble.css';
+import TypingMessage from '../../../components/TypingMessage/TypingMessage';
 import type { MessageType } from '../../../types/Modules/Lessons/Simulations/MessageType';
 
 type ChatBubbleProps = {

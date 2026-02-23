@@ -192,12 +192,7 @@ async def section_chat(request: SectionChatRequest):
         if not section:
             raise HTTPException(status_code=404, detail="Section not found")
 
-        attempt_ref = (
-            db.collection("standardLessonAttempts")
-              .document(request.lesson_id)
-              .collection("users")
-              .document(request.user_id)
-        )
+        attempt_ref = (db.collection("standardLessonAttempts").document(request.lesson_attempt_id))
 
         chat_ref = (
             attempt_ref

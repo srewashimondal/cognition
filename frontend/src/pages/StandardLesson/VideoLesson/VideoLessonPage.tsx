@@ -4,6 +4,7 @@ import { getStorage, ref, getDownloadURL } from "firebase/storage";
 import AITranscript from './AITranscript/AITranscript';
 import ChatBubble from '../../Simulation/ChatBubble/ChatBubble';
 import ChatBar from '../../../components/ChatBar/ChatBar';
+import type { StandardLessonAttempt } from '../../../types/Standard/StandardAttempt';
 import type { VideoLessonType } from '../../../types/Standard/StandardLessons';
 import type { MessageType } from '../../../types/Modules/Lessons/Simulations/MessageType';
 import left_arrow from '../../../assets/icons/orange-left-arrow.svg';
@@ -11,12 +12,12 @@ import play_button from '../../../assets/icons/video-play-icon.svg';
 import right_chevron from '../../../assets/icons/chevron-right-icon.svg';
 import { getAuth } from "firebase/auth";
 const auth = getAuth();
-const user = auth.currentUser;
 import { collection, query, orderBy, getDocs } from "firebase/firestore";
 import { db } from '../../../firebase';
 
 
 type VideoLessonPageProps = {
+    lessonAttempt: StandardLessonAttempt;
     lesson: VideoLessonType;
     handleBack: () => void;
     moduleTitle: string;
@@ -30,7 +31,7 @@ function formatTime(seconds: number) {
         .padStart(2, '0')}`;
 }
 
-export default function VideoLessonPage({ lesson, handleBack, moduleTitle }: VideoLessonPageProps) {
+export default function VideoLessonPage({ lessonAttempt, lesson, handleBack, moduleTitle }: VideoLessonPageProps) {
     const [videoURL, setVideoURL] = useState<string | null>(null);
     const videoRef = useRef<HTMLVideoElement | null>(null);
     const [isPlaying, setIsPlaying] = useState(false);
@@ -57,9 +58,7 @@ export default function VideoLessonPage({ lesson, handleBack, moduleTitle }: Vid
             const messagesRef = collection(
                 db,
                 "standardLessonAttempts",
-                lesson.id,
-                "users",
-                currentUser?.uid ?? "",
+                lessonAttempt.id,
                 "sectionChats",
                 String(selectedSummary.id),
                 "messages"
@@ -130,6 +129,7 @@ export default function VideoLessonPage({ lesson, handleBack, moduleTitle }: Vid
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
+                    lesson_attempt_id: lessonAttempt.id,
                     lesson_id: lesson.id,
                     user_id: currentUser?.uid,
                     section_id: selectedSummary.id,
