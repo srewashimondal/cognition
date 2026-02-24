@@ -1,4 +1,5 @@
 import './TypingMessage.css';
+import remarkGfm from "remark-gfm";
 import ReactMarkdown from "react-markdown";
 import { useEffect, useState } from "react";
 
@@ -12,6 +13,7 @@ type TypingMessageProps = {
 
 export default function TypingMessage({ text, speed = 8, onComplete, shouldStop, onUpdate }: TypingMessageProps) {
     const [index, setIndex] = useState(0);
+    const cleanedText = text.replace(/\n{3,}/g, "\n\n");
 
     useEffect(() => {
         setIndex(0);
@@ -37,8 +39,8 @@ export default function TypingMessage({ text, speed = 8, onComplete, shouldStop,
 
     return (
         <span className="ai-typing-text">
-            <ReactMarkdown>
-                {text.slice(0, index)}
+            <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                {cleanedText.slice(0, index)}
             </ReactMarkdown>
         </span>
     );
