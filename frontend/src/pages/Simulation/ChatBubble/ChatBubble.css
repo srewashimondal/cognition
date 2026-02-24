@@ -141,3 +141,43 @@
 @keyframes spin {
   to { transform: rotate(360deg); }
 }
+
+.regenerate-btn {
+    background-color: #f7f7f7;
+    border-radius: 5px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 3px;
+    width: 20px;
+    height: 20px;
+}
+
+.regenerate-btn:hover {
+    background-color: #eee;
+}
+
+.chat-bubble.assistant .content-text p {
+    margin: 0;
+    font-size: inherit;
+    line-height: inherit;
+}
+
+.chat-bubble.assistant .content-text li {
+    margin: 0;
+}
+
+.chat-bubble.assistant .content-text li p {
+    margin: 0;
+    display: inline;
+}
+
+.chat-bubble.assistant .content-text ol {
+    padding-left: 20px;
+    margin: 8px 0;
+}
+
+.chat-bubble.assistant .content-text li + li {
+    margin-top: 6px;
+}
+

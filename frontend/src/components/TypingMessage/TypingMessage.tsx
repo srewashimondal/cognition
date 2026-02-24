@@ -1,43 +1,45 @@
 import './TypingMessage.css';
-import { useEffect, useState, useRef } from "react";
+import ReactMarkdown from "react-markdown";
+import { useEffect, useState } from "react";
 
 type TypingMessageProps = {
     text: string;
     speed?: number; 
     onComplete?: () => void;
+    shouldStop?: boolean;
+    onUpdate?: () => void;
 };
 
-export default function TypingMessage({ text, speed=8, onComplete }: TypingMessageProps) {
-    const [displayed, setDisplayed] = useState("");
-    const indexRef = useRef(0);
-    const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+export default function TypingMessage({ text, speed = 8, onComplete, shouldStop, onUpdate }: TypingMessageProps) {
+    const [index, setIndex] = useState(0);
 
     useEffect(() => {
-        setDisplayed("");
-        indexRef.current = 0;
-
-        const type = () => {
-            if (indexRef.current < text.length) {
-            setDisplayed(prev => prev + text[indexRef.current]);
-            indexRef.current++;
-
-            timeoutRef.current = setTimeout(type, speed);
-            } else {
-                onComplete?.();
-            }
-        };
-
-        type();
-
-        return () => {
-            if (timeoutRef.current) clearTimeout(timeoutRef.current);
-        };
+        setIndex(0);
     }, [text]);
+
+    useEffect(() => {
+        if (shouldStop) {
+            setIndex(text.length);
+            return;
+        }
+
+        if (index < text.length) {
+            const timeout = setTimeout(() => {
+                setIndex(prev => prev + 1);
+                onUpdate?.();
+            }, speed);
+
+            return () => clearTimeout(timeout);
+        } else {
+            onComplete?.();
+        }
+    }, [index, text]);
 
     return (
         <span className="ai-typing-text">
-            {displayed}
-            <span className="cursor" />
+            <ReactMarkdown>
+                {text.slice(0, index)}
+            </ReactMarkdown>
         </span>
     );
 }

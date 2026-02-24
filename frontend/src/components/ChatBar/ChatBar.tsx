@@ -9,6 +9,7 @@ import send_icon from '../../assets/icons/chatbar/send-icon.svg';
 import plus_icon from '../../assets/icons/chatbar/black-plus-icon.svg';
 import globe_icon from '../../assets/icons/simulations/black-globe-icon.svg';
 import cap_icon from '../../assets/icons/simulations/black-cap-icon.svg';
+import stop_icon from '../../assets/icons/chatbar/black-stop-icon.svg';
 
 type ChatBarProps = {
     context: "builder" | "module" | "simulation" | "summary";
@@ -21,9 +22,11 @@ type ChatBarProps = {
     handleRemoveFile?: (fileName: string) => void;
     handleVoiceMode?: () => void;
     pageContext?: (string | LessonType)[];
+    typingMessageId?: string | null;
+    handleStop?: () => void;
 };
 
-export default function ChatBar({ context, userInput, setUserInput, handleSend, handleAttach, attachedFiles, showFileCond, handleRemoveFile, handleVoiceMode, pageContext }: ChatBarProps) {
+export default function ChatBar({ context, userInput, setUserInput, handleSend, handleAttach, attachedFiles, showFileCond, handleRemoveFile, handleVoiceMode, pageContext, typingMessageId, handleStop }: ChatBarProps) {
     const [showContext, setShowContext] = useState(false);
     const [pageContextState, setPageContextState] = useState<(string | LessonType)[] | null>(pageContext ?? null);
     const [selectedContext, setSelectedContext] = useState<(string | LessonType)[] | null>(null);
@@ -98,6 +101,14 @@ export default function ChatBar({ context, userInput, setUserInput, handleSend, 
             document.removeEventListener("mousedown", handleClickOutside);
         };
     }, []);
+
+    const handleSendOrStop = () => {
+        if (typingMessageId !== null) {
+            handleStop?.();
+            return;
+        }
+        handleSend();
+    }   
       
     return (
         <div className={`main-chat-wrapper ${context}`} ref={chatBarRef}>
@@ -137,8 +148,8 @@ export default function ChatBar({ context, userInput, setUserInput, handleSend, 
                     <textarea placeholder={contextToPlaceholder[context]} value={userInput} 
                     onChange={(e) => {setUserInput(e.target.value); handleTextareaChange(e);}} 
                     onKeyDown={(e) => {if (e.key === "Enter") {e.preventDefault(); handleSend();}}} />
-                    <span className="send-icon" onClick={handleSend}>
-                        <img src={send_icon} />
+                    <span className="send-icon" onClick={handleSendOrStop}>
+                        <img src={typingMessageId !== null ? stop_icon : send_icon} />
                     </span>
                 </div>
             </div>

@@ -12,8 +12,9 @@ import play_button from '../../../assets/icons/video-play-icon.svg';
 import right_chevron from '../../../assets/icons/chevron-right-icon.svg';
 import { getAuth } from "firebase/auth";
 const auth = getAuth();
-import { collection, query, orderBy, getDocs } from "firebase/firestore";
+import { collection, query, orderBy, getDocs, deleteDoc, doc } from "firebase/firestore";
 import { db } from '../../../firebase';
+
 
 
 type VideoLessonPageProps = {
@@ -45,6 +46,8 @@ export default function VideoLessonPage({ lessonAttempt, lesson, handleBack, mod
     const [showTranscript, setShowTranscript] = useState(false);
     const [currentUser, setCurrentUser] = useState(auth.currentUser);
     const [isLoading, setIsLoading] = useState(false);
+    const [typingMessageId, setTypingMessageId] = useState<string | null>(null);
+    const [stopTyping, setStopTyping] = useState(false);
 
     useEffect(() => {
         const unsubscribe = auth.onAuthStateChanged((u) => setCurrentUser(u));
@@ -70,7 +73,7 @@ export default function VideoLessonPage({ lessonAttempt, lesson, handleBack, mod
             const loadedMessages: MessageType[] = snapshot.docs.map((docSnap, index) => {
                 const data = docSnap.data();
                 return {
-                    id: index + 1,
+                    id: docSnap.id,
                     role: data.role,
                     content: data.content,
                 };
@@ -115,7 +118,7 @@ export default function VideoLessonPage({ lessonAttempt, lesson, handleBack, mod
         if (!userInput.trim() || !selectedSummary) return;
 
         const newUserMessage: MessageType = {
-            id: Date.now(),
+            id: String(Date.now()),
             role: "user",
             content: userInput,
         };
@@ -139,13 +142,16 @@ export default function VideoLessonPage({ lessonAttempt, lesson, handleBack, mod
 
             const data = await res.json();
 
+            const aiId = String(Date.now() + 1);
             const aiMessage: MessageType = {
-                id: Date.now() + 1,
+                id: aiId,
                 role: "assistant",
                 content: data.response,
             };
 
             setChatMessages(prev => [...prev, aiMessage]);
+            setTypingMessageId(aiId);
+            setStopTyping(false);
 
         } catch (err) {
             console.error("Chat error:", err);
@@ -153,7 +159,6 @@ export default function VideoLessonPage({ lessonAttempt, lesson, handleBack, mod
             setIsLoading(false); 
         }
     };
-
 
     const transcriptRef = useRef<HTMLDivElement | null>(null);
     useEffect(() => {
@@ -174,7 +179,81 @@ export default function VideoLessonPage({ lessonAttempt, lesson, handleBack, mod
         el.scrollTop = el.scrollHeight;
     }, [chatMessages]);
 
+    const handleRegenerate = async () => {
+        if (!selectedSummary) return;
+    
+        const lastUserMessage = [...chatMessages]
+            .reverse()
+            .find(m => m.role === "user");
+    
+        if (!lastUserMessage) return;
+    
+        const lastAssistant = [...chatMessages]
+            .reverse()
+            .find(m => m.role === "assistant");
+    
+        if (!lastAssistant) return;
+    
+        try {
+            await deleteDoc(
+                doc(
+                    db,
+                    "standardLessonAttempts",
+                    lessonAttempt.id,
+                    "sectionChats",
+                    String(selectedSummary.id),
+                    "messages",
+                    lastAssistant.id
+                )
+            );
+            
+            setChatMessages(prev =>
+                prev.filter(m => m.id !== lastAssistant.id)
+            );
+    
+            setIsLoading(true);
+            const res = await fetch("http://127.0.0.1:8000/ai/section-chat", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    lesson_attempt_id: lessonAttempt.id,
+                    lesson_id: lesson.id,
+                    user_id: currentUser?.uid,
+                    section_id: selectedSummary.id,
+                    user_message: lastUserMessage.content,
+                }),
+            });
+    
+            const data = await res.json();
+    
+            const aiId = String(Date.now() + 1);
+    
+            const aiMessage: MessageType = {
+                id: aiId,
+                role: "assistant",
+                content: data.response,
+            };
+    
+            setChatMessages(prev => [...prev, aiMessage]);
+            setTypingMessageId(aiId);
+            setStopTyping(false);
+    
+        } catch (err) {
+            console.error("Regenerate error:", err);
+        } finally {
+            setIsLoading(false);
+        }
+    };
+    
+    const lastMessage = chatMessages[chatMessages.length - 1];
+    const canRegenerate = typingMessageId === null && !isLoading && lastMessage?.role === "assistant";
 
+    const scrollToBottom = () => {
+        const el = transcriptRef.current;
+        if (!el) return;
+        el.scrollTop = el.scrollHeight;
+    };
+    
     return (
         <div className="video-lesson-page">
             <div className="video-portion">
@@ -239,8 +318,11 @@ export default function VideoLessonPage({ lessonAttempt, lesson, handleBack, mod
                         className={"first-message"}
                         />
                         {chatMessages.length === 0 && <div className="scroll-spacer" />}
-                        {chatMessages.map((m, i, arr) => 
-                            <ChatBubble key={m.id} message={m} className={i === arr.length - 1 ? "last-message" : i === 0 ? "first-message" : ""} />
+                        {chatMessages.map((m, i, arr) => {
+                            const isLast = i === arr.length - 1;
+                            const shouldType = m.role === "assistant" && m.id === typingMessageId;
+                            return (<ChatBubble key={m.id} message={m} shouldType={shouldType} stopTyping={stopTyping} onTypingComplete={() => {setTypingMessageId(null); setStopTyping(false);}}
+                            className={isLast ? "last-message" : i === 0 ? "first-message" : ""} shouldRegenerate={isLast && canRegenerate} handleRegenerate={handleRegenerate} onTypingUpdate={scrollToBottom}/>)}
                         )}
 
                         {isLoading && (
@@ -254,7 +336,7 @@ export default function VideoLessonPage({ lessonAttempt, lesson, handleBack, mod
                     </div>
                     <div className="builder-chat-wrapper">
                         <ChatBar context={"summary"} userInput={userInput} setUserInput={setUserInput} 
-                        handleSend={handleSend} />
+                        handleSend={handleSend} typingMessageId={typingMessageId} handleStop={() => {setStopTyping(true); setTypingMessageId(null);}}/>
                     </div>
                 </div>
                 : 
