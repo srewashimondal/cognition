@@ -161,6 +161,7 @@ export default function StandardBuilder() {
         }
 
         try {
+            await handleSave(); 
             const moduleRef = doc(db, "standardModules", moduleID!);
             await updateDoc(moduleRef, {
                 deployed: true,
