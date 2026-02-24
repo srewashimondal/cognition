@@ -15,7 +15,7 @@ export type WorkspaceType = {
     icon: string;
     admins: EmployerUserType[];
     employees: EmployeeUserType[];
-    simulationModules: ModuleType[];
+    simulationModules: DocumentReference[]; // was ModuleType[]
     standardModules: DocumentReference[]; // was StandardModuleType[]
     store: StoreType;
     storeID: DocumentReference;

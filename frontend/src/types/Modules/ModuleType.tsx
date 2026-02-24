@@ -1,4 +1,5 @@
 import type { LessonType } from './Lessons/LessonType';
+import type { DocumentReference } from "firebase/firestore";
 
 export type ModuleType = {
     id: string;
@@ -9,7 +10,7 @@ export type ModuleType = {
     deployed?: boolean;
     createTime: string;
     difficulty: string;
-    references: string[]; // change to File later
+    references: DocumentReference[]; // change to File later
     kind: "simulation";
     lastModified?: string;
     orderNumber: number;

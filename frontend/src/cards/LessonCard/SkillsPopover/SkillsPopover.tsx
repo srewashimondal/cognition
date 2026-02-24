@@ -63,12 +63,18 @@ const allSkills: string[] = [
     "Conflict Resolution",
     "Accuracy vs Speed Tradeoff"
 ];
-  
+
 
 export default function SkillsPopover({ actionType, onClick, search, setSearch, addSkill, error }: SkillsPopoverProps) {
     const handleSearch: () => void = () => {
         addSkill?.(search ?? "");
     };
+
+    const normalizedSearch = (search ?? "").toLowerCase();
+
+    const filteredSkills = allSkills.filter(skill =>
+        skill.toLowerCase().includes(normalizedSearch)
+    );
     
     switch (actionType) {
         case "add": 
@@ -88,7 +94,7 @@ export default function SkillsPopover({ actionType, onClick, search, setSearch, 
                 <div className="suggested-skills">
                     <p className="suggested-text">Suggested</p>
                     <div className="skills-grid">
-                        {allSkills.map((s) => (<SkillItem skill={s} toAdd={true} onAdd={() => addSkill?.(s ?? "")} />))}
+                        {filteredSkills.map((s) => (<SkillItem skill={s} toAdd={true} onAdd={() => addSkill?.(s)} />))}
                     </div>
                 </div>
             </div>);

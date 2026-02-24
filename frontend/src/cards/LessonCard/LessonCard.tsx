@@ -24,24 +24,68 @@ type LessonProp = {
     status?: "not begun" | "started" | "completed" | "locked";
     evaluation?: LessonEvaluationType;
     navigateToSim?: () => void;
-    moduleID?: number;
+    moduleID?: string;
+    onSkillsChange?: (skills: string[]) => void;
+    onSettingsChange?: (updates: Partial<LessonType>) => void;
+    onDueDateChange?: (date: string | null) => void;
 };
 
-export default function LessonCard({ lessonInfo, role, status, evaluation, navigateToSim, moduleID }: LessonProp) {
+export default function LessonCard({ lessonInfo, role, status, evaluation, navigateToSim, moduleID, onSkillsChange, onSettingsChange, onDueDateChange }: LessonProp) {
     const navigate = useNavigate();
 
     const id = lessonInfo.id;
     const title = lessonInfo.title;
-    const dueDate = lessonInfo.dueDate;
+    const orderNumber = lessonInfo.orderNumber;
 
-    const [skills, setSkills] = useState<string[]>(lessonInfo.skills);
     const [expanded, setExpanded] = useState(false);
-    const [attemptMode, setAttemptMode] = useState<"unlimited" | "custom">("unlimited");
-    const [customNumAttempts, setCustomNumAttempts] = useState<number | "">("");
-    const [changesMade, setChangesMade] = useState(false);
+    const skills = lessonInfo.skills;
+    const attemptMode = lessonInfo.allowUnlimitedAttempts;
+    const customNumAttempts = lessonInfo.numAttempts;
+    const criteria = lessonInfo.criteria;
+
+    const parseDateString = (dateString: string | null | undefined): string => {
+        if (!dateString) return '';
+        const date = new Date(dateString);
+        if (isNaN(date.getTime())) return ''; 
+        
+        const year = date.getFullYear();
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const day = String(date.getDate()).padStart(2, '0');
+        
+        return `${year}-${month}-${day}`;
+    };
+    
+    const [selectedDate, setSelectedDate] = useState<string>(
+        parseDateString(lessonInfo.dueDate)
+    );
+    
+    useEffect(() => {
+        if (lessonInfo.dueDate) {
+            setSelectedDate(parseDateString(lessonInfo.dueDate));
+        }
+    }, [lessonInfo.dueDate]);
+
+    const handleDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const dateValue = e.target.value;
+    
+        if (dateValue) {
+            const date = new Date(dateValue);
+            const formattedDate = date.toLocaleString('en-US', {
+                month: 'long',
+                day: 'numeric',
+                year: 'numeric'
+            });
+    
+            onDueDateChange?.(formattedDate);
+            setSelectedDate(dateValue);
+        } else {
+            onDueDateChange?.(null);
+            setSelectedDate('');
+        }
+    };
+    
     const [search, setSearch] = useState("");
     const [error, setError] = useState<string | null>(null);
-    const [selectedDate, setSelectedDate] = useState<string | null>(null);
 
     const buttonLabelsByStatus = {
         "not begun": "Begin",
@@ -58,27 +102,27 @@ export default function LessonCard({ lessonInfo, role, status, evaluation, navig
     }
 
     const removeSkill = (skillToRemove: string) => {
-        if (role === "employer") {
-            setSkills(prev => prev.filter(skill => skill !== skillToRemove));
-            setChangesMade(true);
-        }
+        if (role !== "employer") return;
+    
+        const updatedSkills = lessonInfo.skills.filter(
+            skill => skill !== skillToRemove
+        );
+    
+        onSkillsChange?.(updatedSkills);
     };
 
     const addSkill = (skillToAdd: string) => {
-        setSkills(prev => {
-            if (prev.includes(skillToAdd)) {
-                setError("Skill already added.")
-                return prev;
-            }
-
-            setError(null);
-            return [...prev, skillToAdd]
-        });
-        setChangesMade(true);
+        if (lessonInfo.skills.includes(skillToAdd)) {
+            setError("Skill already added.");
+            return;
+        }
+    
+        setError(null);
+        const updatedSkills = [...lessonInfo.skills, skillToAdd];
+        onSkillsChange?.(updatedSkills);
     };
-
+    
     const [clicked, setClicked] = useState(false);
-    const [criteria, setCriteria] = useState<string[]>(["Empathy & Tone", "Policy Adherence", "Problem Resolution", "Communication Clarity"]);
 
     const wrapperRef = useRef<HTMLDivElement>(null);
 
@@ -106,14 +150,8 @@ export default function LessonCard({ lessonInfo, role, status, evaluation, navig
         }
     }
 
-
-    const handleCheck = () => {
-        lessonInfo.randomize = !lessonInfo.randomize;
-        console.log(lessonInfo.randomize);
-    };
-
     const handleSave = () => {
-        setChangesMade(false);
+        
     };
 
     const handlePreview = () => {
@@ -133,7 +171,7 @@ export default function LessonCard({ lessonInfo, role, status, evaluation, navig
             <div className="lesson-card-top">
                 <div className="lesson-info lesson-title-section">
                     <div className="lesson-name-wrapper">
-                        <p className="lesson-tag">{id}. Lesson</p>
+                        <p className="lesson-tag">{orderNumber}. Lesson</p>
                         <h3 className="lesson-title">{title}</h3>
                         {status === "locked" && <p className="lock-warning">Complete Previous Lesson to Unlock</p>}
                     </div>
@@ -171,7 +209,7 @@ export default function LessonCard({ lessonInfo, role, status, evaluation, navig
                 {(role === "employee") &&
                 <>
                     {/*<p className={`lesson-info lesson-duration ${role}`}>{duration}m</p>*/}
-                    <p className={`lesson-info lesson-due ${role}`}>{dueDate}</p>
+                    <p className={`lesson-info lesson-due ${role}`}>{lessonInfo.dueDate}</p>
                     <div className={`lesson-info lesson-status ${statusLabelbyStatus[status ?? "not begun"]} ${role}`}>
                         <div className="lesson-status-dot" />
                         {statusLabelbyStatus[status ?? "not begun"]}
@@ -179,7 +217,7 @@ export default function LessonCard({ lessonInfo, role, status, evaluation, navig
                 </>}
                 { (role === "employer") ?
                     (<div className="local-action-panel">
-                        <Tooltip content={expanded ? "Save" : "Edit"}>
+                        <Tooltip content={expanded ? "Close" : "Edit"}>
                             <div className="builder-action" onClick={() => setExpanded(prev => !prev)}>
                                 <img src={expanded ? check_icon : edit_icon} />
                             </div>
@@ -210,26 +248,35 @@ export default function LessonCard({ lessonInfo, role, status, evaluation, navig
                                 </span>
                                 Simulation Settings
                             </div>
-                            <form onChange={() => setChangesMade(true)}>
+                            <form>
                                 <div className="radio-setting">
                                     <p className="expanded-settings-text label">Number of Attempts</p>
                                     <RadioGroup.Root defaultValue="unlimited" color="orange" size="1" 
-                                    value={attemptMode} onValueChange={(value) => setAttemptMode(value as "unlimited" | "custom")}>
+                                    value={lessonInfo.allowUnlimitedAttempts ? "unlimited" : "custom"} 
+                                    onValueChange={(value) => onSettingsChange?.({
+                                            allowUnlimitedAttempts: value === "unlimited",
+                                            numAttempts: value === "custom" ? lessonInfo.numAttempts ?? 1 : undefined
+                                        })
+                                    }
+                                    >
                                         <RadioGroup.Item value="unlimited" className="expanded-settings-text">Unlimited</RadioGroup.Item>
                                         <RadioGroup.Item value="custom">
                                             <input className="custom-input" type="number" min={0} 
                                             placeholder="Custom" value={customNumAttempts} 
-                                            onChange={(e) => setCustomNumAttempts(e.target.value === "" ? "" : Number(e.target.value))} />
+                                            onChange={(e) =>
+                                                onSettingsChange?.({
+                                                    numAttempts: e.target.value === ""
+                                                        ? undefined
+                                                        : Number(e.target.value)
+                                                })
+                                            }
+                                             />
                                         </RadioGroup.Item>
                                     </RadioGroup.Root>
                                 </div>
-                                <div className="check-setting">
-                                    <Switch defaultChecked onCheckedChange={handleCheck} color="cyan" size="1" />
-                                    <span className="expanded-settings-text label">Randomize each attempt</span>
-                                </div>
                                 <div className="slider-setting">
                                     <span className="expanded-settings-text label">Customer Mood</span>
-                                    <Slider defaultValue={[33.3]} color="orange" />
+                                    <Slider value={[lessonInfo.customerMood ?? 33]} color="orange" onValueChange={(value) =>onSettingsChange?.({ customerMood: value[0] })}/>
                                     <div className="slider-labels expanded-settings-text">
                                         <p>Calm</p> 
                                         <p>Neutral</p>
@@ -239,7 +286,7 @@ export default function LessonCard({ lessonInfo, role, status, evaluation, navig
                                 </div>
                                 <div className="check-setting eval">
                                     <span className="expanded-settings-text label">Evaluation Criteria</span>
-                                    <CheckboxGroup.Root value={criteria} onValueChange={(vals) => setCriteria(vals)}
+                                    <CheckboxGroup.Root value={criteria} onValueChange={(vals) => onSettingsChange?.({ criteria: vals })}
                                     className="checkbox-group" size="2" color="orange">
                                         <CheckboxGroup.Item value={"Empathy & Tone"}>
                                             <span className="expanded-settings-text">Empathy & Tone</span>
@@ -257,18 +304,20 @@ export default function LessonCard({ lessonInfo, role, status, evaluation, navig
                                 </div>
                                 <div className="date-picker">
                                     <span className="expanded-settings-tex label">Set Due Date*</span>
-                                    <input type="date" value={selectedDate ?? ""} onChange={(e) => setSelectedDate(e.target.value)} className="date-input" />
+                                    <input type="date" value={selectedDate ?? ""}
+                                        onChange={handleDateChange}
+                                    className="date-input" />
                                 </div>
                             </form>
                         </div>
                         <div className="action-panel">
                             <div className="action-panel-left">
-                                <ActionButton buttonType="save" text="Save Changes" onClick={handleSave} selected={changesMade} />
+                                {/*<ActionButton buttonType="save" text="Save Changes" onClick={handleSave} selected={changesMade} />*/}
                                 <ActionButton buttonType="play" text="Preview Simulation" onClick={handlePreview} />
                             </div>
-                            <div className="action-panel-right">
+                            {/*<div className="action-panel-right">
                                 <ActionButton buttonType="refresh" text="Reset to Default" onClick={handleRefresh} />
-                            </div>
+                            </div>*/}
                         </div>
                     </div>
                 )
@@ -294,7 +343,7 @@ export default function LessonCard({ lessonInfo, role, status, evaluation, navig
                             </div>
                         </div>
                         <div className="employee-action-panel">
-                            <ActionButton text={"Restart Lesson"} buttonType={"refresh"} onClick={handleLessonReset} reversed={true} />
+                            <ActionButton text={"Reset Lesson"} buttonType={"refresh"} onClick={handleLessonReset} reversed={true} />
                         </div>
                     </div>
                 )

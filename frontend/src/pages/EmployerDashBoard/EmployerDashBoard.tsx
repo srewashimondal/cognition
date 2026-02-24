@@ -256,9 +256,9 @@ export default function EmployerDashBoard() {
               path="ai-studio/:moduleId/assignments"
               element={<AIStudioAssignments />}
             />
-            <Route path="settings" element={<Settings />} />
-            <Route path="modules/builder" element={<Builder />} />
-            <Route path="modules/builder/:moduleID" element={<Builder />} /> */}
+            <Route path="settings" element={<Settings />} /> */}
+            <Route path="modules/builder" element={<Builder workspace={workspace}/>} />
+            <Route path="modules/builder/:moduleID" element={<Builder workspace={workspace} />} /> 
             <Route path="modules/standard-builder" element={<StandardBuilder />} />
             <Route path="modules/standard-builder/:moduleID" element={<StandardBuilder />} />
             <Route path="modules/quiz-builder" element={<QuizBuilder />} /> 

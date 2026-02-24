@@ -10,6 +10,7 @@ import note_icon from '../../../assets/icons/orange-note-icon.svg';
 
 
 export type ResourceItem = {
+  id: string;
   title: string;
   section: string;
   filePath: string;
@@ -156,6 +157,7 @@ export default function Resources({ workspace }: { workspace: WorkspaceType }) {
         const fetchedResources: ResourceItem[] = snapshot.docs.map(doc => {
           const data = doc.data();
           return {
+            id: doc.id,
             title: data.title,
             filePath: data.filePath, 
             section: data.section,
@@ -218,6 +220,7 @@ export default function Resources({ workspace }: { workspace: WorkspaceType }) {
                 items: [
                   ...section.items,
                   {
+                    id: String(Date.now() + 1),
                     title: uploadTitle.trim(),
                     filePath: storagePath,
                     section: section.title

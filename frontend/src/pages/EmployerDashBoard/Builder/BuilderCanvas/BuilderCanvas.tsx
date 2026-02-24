@@ -7,7 +7,16 @@ import LessonCard from '../../../../cards/LessonCard/LessonCard';
 import ChatBar from '../../../../components/ChatBar/ChatBar';
 import ChatBubble from '../../../Simulation/ChatBubble/ChatBubble';
 import { modules } from '../../../../dummy_data/modules_data';
+import { doc, getDoc, updateDoc, collection, addDoc, deleteDoc, arrayUnion, getDocs, where, query } from 'firebase/firestore';
+import { ref, uploadBytes, deleteObject } from 'firebase/storage';
+import { db, storage } from '../../../../firebase';
+import type { DocumentReference } from "firebase/firestore";
+import { formatTimestampString } from '../../../../utils/Utils';
 import type { MessageType } from '../../../../types/Modules/Lessons/Simulations/MessageType';
+import type { ModuleType } from '../../../../types/Modules/ModuleType';
+import type { LessonType } from '../../../../types/Modules/Lessons/LessonType';
+import type { ResourceSection, ResourceItem } from '../../Resources/Resources';
+import type { WorkspaceType } from '../../../../types/User/WorkspaceType';
 import orange_left_arrow from '../../../../assets/icons/orange-left-arrow.svg';
 import edit_icon from '../../../../assets/icons/simulations/grey-edit-icon.svg';
 import refresh_icon from '../../../../assets/icons/simulations/grey-refresh-icon.svg';
@@ -24,114 +33,279 @@ import orange_ai_icon from '../../../../assets/icons/simulations/orange-ai-icon.
 
 type BuilderCanvasProps = {
     id: string;
+    workspace: WorkspaceType;
 };
 
-const resourceSections = [
+const resourceSections: ResourceSection[] = [
     {
-      title: "Workplace Policies",
-      icon: "🏢",
-      tone: "policies",
-      description: "Company-wide policies all employees must review",
-      items: [
-        "Sexual Harassment Policy",
-        "Code of Conduct",
-        "Equal Opportunity Policy",
-        "Photo & Media Consent Waiver",
-      ],
+        title: "Workplace Policies",
+        icon: "🏢",
+        tone: "policies",
+        description: "Company-wide policies all employees must review",
+        items: [],
     },
     {
-      title: "HR & Forms",
-      icon: "🧾",
-      tone: "hr",
-      description: "Forms for requests, documentation, and approvals",
-      items: [
-        "Request for Time Off",
-        "Doctor’s Excusal Form",
-        "Employee Information Update Form",
-        "Incident Report Form",
-      ],
+        title: "HR & Forms",
+        icon: "🧾",
+        tone: "hr",
+        description: "Forms for requests, documentation, and approvals",
+        items: [],
     },
     {
-      title: "Training & Operations",
-      icon: "🎓",
-      tone: "training",
-      description: "Guidelines to support daily retail operations",
-      items: [
-        "Employee Handbook",
-        "Store Training Standards",
-        "Customer Service Guidelines",
-        "POS & Inventory Procedures",
-      ],
+        title: "Training & Operations",
+        icon: "🎓",
+        tone: "training",
+        description: "Guidelines to support daily retail operations",
+        items: [],
     },
     {
-      title: "Safety & Compliance",
-      icon: "🛡️",
-      tone: "safety",
-      description: "Safety instructions and emergency information",
-      items: [
-        "Workplace Safety Guidelines",
-        "Emergency Evacuation Plan",
-        "Health & Sanitation Protocols",
-        "Labor Law Notices",
-      ],
+        title: "Safety & Compliance",
+        icon: "🛡️",
+        tone: "safety",
+        description: "Safety instructions and emergency information",
+        items: [],
+    },
+    {
+        title: "Maps",
+        icon: "🗺️",
+        tone: "training",
+        description: "Maps of the store",
+        items: [],
     },
 ];
 
-export default function BuilderCanvas({ id }: BuilderCanvasProps) {
+export default function BuilderCanvas({ id, workspace }: BuilderCanvasProps) {
     const navigate = useNavigate();
-    const moduleId = Number(id);
+    const [loading, setLoading] = useState(false);
+    const [module, setModule] = useState<ModuleType | null>(null);
+    const [lessons, setLessons] = useState<LessonType[]>([]);
+    const [lastModified, setLastModified] = useState(new Date().toISOString());
 
-    /* replace this line with backend logic later */
-    const module = modules.find(m => m.id === moduleId);
-    const lessons = module?.lessons;
+    useEffect(() => {
+        async function fetchModule() {
+            if (!id) return;
+            setLoading(true);
+
+            try {
+                const moduleRef = doc(db, "simulationModules", id);
+                const moduleSnap = await getDoc(moduleRef);
+
+                if (!moduleSnap.exists()) {
+                    console.error("Module data not found");
+                    setLoading(false);
+                    return;
+                }
+
+                let moduleData: ModuleType = {
+                    id: moduleSnap.id,
+                    ...(moduleSnap.data() as Omit<ModuleType, "id">)
+                }
+
+                setModule(moduleData);
+                setLastModified(moduleData.lastModified || "");
+
+                const lessonSnap = await getDocs(
+                    query(
+                        collection(db, "simulationLessons"),
+                        where("moduleRef", "==", moduleRef)
+                ));
+
+                const lessonData: LessonType[] = lessonSnap.docs.map((docSnap) => ({
+                    id: docSnap.id,
+                    ...(docSnap.data() as Omit<LessonType, "id">),
+                }));
+                const sorted = lessonData.sort((a, b) => a.orderNumber - b.orderNumber);
+                setLessons(sorted);
+
+            } catch (error) {
+                console.error("Error fetching module:", error)
+            } finally {
+                setLoading(false);
+            }
+        }
+
+        fetchModule();
+
+    }, [id]);
 
     useEffect(() => {
         window.scrollTo({ top: 0, left: 0, behavior: "instant" });
     }, []);
 
     const [editMode, setEditMode] = useState(false);
-    const [references, setReferences] = useState<string[] | undefined>(module?.references); // change to File[]
+    const [references, setReferences] = useState<DocumentReference[]>([]);
     const [openModal, setOpenModal] = useState(false);
     const [tempAttach, setTempAttach] = useState<string[]>([]); // change to File[]
     const [title, SetTitle] = useState(module?.title);
     const [userInput, setUserInput] = useState("");
     const [openAIPanel, setOpenAIPanel] = useState(false);
     const [chatMessages, setChatMessages] = useState<MessageType[]>([]);
+    const [sections, setSections] = useState<ResourceSection[]>(resourceSections);
 
-    const handleAttachTemp = (fileToAttach: string) => { // change to File later
-        setTempAttach(prev =>
-            prev?.includes(fileToAttach)
-            ? prev.filter(item => item !== fileToAttach)
-            : [...(prev ?? []), fileToAttach]                     
+    useEffect(() => {
+        if (module) {
+            SetTitle(module.title);
+        }
+    }, [module]);
+
+    useEffect(() => {
+        const fetchResources = async () => {
+            if (!workspace?.id) return;
+      
+            try {
+            const resourcesRef = collection(
+                db,
+                "workspaces",
+                workspace.id,
+                "resources"
+            );
+      
+            const snapshot = await getDocs(resourcesRef);
+      
+            const fetchedResources: ResourceItem[] = snapshot.docs.map(doc => {
+                const data = doc.data();
+                return {
+                    id: doc.id,
+                    title: data.title,
+                    filePath: data.filePath, 
+                    section: data.section,
+                };
+            });
+    
+            setSections(prevSections =>
+                prevSections.map(section => ({
+                    ...section,
+                    items: fetchedResources.filter(
+                        r => r.section === section.title
+                    )
+                }))
+            );
+      
+          } catch (err) {
+            console.error("Error fetching resources:", err);
+          }
+        };
+      
+        fetchResources();
+    }, [workspace]);
+
+    useEffect(() => {
+        if (module?.references) {
+            setReferences(module.references);
+        }
+    }, [module]);    
+
+    const handleAttachTemp = (resource: ResourceItem) => {
+        const resourceRef = doc(
+            db,
+            "workspaces",
+            workspace.id,
+            "resources",
+            resource.id
         );
-        setReferences(prev =>
-            prev?.includes(fileToAttach)
-            ? prev.filter(item => item !== fileToAttach)
-            : prev ?? []                
-        );
+
+        setReferences(prev => {
+            const exists = prev.some(ref => ref.path === resourceRef.path);
+        
+            if (exists) {
+                return prev.filter(ref => ref.path !== resourceRef.path);
+            } else {
+                return [...prev, resourceRef];
+            }
+        });
+
     };
 
-    const handleAttach = (filesToAttach: string[]) => { // change to File[]
-        setOpenModal(false);
-        setReferences(prev => [...(prev ?? []), ...filesToAttach]);
+    const handleAttach = async () => {
+        try {
+            const moduleRef = doc(db, "simulationModules", id);
+            await updateDoc(moduleRef, {
+              references: references
+            });
+            setOpenModal(false);
+        
+        } catch (error) {
+            console.error("Error updating references:", error);
+        }
     }
-
-    const handleDeploy = () => {
-        /* Nothing for now */
+    
+    const [isDeployed, setIsDeployed] = useState(module?.deployed);
+    const [openDeployModal, setDeployModal] = useState(false);
+    const [unDeployModal, setUnDeployModal] = useState(false);
+    const handleDeploy = async () => {
+        try {
+            await handleSave(); 
+            const moduleRef = doc(db, "simulationModules", id!);
+            await updateDoc(moduleRef, {
+                deployed: true,
+            });
+            setIsDeployed(true);
+        } catch (error) {
+            console.error("Error deploying module:", error);
+        }
     };
 
-    const handleSave = () => {
-        /* Nothing for now */
+    const handleRollBack = async () => {
+        try {
+            const moduleRef = doc(db, "simulationModules", id!);
+            await updateDoc(moduleRef, {
+                deployed: false,
+            });
+            setIsDeployed(false);
+        } catch (error) {
+            console.error("Error rolling back module:", error);
+        }
     };
+
+    const [saving, setSaving] = useState(false);
+    const handleSave = async () => {
+        if (!title || title.trim() === "") {
+            console.error("Title cannot be empty");
+            return;
+        }
+      
+        try {
+            setSaving(true);
+            const moduleRef = doc(db, "simulationModules", id);
+            const updatedLastModified = new Date().toISOString();
+
+            await updateDoc(moduleRef, {
+                title: title,
+                lastModified: updatedLastModified, 
+            });
+
+            const lessonUpdatePromises = lessons.map(lesson => {
+                const lessonRef = doc(db, "simulationLessons", lesson.id);
+    
+                return updateDoc(lessonRef, {
+                    skills: lesson.skills,
+                    allowUnlimitedAttempts: lesson.allowUnlimitedAttempts,
+                    numAttempts: lesson.numAttempts ?? null,
+                    criteria: lesson.criteria ?? [],
+                    dueDate: lesson.dueDate ?? null,
+                    customerMood: lesson.customerMood ?? 33
+                });
+            });
+    
+            await Promise.all(lessonUpdatePromises);
+      
+            setLastModified(updatedLastModified);
+            console.log("Module + lessons saved successfully!");
+      
+        } catch (error) {
+            console.error("Error saving module:", error);
+        } finally {
+            setSaving(false);
+        }
+    };
+      
 
     const handleSend = () => {
         if (!userInput.trim()) return;
 
         setChatMessages(prev => {
-            const lastId = prev.length > 0 ? prev[prev.length - 1].id : 0;
-
             const newMessage: MessageType = {
-                id: lastId + 1,
+                id: String(Date.now()),
                 role: "user",
                 content: userInput,
             };
@@ -163,6 +337,28 @@ export default function BuilderCanvas({ id }: BuilderCanvasProps) {
     useEffect(() => {
         window.scrollTo({ top: 0, left: 0, behavior: "instant" });
     }, []);
+
+    const updateLessonSkills = (lessonId: string, newSkills: string[]) => {
+        setLessons(prev =>
+            prev.map(l =>
+                l.id === lessonId ? { ...l, skills: newSkills } : l
+            )
+        );
+    };
+
+    const updateLessonSettings = (lessonId: string, updates: Partial<LessonType>) => {
+        setLessons(prev => prev.map(l =>
+                l.id === lessonId ? { ...l, ...updates } : l
+            )
+        );
+    };
+
+    const updateDueDate = (lessonId: string, date: string | null) => {
+        setLessons(prev => prev.map(l => 
+            l.id === lessonId ? { ...l, dueDate: date } : l
+        ));
+    };
+    
       
     return (
         <div className="builder-canvas-page">
@@ -175,7 +371,7 @@ export default function BuilderCanvas({ id }: BuilderCanvasProps) {
                             </div>
                         </div>
                         <div className="attach-content-wrapper">   
-                            {resourceSections.map((section) => (
+                            {sections.map((section) => (
                             <div
                                 key={section.title}
                                 className={`resource-card ${section.tone} builder`}
@@ -191,14 +387,14 @@ export default function BuilderCanvas({ id }: BuilderCanvasProps) {
                                 </div>
 
                                 <ul className="resource-list">
-                                {section.items.map((item) => (
-                                    <li key={item} className="resource-item">
+                                {section.items.map((item, idx) => (
+                                    <li key={idx} className="resource-item">
                                     <span className="doc-icon builder">
                                         <img src={note_icon} />
                                     </span>
-                                    <span className="doc-name">{item}</span>
-                                    <button className={`attach-btn ${(references?.includes(item) || tempAttach.includes(item)) ? "attached" : ""}`} onClick={() => handleAttachTemp(item)}>
-                                        {(references?.includes(item) || tempAttach.includes(item)) ? "Attached" : "Attach"}
+                                    <span className="doc-name">{item.title}</span>
+                                    <button className={`attach-btn ${(references.some(ref => ref.id === item.id)) ? "attached" : ""}`} onClick={() => handleAttachTemp(item)}>
+                                        {(references.some(ref => ref.id === item.id)) ? "Attached" : "Attach"}
                                     </button>
                                     </li>
                                 ))}
@@ -207,11 +403,41 @@ export default function BuilderCanvas({ id }: BuilderCanvasProps) {
                             ))}
                         </div>
                         <div className="attach-action-panel">
-                            <ActionButton text="Attach Documents" buttonType="attach"
-                            onClick={() => handleAttach(tempAttach)} />
+                            <ActionButton text="Attach References" buttonType="attach"
+                            onClick={handleAttach} />
                         </div>
                     </div>
                 </div>}
+            
+            {(unDeployModal) && <div className="delete-modal-overlay">
+            <div className="delete-modal">
+                <h3>Unpublish this module?</h3>
+                <p>This module will no longer be accessible to employees. Progress data will be preserved.</p>
+                    <div className="delete-modal-actions">
+                        <button className="cancel-btn" onClick={() => setUnDeployModal(false)}>
+                            Cancel
+                        </button>
+                        <button className="delete-btn" onClick={() => {handleRollBack(); setUnDeployModal(false);}}>
+                            Unpublish
+                        </button>
+                    </div>
+                </div>
+            </div>}
+
+            {(openDeployModal) && <div className="delete-modal-overlay">
+            <div className="delete-modal">
+                <h3>Deploy this module?</h3>
+                <p>This module will become visible to employees. Any enrolled users will be able to access it immediately.</p>
+                    <div className="delete-modal-actions">
+                        <button className="cancel-btn" onClick={() => setDeployModal(false)}>
+                            Cancel
+                        </button>
+                        <button className="delete-btn" onClick={() => {handleDeploy(); setDeployModal(false);}}>
+                            Deploy
+                        </button>
+                    </div>
+                </div>
+            </div>}
 
             <div className="canvas-main-wrapper">
                 <div className="canvas-main">
@@ -258,15 +484,15 @@ export default function BuilderCanvas({ id }: BuilderCanvasProps) {
                                     <span>
                                         <img src={file_icon} />
                                     </span>
-                                    Save as Draft
+                                    {saving ? "Saving..." : "Save as Draft"}
                                 </div>
-                                <ActionButton text={"Deploy"} buttonType={"deploy"} onClick={handleDeploy} disabled={module?.deployed} />
+                                <ActionButton text={"Deploy"} buttonType={"deploy"} onClick={() => {if (!isDeployed) {setDeployModal(true);} else {setUnDeployModal(true);}}} disabled={isDeployed} />
                             </div>
                         </div>
                         <div className="module-info-builder">
                             <div className="module-info-line">
-                                <span className="module-info-label">CREATED</span>
-                                <p className="module-info-value">{module?.createTime}</p>
+                                <span className="module-info-label">LAST MODIFIED</span>
+                                <p className="module-info-value">{formatTimestampString(lastModified)}</p>
                             </div>
 
                             <div className="module-info-line">
@@ -314,7 +540,15 @@ export default function BuilderCanvas({ id }: BuilderCanvasProps) {
                             </button>
                         </div> 
                         <div className="lessons-list">
-                            {lessons?.map((l) => (<LessonCard lessonInfo={l} role={"employer"} moduleID={moduleId} />))}
+                            {lessons?.map((l) => 
+                                (<LessonCard 
+                                    lessonInfo={l} 
+                                    role={"employer"} 
+                                    moduleID={id}
+                                    onSkillsChange={(newSkills) => updateLessonSkills(l.id, newSkills)}
+                                    onSettingsChange={(newSettings) => updateLessonSettings(l.id, newSettings)}
+                                    onDueDateChange={(newDueDate) => updateDueDate(l.id, newDueDate)}
+                                />))}
                         </div>
                         {/*<div className="builder-action-panel">
                             <ActionButton text={"Save as Draft"} buttonType={"save"} onClick={handleSave} reversed={true} />

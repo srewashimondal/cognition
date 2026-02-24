@@ -72,6 +72,7 @@ export default function EmployeeResources({ workspace }:{ workspace: WorkspaceTy
         const fetchedResources: ResourceItem[] = snapshot.docs.map(doc => {
           const data = doc.data();
           return {
+            id: doc.id,
             title: data.title,
             filePath: data.filePath, 
             section: data.section,

@@ -5,6 +5,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import ChatBar from '../../../components/ChatBar/ChatBar';
 import ActionButton from '../../../components/ActionButton/ActionButton';
 import BuilderCanvas from './BuilderCanvas/BuilderCanvas';
+import type { WorkspaceType } from '../../../types/User/WorkspaceType';
 import orange_left_arrow from '../../../assets/icons/orange-left-arrow.svg';
 import ai_icon from '../../../assets/icons/simulations/grey-ai-icon.svg';
 import x_icon from '../../../assets/icons/simulations/grey-x-icon.svg';
@@ -61,7 +62,7 @@ const resourceSections = [
     },
 ];
 
-export default function Builder() {
+export default function Builder({ workspace }: { workspace: WorkspaceType }) {
     const navigate = useNavigate();
     const { moduleID } = useParams();
     const isNewDraft = !moduleID;
@@ -169,7 +170,7 @@ export default function Builder() {
                 </div>
             </div> ) :
             (
-             <BuilderCanvas id={moduleID} />
+             <BuilderCanvas id={moduleID} workspace={workspace} />
             )
         } </>
     );

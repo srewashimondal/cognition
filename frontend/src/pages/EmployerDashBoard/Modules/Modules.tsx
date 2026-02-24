@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { Tooltip } from "@radix-ui/themes";
 import type { WorkspaceType } from "../../../types/User/WorkspaceType.tsx";
 import type { StandardModuleType } from "../../../types/Standard/StandardModule.tsx";
+import type { ModuleType } from "../../../types/Modules/ModuleType.tsx";
 import ModuleCard from '../../../cards/ModuleCard/ModuleCard.tsx';
 import add_cta from '../../../assets/icons/add-cta.svg';
 
@@ -19,6 +20,7 @@ export default function Modules({ workspace }: { workspace: WorkspaceType}) {
   const [activeTab, setActiveTab] = useState<Tab>("simulations");
   const modules = workspace.simulationModules;
   const [standardModules, setStandardModules] = useState<StandardModuleType[]>([]);
+  const [simulationModules, setSimulationModules] = useState<ModuleType[]>([]);
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
@@ -30,11 +32,9 @@ export default function Modules({ workspace }: { workspace: WorkspaceType}) {
     
       setLoading(true);
       try {
-        // workspace.standardModules is now correctly typed as DocumentReference[]
         const modulePromises = workspace.standardModules.map(async (moduleRef: DocumentReference) => {
           const moduleSnap = await getDoc(moduleRef);
           if (moduleSnap.exists()) {
-            // Fix the spread issue by explicitly typing the data
             const data = moduleSnap.data() as Omit<StandardModuleType, 'id'>;
             return {
               id: moduleRef.id, 
@@ -55,6 +55,39 @@ export default function Modules({ workspace }: { workspace: WorkspaceType}) {
 
     fetchStandardModules();
   }, [workspace.standardModules]);
+
+  useEffect(() => {
+    async function fetchSimulationModules() {
+      if (!workspace.simulationModules || workspace.simulationModules.length === 0) {
+        setSimulationModules([]);
+        return;
+      }
+    
+      setLoading(true);
+      try {
+        const modulePromises = workspace.simulationModules.map(async (moduleRef: DocumentReference) => {
+          const moduleSnap = await getDoc(moduleRef);
+          if (moduleSnap.exists()) {
+            const data = moduleSnap.data() as Omit<ModuleType, 'id'>;
+            return {
+              id: moduleRef.id, 
+              ...data,
+            } as ModuleType;
+          }
+          return null;
+        });
+    
+        const modules = await Promise.all(modulePromises);
+        setSimulationModules(modules.filter((m): m is ModuleType => m !== null));
+      } catch (error) {
+        console.error("Error fetching standard modules:", error);
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    fetchSimulationModules();
+  }, [workspace.simulationModules]);
 
   useEffect(() => {
     window.scrollTo({ top: 0, left: 0, behavior: "instant" });
@@ -86,7 +119,7 @@ export default function Modules({ workspace }: { workspace: WorkspaceType}) {
       {/* Grid */}
       { (activeTab === "simulations") ?
         <div className="modules-grid">
-          {/*modules.map((m) => (<ModuleCard moduleInfo={m} type={"simulation"} role={"employer"} />))*/}
+          {simulationModules.map((m) => (<ModuleCard moduleInfo={m} type={"simulation"} role={"employer"} />))}
         </div> :
         <div className="modules-grid">
           {standardModules.map((m) => (<ModuleCard moduleInfo={m} type={"standard"} role={"employer"} />))}
