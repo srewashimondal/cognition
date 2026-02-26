@@ -15,6 +15,8 @@ export type StandardLessonAttempt = {
     status: "not begun" | "started" | "completed";
     questionAnswers?: QuestionAttemptType[];
     score?: number;
+    passed?: boolean;
+    completedAt?: string;
     messages?: SummaryChatThread[];
     isLocked?: boolean;
 };

@@ -10,6 +10,9 @@ import type { StandardLessonType } from '../../../../types/Standard/StandardLess
 import type { StandardLessonAttempt, StandardModuleAttempt } from '../../../../types/Standard/StandardAttempt';
 import { collection, doc, getDoc, getDocs, query, where } from "firebase/firestore";
 import { db } from '../../../../firebase';
+import type { StoredQuestionAnswer } from '../../../../utils/quizScore';
+import { hydrateQuestionAnswers } from '../../../../utils/quizScore';
+import type { QuizQuestionType } from '../../../../types/Standard/QuizQuestion/QuestionTypes';
 import orange_left_arrow from '../../../../assets/icons/orange-left-arrow.svg';
 import clock_icon from '../../../../assets/icons/simulations/black-clock-icon.svg';
 import notebook_icon from '../../../../assets/icons/simulations/black-notebook-icon.svg';
@@ -71,8 +74,15 @@ export default function StandardLessons() {
                     return {
                         id: docSnap.id,
                         status: attemptData.status,
-                        questionAnswers: attemptData.questionAnswers ?? [],
+                        questionAnswers: hydrateQuestionAnswers(
+                            attemptData.questionAnswers as StoredQuestionAnswer[] | undefined,
+                            lessonData.type === "quiz"
+                                ? (lessonData as { questions?: QuizQuestionType[] }).questions
+                                : undefined
+                        ),
                         score: attemptData.score,
+                        passed: attemptData.passed,
+                        completedAt: attemptData.completedAt,
                         lessonInfo: {
                             id: lessonOriginalSnap.id,
                             ...lessonData,

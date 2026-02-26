@@ -4,6 +4,12 @@ import type { QuizLessonType } from '../../../types/Standard/StandardLessons';
 import type { StandardLessonAttempt } from '../../../types/Standard/StandardAttempt';
 import type { QuizQuestionType } from '../../../types/Standard/QuizQuestion/QuestionTypes';
 import type { QuestionAttemptType } from '../../../types/Standard/QuizQuestion/QuestionTypes';
+import {
+    computeQuizScore,
+    serializeQuestionAnswersForFirebase,
+} from '../../../utils/quizScore';
+import { doc, updateDoc } from 'firebase/firestore';
+import { db } from '../../../firebase';
 import ProgressBar from '../../../components/ProgressBar/ProgressBar';
 import QuestionItem from './QuestionItem/QuestionItem';
 import ErrorMessage from '../../../components/ErrorMessage/ErrorMessage';
@@ -25,11 +31,36 @@ type QuizLessonPageProps = {
     moduleTitle: string;
 };
 
+type AttemptResult = {
+    questionAnswers: QuestionAttemptType[];
+    score: number;
+    passed: boolean;
+    correctCount: number;
+    totalCount: number;
+};
+
 type Status = "not begun" | "started" | "completed" | "locked";
 
 export default function QuizLessonPage({ lessonAttempt, handleBack, moduleTitle }: QuizLessonPageProps) {
     const [currentStatus, setCurrentStatus] = useState<Status>(lessonAttempt.status);
+    const [attemptResult, setAttemptResult] = useState<AttemptResult | null>(null);
     const lesson = lessonAttempt.lessonInfo.type === "quiz" ? lessonAttempt.lessonInfo : null;
+
+    const handleBeginQuiz = async () => {
+        try {
+            const attemptRef = doc(db, "standardLessonAttempts", lessonAttempt.id);
+            await updateDoc(attemptRef, { status: "started" });
+            setCurrentStatus("started");
+        } catch (err) {
+            console.error("Error updating quiz attempt status:", err);
+            setCurrentStatus("started");
+        }
+    };
+
+    const handleQuizComplete = (result: AttemptResult) => {
+        setAttemptResult(result);
+        setCurrentStatus("completed");
+    };
 
     switch (currentStatus) {
         case "not begun":
@@ -40,15 +71,37 @@ export default function QuizLessonPage({ lessonAttempt, handleBack, moduleTitle 
                             <img src={left_arrow} />
                         </div>
                     </div>
-                    <QuizBegin lesson={lesson} onClick={() => setCurrentStatus("started")}/>
+                    <QuizBegin lesson={lesson} onClick={handleBeginQuiz}/>
                 </div>
             );
         
         case "started":
-            return <QuizPage lesson={lesson} moduleTitle={moduleTitle} onClick={() => setCurrentStatus("completed")} />;
+            return (
+                <QuizPage
+                    lesson={lesson}
+                    moduleTitle={moduleTitle}
+                    lessonAttemptId={lessonAttempt.id}
+                    onComplete={handleQuizComplete}
+                />
+            );
 
         case "completed":
-            return <QuizComplete lesson={lesson} onClick={() => setCurrentStatus("not begun")} handleBack={handleBack} />;
+            return (
+                <QuizComplete
+                    lesson={lesson}
+                    attemptResult={attemptResult ?? (lessonAttempt.status === "completed" && (lessonAttempt.questionAnswers?.length ?? 0) > 0
+                        ? {
+                            questionAnswers: lessonAttempt.questionAnswers ?? [],
+                            score: lessonAttempt.score ?? 0,
+                            passed: lessonAttempt.passed ?? false,
+                            correctCount: Math.round(((lessonAttempt.score ?? 0) / 100) * (lessonAttempt.questionAnswers?.length ?? 0)),
+                            totalCount: lessonAttempt.questionAnswers?.length ?? 0,
+                        }
+                        : null)}
+                    onClick={() => setCurrentStatus("not begun")}
+                    handleBack={handleBack}
+                />
+            );
     }
 }
 
@@ -109,12 +162,23 @@ function QuizBegin({ lesson, onClick }: { lesson: QuizLessonType | null, onClick
     );
 }
 
-function QuizPage({ lesson, moduleTitle, onClick }: { lesson: QuizLessonType | null, moduleTitle: string, onClick: () => void }) {
+function QuizPage({
+    lesson,
+    moduleTitle,
+    lessonAttemptId,
+    onComplete,
+}: {
+    lesson: QuizLessonType | null;
+    moduleTitle: string;
+    lessonAttemptId: string;
+    onComplete: (result: AttemptResult) => void;
+}) {
     const questions = lesson?.questions;
     const [currentQuestionIdx, setCurrentQuestionIdx] = useState<number>(0);
     const [pendingSubmit, setPendingSubmit] = useState(false);
     const [questionAnswers, setQuestionAnswers] = useState<QuestionAttemptType[]>([]);
     const [error, setError] = useState<string | null>(null);
+    const [submitting, setSubmitting] = useState(false);
 
     useEffect(() => {
         window.scrollTo({ top: 0, left: 0, behavior: "instant" });
@@ -133,12 +197,7 @@ function QuizPage({ lesson, moduleTitle, onClick }: { lesson: QuizLessonType | n
     }
 
     useEffect(() => {
-        if (!pendingSubmit) return;
-        if (!questions) {
-            setPendingSubmit(false);
-            return;
-        }
-        
+        if (!pendingSubmit || !questions?.length || !lesson) return;
         if (questionAnswers.length !== questions.length) {
             setError("You must complete all questions to submit.");
             setPendingSubmit(false);
@@ -146,14 +205,41 @@ function QuizPage({ lesson, moduleTitle, onClick }: { lesson: QuizLessonType | n
         }
 
         setError(null);
+        setSubmitting(true);
 
-        const t = setTimeout(() => {
-            onClick();
-            setPendingSubmit(false);
-        }, 100);
+        const runSubmit = async () => {
+            try {
+                const { score, passed, correctCount, totalCount } = computeQuizScore(
+                    questionAnswers,
+                    lesson.passingScore ?? 70
+                );
+                const storedAnswers = serializeQuestionAnswersForFirebase(questionAnswers);
+                const attemptRef = doc(db, "standardLessonAttempts", lessonAttemptId);
+                await updateDoc(attemptRef, {
+                    questionAnswers: storedAnswers,
+                    score,
+                    passed,
+                    status: "completed",
+                    completedAt: new Date().toISOString(),
+                });
+                onComplete({
+                    questionAnswers,
+                    score,
+                    passed,
+                    correctCount,
+                    totalCount,
+                });
+            } catch (err) {
+                console.error("Error saving quiz attempt:", err);
+                setError("Something went wrong saving your answers. Please try again.");
+            } finally {
+                setSubmitting(false);
+                setPendingSubmit(false);
+            }
+        };
 
-        return () => clearTimeout(t);
-    }, [pendingSubmit, questionAnswers.length, questions?.length]);
+        runSubmit();
+    }, [pendingSubmit, questionAnswers, questions?.length, lesson, lessonAttemptId, onComplete]);
 
     const total = questions?.length ?? 1;
     const percent = pendingSubmit ? 100 : Math.floor(((questionAnswers.length) / total) * 100);
@@ -177,7 +263,7 @@ function QuizPage({ lesson, moduleTitle, onClick }: { lesson: QuizLessonType | n
 
     useEffect(() => {
         if (timeLeft === 0) {
-            onClick();
+            setPendingSubmit(true);
         }
     }, [timeLeft]);
    
@@ -230,8 +316,8 @@ function QuizPage({ lesson, moduleTitle, onClick }: { lesson: QuizLessonType | n
                     }
                 </div>
                 { (currentQuestionIdx === ((questions?.length ?? 1) - 1)) && 
-                    <button className="finish-btn" onClick={handleSubmit}>
-                        Submit
+                    <button className="finish-btn" onClick={handleSubmit} disabled={submitting}>
+                        {submitting ? "Submitting…" : "Submit"}
                     </button>
                 }
             </div>
@@ -240,30 +326,29 @@ function QuizPage({ lesson, moduleTitle, onClick }: { lesson: QuizLessonType | n
 }
 
 
-function QuizComplete({ lesson, onClick, handleBack }: { lesson: QuizLessonType | null, onClick: () => void, handleBack: () => void }) {
+function QuizComplete({
+    lesson,
+    attemptResult,
+    onClick,
+    handleBack,
+}: {
+    lesson: QuizLessonType | null;
+    attemptResult: AttemptResult | null;
+    onClick: () => void;
+    handleBack: () => void;
+}) {
     const [fill, setFill] = useState(0);
-    const questions = lesson?.questions;
-    // temp data
-    const questionAnswers: QuestionAttemptType[] = [
-        {
-            question: questions![0],
-            answer: 2
-        },
-        {
-            question: questions![1],
-            answer: false
-        },
-        {
-            question: questions![2],
-            answer: "Lorem ipsum"
-        }
-    ];
+    const questionAnswers = attemptResult?.questionAnswers ?? [];
+    const score = attemptResult?.score ?? 0;
+    const passed = attemptResult?.passed ?? false;
+    const correctCount = attemptResult?.correctCount ?? 0;
+    const totalCount = attemptResult?.totalCount ?? 0;
 
     useEffect(() => {
         setFill(0);
-        const t = setTimeout(() => {setFill(60);}, 100);
+        const t = setTimeout(() => setFill(score), 100);
         return () => clearTimeout(t);
-    }, []);
+    }, [score]);
 
     useEffect(() => {
         window.scrollTo({ top: 0, left: 0, behavior: "instant" });
@@ -276,7 +361,7 @@ function QuizComplete({ lesson, onClick, handleBack }: { lesson: QuizLessonType 
             </div>
             <div className="quiz-score">
                 <p>Score for this Attempt</p>
-                <h1>60%</h1>
+                <h1>{score}%</h1>
             </div>
             <div className="quiz-bar">
                 <div className="bar-wrapper">
@@ -285,20 +370,24 @@ function QuizComplete({ lesson, onClick, handleBack }: { lesson: QuizLessonType 
                         style={{ width: `${fill}%` }}
                     />
                 </div>
-                <h2>Pass</h2>
+                <h2>{passed ? "Pass" : "Did not pass"}</h2>
                 <p>Passing benchmark: {lesson?.passingScore}%</p>
             </div>
             <div className="quiz-complete-actions">
                 <ActionButton text={"Retake Quiz"} buttonType={"play"} onClick={onClick} />
                 <ActionButton text={"Back to Module"} buttonType={"go"} onClick={handleBack} />
             </div>
-            <div className="question-breakdown">
-                <div className="question-breakdown-header">
-                    <p>Question Breakdown</p>
-                    <p className="right-text">2/3 Correct</p>
+            {questionAnswers.length > 0 && (
+                <div className="question-breakdown">
+                    <div className="question-breakdown-header">
+                        <p>Question Breakdown</p>
+                        <p className="right-text">{correctCount}/{totalCount} Correct</p>
+                    </div>
+                    {questionAnswers.map((a, i) => (
+                        <QuestionBreakdown key={a.question.id} questionAttempt={a} idx={i + 1} />
+                    ))}
                 </div>
-                { (questionAnswers.map((a, i) =>  <QuestionBreakdown questionAttempt={a} idx={i + 1}/>))}
-            </div>
+            )}
         </div>
     );
 }

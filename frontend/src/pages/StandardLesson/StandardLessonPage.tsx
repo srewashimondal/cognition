@@ -8,6 +8,9 @@ import type { StandardLessonType } from "../../types/Standard/StandardLessons";
 // import { standardModuleAttempt } from "../../dummy_data/standardAttempt_data";
 import { collection, doc, getDoc, getDocs, query, where } from "firebase/firestore";
 import { db } from '../../firebase';
+import type { StoredQuestionAnswer } from '../../utils/quizScore';
+import { hydrateQuestionAnswers } from '../../utils/quizScore';
+import type { QuizQuestionType } from "../../types/Standard/QuizQuestion/QuestionTypes";
 
 export default function StandardLessonPage() {
     const navigate = useNavigate();
@@ -53,8 +56,15 @@ export default function StandardLessonPage() {
                     return {
                         id: docSnap.id,
                         status: attemptData.status,
-                        questionAnswers: attemptData.questionAnswers ?? [],
+                        questionAnswers: hydrateQuestionAnswers(
+                            attemptData.questionAnswers as StoredQuestionAnswer[] | undefined,
+                            lessonData.type === "quiz"
+                                ? (lessonData as { questions?: QuizQuestionType[] }).questions
+                                : undefined
+                        ),
                         score: attemptData.score,
+                        passed: attemptData.passed,
+                        completedAt: attemptData.completedAt,
                         lessonInfo: {
                             id: lessonOriginalSnap.id,
                             ...lessonData,
