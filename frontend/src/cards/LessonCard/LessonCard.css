@@ -493,3 +493,8 @@
     justify-content: center;
 }
   
+.updating-spinner {
+    display: flex;
+    gap: 5px;
+    align-items: center;
+}

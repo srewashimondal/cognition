@@ -366,9 +366,10 @@
 }
 
 .ai-panel-chat-space {
-    height: 70%;
+    flex: 1;
     overflow-y: auto;     
     min-height: 0;    
+    padding: 7px;
 }
 
 .difficulty-pill {
@@ -401,5 +402,10 @@
     font-weight: 500;
 }
    
-  
+.ai-loading-text {
+    color: #FF4B00;
+    font-weight: 600;
+    font-size: 14px;
+    padding-left: 5px;
+}
   

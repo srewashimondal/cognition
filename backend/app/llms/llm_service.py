@@ -4,6 +4,9 @@ import tempfile
 from openai import OpenAI
 from firebase_admin import storage
 import subprocess
+from app.models.schemas import *
+import base64
+import uuid
 
 class LLMService:
     def __init__(self):
@@ -304,3 +307,262 @@ class LLMService:
                         os.unlink(temp_file)
                 except Exception as e:
                     print(f"Error cleaning up {temp_file}: {e}")
+
+    def generate_document_summary(self, extracted_text: str):
+        """
+        Summarize a reference document while preserving important constraints.
+        Returns structured JSON usable for AI module editing context.
+        """
+
+        prompt = f"""
+        You are an AI retail training analyst.
+
+        Analyze the following document and extract structured training-relevant information.
+
+        Your goal is NOT to compress aggressively.
+        Your goal is to preserve:
+        - Operational constraints
+        - Policy rules
+        - Customer interaction requirements
+        - Compliance requirements
+        - Behavioral expectations
+
+        Return output in EXACT JSON format:
+
+        {{
+            "summary": "2-4 paragraph structured summary of the document",
+            "key_policies": ["policy 1", "policy 2"],
+            "operational_constraints": ["constraint 1", "constraint 2"],
+            "customer_interaction_rules": ["rule 1", "rule 2"],
+            "compliance_requirements": ["requirement 1", "requirement 2"]
+        }}
+
+        Rules:
+        - Do not hallucinate.
+        - Only use information from the document.
+        - If a category does not exist, return an empty list.
+        - Keep wording professional and precise.
+        - Preserve critical numeric thresholds, time limits, refund rules, etc.
+
+        Document:
+        {extracted_text}
+        """
+        try:
+            response = self.client.chat.completions.create(
+                model="gpt-4o-mini",
+                messages=[{"role": "user", "content": prompt}],
+                temperature=0.2,
+                response_format={"type": "json_object"}
+            )
+
+            parsed = json.loads(response.choices[0].message.content)
+            return parsed
+
+        except Exception as e:
+            return {"status": "error", "detail": str(e)}
+
+    def generate_module_edits(
+        self,
+        module: dict,
+        user_message: str,
+        scope: Optional[List[str]] = None,
+        reference_summaries: Optional[List[dict]] = None
+    ):
+
+        module_id = module.get("id")
+        lessons = module.get("lessons", [])
+
+        editing_entire_module = False
+        if not scope or module_id in scope:
+            editing_entire_module = True
+        else:
+            lessons = [l for l in lessons if l["id"] in scope]
+
+        scope_mode = "ENTIRE MODULE" if editing_entire_module else "SPECIFIC LESSONS ONLY"
+
+        ai_context = {
+            "module": {
+                "id": module.get("id"),
+                "title": module.get("title"),
+                "difficulty": module.get("difficulty"),
+                "description": module.get("description"),
+            },
+            "lessons": lessons,
+            "reference_documents": reference_summaries or []
+        }
+
+        prompt = f"""
+        You are Cognition's AI module editor.
+
+        The user wants to modify a retail training module.
+
+        USER REQUEST:
+        {user_message}
+
+        EDIT SCOPE:
+        {scope_mode}
+
+        CURRENT MODULE STATE:
+        {json.dumps(ai_context, indent=2)}
+
+        Your task:
+        - Analyze the request
+        - Suggest precise updates
+        - Only modify what is necessary
+        - Do not hallucinate new lessons unless explicitly requested
+        - Use the reference document summaries to ensure all updates remain compliant with company policies.
+        - If a requested change conflicts with a reference document, prioritize the reference document.
+        - Do not invent policies that are not present in the reference documents.
+        - If no relevant reference information applies, proceed normally
+        - Reference documents act as compliance guardrails.
+        - Do not apply changes that violate reference policies.
+
+        If the specified scope is SPECIFIC LESSONS ONLY:
+        - Do not modify module-level fields.
+        - Do not modify lessons not included in the provided scope.
+
+        Return output in EXACT JSON format:
+
+        {{
+        "message": {{
+            "role": "assistant",
+            "content": "Comprehensive explanation of exact changes, bulleting each change, and providing a justification at the end."
+        }},
+        "updates": {{
+            "module": null OR {{
+            "title": "optional new title",
+            "difficulty": "optional new difficulty"
+            }},
+            "lessons": [
+            {{
+                "id": "lesson_id",
+                "title": "optional new title",
+                "skills": ["optional skill list"],
+                "lessonAbstractInfo": {{
+                "simulationModel": "...",
+                "targetBehaviors": "...",
+                "contextualConstraints": "...",
+                "evaluationSignals": "...",
+                "adaptionLogic": "..."
+                }}
+            }}
+            ]
+        }}
+        }}
+
+        Rules:
+        - Only include fields that change.
+        - If no module-level changes are needed, return null for module.
+        - If no lesson changes are needed, return empty list.
+        - Preserve lesson IDs exactly.
+        - Do not invent IDs.
+        - If the user request is unclear, ask for clarification instead of guessing.
+    """
+
+        response = self.client.chat.completions.create(
+            model="gpt-4o-mini",
+            messages=[{"role": "user", "content": prompt}],
+            temperature=0.3,
+            response_format={"type": "json_object"}
+        )
+
+        parsed = json.loads(response.choices[0].message.content)
+
+        if not editing_entire_module:
+            parsed["updates"]["module"] = None
+
+            allowed_ids = set(scope)
+            parsed["updates"]["lessons"] = [
+                l for l in parsed["updates"].get("lessons", [])
+                if l.get("id") in allowed_ids
+            ]
+        
+        if "message" in parsed:
+            parsed["message"]["id"] = str(uuid.uuid4())
+
+        validated = AIEditResponse(**parsed)
+        return validated.model_dump()
+    
+
+
+    def analyze_map(self, file_contents):
+        base64_img = base64.b64encode(file_contents).decode("utf-8")
+        prompt = """
+            You are analyzing a retail store layout map for AI-driven retail training simulation.
+
+            Your task is to extract STRUCTURED SPATIAL INTELLIGENCE.
+
+            Focus on:
+            - Department zones exactly as labeled
+            - Entrances and exits
+            - Restrooms
+            - Back-of-house areas
+            - Narrow corridors or choke points
+            - High-density retail clusters
+            - Spatial adjacency relationships
+
+            Return JSON in EXACT format:
+
+            {
+            "zones": [
+                {
+                "id": "lowercase_snake_case_identifier",
+                "display_name": "Exact name from map if visible",
+                "type": "department | entrance | restroom | back_of_house | seasonal | cafe | other",
+                "relative_position": "top_left | top_center | top_right | center_left | center | center_right | bottom_left | bottom_center | bottom_right",
+                "adjacent_to": ["zone_id_1", "zone_id_2"],
+                "traffic_level": "low | medium | high",
+                "visibility": "low | medium | high"
+                }
+            ],
+            "bottlenecks": [
+                {
+                "location_description": "Describe narrow corridors, choke points, or congestion areas",
+                "zones_involved": ["zone_id_1", "zone_id_2"]
+                }
+            ],
+            "customer_flow": {
+                "primary_entry_points": ["zone_id"],
+                "typical_path_patterns": [
+                "Describe likely movement patterns between major clusters"
+                ],
+                "high_density_areas": ["zone_id"]
+            },
+            "training_constraints": [
+                "Examples: limited supervisor visibility in back areas",
+                "long walking distance between warehouse and front",
+                "customer congestion near seasonal display"
+            ]
+            }
+
+            Rules:
+            - Use exact names from the map where visible.
+            - Do NOT hallucinate any areas that are not labeled (i.e. checkout areas).
+            - Only include zones clearly visible.
+            - Infer adjacency based strictly on visible walls and pathways.
+            - If uncertain, omit.
+            - Do not invent information.
+            """
+
+        response = self.client.chat.completions.create(
+            model="gpt-4o-mini",
+            messages=[
+                {
+                    "role": "user",
+                    "content": [
+                        {"type": "text", "text": prompt},
+                        {
+                            "type": "image_url",
+                            "image_url": {
+                                "url": f"data:image/png;base64,{base64_img}"
+                            },
+                        },
+                    ],
+                }
+            ],
+            temperature=0.2,
+            response_format={"type": "json_object"}
+        )
+
+        parsed = json.loads(response.choices[0].message.content)
+        return parsed

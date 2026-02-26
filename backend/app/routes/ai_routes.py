@@ -1,4 +1,4 @@
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, UploadFile, File
 from app.llms.llm_service import LLMService
 import firebase_admin
 from firebase_admin import credentials, firestore
@@ -6,7 +6,13 @@ from app.models.schemas import TranscriptRequest, SummaryRequest
 import traceback
 from app.models.schemas import SectionChatRequest
 from firebase_admin.firestore import SERVER_TIMESTAMP
-
+from app.models.schemas import *
+from app.utils.utils import *
+import tempfile
+import os
+import copy
+import time
+import uuid
 
 router = APIRouter()
 llm = LLMService()
@@ -233,3 +239,154 @@ async def section_chat(request: SectionChatRequest):
 
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+    
+@router.post("/summarize-document")
+async def summarize_document(file: UploadFile = File(...)):
+
+    if not file.filename.lower().endswith(".pdf"):
+        raise HTTPException(status_code=400, detail="Only PDF files supported.")
+
+    tmp_path = None
+    try:
+        with tempfile.NamedTemporaryFile(delete=False, suffix=".pdf") as tmp:
+            contents = await file.read()
+            tmp.write(contents)
+            tmp_path = tmp.name
+
+        extracted_text = extract_text_from_pdf(tmp_path)
+
+        if not extracted_text.strip():
+            raise HTTPException(status_code=400, detail="Could not extract text from PDF.")
+
+        structured_summary = llm.generate_document_summary(extracted_text)
+        return structured_summary
+
+    finally:
+        if tmp_path and os.path.exists(tmp_path):
+            os.unlink(tmp_path)
+
+@router.post('/analyze-map')
+async def analyze_map(file: UploadFile = File(...)):
+
+    if not file.content_type or not file.content_type.startswith("image/"):
+        raise HTTPException(status_code=400, detail="Only image files are supported.")
+
+    try:
+        contents = await file.read()
+        structured_analysis = llm.analyze_map(contents)
+        return structured_analysis
+
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@router.post("/edit-module")
+async def edit_module(request: AIEditRequest):
+
+    start_time = time.time()
+    print("[1] Request received")
+
+    module_ref = db.collection("simulationModules").document(request.module_id)
+    ai_messages_ref = module_ref.collection("aiMessages")
+
+    print("[2] Writing user message to Firestore")
+    ai_messages_ref.add({
+        "message": {
+            "role": "user",
+            "content": request.user_message,
+            "scope": request.context_scope
+        },
+        "updates": None,
+        "createdAt": SERVER_TIMESTAMP
+    })
+
+    print("[3] Fetching module document")
+    module_doc = module_ref.get()
+
+    if not module_doc.exists:
+        raise HTTPException(status_code=404, detail="Module not found")
+    
+    module_data = module_doc.to_dict()
+    module_data['id'] = request.module_id
+    print("[4] Module loaded")
+
+    print("[4.5] Fetching lessons for module")
+
+    lessons_ref = db.collection("simulationLessons") \
+        .where("moduleRef", "==", module_ref) \
+        .stream()
+
+    lesson_list = []
+
+    for doc in lessons_ref:
+        lesson_data = doc.to_dict()
+        lesson_data["id"] = doc.id
+        lesson_data.pop("moduleRef", None)
+        lesson_list.append(lesson_data)
+
+    module_data["lessons"] = lesson_list
+    print(f"Loaded {len(lesson_list)} lessons")
+
+    if "baseVersion" not in module_data:
+        print("[5] Creating baseVersion snapshot")
+        original_snapshot = copy.deepcopy(module_data)
+
+        module_ref.update({
+            "baseVersion": original_snapshot
+        })
+        print("Base version saved")
+
+    print("[6] Processing references")
+    reference_summaries = []
+    reference_refs = module_data.get("references", [])
+
+    for ref in reference_refs:
+        try:
+            ref_doc = ref.get()
+            if ref_doc.exists:
+                ref_data = ref_doc.to_dict()
+
+                if ref_data.get("section") == "Maps":
+                    reference_summaries.append({
+                        "type": "map",
+                        "data": ref_data
+                    })
+                else: 
+                    summary = ref_data.get("summary")
+                    if summary:
+                        reference_summaries.append({
+                            "type": "document",
+                            "data": summary
+                        })
+        
+        except Exception: 
+            continue
+
+    print(f"Processed {len(reference_summaries)} references")
+
+    print("[7] Calling LLM...") 
+    llm_start = time.time() 
+    ai_response = llm.generate_module_edits(
+        module=module_data,
+        user_message=request.user_message,
+        scope=request.context_scope,
+        reference_summaries=reference_summaries
+    )
+
+    llm_end = time.time()
+    print(f"LLM finished in {llm_end - llm_start:.2f} seconds")
+
+    print("[8] Writing AI response to Firestore")
+    assistant_message = ai_response["message"]
+    assistant_message["id"] = str(uuid.uuid4())
+
+    ai_messages_ref.add({
+        "message": assistant_message,
+        "updates": ai_response["updates"],
+        "createdAt": SERVER_TIMESTAMP
+    })
+
+    total_time = time.time() - start_time
+    print(f"Done in {total_time:.2f} seconds")
+
+    return ai_response["message"]
+                

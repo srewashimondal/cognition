@@ -21,15 +21,17 @@ type ChatBarProps = {
     showFileCond?: boolean;
     handleRemoveFile?: (fileName: string) => void;
     handleVoiceMode?: () => void;
-    pageContext?: (string | LessonType)[];
+    pageContext?: { id: string; label: string; isModule?: boolean }[];
     typingMessageId?: string | null;
     handleStop?: () => void;
+    setCurrentScope?: (currentScope: string[]) => void;
 };
 
-export default function ChatBar({ context, userInput, setUserInput, handleSend, handleAttach, attachedFiles, showFileCond, handleRemoveFile, handleVoiceMode, pageContext, typingMessageId, handleStop }: ChatBarProps) {
+export default function ChatBar({ context, userInput, setUserInput, handleSend, handleAttach, attachedFiles, showFileCond, handleRemoveFile, handleVoiceMode, pageContext, typingMessageId, handleStop, setCurrentScope }: ChatBarProps) {
     const [showContext, setShowContext] = useState(false);
-    const [pageContextState, setPageContextState] = useState<(string | LessonType)[] | null>(pageContext ?? null);
-    const [selectedContext, setSelectedContext] = useState<(string | LessonType)[] | null>(null);
+    const [pageContextState, setPageContextState] = useState<{ id: string; label: string; isModule?: boolean }[] | null>(pageContext ?? null);
+    const [selectedContext, setSelectedContext] = useState<string[]>([]);
+
     const handleTextareaChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
         setUserInput(e.target.value);
         const el = e.target;
@@ -43,47 +45,21 @@ export default function ChatBar({ context, userInput, setUserInput, handleSend, 
         "summary": "Any questions?"
     };
 
-    const handleContextClick = (l: string | LessonType) => {
+    const handleContextClick = (id: string) => {
         setSelectedContext(prev => {
-            const current = prev ?? [];
-            const exists =
-            typeof l === "string" ? current.includes(l) : current.some(item => typeof item !== "string" && item.id === l.id);
-        
-            if (exists) {
-            setPageContextState(pc => {
-                const alreadyThere =
-                typeof l === "string" ? (pc ?? []).includes(l)
-                    : (pc ?? []).some(
-                        item =>
-                        typeof item !== "string" &&
-                        item.id === l.id
-                    );
-        
-                return alreadyThere ? pc : [...(pc ?? []), l];
-            });
-        
-            return current.filter(item =>
-                typeof l === "string" ? item !== l
-                : typeof item !== "string" && item.id !== l.id
-            );
-            }
-        
-            setPageContextState(pc =>
-            (pc ?? []).filter(item =>
-                typeof l === "string" ? item !== l
-                : typeof item === "string"
-                    ? true
-                    : item.id !== l.id
-            )
-            );
-        
-            return [...current, l];
+            const exists = prev.includes(id);
+            const newSelection = exists
+                ? prev.filter(item => item !== id)
+                : [...prev, id];
+    
+            setCurrentScope?.(newSelection);
+            return newSelection;
         });
     };
-      
-    const handleRemoveFromContext = (contextToRemove: string | LessonType) => {
-        handleContextClick(contextToRemove);
-    };
+
+    useEffect(() => {
+        setPageContextState(pageContext ?? null);
+    }, [pageContext]);
 
     const chatBarRef = useRef<HTMLDivElement | null>(null);
     useEffect(() => {
@@ -108,18 +84,26 @@ export default function ChatBar({ context, userInput, setUserInput, handleSend, 
             return;
         }
         handleSend();
+        setSelectedContext([]);
     }   
       
     return (
         <div className={`main-chat-wrapper ${context}`} ref={chatBarRef}>
         { (showContext && (pageContextState?.length ?? 0) > 0) && 
             <div className={`context-wrapper ${((selectedContext?.length ?? 0) > 0) ? "move-up" : ""}`}>
-                {pageContextState?.map((l) => <div className="context-item" onClick={(e) => {e.stopPropagation(); handleContextClick(l);}}>
-                    <span>
-                        <img src={typeof l === "string" ? globe_icon : cap_icon} />
-                    </span>
-                    {typeof l === "string" ? l : l.title}
-                </div>)}
+                {pageContextState?.map((item) => (
+                    <div key={item.id} className="context-item"
+                        onClick={(e) => {
+                            e.stopPropagation();
+                            handleContextClick(item.id);
+                        }}>
+                        <span>
+                            <img src={item.isModule ? globe_icon : cap_icon} />
+                        </span>
+                        {item.label}
+                    </div>
+                ))}
+
             </div> }
         <div className={`chat-bar-wrapper ${context}`}>
             <div className="chat-bar-input-context">
@@ -128,26 +112,24 @@ export default function ChatBar({ context, userInput, setUserInput, handleSend, 
                         {attachedFiles?.map((f) => <AttachmentItem fileName={f} onClick={() => handleRemoveFile?.(f)} />)}
                     </div>
                 }
-                {
-                    ((selectedContext?.length ?? 0) > 0) && (
-                        <div className="selected-context-wrapper">
-                            {selectedContext
-                                ?.filter((l): l is string => typeof l === "string")
-                                .map((l) => (
-                                    <ContextItem label={l} global={true} handleRemove={() => handleRemoveFromContext(l)} />
-                                ))}
-                            {selectedContext
-                                ?.filter((l): l is LessonType => typeof l !== "string")
-                                .map((l) => (
-                                    <ContextItem label={l.title} global={false} handleRemove={() => handleRemoveFromContext(l)} />
-                            ))}
-                        </div>
-                    )
-                }
+
+                {selectedContext.length !== 0 &&
+                <div className="selected-context-wrapper">
+                    {selectedContext.map((id) => {
+                        const item = pageContextState?.find(p => p.id === id);
+                        if (!item) return null;
+
+                        return (
+                            <ContextItem key={id} label={item.label}
+                            global={item.isModule ?? false} handleRemove={() => handleContextClick(id)} />
+                        );
+                    })}
+                </div>}
+
                 <div className={`chat-bar-input ${(showFileCond && (attachedFiles?.length ?? 0)) ? "expanded" : ""}`}>
                     <textarea placeholder={contextToPlaceholder[context]} value={userInput} 
                     onChange={(e) => {setUserInput(e.target.value); handleTextareaChange(e);}} 
-                    onKeyDown={(e) => {if (e.key === "Enter") {e.preventDefault(); handleSend();}}} />
+                    onKeyDown={(e) => {if (e.key === "Enter") {e.preventDefault(); handleSend(); setSelectedContext([]);}}} />
                     <span className="send-icon" onClick={handleSendOrStop}>
                         <img src={typingMessageId !== null ? stop_icon : send_icon} />
                     </span>

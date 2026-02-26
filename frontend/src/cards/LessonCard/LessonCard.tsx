@@ -1,7 +1,7 @@
 import './LessonCard.css';
 import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Tooltip } from "@radix-ui/themes";
+import { Tooltip, Spinner } from "@radix-ui/themes";
 import type { LessonType } from '../../types/Modules/Lessons/LessonType';
 import type { LessonEvaluationType } from '../../types/Modules/Lessons/LessonEvaluationType';
 import SkillItem from './SkillItem/SkillItem';
@@ -28,9 +28,10 @@ type LessonProp = {
     onSkillsChange?: (skills: string[]) => void;
     onSettingsChange?: (updates: Partial<LessonType>) => void;
     onDueDateChange?: (date: string | null) => void;
+    isUpdating?: boolean;
 };
 
-export default function LessonCard({ lessonInfo, role, status, evaluation, navigateToSim, moduleID, onSkillsChange, onSettingsChange, onDueDateChange }: LessonProp) {
+export default function LessonCard({ lessonInfo, role, status, evaluation, navigateToSim, moduleID, onSkillsChange, onSettingsChange, onDueDateChange, isUpdating }: LessonProp) {
     const navigate = useNavigate();
 
     const id = lessonInfo.id;
@@ -171,7 +172,12 @@ export default function LessonCard({ lessonInfo, role, status, evaluation, navig
             <div className="lesson-card-top">
                 <div className="lesson-info lesson-title-section">
                     <div className="lesson-name-wrapper">
-                        <p className="lesson-tag">{orderNumber}. Lesson</p>
+                        {isUpdating ? 
+                        <div className="updating-spinner">
+                            <Spinner size="1" /> 
+                            Cognition is updating this lesson...
+                        </div> :
+                        <p className="lesson-tag">{orderNumber}. Lesson</p>}
                         <h3 className="lesson-title">{title}</h3>
                         {status === "locked" && <p className="lock-warning">Complete Previous Lesson to Unlock</p>}
                     </div>
@@ -220,11 +226,6 @@ export default function LessonCard({ lessonInfo, role, status, evaluation, navig
                         <Tooltip content={expanded ? "Close" : "Edit"}>
                             <div className="builder-action" onClick={() => setExpanded(prev => !prev)}>
                                 <img src={expanded ? check_icon : edit_icon} />
-                            </div>
-                        </Tooltip>
-                        <Tooltip content="Refresh">
-                            <div className="builder-action">
-                                <img src={refresh_icon} />
                             </div>
                         </Tooltip>
                     </div>) :

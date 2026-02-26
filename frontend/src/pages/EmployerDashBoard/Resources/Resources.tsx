@@ -1,8 +1,8 @@
 import { useState, useEffect } from "react";
 import "./Resources.css";
-import { collection, getDocs, addDoc } from "firebase/firestore";
+import { collection, getDocs, addDoc, deleteDoc, doc } from "firebase/firestore";
 import { db, storage } from "../../../firebase";
-import { getDownloadURL, ref, uploadBytes } from "firebase/storage";
+import { getDownloadURL, ref, uploadBytes, deleteObject } from "firebase/storage";
 import type { WorkspaceType } from "../../../types/User/WorkspaceType";
 import UploadDropzone from "../../../components/UploadDropzone/UploadDropzone";
 import white_plus from '../../../assets/icons/actions/white-plus-icon.svg';
@@ -125,7 +125,7 @@ const initialSections: ResourceSection[] = [
     title: "Maps",
     icon: "🗺️",
     tone: "training",
-    description: "Maps of the store",
+    description: "Maps of the store (only IMAGE files allowed)",
     items: [],
   },
 ];
@@ -193,22 +193,49 @@ export default function Resources({ workspace }: { workspace: WorkspaceType }) {
   const [uploadFiles, setUploadFiles] = useState<File[]>([]);
   const [uploadSectionIndex, setUploadSectionIndex] = useState<number | null>(null);
   const [isUploading, setIsUploading] = useState(false);
+  const [isGeneratingSummary, setIsGeneratingSummary] = useState(false);
+
   const handleUploadToFirebase = async () => {
+    console.log("Function called");
     if (uploadFiles.length === 0 || !uploadTitle.trim() || uploadSectionIndex === null || !workspace?.id) return;
-  
+    console.log("Function called and returned");
     try {
-      setIsUploading(true);
+      let structuredSummaryString: string = "";
       const file = uploadFiles[0]; 
-      const storagePath = `trainingDocuments/${file.name}`;
+
+      const isMapSection = sections[uploadSectionIndex].title === "Maps";
+      
+      setIsGeneratingSummary(true);
+      const formData = new FormData();
+      formData.append("file", file);
+
+      const endpoint = isMapSection ? "http://127.0.0.1:8000/ai/analyze-map" : "http://127.0.0.1:8000/ai/summarize-document";
+
+      const res = await fetch(endpoint, {
+        method: "POST",
+        body: formData,
+      });
+
+      if (!res.ok) {
+        throw new Error("Failed to process file");
+      }
+
+      const summaryData = await res.json();
+      structuredSummaryString = JSON.stringify(summaryData);
+
+      setIsUploading(true);
+      const storagePath = `trainingDocuments/${workspace.id}/${Date.now()}-${file.name}`;
       const storageRef = ref(storage, storagePath);
       await uploadBytes(storageRef, file);
   
-      await addDoc(
+      const docRef = await addDoc(
         collection(db, "workspaces", workspace.id, "resources"),
         {
           title: uploadTitle.trim(),
           filePath: storagePath,
           section: sections[uploadSectionIndex].title,
+          summary: structuredSummaryString ,
+          type: isMapSection ? "map" : "document"
         }
       );
   
@@ -220,7 +247,7 @@ export default function Resources({ workspace }: { workspace: WorkspaceType }) {
                 items: [
                   ...section.items,
                   {
-                    id: String(Date.now() + 1),
+                    id: docRef.id,
                     title: uploadTitle.trim(),
                     filePath: storagePath,
                     section: section.title
@@ -230,18 +257,45 @@ export default function Resources({ workspace }: { workspace: WorkspaceType }) {
             : section
         )
       );
-  
+
       setUploadFiles([]);
       setUploadTitle("");
       setUploadSectionIndex(null);
       setOpenUploadModal(false);
-      setIsUploading(false);
   
     } catch (err) {
       console.error("Upload failed:", err);
+    } finally {
+      setIsUploading(false);
+      setIsGeneratingSummary(false);
     }
   };
   
+  const handleDeleteFile = async () => {
+    if (!activeFile || !workspace?.id) return;
+  
+    try {
+      await deleteDoc(
+        doc(db, "workspaces", workspace.id, "resources", activeFile.id)
+      );
+  
+      const fileRef = ref(storage, activeFile.filePath);
+      await deleteObject(fileRef);
+  
+      setSections(prev =>
+        prev.map(section => ({
+          ...section,
+          items: section.items.filter(item => item.id !== activeFile.id)
+        }))
+      );
+  
+      setActiveFile(null);
+      setActiveFileUrl(null);
+  
+    } catch (err) {
+      console.error("Error deleting file:", err);
+    }
+  };
   
 
   return (
@@ -327,12 +381,22 @@ export default function Resources({ workspace }: { workspace: WorkspaceType }) {
           >
             <div className="modal-header">
               <h3>{activeFile.title}</h3>
-              <button
-                className="close-btn"
-                onClick={() => setActiveFile(null)}
-              >
-                ✕
-              </button>
+              
+              <div className="modal-actions">
+                <button
+                  className="delete-btn"
+                  onClick={handleDeleteFile}
+                >
+                  Delete File
+                </button>
+
+                <button
+                  className="close-btn"
+                  onClick={() => setActiveFile(null)}
+                >
+                  ✕
+                </button>
+              </div>
             </div>
 
             <div className="modal-body">
@@ -395,10 +459,19 @@ export default function Resources({ workspace }: { workspace: WorkspaceType }) {
                   <label>Upload File</label>
                   <UploadDropzone amount="single" stretch={true}
                   files={uploadFiles} setFiles={setUploadFiles} 
-                  allowedTypes={["application/pdf", "image/png", "image/jpeg", "image/webp"]}/>
+                  allowedTypes={
+                    uploadSectionIndex !== null &&
+                    sections[uploadSectionIndex].title === "Maps"
+                      ? ["image/png", "image/jpeg", "image/webp"]
+                      : ["application/pdf"]
+                  }/>
                 </div>
-                <button type="button" className="OK-button" onClick={handleUploadToFirebase} disabled={!uploadFiles.length || !uploadTitle.trim()}>
-                  {isUploading ? "Uploading..." : "Upload"}
+                <button type="button" className="OK-button" onClick={handleUploadToFirebase} disabled={!uploadFiles.length || !uploadTitle.trim() || uploadSectionIndex === null || !workspace?.id || isUploading || isGeneratingSummary }>
+                  {isGeneratingSummary ?
+                    "Analyzing document..."
+                    : isUploading 
+                      ? "Uploading..."
+                      : "Upload" }
                 </button>
               </div>
             </div>

@@ -143,18 +143,22 @@
 }
 
 .regenerate-btn {
-    background-color: #f7f7f7;
-    border-radius: 5px;
+    width: 28%;
+    color: white;
+    background-color: #ff5a1f;
+    padding: 5px 2px;
+    border: 1px solid #ff5a1f;
+    transition: 0.2s ease;
     display: flex;
-    justify-content: center;
     align-items: center;
-    padding: 3px;
-    width: 20px;
-    height: 20px;
+    gap: 2px;
+    justify-content: center;
 }
 
 .regenerate-btn:hover {
-    background-color: #eee;
+    color: #ff5a1f;
+    background-color: white;
+    border: 1px solid #ff5a1f;
 }
 
 .chat-bubble.assistant .content-text p {
@@ -181,3 +185,72 @@
     margin-top: 6px;
 }
 
+.scope-wrapper {
+    background: none;
+    display: flex;
+    flex: wrap;
+    gap: 5px;
+    margin-bottom: 5px;;
+}
+
+.apply-btn {
+    width: 38%;
+    color: white;
+    background-color: #ff5a1f;
+    padding: 5px 2px;
+    border: 1px solid #ff5a1f;
+    transition: 0.2s ease;
+    display: flex;
+    align-items: center;
+    gap: 2px;
+    justify-content: center;
+}
+
+.apply-btn:hover {
+    color: #ff5a1f;
+    background-color: white;
+    border: 1px solid #ff5a1f;
+}
+
+.wand-swap {
+    position: relative;
+    width: 16px;
+    height: 16px; 
+}
+
+.wand-icon {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+}
+
+.wand-icon.default {
+    opacity: 1;
+}
+
+.wand-icon.hover {
+    opacity: 0;
+}
+
+.apply-btn:hover .wand-icon.hover {
+    opacity: 1;
+}
+
+.apply-btn:hover .wand-icon.default {
+    opacity: 0;
+}
+
+.regenerate-btn:hover .wand-icon.hover {
+    opacity: 1;
+}
+
+.regenerate-btn:hover .wand-icon.default {
+    opacity: 0;
+}
+
+.chat-bubble-actions {
+    display: flex;
+    gap: 5px;
+    align-items: center;
+}
