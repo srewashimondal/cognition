@@ -10,6 +10,8 @@ import {
 } from '../../../utils/quizScore';
 import { doc, updateDoc } from 'firebase/firestore';
 import { db } from '../../../firebase';
+import { useAuth } from '../../../context/AuthProvider';
+import { updateLearningStreakForUser } from '../../../utils/streaks';
 import ProgressBar from '../../../components/ProgressBar/ProgressBar';
 import QuestionItem from './QuestionItem/QuestionItem';
 import ErrorMessage from '../../../components/ErrorMessage/ErrorMessage';
@@ -173,6 +175,7 @@ function QuizPage({
     lessonAttemptId: string;
     onComplete: (result: AttemptResult) => void;
 }) {
+    const { user } = useAuth();
     const questions = lesson?.questions;
     const [currentQuestionIdx, setCurrentQuestionIdx] = useState<number>(0);
     const [pendingSubmit, setPendingSubmit] = useState(false);
@@ -222,6 +225,13 @@ function QuizPage({
                     status: "completed",
                     completedAt: new Date().toISOString(),
                 });
+                if (user?.role === "employee") {
+                    try {
+                        await updateLearningStreakForUser(user.uid);
+                    } catch (err) {
+                        console.error("Error updating learning streak:", err);
+                    }
+                }
                 onComplete({
                     questionAnswers,
                     score,

@@ -11,10 +11,13 @@ import { db } from '../../firebase';
 import type { StoredQuestionAnswer } from '../../utils/quizScore';
 import { hydrateQuestionAnswers } from '../../utils/quizScore';
 import type { QuizQuestionType } from "../../types/Standard/QuizQuestion/QuestionTypes";
+import { useAuth } from "../../context/AuthProvider";
+import { updateLearningStreakForUser } from "../../utils/streaks";
 
 export default function StandardLessonPage() {
     const navigate = useNavigate();
     const { moduleID, lessonID } = useParams();
+    const { user } = useAuth();
     const [lessonAttempt, setLessonAttempt] = useState<StandardLessonAttempt | null>(null);
     const [moduleTitle, setModuleTitle] = useState<string>("");
     const [loading, setLoading] = useState(true);
@@ -77,6 +80,14 @@ export default function StandardLessonPage() {
                 const found = filtered.find((l) => l.id === lessonID);
 
                 setLessonAttempt(found ?? null);
+
+                if (found && user?.role === "employee") {
+                    try {
+                        await updateLearningStreakForUser(user.uid);
+                    } catch (err) {
+                        console.error("Error updating learning streak on lesson open:", err);
+                    }
+                }
             } catch (error) {
                 console.error("Error fetching lesson:", error);
             } finally {
@@ -85,7 +96,7 @@ export default function StandardLessonPage() {
         }
 
         fetchLesson();
-    }, [moduleID, lessonID]);
+    }, [moduleID, lessonID, user]);
     
 
     const handleBack = () => {

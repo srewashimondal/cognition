@@ -26,6 +26,12 @@ export type BadgeType = {
     icon: "star" | "bolt" | "map";
 }
 
+export type LearningStreak = {
+    current: number;
+    longest: number;
+    lastActiveDate: string | null;
+};
+
 export type EmployeeUserType = BaseUserType & {
     role: "employee";
     employeeID: string;
@@ -35,6 +41,7 @@ export type EmployeeUserType = BaseUserType & {
     averageScore: number;
     totalHours: number;
     achievements: BadgeType[];
+    learningStreak?: LearningStreak;
 }
 
 export type EmployerUserType = BaseUserType & {
