@@ -328,7 +328,10 @@ async def edit_module(request: AIEditRequest):
 
     if "baseVersion" not in module_data:
         print("[5] Creating baseVersion snapshot")
-        original_snapshot = copy.deepcopy(module_data)
+        original_snapshot = {
+            **copy.deepcopy(module_data),
+            "lessons": lesson_list
+        }
 
         module_ref.update({
             "baseVersion": original_snapshot

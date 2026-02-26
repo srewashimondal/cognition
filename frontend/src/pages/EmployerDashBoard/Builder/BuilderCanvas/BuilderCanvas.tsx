@@ -328,12 +328,11 @@ export default function BuilderCanvas({ id, workspace }: BuilderCanvasProps) {
                 throw new Error("AI request failed");
             }
 
-            const data = await res.json();
-
         } catch(err) {
-
+            console.error(err);
         } finally {
-
+            setAiLoading(false);
+            setUpdatingLessonIds([]);
         }
         
     };
@@ -424,6 +423,11 @@ export default function BuilderCanvas({ id, workspace }: BuilderCanvasProps) {
             } else {
                 setUpdatingLessonIds([]);
             }
+
+            if (last?.role === "assistant" && typingMessageId === null && !last.applied) {
+                setTypingMessageId(last.id);
+                setStopTyping(false);
+              }
         });
     
         return () => unsubscribe();
@@ -475,8 +479,6 @@ export default function BuilderCanvas({ id, workspace }: BuilderCanvasProps) {
             await updateDoc(messageRef, {
                 applied: true
             });
-
-            setUpdatingLessonIds([]);
     
         } catch (err) {
             console.error("Error applying AI updates:", err);
@@ -484,41 +486,27 @@ export default function BuilderCanvas({ id, workspace }: BuilderCanvasProps) {
     };
 
     const handleRestoreOriginal = async () => {
-        try {
-            const moduleRef = doc(db, "simulationModules", id);
-            const snap = await getDoc(moduleRef);
+        const moduleRef = doc(db, "simulationModules", id);
+        const snap = await getDoc(moduleRef);
     
-            if (!snap.exists()) return;
+        if (!snap.exists()) return;
     
-            const data = snap.data();
-            const base = data.baseVersion;
+        const base = snap.data().baseVersion;
+        if (!base) return;
     
-            if (!base) {
-                console.warn("No base version found");
-                return;
-            }
+        const { lessons: baseLessons, ...moduleFields } = base;
     
-            setModule(prev => prev ? { ...prev, ...base } : prev);
-            const lessonSnap = await getDocs(
-                query(
-                    collection(db, "simulationLessons"),
-                    where("moduleRef", "==", moduleRef)
-                )
-            );
+        setModule(prev => prev ? { ...prev, ...moduleFields } : prev);
     
-            const lessonData: LessonType[] = lessonSnap.docs.map((docSnap) => ({
-                id: docSnap.id,
-                ...(docSnap.data() as Omit<LessonType, "id">),
-            }));
-    
-            const sorted = lessonData.sort((a, b) => a.orderNumber - b.orderNumber);
+        if (Array.isArray(baseLessons)) {
+            const sorted = [...baseLessons].sort(
+                (a, b) => a.orderNumber - b.orderNumber
+              );
+              
             setLessons(sorted);
-    
-            setUpdatingLessonIds([]);
-    
-        } catch (err) {
-            console.error("Error restoring base version:", err);
         }
+    
+        setUpdatingLessonIds([]);
     };
 
     const [updatingLessonIds, setUpdatingLessonIds] = useState<string[]>([]);
@@ -730,7 +718,7 @@ export default function BuilderCanvas({ id, workspace }: BuilderCanvasProps) {
                                     lessonInfo={l} 
                                     role={"employer"} 
                                     moduleID={id}
-                                    isUpdating={updatingLessonIds.includes(l.id)}
+                                    //isUpdating={updatingLessonIds.includes(l.id)}
                                     onSkillsChange={(newSkills) => updateLessonSkills(l.id, newSkills)}
                                     onSettingsChange={(newSettings) => updateLessonSettings(l.id, newSettings)}
                                     onDueDateChange={(newDueDate) => updateDueDate(l.id, newDueDate)}

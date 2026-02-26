@@ -405,6 +405,59 @@ class LLMService:
         CURRENT MODULE STATE:
         {json.dumps(ai_context, indent=2)}
 
+        LIST OF ALL RETAIL SKILLS:
+        [
+            "Spatial Reasoning",
+            "Department Zones",
+            "Store Layout Awareness",
+            "Aisle Navigation",
+            "Shortest Path Routing",
+            "SKU Recognition",
+            "Brand Familiarity",
+            "Category Grouping",
+            "Product Substitution",
+            "Cross-Selling",
+            "Upselling",
+            "Greeting & Engagement",
+            "Active Listening",
+            "Clarifying Questions",
+            "Tone",
+            "Professional Communication",
+            "Confidence Under Pressure",
+            "Stock Awareness",
+            "Out-of-Stock Handling",
+            "Inventory Lookup",
+            "Backroom Coordination",
+            "Discontinued Item Handling",
+            "POS Navigation",
+            "Transaction Accuracy",
+            "Payment Processing",
+            "Returns & Exchanges",
+            "Discount Application",
+            "Hazard Identification",
+            "Emergency Response",
+            "Policy Compliance",
+            "Loss Prevention Awareness",
+            "Escalation Protocols",
+            "Task Prioritization",
+            "Multitasking",
+            "Time Management",
+            "Interrupt Handling",
+            "Workload Balancing",
+            "Decision Making",
+            "Situational Awareness",
+            "Critical Thinking",
+            "Adaptability",
+            "De-escalation",
+            "Empathy",
+            "Stress Management",
+            "Customer De-escalation",
+            "Handling Difficult Customers",
+            "Policy Explanation",
+            "Conflict Resolution",
+            "Accuracy vs Speed Tradeoff"
+        ]
+
         Your task:
         - Analyze the request
         - Suggest precise updates
@@ -416,6 +469,8 @@ class LLMService:
         - If no relevant reference information applies, proceed normally
         - Reference documents act as compliance guardrails.
         - Do not apply changes that violate reference policies.
+        - If the user's request may involve updating skills, then only provide skill updates within the specified list of retail skills.
+        - Unless the user specifies replacing skills, do NOT replace any skills already in the lesson state; instead, add skills to the state.
 
         If the specified scope is SPECIFIC LESSONS ONLY:
         - Do not modify module-level fields.
@@ -467,6 +522,12 @@ class LLMService:
         )
 
         parsed = json.loads(response.choices[0].message.content)
+
+        if "updates" not in parsed:
+            parsed["updates"] = {
+                "module": None,
+                "lessons": []
+            }
 
         if not editing_entire_module:
             parsed["updates"]["module"] = None
