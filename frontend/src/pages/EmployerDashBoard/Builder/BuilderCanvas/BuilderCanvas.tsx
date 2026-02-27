@@ -432,29 +432,56 @@ export default function BuilderCanvas({ id, workspace }: BuilderCanvasProps) {
     
         return () => unsubscribe();
     }, [id]);
+
+    const deepCleanNulls = (obj: any): any => {
+        if (obj === null) return undefined;
+      
+        if (Array.isArray(obj)) {
+            return obj
+                .map(deepCleanNulls)
+                .filter(v => v !== undefined);
+        }
+      
+        if (typeof obj === "object" && obj !== undefined) {
+            return Object.fromEntries(
+                Object.entries(obj)
+                    .map(([k, v]) => [k, deepCleanNulls(v)])
+                    .filter(([_, v]) => v !== undefined)
+            );
+        }
+      
+        return obj;
+    };
     
     const applyAIUpdates = (updates: any) => {
         if (!updates) return;
-    
+
         if (updates.module && typeof updates.module === "object") {
+            const cleanedModule = deepCleanNulls(updates.module);
+        
             setModule(prev =>
-                prev ? { ...prev, ...updates.module } : prev
+                prev ? { ...prev, ...cleanedModule } : prev
             );
         }
-    
-        if (Array.isArray(updates.lessons)) {
-            setLessons(prev =>
-                prev.map(l => {
-                    const updated = updates.lessons.find((u: any) => u.id === l.id);
-                    if (!updated) return l;
 
-                    const cleanedUpdate = Object.fromEntries(
-                        Object.entries(updated).filter(([_, v]) => v !== null)
-                    );
-    
-                    return { ...l, ...cleanedUpdate };
-                })
-            );
+        if (Array.isArray(updates.lessons)) {
+          setLessons(prev =>
+            prev.map(l => {
+                const updated = updates.lessons.find((u: any) => u.id === l.id);
+                if (!updated) return l;
+        
+                const cleanedUpdate = deepCleanNulls(updated);
+        
+                if (cleanedUpdate.lessonAbstractInfo) {
+                    cleanedUpdate.lessonAbstractInfo = {
+                        ...l.lessonAbstractInfo,
+                        ...cleanedUpdate.lessonAbstractInfo
+                    };
+                }
+        
+                return { ...l, ...cleanedUpdate };
+            })
+          );
         }
     };
 
@@ -763,7 +790,7 @@ export default function BuilderCanvas({ id, workspace }: BuilderCanvasProps) {
                         {aiLoading && <div className="ai-loading-text">Cognition AI is applying changes...</div>}
                         <ChatBar context={"module"} userInput={userInput} setUserInput={setUserInput} handleSend={handleSend} 
                         pageContext={[
-                            { id: "module", label: "Module Base", isModule: true },
+                            { id: id, label: "Module Base", isModule: true },
                             ...(lessons ?? []).map(l => ({
                                 id: l.id,
                                 label: l.title,

@@ -113,8 +113,7 @@ export default function ChatBar({ context, userInput, setUserInput, handleSend, 
                     </div>
                 }
 
-                {selectedContext.length !== 0 &&
-                <div className="selected-context-wrapper">
+                {selectedContext.length !== 0 && <div className="selected-context-wrapper">
                     {selectedContext.map((id) => {
                         const item = pageContextState?.find(p => p.id === id);
                         if (!item) return null;

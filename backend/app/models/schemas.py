@@ -50,11 +50,11 @@ class AIEditRequest(BaseModel):
     context_scope: Optional[List[str]] = None
 
 class LessonAbstractInfo(BaseModel):
-    simulationModel: str
-    targetBehaviors: str
-    contextualConstraints: str
-    evaluationSignals: str
-    adaptionLogic: str
+    simulationModel: Optional[str] = None
+    targetBehaviors: Optional[str] = None
+    contextualConstraints: Optional[str] = None
+    evaluationSignals: Optional[str] = None
+    adaptionLogic: Optional[str] = None
 
 class LessonUpdate(BaseModel):
     id: str

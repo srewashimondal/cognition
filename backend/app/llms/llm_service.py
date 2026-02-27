@@ -458,6 +458,13 @@ class LLMService:
             "Accuracy vs Speed Tradeoff"
         ]
 
+        LIST OF ALL DIFFICULTY LEVELS:
+        [
+            "Beginner",
+            "Intermediate",
+            "Advanced"
+        ]
+
         Your task:
         - Analyze the request
         - Suggest precise updates
@@ -471,6 +478,7 @@ class LLMService:
         - Do not apply changes that violate reference policies.
         - If the user's request may involve updating skills, then only provide skill updates within the specified list of retail skills.
         - Unless the user specifies replacing skills, do NOT replace any skills already in the lesson state; instead, add skills to the state.
+        - If the scope mode is ENTIRE MODULE and the user asks to update the difficulty level, ONLY update it with the specified list of difficulty levels.
 
         If the specified scope is SPECIFIC LESSONS ONLY:
         - Do not modify module-level fields.

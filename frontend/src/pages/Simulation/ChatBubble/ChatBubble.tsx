@@ -41,7 +41,7 @@ export default function ChatBubble({ message, className, handleClick, shouldType
             {messageScope.length > 0 && role === "user" && lessons && (
                 <div className="scope-wrapper">
                     {messageScope.map(id => {
-                        if (id === "module") {
+                        if (!lessons.find(l => l.id === id)) {
                             return (
                                 <ContextItem key="module" label="Module Base" global={true} isStatic={true} />
                             );

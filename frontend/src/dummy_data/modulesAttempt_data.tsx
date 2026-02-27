@@ -1,4 +1,4 @@
-import { modules } from './modules_data';
+/*import { modules } from './modules_data';
 import type { ModuleAttemptType } from '../types/Modules/ModuleAttemptType';
 import type { LessonAttemptType } from "../types/Modules/Lessons/LessonAttemptType";
 import type { SimulationAttemptType } from "../types/Modules/Lessons/Simulations/SimulationAttemptType";
@@ -185,4 +185,4 @@ export const moduleAttempts: ModuleAttemptType[] = [
         )
       })
     )
-];
+];*/
