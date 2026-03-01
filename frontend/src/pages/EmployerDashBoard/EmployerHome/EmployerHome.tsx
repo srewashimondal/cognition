@@ -15,110 +15,17 @@ import clock_icon from '../../../assets/icons/white-clock-icon.svg';
 import leaderboard_icon from '../../../assets/icons/orange-leaderboard-icon.svg';
 import warning_icon from '../../../assets/icons/orange-warning-icon.svg';
 import x_icon from '../../../assets/icons/simulations/grey-x-icon.svg';
-import {collection,query,where,onSnapshot, doc} from "firebase/firestore";
+import {collection,query,where,onSnapshot, doc, getDoc} from "firebase/firestore";
 import { db } from "../../../firebase";
+import type { StandardModuleType } from "../../../types/Standard/StandardModule";
+import type { StandardModuleAttempt } from "../../../types/Standard/StandardAttempt";
 
-const modulePerformance = [
-  {
-    title: "Store Orientation and Navigation",
-    avgScore: 78,
-    completion: 82,
-    totalEnrolled: 156
-  },
-  {
-    title: "Product Knowledge & Inventory",
-    avgScore: 74,
-    completion: 76,
-    totalEnrolled: 156
-  },
-  {
-    title: "Customer Interaction & Communication",
-    avgScore: 81,
-    completion: 85,
-    totalEnrolled: 139
-  },
-  {
-    title: "Checkout, POS & Transactions",
-    avgScore: 72,
-    completion: 69,
-    totalEnrolled: 162
-  },
-  {
-    title: "Safety, Compliance & Store Policy",
-    avgScore: 88,
-    completion: 91,
-    totalEnrolled: 141
-  },
-  {
-    title: "Multitasking & Real-World Pressure",
-    avgScore: 70,
-    completion: 64,
-    totalEnrolled: 110
-  }
-];
-
-const employeeRankings = [
-  {
-    ranking: 1,
-    name: "Sarah Johnson",
-    department: "Sales Floor",
-    score: 95,
-    totalCompletedLessons: 24
-  },
-  {
-    ranking: 2,
-    name: "Marcus Chen",
-    department: "Electronics",
-    score: 93,
-    totalCompletedLessons: 22
-  },
-  {
-    ranking: 3,
-    name: "Emily Rodriguez",
-    department: "Customer Service",
-    score: 92,
-    totalCompletedLessons: 26
-  },
-  {
-    ranking: 4,
-    name: "James Wilson",
-    department: "Sales Floor",
-    score: 91,
-    totalCompletedLessons: 20
-  },
-  {
-    ranking: 5,
-    name: "Lisa Park",
-    department: "Apparel",
-    score: 91,
-    totalCompletedLessons: 23
-  },
-];
-
-const needAttention = [
-  {
-    name: "Alex Turner",
-    department: "Electronics",
-    score: 62,
-    totalCompletedLessons: 8
-  },
-  {
-    name: "Jordan Lee",
-    department: "Customer Service",
-    score: 65,
-    totalCompletedLessons: 6
-  },
-  {
-    name: "Sam Patel",
-    department: "Sales Floor",
-    score: 68,
-    totalCompletedLessons: 9
-  }
-];
 
 export default function EmployerHome({ viewer, workspace }: { viewer: EmployerUserType, workspace: WorkspaceType }) {
   
   const [employees, setEmployees] = useState<EmployeeUserType[]>([]);
+  const [moduleAttempts, setModuleAttempts] = useState<StandardModuleAttempt[]>([]);
+  const [modules, setModules] = useState<StandardModuleType[]>([]);
 
   useEffect(() => {
     if (!workspace?.id) return;
@@ -143,6 +50,50 @@ export default function EmployerHome({ viewer, workspace }: { viewer: EmployerUs
     return () => unsubscribe();
   }, [workspace]);
 
+  useEffect(() => {
+  if (!workspace?.standardModules?.length) return;
+
+  const fetchModules = async () => {
+    const moduleDocs = await Promise.all(
+      workspace.standardModules.map(async (ref) => {
+        const snap = await getDoc(ref);
+        if (!snap.exists()) return null;
+
+        return {
+          id: snap.id,
+          ...snap.data(),
+        } as StandardModuleType;
+      })
+    );
+
+    setModules(moduleDocs.filter(Boolean) as StandardModuleType[]);
+  };
+
+  fetchModules();
+}, [workspace]);
+
+  useEffect(() => {
+    if (!workspace?.id) return;
+
+    const workspaceRef = doc(db, "workspaces", workspace.id);
+
+    const q = query(
+      collection(db, "standardModuleAttempts"),
+      where("workspaceRef", "==", workspaceRef)
+    );
+
+    const unsubscribe = onSnapshot(q, (snapshot) => {
+      const data = snapshot.docs.map((docSnap) => ({
+        id: docSnap.id,
+        ...docSnap.data(),
+      })) as StandardModuleAttempt[];
+
+      setModuleAttempts(data);
+    });
+
+    return () => unsubscribe();
+  }, [workspace]);
+
   const topPerformers = [...employees]
       .sort((a, b) => (b.averageScore ?? 0) - (a.averageScore ?? 0))
       .slice(0, 5);
@@ -152,6 +103,41 @@ export default function EmployerHome({ viewer, workspace }: { viewer: EmployerUs
       .slice(0, 3);
 
     const totalEmployees = employees.length;
+
+    const modulePerformance = modules.map((module) => {
+    const attemptsForModule = moduleAttempts.filter(
+      (attempt) => attempt.moduleInfo?.id === module.id
+    );
+
+    const completedAttempts = attemptsForModule.filter(
+      (a) => a.status === "completed"
+    );
+
+    const completionCount = completedAttempts.length;
+
+    const avgScore =
+      completionCount > 0
+        ? Math.round(
+            completedAttempts.reduce(
+              (sum, a) => sum + (a.score ?? 0),
+              0
+            ) / completionCount
+          )
+        : 0;
+
+    const completionRate =
+      totalEmployees > 0
+        ? Math.round((completionCount / totalEmployees) * 100)
+        : 0;
+
+    return {
+      title: module.title,
+      avgScore,
+      completion: completionRate,
+      totalEnrolled: totalEmployees,
+    };
+  });
+
 
     const averageLessonScore =
       employees.length > 0
