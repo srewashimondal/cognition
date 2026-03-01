@@ -1,6 +1,7 @@
 import './ChatBar.css';
 import { useState, useRef, useEffect } from 'react';
 import type { LessonType } from '../../types/Modules/Lessons/LessonType';
+import type { DocumentReference } from 'firebase/firestore';
 import AttachmentItem from '../AttachmentItem/AttachmentItem';
 import ContextItem from './ContextItem/ContextItem';
 import paperclip_icon from '../../assets/icons/chatbar/paperclip-icon.svg';
@@ -17,7 +18,11 @@ type ChatBarProps = {
     setUserInput: (userInput: string) => void;
     handleSend: () => void;
     handleAttach?: () => void;
-    attachedFiles?: string[]; // change to File[] later
+    attachedFiles?: {
+        id: string;
+        title: string;
+        ref: DocumentReference;
+    }[];
     showFileCond?: boolean;
     handleRemoveFile?: (fileName: string) => void;
     handleVoiceMode?: () => void;
@@ -109,7 +114,7 @@ export default function ChatBar({ context, userInput, setUserInput, handleSend, 
             <div className="chat-bar-input-context">
                 { (showFileCond && (attachedFiles?.length ?? 0) > 0) &&
                     <div className="attached-items-wrapper">
-                        {attachedFiles?.map((f) => <AttachmentItem fileName={f} onClick={() => handleRemoveFile?.(f)} />)}
+                        {attachedFiles?.map((f) => <AttachmentItem key={f.id} fileName={f.title} onClick={() => handleRemoveFile?.(f.id)} />)}
                     </div>
                 }
 

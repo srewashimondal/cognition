@@ -6,12 +6,8 @@ import ActionButton from '../../../../components/ActionButton/ActionButton';
 import LessonCard from '../../../../cards/LessonCard/LessonCard';
 import ChatBar from '../../../../components/ChatBar/ChatBar';
 import ChatBubble from '../../../Simulation/ChatBubble/ChatBubble';
-import { modules } from '../../../../dummy_data/modules_data';
-import { doc, getDoc, updateDoc, collection, getDocs, where, query } from 'firebase/firestore';
-import { ref, uploadBytes, deleteObject } from 'firebase/storage';
+import { doc, getDoc, updateDoc, collection, getDocs, where, query, onSnapshot, DocumentReference } from 'firebase/firestore';
 import { db } from '../../../../firebase';
-import { onSnapshot } from "firebase/firestore";
-import type { DocumentReference } from "firebase/firestore";
 import { formatTimestampString } from '../../../../utils/Utils';
 import type { MessageType } from '../../../../types/Modules/Lessons/Simulations/MessageType';
 import type { ModuleType } from '../../../../types/Modules/ModuleType';
@@ -31,6 +27,7 @@ import file_icon from '../../../../assets/icons/simulations/grey-file-icon.svg';
 import folder_icon from '../../../../assets/icons/simulations/grey-folder-icon.svg';
 import white_ai_icon from '../../../../assets/icons/simulations/white-ai-icon.svg';
 import orange_ai_icon from '../../../../assets/icons/simulations/orange-ai-icon.svg';
+import undo_icon from '../../../../assets/icons/grey-undo-icon.svg';
 
 type BuilderCanvasProps = {
     id: string;
@@ -81,6 +78,7 @@ export default function BuilderCanvas({ id, workspace }: BuilderCanvasProps) {
     const [module, setModule] = useState<ModuleType | null>(null);
     const [lessons, setLessons] = useState<LessonType[]>([]);
     const [lastModified, setLastModified] = useState(new Date().toISOString());
+    const [applied, setApplied] = useState(false);
 
     useEffect(() => {
         async function fetchModule() {
@@ -337,6 +335,44 @@ export default function BuilderCanvas({ id, workspace }: BuilderCanvasProps) {
         
     };
 
+    const handleRegenerate = async (assistantMessage: MessageType) => {
+        if (aiLoading || typingMessageId !== null) return;
+    
+        const assistantIndex = chatMessages.findIndex(msg => msg.id === assistantMessage.id);
+        if (assistantIndex <= 0) return;
+
+        const previousUserMessage = [...chatMessages].slice(0, assistantIndex).reverse().find(msg => msg.role === "user");
+        if (!previousUserMessage) return;
+    
+        setAiLoading(true);
+    
+        try {
+            const res = await fetch("http://127.0.0.1:8000/ai/edit-module", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                    module_id: id,
+                    user_message: previousUserMessage.content,
+                    context_scope:
+                        previousUserMessage.scope ?? currentScope
+                })
+            });
+    
+            if (!res.ok) {
+                throw new Error("AI regenerate failed");
+            }
+    
+        } catch (err) {
+            console.error("Error regenerating:", err);
+        } finally {
+            setAiLoading(false);
+            setUpdatingLessonIds([]);
+        }
+    };
+    
+
     const transcriptRef = useRef<HTMLDivElement | null>(null);
 
     useEffect(() => {
@@ -489,6 +525,7 @@ export default function BuilderCanvas({ id, workspace }: BuilderCanvasProps) {
         if (messageId === null) return;
 
         try {
+            setApplied(true);
             const messageRef = doc(db, "simulationModules", id, "aiMessages", messageId);
     
             const snap = await getDoc(messageRef);
@@ -499,6 +536,11 @@ export default function BuilderCanvas({ id, workspace }: BuilderCanvasProps) {
             const updates = data.updates;
     
             if (!updates) return;
+
+            setPreviousSnapshot({
+                module: module ? { ...module } : null,
+                lessons: lessons.map(l => ({ ...l }))
+            });
             
             console.log("Applying updates:", updates);
             applyAIUpdates(updates);
@@ -536,6 +578,15 @@ export default function BuilderCanvas({ id, workspace }: BuilderCanvasProps) {
         setUpdatingLessonIds([]);
     };
 
+    const handleRestorePrevious = () => {
+        if (!previousSnapshot) return;
+    
+        setModule(previousSnapshot.module);
+        setLessons(previousSnapshot.lessons);
+    
+        setPreviousSnapshot(null); 
+    };
+
     const [updatingLessonIds, setUpdatingLessonIds] = useState<string[]>([]);
 
     const scrollToBottom = () => {
@@ -552,9 +603,11 @@ export default function BuilderCanvas({ id, workspace }: BuilderCanvasProps) {
     }, [openAIPanel, chatMessages]);
     
     const [currentScope, setCurrentScope] = useState<string[]>([]);
-    const lastMessage = chatMessages[chatMessages.length - 1];
-    const canRegenerate = typingMessageId === null && !aiLoading && lastMessage?.role === "assistant";
-      
+    const [previousSnapshot, setPreviousSnapshot] = useState<{
+        module: ModuleType | null;
+        lessons: LessonType[];
+    } | null>(null);
+
     return (
         <div className="builder-canvas-page">
             {(openModal) && <div className="attach-overlay">
@@ -669,6 +722,12 @@ export default function BuilderCanvas({ id, workspace }: BuilderCanvasProps) {
                                         <img src={editMode ? check_icon : edit_icon} />
                                     </div>
                                 </Tooltip>
+                                {applied && 
+                                <Tooltip content="Restore previous">
+                                    <div className="builder-action" onClick={handleRestorePrevious}>
+                                        <img src={undo_icon} />
+                                    </div>
+                                </Tooltip>}
                                 <Tooltip content="Restore original">
                                     <div className="builder-action" onClick={handleRestoreOriginal}>
                                         <img src={refresh_icon} />
@@ -782,8 +841,12 @@ export default function BuilderCanvas({ id, workspace }: BuilderCanvasProps) {
                             {chatMessages.map((m, i, arr) => {
                             const isLast = i === arr.length - 1;
                             const shouldType = m.role === "assistant" && m.id === typingMessageId;
+                            const lastAssistant = [...arr].reverse().find(msg => msg.role === "assistant");
+                            const isLastAssistant = lastAssistant?.id === m.id;
+                            const canRegenerate = isLastAssistant && typingMessageId === null && !aiLoading;
                             return (<ChatBubble key={m.id} message={m} shouldType={shouldType} stopTyping={stopTyping} onTypingComplete={() => {setTypingMessageId(null); setStopTyping(false);}}
-                            className={isLast ? "last-message" : i === 0 ? "first-message" : ""} onTypingUpdate={scrollToBottom} lessons={lessons} handleApply={() => handleApply(m.id)} shouldRegenerate={canRegenerate} />)})}
+                            className={isLast ? "last-message" : i === 0 ? "first-message" : ""} onTypingUpdate={scrollToBottom} lessons={lessons} handleApply={() => handleApply(m.id)} 
+                            shouldRegenerate={canRegenerate} handleRegenerate={() => handleRegenerate(m)}/>)})}
                             <div ref={bottomRef} />
                     </div>
                     <div className="builder-chat-wrapper">
@@ -797,7 +860,7 @@ export default function BuilderCanvas({ id, workspace }: BuilderCanvasProps) {
                                 isModule: false
                             }))
                         ]}
-                         typingMessageId={typingMessageId} 
+                        typingMessageId={typingMessageId} 
                         handleStop={() => {setStopTyping(true); setTypingMessageId(null);}} setCurrentScope={setCurrentScope} /> 
                     </div>
                 </div>

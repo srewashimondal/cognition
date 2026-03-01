@@ -2,65 +2,56 @@ import './Builder.css';
 import { useState, useEffect } from 'react';
 import { Tooltip } from "@radix-ui/themes";
 import { useParams, useNavigate } from 'react-router-dom';
+import { doc, getDoc, updateDoc, collection, getDocs, where, query, onSnapshot, DocumentReference, setDoc, arrayUnion } from 'firebase/firestore';
+import { db } from '../../../firebase';
 import ChatBar from '../../../components/ChatBar/ChatBar';
-import ActionButton from '../../../components/ActionButton/ActionButton';
+import AttachmentItem from '../../../components/AttachmentItem/AttachmentItem';
 import BuilderCanvas from './BuilderCanvas/BuilderCanvas';
+import type { ResourceSection, ResourceItem } from '../Resources/Resources';
 import type { WorkspaceType } from '../../../types/User/WorkspaceType';
 import orange_left_arrow from '../../../assets/icons/orange-left-arrow.svg';
 import ai_icon from '../../../assets/icons/simulations/grey-ai-icon.svg';
 import x_icon from '../../../assets/icons/simulations/grey-x-icon.svg';
 import note_icon from '../../../assets/icons/orange-note-icon.svg';
 
-const resourceSections = [
+const resourceSections: ResourceSection[] = [
     {
-      title: "Workplace Policies",
-      icon: "🏢",
-      tone: "policies",
-      description: "Company-wide policies all employees must review",
-      items: [
-        "Sexual Harassment Policy",
-        "Code of Conduct",
-        "Equal Opportunity Policy",
-        "Photo & Media Consent Waiver",
-      ],
+        title: "Workplace Policies",
+        icon: "🏢",
+        tone: "policies",
+        description: "Company-wide policies all employees must review",
+        items: [],
     },
     {
-      title: "HR & Forms",
-      icon: "🧾",
-      tone: "hr",
-      description: "Forms for requests, documentation, and approvals",
-      items: [
-        "Request for Time Off",
-        "Doctor’s Excusal Form",
-        "Employee Information Update Form",
-        "Incident Report Form",
-      ],
+        title: "HR & Forms",
+        icon: "🧾",
+        tone: "hr",
+        description: "Forms for requests, documentation, and approvals",
+        items: [],
     },
     {
-      title: "Training & Operations",
-      icon: "🎓",
-      tone: "training",
-      description: "Guidelines to support daily retail operations",
-      items: [
-        "Employee Handbook",
-        "Store Training Standards",
-        "Customer Service Guidelines",
-        "POS & Inventory Procedures",
-      ],
+        title: "Training & Operations",
+        icon: "🎓",
+        tone: "training",
+        description: "Guidelines to support daily retail operations",
+        items: [],
     },
     {
-      title: "Safety & Compliance",
-      icon: "🛡️",
-      tone: "safety",
-      description: "Safety instructions and emergency information",
-      items: [
-        "Workplace Safety Guidelines",
-        "Emergency Evacuation Plan",
-        "Health & Sanitation Protocols",
-        "Labor Law Notices",
-      ],
+        title: "Safety & Compliance",
+        icon: "🛡️",
+        tone: "safety",
+        description: "Safety instructions and emergency information",
+        items: [],
+    },
+    {
+        title: "Maps",
+        icon: "🗺️",
+        tone: "training",
+        description: "Maps of the store",
+        items: [],
     },
 ];
+
 
 export default function Builder({ workspace }: { workspace: WorkspaceType }) {
     const navigate = useNavigate();
@@ -68,30 +59,180 @@ export default function Builder({ workspace }: { workspace: WorkspaceType }) {
     const isNewDraft = !moduleID;
     const [openModal, setOpenModal] = useState(false);
     const [userInput, setUserInput] = useState("");
-    const [attachedFiles, setAttachedFiles] = useState<string[]>([]); // change to File[] later
+    const [attachedFiles, setAttachedFiles] = useState<string[]>([]);
     const [voiceMode, setVoiceMode] = useState(false);
+    const [references, setReferences] = useState<{
+        id: string;
+        title: string;
+        ref: DocumentReference;
+    }[]>([]);
+    const [sections, setSections] = useState<ResourceSection[]>(resourceSections);
+    const [typingMessageId, setTypingMessageId] = useState<string | null>(null);
+    const [stopTyping, setStopTyping] = useState(false);
+    const [aiLoading, setAiLoading] = useState(false);
 
     useEffect(() => {
         window.scrollTo({ top: 0, left: 0, behavior: "instant" });
     }, []);
 
-    const handleSend = () => {
-        /* nothing for now */
-    };
-
-    const handleAttach = (fileToAttach: string) => { // change to File later
-        setAttachedFiles(prev =>
-            prev.includes(fileToAttach)
-            ? prev.filter(item => item !== fileToAttach)
-            : [...prev, fileToAttach]                     
-        );
-    };
-
-    const handleRemoveFile = (fileToRemove: string) => { // change to File later
-        setAttachedFiles(prev => prev.filter(item => item !== fileToRemove));
-    };
-
+    useEffect(() => {
+        const fetchResources = async () => {
+            const resourcesRef = collection(
+                db,
+                "workspaces",
+                workspace.id,
+                "resources"
+            );
     
+            const snapshot = await getDocs(resourcesRef);
+            const fetchedResources = snapshot.docs.map(doc => {
+                const data = doc.data();
+                return {
+                    id: doc.id,
+                    title: data.title,
+                    filePath: data.filePath,
+                    section: data.section,
+                };
+            });
+    
+            setSections(prevSections =>
+                prevSections.map(section => ({
+                    ...section,
+                    items: fetchedResources.filter(
+                        r => r.section === section.title
+                    )
+                }))
+            );
+        };
+    
+        fetchResources();
+    }, [workspace]);
+
+    const handleSend = async () => {
+        if (!userInput.trim()) return;
+
+        try {
+            setAiLoading(true);
+
+            const moduleRef = doc(collection(db, "simulationModules"));
+
+            await setDoc(moduleRef, {
+                title: "Generating...",
+                difficulty: null,
+                description: "",
+                deployed: false,
+                workspaceRef: doc(db, "workspaces", workspace.id),
+                createdAt: new Date().toISOString(),
+                lastModified: new Date().toISOString(),
+                references: references.map(r => r.ref),
+                numLessons: 3,
+                hours: "1:30"
+            });
+
+            await updateDoc(doc(db, "workspaces", workspace.id), {
+                simulationModules: arrayUnion(moduleRef)
+            })
+
+            const res = await fetch("http://127.0.0.1:8000/ai/create-module", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                    module_id: moduleRef.id,
+                    user_message: userInput,
+                    reference_ids: references.map(r => r.id)
+                })
+            })
+
+            if (!res.ok) {
+                throw new Error("AI module generation failed")
+            }
+
+            navigate(`/employer/modules/builder/${moduleRef.id}`)
+        } catch (err) {
+            console.error("Error generating module:", err)
+        } finally {
+            setAiLoading(false);
+        }
+    };
+
+    const handleAttachTemp = (resource: ResourceItem) => {
+        const resourceRef = doc(
+            db,
+            "workspaces",
+            workspace.id,
+            "resources",
+            resource.id
+        );
+    
+        setReferences(prev => {
+            const exists = prev.some(r => r.id === resource.id);
+    
+            if (exists) {
+                return prev.filter(r => r.id !== resource.id);
+            } else {
+                return [
+                    ...prev,
+                    {
+                        id: resource.id,
+                        title: resource.title,
+                        ref: resourceRef
+                    }
+                ];
+            }
+        });
+    };
+
+    /*const handleAttach = async () => {
+        try {
+            const moduleRef = doc(db, "simulationModules", id);
+            await updateDoc(moduleRef, {
+              references: references
+            });
+            setOpenModal(false);
+        
+        } catch (error) {
+            console.error("Error updating references:", error);
+        }
+    }*/
+
+    const handleRemoveFile = (id: string) => {
+        setReferences(prev => prev.filter(r => r.id !== id));
+    };
+
+    const tempUserInput = "I want to create a retail training simulation module focused on increasing in-store sales through better customer service and strategic selling techniques."
+    const tempReferences = [
+        {
+            id: "1",
+            title: "File 1"
+        },
+        {
+            id: "2",
+            title: "File 2"
+        },
+        {
+            id: "3",
+            title: "File 3"
+        },
+        {
+            id: "4",
+            title: "File 4"
+        },
+        {
+            id: "5",
+            title: "File 5"
+        },
+        {
+            id: "6",
+            title: "File 6"
+        },
+        {
+            id: "7",
+            title: "File 7"
+        }
+    ];
+
     return (
         <> { (isNewDraft) ? 
             (<div className="builder-page">
@@ -104,7 +245,7 @@ export default function Builder({ workspace }: { workspace: WorkspaceType }) {
                             </div>
                         </div>
                         <div className="attach-content-wrapper">   
-                            {resourceSections.map((section) => (
+                            {sections.map((section) => (
                             <div
                                 key={section.title}
                                 className={`resource-card ${section.tone} builder`}
@@ -120,24 +261,20 @@ export default function Builder({ workspace }: { workspace: WorkspaceType }) {
                                 </div>
 
                                 <ul className="resource-list">
-                                {section.items.map((item) => (
-                                    <li key={item} className="resource-item">
+                                {section.items.map((item, idx) => (
+                                    <li key={idx} className="resource-item">
                                     <span className="doc-icon builder">
                                         <img src={note_icon} />
                                     </span>
-                                    <span className="doc-name">{item}</span>
-                                    <button className={`attach-btn ${attachedFiles.includes(item) ? "attached" : ""}`} onClick={() => handleAttach(item)}>
-                                        {attachedFiles.includes(item) ? "Attached" : "Attach"}
+                                    <span className="doc-name">{item.title}</span>
+                                    <button className={`attach-btn ${(references.some(ref => ref.id === item.id)) ? "attached" : ""}`} onClick={() => handleAttachTemp(item)}>
+                                        {(references.some(ref => ref.id === item.id)) ? "Attached" : "Attach"}
                                     </button>
                                     </li>
                                 ))}
                                 </ul>
                             </div>
                             ))}
-                        </div>
-                        <div className="attach-action-panel">
-                            <ActionButton text="Attach Documents" buttonType="attach"
-                            onClick={() => setOpenModal(false)} />
                         </div>
                     </div>
                 </div>}
@@ -152,21 +289,45 @@ export default function Builder({ workspace }: { workspace: WorkspaceType }) {
                     You are Speaking
                 </div>
                 : <div className="builder-hero">
-                    <h3>Welcome To</h3>
-                    <h3>Builder Studio</h3>
-                    <div className="builder-desc">
-                        <span>
-                            <img src={ai_icon} />
-                        </span>
-                        <p>Start by pitching a Simulation Idea to Cognition AI</p>
+                    {aiLoading ?
+                    <div className="generating-text">
+                        <h3>Generating Your</h3>
+                        <h3>Simulation Module</h3>
+                    </div>
+                    : <>
+                        <h3>Welcome To</h3>
+                        <h3>Builder Studio</h3>
+                    </>}
+
+                    <div className={`builder-desc ${aiLoading ? "generating-text" : ""}`}>
+                        { aiLoading ? 
+                        <p> Cognition AI is structuring lessons, crafting scenarios, and aligning your references...</p>
+                        : <>
+                            <span>
+                                <img src={ai_icon} />
+                            </span>
+                            <p>Start by pitching a Simulation Idea to Cognition AI</p>
+                        </>}
+                    </div>
+                </div>}
+                {aiLoading &&
+                <div className="user-input-bubble-wrapper">
+                    <div className="attached-items-wrapper-sent">
+                        {references?.map((f) => <AttachmentItem key={f.id} fileName={f.title} onClick={() => handleRemoveFile?.(f.id)} isStatic={true} />)}
+                    </div>
+                    <div className="user-input-bubble">
+                        {userInput}
                     </div>
                 </div>}
                 <div className="chatbar-wrapper">
+                    {!aiLoading &&
                     <ChatBar context="builder" userInput={userInput} setUserInput={setUserInput} 
                     handleSend={handleSend} handleAttach={() => setOpenModal(true)}
-                    attachedFiles={attachedFiles} showFileCond={!openModal} 
+                    attachedFiles={references} showFileCond={!openModal} 
                     handleRemoveFile={handleRemoveFile} 
-                    handleVoiceMode={() => setVoiceMode(prev => !prev)} />
+                    handleVoiceMode={() => setVoiceMode(prev => !prev)}
+                    typingMessageId={typingMessageId} 
+                    handleStop={() => {setStopTyping(true); setTypingMessageId(null);}} />}
                 </div>
             </div> ) :
             (

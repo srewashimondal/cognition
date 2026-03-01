@@ -8,10 +8,16 @@ import type { StandardLessonType } from "../../types/Standard/StandardLessons";
 // import { standardModuleAttempt } from "../../dummy_data/standardAttempt_data";
 import { collection, doc, getDoc, getDocs, query, where } from "firebase/firestore";
 import { db } from '../../firebase';
+import type { StoredQuestionAnswer } from '../../utils/quizScore';
+import { hydrateQuestionAnswers } from '../../utils/quizScore';
+import type { QuizQuestionType } from "../../types/Standard/QuizQuestion/QuestionTypes";
+import { useAuth } from "../../context/AuthProvider";
+import { updateLearningStreakForUser } from "../../utils/streaks";
 
 export default function StandardLessonPage() {
     const navigate = useNavigate();
     const { moduleID, lessonID } = useParams();
+    const { user } = useAuth();
     const [lessonAttempt, setLessonAttempt] = useState<StandardLessonAttempt | null>(null);
     const [moduleTitle, setModuleTitle] = useState<string>("");
     const [loading, setLoading] = useState(true);
@@ -53,8 +59,15 @@ export default function StandardLessonPage() {
                     return {
                         id: docSnap.id,
                         status: attemptData.status,
-                        questionAnswers: attemptData.questionAnswers ?? [],
+                        questionAnswers: hydrateQuestionAnswers(
+                            attemptData.questionAnswers as StoredQuestionAnswer[] | undefined,
+                            lessonData.type === "quiz"
+                                ? (lessonData as { questions?: QuizQuestionType[] }).questions
+                                : undefined
+                        ),
                         score: attemptData.score,
+                        passed: attemptData.passed,
+                        completedAt: attemptData.completedAt,
                         lessonInfo: {
                             id: lessonOriginalSnap.id,
                             ...lessonData,
@@ -67,6 +80,14 @@ export default function StandardLessonPage() {
                 const found = filtered.find((l) => l.id === lessonID);
 
                 setLessonAttempt(found ?? null);
+
+                if (found && user?.role === "employee") {
+                    try {
+                        await updateLearningStreakForUser(user.uid);
+                    } catch (err) {
+                        console.error("Error updating learning streak on lesson open:", err);
+                    }
+                }
             } catch (error) {
                 console.error("Error fetching lesson:", error);
             } finally {
@@ -75,7 +96,7 @@ export default function StandardLessonPage() {
         }
 
         fetchLesson();
-    }, [moduleID, lessonID]);
+    }, [moduleID, lessonID, user]);
     
 
     const handleBack = () => {

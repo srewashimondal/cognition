@@ -86,5 +86,8 @@ class ModuleEditContext(BaseModel):
     lessons: List[Dict[str, Any]]
     scope: Optional[List[str]] = None
     reference_summaries: Optional[List[Dict[str, Any]]] = None
-    version1: Optional[Dict[str, Any]] = None
-    version2: Optional[Dict[str, Any]] = None
+
+class AICreateRequest(BaseModel):
+    module_id: str
+    user_message: str
+    reference_ids: Optional[List[str]] = None

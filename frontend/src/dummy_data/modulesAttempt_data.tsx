@@ -1,4 +1,4 @@
-/*import { modules } from './modules_data';
+import { modules } from './modules_data';
 import type { ModuleAttemptType } from '../types/Modules/ModuleAttemptType';
 import type { LessonAttemptType } from "../types/Modules/Lessons/LessonAttemptType";
 import type { SimulationAttemptType } from "../types/Modules/Lessons/Simulations/SimulationAttemptType";
@@ -28,7 +28,7 @@ const loremMessages = (
     { id: 12, role: "assistant", content: "Lorem ipsum dolor sit amet consectetur adipiscing elit. Dolor sit amet consectetur adipiscing elit quisque faucibus.", rating: 4, replyToId: 11, improved: "Pulvinar vivamus fringilla lacus nec metus bibendum egestas. Iaculis massa nisl malesuada lacinia integer nunc posuere."},
 ];
   
-export const moduleAttempts: ModuleAttemptType[] = [
+export const moduleAttempts: any | ModuleAttemptType[] = [
     {
       attempt_id: 1,
       moduleInfo: modules[0],
@@ -185,4 +185,4 @@ export const moduleAttempts: ModuleAttemptType[] = [
         )
       })
     )
-];*/
+];

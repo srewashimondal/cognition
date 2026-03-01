@@ -368,8 +368,9 @@ async def edit_module(request: AIEditRequest):
 
     print("[7] Calling LLM...") 
     llm_start = time.time() 
+    safe_module_data = make_json_safe(module_data)
     ai_response = llm.generate_module_edits(
-        module=module_data,
+        module=safe_module_data,
         user_message=request.user_message,
         scope=request.context_scope,
         reference_summaries=reference_summaries
@@ -392,4 +393,91 @@ async def edit_module(request: AIEditRequest):
     print(f"Done in {total_time:.2f} seconds")
 
     return ai_response["message"]
-                
+
+@router.post("/create-module")
+async def create_module(request: AICreateRequest):
+
+    print("[1] Create module request received")
+    module_ref = db.collection("simulationModules").document(request.module_id)
+    ai_messages_ref = module_ref.collection("aiMessages")
+
+    module_doc = module_ref.get()
+
+    if not module_doc.exists:
+        raise HTTPException(status_code=404, detail="Module not found")
+    
+    module_data = module_doc.to_dict()
+    workspace_ref = module_data.get("workspaceRef")
+
+    if not workspace_ref:
+        raise HTTPException(status_code=400, detail="Module missing workspaceRef")
+    
+    print("[2] Writing user message")
+    ai_messages_ref.add({
+        "message": {
+            "role": "user",
+            "content": request.user_message
+        },
+        "createdAt": SERVER_TIMESTAMP
+    })
+
+    reference_summaries = []
+    if request.reference_ids:
+        for ref_id in request.reference_ids:
+
+            resource_ref = workspace_ref.collection("resources").document(ref_id)
+            resource_doc = resource_ref.get()
+
+            if not resource_doc.exists:
+                continue
+
+            ref_data = resource_doc.to_dict()
+
+            if ref_data.get("section") == "Maps":
+                reference_summaries.append({
+                    "type": "map",
+                    "data": ref_data
+                })
+            else:
+                summary = ref_data.get("summary")
+                if summary:
+                    reference_summaries.append({
+                        "type": "document",
+                        "data": summary
+                    })
+
+    print(f"[3] Processed {len(reference_summaries)} references")
+
+    print("[4] Calling LLM...")
+    ai_response = llm.generate_module(
+        user_message=request.user_message,
+        reference_summaries=reference_summaries
+    )
+
+    assistant_message = ai_response["message"]
+    assistant_message["id"] = str(uuid.uuid4())
+
+    print("[5] Writing assistant message")
+    ai_messages_ref.add({
+        "message": assistant_message,
+        "module": ai_response["module"],
+        "createdAt": SERVER_TIMESTAMP
+    })
+
+    print("[6] Module generation complete")
+
+    module_blueprint = ai_response["module"]
+
+    module_ref.update({
+        "title": module_blueprint["title"],
+        "difficulty": module_blueprint["difficulty"],
+    })
+
+    for lesson in module_blueprint["lessons"]:
+        db.collection("simulationLessons").add({
+            **lesson,
+            "moduleRef": module_ref,
+            "createdAt": SERVER_TIMESTAMP
+        })
+
+    return assistant_message

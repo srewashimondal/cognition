@@ -394,7 +394,24 @@ class LLMService:
         prompt = f"""
         You are Cognition's AI module editor.
 
-        The user wants to modify a retail training module.
+        The user wants to modify a retail training simulation module.
+
+        A simulation module is a structured set of exactly three simulation lessons where a retail employee practices realistic, scenario-based interactions within a store environment.
+
+        Each lesson represents a progressive training experience that builds specific retail competencies such as customer engagement, operational execution, policy compliance, and situational decision-making.
+
+        The purpose of a simulation module is to:
+        - Reinforce real-world store behaviors
+        - Develop practical retail skills through applied scenarios
+        - Improve confidence under realistic constraints
+        - Prepare employees to handle customer interactions, operational challenges, and unexpected situations effectively
+
+        Each lesson should:
+        - Focus on a distinct but related competency
+        - Increase in complexity or situational nuance
+        - Simulate realistic store contexts (time pressure, customer moods, inventory issues, policy conflicts, etc.) 
+        
+        Here, a module is already defined and provided. The user wants you to make relevant changes based on their request and the reference summaries attached. 
 
         USER REQUEST:
         {user_message}
@@ -483,6 +500,34 @@ class LLMService:
         If the specified scope is SPECIFIC LESSONS ONLY:
         - Do not modify module-level fields.
         - Do not modify lessons not included in the provided scope.
+
+        LESSON ABSTRACT INFO STRUCTURE:
+
+        If modifying lessonAbstractInfo, treat it as a simulation design blueprint.
+
+        The fields are defined as:
+
+        simulationModel:
+        Describes how the scenario operates — setting, customer profile, operational conditions, and decision structure. This should define how the simulation unfolds.
+
+        targetBehaviors:
+        Specific observable behaviors the employee must demonstrate. These should reflect applied retail competencies, not vague traits.
+
+        contextualConstraints:
+        Realistic limitations that create decision-making pressure (inventory limits, policy restrictions, emotional customers, time pressure, etc.).
+
+        evaluationSignals:
+        Concrete performance indicators that would be measured in the simulation (policy correctness, tone appropriateness, transaction accuracy, escalation timing, etc.).
+
+        adaptionLogic:
+        How the simulation dynamically responds to employee decisions (customer mood changes, manager intervention, alternative solution unlocking, escalation branching, etc.).
+
+        IMPORTANT EDIT RULES FOR LESSON ABSTRACT INFO:
+        - Only modify lessonAbstractInfo if explicitly requested or clearly implied.
+        - If updating lessonAbstractInfo, only change the necessary fields.
+        - Do NOT erase existing fields unless the user explicitly requests a rewrite.
+        - Preserve the structural integrity of the simulation.
+        - Edits must maintain realistic progression and behavioral consistency.
 
         Return output in EXACT JSON format:
 
@@ -634,4 +679,239 @@ class LLMService:
         )
 
         parsed = json.loads(response.choices[0].message.content)
+        return parsed
+
+    def generate_module(self, user_message: str, reference_summaries: Optional[List[dict]] = None):
+         
+        ai_context = {
+            "reference_documents": reference_summaries or []
+        }
+
+        prompt = f"""
+        You are Cognition's AI module creator.
+
+        The user wants to create a brand new retail training simulation module.
+        
+        A simulation module is a structured set of exactly three simulation lessons where a retail employee practices realistic, scenario-based interactions within a store environment.
+
+        Each lesson represents a progressive training experience that builds specific retail competencies such as customer engagement, operational execution, policy compliance, and situational decision-making.
+
+        The purpose of a simulation module is to:
+        - Reinforce real-world store behaviors
+        - Develop practical retail skills through applied scenarios
+        - Improve confidence under realistic constraints
+        - Prepare employees to handle customer interactions, operational challenges, and unexpected situations effectively
+
+        Each lesson should:
+        - Focus on a distinct but related competency
+        - Increase in complexity or situational nuance
+        - Simulate realistic store contexts (time pressure, customer moods, inventory issues, policy conflicts, etc.) 
+
+        Each lesson must include a fully completed "lessonAbstractInfo" object.
+
+        The lessonAbstractInfo represents the structural blueprint of the simulation. It defines how the scenario operates, what behaviors are being trained, and how performance is evaluated.
+
+        The fields are defined as follows:
+
+        simulationModel:
+        A detailed description of the scenario structure. This should explain:
+        - The setting (store environment, department, time of day)
+        - The customer profile and emotional state
+        - The operational conditions (inventory status, staffing, time pressure)
+        - The decision-making environment the employee is placed in
+        This should describe how the simulation unfolds, not just the topic.
+
+        targetBehaviors:
+        A clear explanation of the specific observable behaviors the employee is expected to demonstrate during the simulation.
+        These should reflect applied skills (e.g., active listening, policy explanation, escalation protocol usage).
+        Avoid vague traits like “be professional.” Describe measurable behaviors.
+
+        contextualConstraints:
+        Realistic limitations or pressures that make the scenario challenging.
+        Examples:
+        - Limited inventory
+        - Strict store policy
+        - High customer volume
+        - Time pressure
+        - Emotional customer
+        Constraints should force decision-making tradeoffs.
+
+        evaluationSignals:
+        Explain how performance would be assessed within the simulation.
+        Examples:
+        - Correct policy application
+        - Tone appropriateness
+        - De-escalation success
+        - Transaction accuracy
+        - Time efficiency
+        These should describe measurable signals, not vague judgments.
+
+        adaptionLogic:
+        Describe how the simulation responds to the employee’s choices.
+        Examples:
+        - Customer mood escalates or calms
+        - Manager intervention is triggered
+        - Inventory system updates
+        - Alternative solutions unlock
+        This defines how the simulation dynamically adjusts based on decisions.
+
+        USER REQUEST:
+        {user_message}
+
+        REFERENCE DOCUMENT:
+        {json.dumps(ai_context["reference_documents"], indent=2)}
+
+        LIST OF ALL RETAIL SKILLS:
+        [
+            "Spatial Reasoning",
+            "Department Zones",
+            "Store Layout Awareness",
+            "Aisle Navigation",
+            "Shortest Path Routing",
+            "SKU Recognition",
+            "Brand Familiarity",
+            "Category Grouping",
+            "Product Substitution",
+            "Cross-Selling",
+            "Upselling",
+            "Greeting & Engagement",
+            "Active Listening",
+            "Clarifying Questions",
+            "Tone",
+            "Professional Communication",
+            "Confidence Under Pressure",
+            "Stock Awareness",
+            "Out-of-Stock Handling",
+            "Inventory Lookup",
+            "Backroom Coordination",
+            "Discontinued Item Handling",
+            "POS Navigation",
+            "Transaction Accuracy",
+            "Payment Processing",
+            "Returns & Exchanges",
+            "Discount Application",
+            "Hazard Identification",
+            "Emergency Response",
+            "Policy Compliance",
+            "Loss Prevention Awareness",
+            "Escalation Protocols",
+            "Task Prioritization",
+            "Multitasking",
+            "Time Management",
+            "Interrupt Handling",
+            "Workload Balancing",
+            "Decision Making",
+            "Situational Awareness",
+            "Critical Thinking",
+            "Adaptability",
+            "De-escalation",
+            "Empathy",
+            "Stress Management",
+            "Customer De-escalation",
+            "Handling Difficult Customers",
+            "Policy Explanation",
+            "Conflict Resolution",
+            "Accuracy vs Speed Tradeoff"
+        ]
+
+        LIST OF ALL DIFFICULTY LEVELS:
+        [
+            "Beginner",
+            "Intermediate",
+            "Advanced"
+        ]
+
+        CRITICAL REQUIREMENTS:
+        - Create EXACTLY 3 lessons.
+        - The lessons array MUST contain exactly 3 objects.
+        - Do NOT create more or fewer than 3 lessons.
+        - Fill out ALL fields completely.
+        - All lessons must have:
+            - orderNumber
+            - title
+            - relevant skills (from allowed list only)
+            - lessonAbstractInfo (all fields filled)
+        - The module must include: 
+            - title
+            - difficulty (from allowed list only)
+        - Use reference documents as compliance guardrails.
+        - Do not invent policies.
+        - Skills must only come from the provided skill list.
+        - Difficulty must only come from the provided difficulty list.
+        - orderNumber must be a numeric value representing each lesson's position in the module sequence.
+        - Make sure the sequential order of lessons is logical.
+
+        Return output in EXACT JSON format:
+
+        {{
+            "message": {{
+                "role": "assistant",
+                "content": "Explain the structure of the created module and briefly justify lesson progression."
+        }},
+            "module": {{
+                "title": "...",
+                "difficulty": "...",
+                "lessons": [
+                    {{  
+                        "orderNumber": 1,
+                        "title": "...",
+                        "skills": ["..."],
+                        "lessonAbstractInfo": {{
+                            "simulationModel": "...",
+                            "targetBehaviors": "...",
+                            "contextualConstraints": "...",
+                            "evaluationSignals": "...",
+                            "adaptionLogic": "..."
+                        }}
+                    }},
+                    {{  
+                        "orderNumber": 2,
+                        "title": "...",
+                        "skills": ["..."],
+                        "lessonAbstractInfo": {{
+                            "simulationModel": "...",
+                            "targetBehaviors": "...",
+                            "contextualConstraints": "...",
+                            "evaluationSignals": "...",
+                            "adaptionLogic": "..."
+                        }}
+                    }},
+                    {{  
+                        "orderNumber": 3,
+                        "title": "...",
+                        "skills": ["..."],
+                        "lessonAbstractInfo": {{
+                            "simulationModel": "...",
+                            "targetBehaviors": "...",
+                            "contextualConstraints": "...",
+                            "evaluationSignals": "...",
+                            "adaptionLogic": "..."
+                        }}
+                    }}
+                ]
+            }}
+        }}
+
+        Rules:
+        - Output must be valid JSON.
+        - Lessons array length MUST equal 3.
+        - Do not include extra fields
+        """
+
+        response = self.client.chat.completions.create(
+            model="gpt-4o-mini",
+            messages=[{"role": "user", "content": prompt}],
+            temperature=0.4,
+            response_format={"type": "json_object"}
+        )
+        
+        parsed = json.loads(response.choices[0].message.content)
+
+        lessons = parsed.get("module", {}).get("lessons", [])
+        if len(lessons) != 3:
+            raise ValueError("Module generation failed: Must contain exactly 3 lessons.")
+        
+        if "message" in parsed:
+            parsed["message"]["id"] = str(uuid.uuid4())
+
         return parsed

@@ -5,6 +5,7 @@ import ModuleCard from '../../../cards/ModuleCard/ModuleCard';
 import WorkspaceHero from '../../../components/WorkspaceHero/WorkspaceHero';
 import type { EmployeeUserType } from '../../../types/User/UserType';
 import type { EmployerUserType } from '../../../types/User/UserType';
+import type { LearningStreak } from '../../../types/User/UserType';
 import type { WorkspaceType } from '../../../types/User/WorkspaceType';
 
 import trending_up from '../../../assets/icons/green-trending-up-icon.svg';
@@ -42,6 +43,20 @@ export default function EmployeeHome({ user, workspace }: { user: EmployeeUserTy
     useEffect(() => {
         window.scrollTo({ top: 0, left: 0, behavior: "instant" });
     }, []);
+
+    const isEmployee = user.role === "employee";
+    const streak: LearningStreak | undefined =
+        isEmployee && (user as EmployeeUserType).learningStreak
+            ? (user as EmployeeUserType).learningStreak
+            : undefined;
+
+    const currentStreak = streak?.current ?? 0;
+    const longestStreak = streak?.longest ?? 0;
+    const streakLabel =
+        currentStreak > 0 ? `${currentStreak} Day${currentStreak === 1 ? "" : "s"}` : "0 Days";
+
+    const daysOfWeek = ["M", "T", "W", "T", "F", "S", "S"];
+    const activeCount = Math.min(currentStreak, daysOfWeek.length);
 
     return (
         <div className="employee-home">
@@ -318,16 +333,21 @@ export default function EmployeeHome({ user, workspace }: { user: EmployeeUserTy
                         <h3>Learning Streak</h3>
                     </div>
                     <div className="streak-content">
-                        <div className="streak-number">5 Days</div>
-                        <p className="streak-text">Keep it up! You're on a roll</p>
+                        <div className="streak-number">{streakLabel}</div>
+                        <p className="streak-text">
+                            {currentStreak > 0
+                                ? `Keep it up! Longest streak: ${longestStreak} day${longestStreak === 1 ? "" : "s"}.`
+                                : "Start learning today to begin your streak."}
+                        </p>
                         <div className="streak-days">
-                            <div className="day-circle active">M</div>
-                            <div className="day-circle active">T</div>
-                            <div className="day-circle active">W</div>
-                            <div className="day-circle active">T</div>
-                            <div className="day-circle active">F</div>
-                            <div className="day-circle">S</div>
-                            <div className="day-circle">S</div>
+                            {daysOfWeek.map((d, idx) => (
+                                <div
+                                    key={`${d}-${idx}`}
+                                    className={`day-circle ${idx < activeCount ? "active" : ""}`}
+                                >
+                                    {d}
+                                </div>
+                            ))}
                         </div>
                     </div>
                 </div>

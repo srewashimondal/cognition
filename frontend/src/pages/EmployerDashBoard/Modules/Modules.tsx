@@ -8,9 +8,9 @@ import type { ModuleType } from "../../../types/Modules/ModuleType.tsx";
 import ModuleCard from '../../../cards/ModuleCard/ModuleCard.tsx';
 import add_cta from '../../../assets/icons/add-cta.svg';
 
-import { getDoc } from "firebase/firestore";
+import { getDoc, collection, query, where, getDocs, DocumentReference, doc } from "firebase/firestore";
 import { db } from "../../../firebase";
-import { DocumentReference } from "firebase/firestore";
+
 
 type Tab = "simulations" | "standard";
 
@@ -56,6 +56,8 @@ export default function Modules({ workspace }: { workspace: WorkspaceType}) {
     fetchStandardModules();
   }, [workspace.standardModules]);
 
+
+
   useEffect(() => {
     async function fetchSimulationModules() {
       if (!workspace.simulationModules || workspace.simulationModules.length === 0) {
@@ -65,20 +67,18 @@ export default function Modules({ workspace }: { workspace: WorkspaceType}) {
     
       setLoading(true);
       try {
-        const modulePromises = workspace.simulationModules.map(async (moduleRef: DocumentReference) => {
-          const moduleSnap = await getDoc(moduleRef);
-          if (moduleSnap.exists()) {
-            const data = moduleSnap.data() as Omit<ModuleType, 'id'>;
-            return {
-              id: moduleRef.id, 
-              ...data,
-            } as ModuleType;
-          }
-          return null;
-        });
-    
-        const modules = await Promise.all(modulePromises);
-        setSimulationModules(modules.filter((m): m is ModuleType => m !== null));
+        const q = query(
+          collection(db, "simulationModules"),
+          where("workspaceRef", "==", doc(db, "workspaces", workspace.id))
+        )
+
+        const snapshot = await getDocs(q);
+        const modules: ModuleType[] = snapshot.docs.map(docSnap => ({
+          id: docSnap.id,
+          ...(docSnap.data() as Omit<ModuleType, "id">)
+        })); 
+
+        setSimulationModules(modules);
       } catch (error) {
         console.error("Error fetching standard modules:", error);
       } finally {
@@ -88,6 +88,8 @@ export default function Modules({ workspace }: { workspace: WorkspaceType}) {
 
     fetchSimulationModules();
   }, [workspace.simulationModules]);
+
+  
 
   useEffect(() => {
     window.scrollTo({ top: 0, left: 0, behavior: "instant" });

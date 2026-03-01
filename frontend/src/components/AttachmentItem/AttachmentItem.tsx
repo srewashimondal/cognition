@@ -5,9 +5,10 @@ import x_icon from '../../assets/icons/simulations/grey-x-icon.svg';
 type AttachmentItemProps = {
     fileName: string; // change later
     onClick?: () => void;
+    isStatic?: boolean;
 };
 
-export default function AttachmentItem({ fileName, onClick }: AttachmentItemProps) {
+export default function AttachmentItem({ fileName, onClick, isStatic=false }: AttachmentItemProps) {
     return (
         <div className="attachment-item">
             <span className="attached-file-icon">
@@ -16,9 +17,10 @@ export default function AttachmentItem({ fileName, onClick }: AttachmentItemProp
             <span>
                 {fileName.replace(/\s+/g, "")}.pdf
             </span>
+            {!isStatic &&
             <span className="x-icon" onClick={onClick}>
                 <img src={x_icon} />
-            </span>
+            </span>}
         </div>
     );
 }

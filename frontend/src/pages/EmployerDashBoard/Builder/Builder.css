@@ -11,6 +11,7 @@
     justify-content: center;
     align-items: center;
     height: 40vh;
+    text-align: center;
 }
 
 .builder-hero h3 {
@@ -141,4 +142,54 @@
     display: flex;
     justify-content: center;
     align-items: center;
+}
+
+.user-input-bubble-wrapper {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    gap: 7px;
+    overflow: visible;
+}
+
+.user-input-bubble {
+    width: 60%;
+    background-color: #DCF7FF;
+    display: inline-flex;
+    flex-direction: column;
+    padding: 10px 14px;
+    border-radius: 10px;
+    margin-bottom: 10px;
+    font-size: 15px;
+    word-wrap: break-word;
+    white-space: pre-wrap;
+}
+
+.attached-items-wrapper-sent {
+    display: flex;
+    justify-content: flex-end;
+    align-self: center;
+    padding: 5px 7px;
+    gap: 10px;
+    width: 60%;
+    flex-wrap: wrap;
+    min-width: 0;
+}
+
+.generating-text h3, .generating-text p {
+    animation: softPulse 1.2s ease-in-out infinite;
+}
+  
+@keyframes softPulse {
+    0% {
+        opacity: 0.5;
+    }
+    50% {
+        opacity: 1;
+    }
+    100% {
+        opacity: 0.5;
+    }
 }
