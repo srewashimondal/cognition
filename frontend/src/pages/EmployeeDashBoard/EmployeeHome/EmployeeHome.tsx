@@ -58,6 +58,11 @@ export default function EmployeeHome({ user, workspace }: { user: EmployeeUserTy
     const daysOfWeek = ["M", "T", "W", "T", "F", "S", "S"];
     const activeCount = Math.min(currentStreak, daysOfWeek.length);
 
+    const totalHours = isEmployee? (user as EmployeeUserType).totalHours ?? 0: 0;
+
+    const monthlyGoal = 20;
+    const progressPercent = Math.min(Math.round((totalHours / monthlyGoal) * 100),100);
+
     return (
         <div className="employee-home">
             {/* Welcome Banner */}
@@ -133,7 +138,7 @@ export default function EmployeeHome({ user, workspace }: { user: EmployeeUserTy
                             </span>
                             +12% this week
                             </div>
-                            <h3 className="analytics-value">87%</h3>
+                            <h3 className="analytics-value"> {isEmployee ? (user as EmployeeUserType).averageScore ?? 0 : 0}%</h3>
                             <span className="analytics-change">Average score</span>
                             <p className="analytics-label">across all lessons</p>
                         </div>
@@ -149,7 +154,11 @@ export default function EmployeeHome({ user, workspace }: { user: EmployeeUserTy
                         </span>
                         +8% this week
                         </div>
-                        <h3 className="analytics-value">7</h3>
+                        <h3 className="analytics-value">
+                        {isEmployee
+                            ? (user as EmployeeUserType).completedModules?.length ?? 0
+                            : 0}
+                        </h3>
                         <span className="analytics-change">Lessons completed this week</span>
                         <p className="analytics-label">of 22 total</p>
                     </div>
@@ -160,7 +169,11 @@ export default function EmployeeHome({ user, workspace }: { user: EmployeeUserTy
 
                     <div className="analytics-card">
                         <div className="analytics-left">
-                            <h3 className="analytics-value">3</h3>
+                            <h3 className="analytics-value">
+                            {isEmployee
+                                ? (user as EmployeeUserType).achievements?.length ?? 0
+                                : 0}
+                            </h3>
                             <span className="analytics-change">Badges earned</span>
                             <p className="analytics-label">Keep it up!</p>
                         </div>
@@ -171,7 +184,11 @@ export default function EmployeeHome({ user, workspace }: { user: EmployeeUserTy
 
                     <div className="analytics-card">
                         <div className="analytics-left">
-                            <h3 className="analytics-value">6.5</h3>
+                            <h3 className="analytics-value">
+                            {isEmployee
+                                ? (user as EmployeeUserType).totalHours ?? 0
+                                : 0}
+                            </h3>
                             <span className="analytics-change">hours invested</span>
                             <p className="analytics-label">time across lessons</p>
                         </div>
@@ -359,14 +376,20 @@ export default function EmployeeHome({ user, workspace }: { user: EmployeeUserTy
                     </div>
                     <div className="goal-content">
                         <div className="goal-stats">
-                            <span className="goal-current">12</span>
+                            <span className="goal-current">{totalHours}</span>
                             <span className="goal-divider">/</span>
-                            <span className="goal-target">20 hours</span>
+                            <span className="goal-target">{monthlyGoal} hours</span>
                         </div>
                         <div className="goal-progress-bar">
-                            <div className="goal-progress-fill" style={{width: '60%'}}></div>
+                            <div className="goal-progress-fill" style={{width: `${progressPercent}%`}}></div>
                         </div>
-                        <p className="goal-text">60% complete - You're doing great!</p>
+                        <p className="goal-text">
+                            {progressPercent}% complete - {
+                                progressPercent >= 100
+                                ? "Goal achieved! 🎉"
+                                : "You're doing great!"
+                            }
+                        </p>
                     </div>
                 </div>
             </div>
