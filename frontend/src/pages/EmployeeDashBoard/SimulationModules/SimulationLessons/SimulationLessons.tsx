@@ -1,10 +1,16 @@
 import './SimulationLessons.css';
-import { useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { Tooltip } from "@radix-ui/themes";
 import { useParams, useNavigate } from 'react-router-dom';
 import LessonCard from '../../../../cards/LessonCard/LessonCard';
 import ActionButton from '../../../../components/ActionButton/ActionButton';
 import ProgressBar from '../../../../components/ProgressBar/ProgressBar';
+import type { ModuleType } from '../../../../types/Modules/ModuleType';
+import type { ModuleAttemptType } from '../../../../types/Modules/ModuleAttemptType';
+import type { LessonType } from '../../../../types/Modules/Lessons/LessonType';
+import type { LessonAttemptType } from '../../../../types/Modules/Lessons/LessonAttemptType';
+import { collection, doc, getDoc, getDocs, query, where } from "firebase/firestore";
+import { db } from '../../../../firebase';
 // dummy data
 import { moduleAttempts } from '../../../../dummy_data/modulesAttempt_data';
 import orange_left_arrow from '../../../../assets/icons/orange-left-arrow.svg';
@@ -14,19 +20,112 @@ import notebook_icon from '../../../../assets/icons/simulations/black-notebook-i
 export default function SimulationLessons() {
     const navigate = useNavigate();
     const { moduleID } = useParams();
-    const id = Number(moduleID);
-
-    /* replace this line with backend logic later */
-    const moduleAttempt = moduleAttempts.find(m => m.moduleInfo.id === id);
-    const moduleInfo = moduleAttempt?.moduleInfo;
-    const lessonAttempts = moduleAttempt?.lessons;
+    
+    const [loading, setLoading] = useState(false);
+    const [moduleAttempt, setModuleAttempt] = useState<ModuleAttemptType | null>(null);
+    const [moduleInfo, setModuleInfo] = useState<ModuleType | null>(null);
+    const [lessonAttempts, setLessonAttempts] = useState<any[]>([]);
     // const bannerColorByID = ["module1", "module2", "module3", "module4", "module5", "module6"];
 
     useEffect(() => {
         window.scrollTo({ top: 0, left: 0, behavior: "instant" });
     }, []);
 
-    const handleSimNavigate = (moduleID: number, lessonID: number, status: string) => {
+    useEffect(() => {
+        async function fetchModuleAttempt() {
+            if (!moduleID) return;
+    
+            setLoading(true);
+    
+            try {
+                const moduleAttemptRef = doc(db, "simulationModuleAttempts", moduleID);
+                const moduleAttemptSnap = await getDoc(moduleAttemptRef);
+    
+                if (!moduleAttemptSnap.exists()) {
+                    console.error("Simulation module attempt not found");
+                    return;
+                }
+    
+                const moduleAttemptData = moduleAttemptSnap.data();
+                const moduleSnap = await getDoc(moduleAttemptData.moduleInfo);
+                if (!moduleSnap.exists()) return;
+    
+                const builtModuleInfo = {
+                    id: moduleSnap.id,
+                    ...(moduleSnap.data() as Omit<ModuleType, "id">),
+                };
+    
+                // 🔹 Get lesson attempts
+                const lessonSnap = await getDocs(
+                    query(
+                        collection(db, "simulationLessonAttempts"),
+                        where("moduleRef", "==", moduleAttemptRef)
+                    )
+                );
+    
+                const lessonAttemptsRaw = await Promise.all(
+                    lessonSnap.docs.map(async (docSnap) => {
+                        const attemptData = docSnap.data();
+    
+                        const lessonOriginalSnap = await getDoc(attemptData.lessonInfo);
+                        if (!lessonOriginalSnap.exists()) return null;
+    
+                        const lessonData = lessonOriginalSnap.data();
+    
+                        return {
+                            id: docSnap.id,
+                            status: attemptData.status,
+                            evaluation: attemptData.evaluation,
+                            lessonInfo: {
+                                id: lessonOriginalSnap.id,
+                                ...lessonData as Omit<LessonType, "id">,
+                            }
+                        } as LessonAttemptType;
+                    })
+                );
+    
+                const filtered = lessonAttemptsRaw.filter((lesson): lesson is LessonAttemptType => lesson !== null);
+    
+                const sorted = filtered.sort(
+                    (a: any, b: any) =>
+                        a.lessonInfo.orderNumber - b.lessonInfo.orderNumber
+                );
+    
+                const enriched = sorted.map((lesson: any, index: number) => {
+                    if (index === 0) return { ...lesson, isLocked: false };
+    
+                    const prev = sorted[index - 1];
+                    
+                    return {
+                        ...lesson,
+                        isLocked: prev.status !== "completed"
+                    };
+                    
+                });
+    
+                setModuleAttempt({
+                    id: moduleAttemptSnap.id,
+                    moduleInfo: builtModuleInfo,
+                    moduleRef: moduleAttemptRef,
+                    status: moduleAttemptData.status,
+                    percent: moduleAttemptData.percent,
+                    lessons: enriched
+                });
+    
+                setModuleInfo(builtModuleInfo);
+                setLessonAttempts(enriched);
+    
+            } catch (err) {
+                console.error("Error fetching simulation module attempt:", err);
+            } finally {
+                setLoading(false);
+            }
+        }
+    
+        fetchModuleAttempt();
+    }, [moduleID]);
+
+    const handleSimNavigate = (moduleID: string, lessonID: string, status: string) => {
         if (status === "not begun") {
             navigate(`/employee/simulations/${moduleID}/${lessonID}/1`);
             return;
@@ -91,7 +190,8 @@ export default function SimulationLessons() {
                 <div className="lessons-list">
                     {lessonAttempts?.map((l) => (<LessonCard lessonInfo={l.lessonInfo} 
                     role={"employee"} status={l.status} evaluation={l.evaluation} 
-                    navigateToSim={() => handleSimNavigate(id, l.lessonInfo.id, l.status)} />))}
+                    navigateToSim={() => handleSimNavigate(moduleID ?? "", l.lessonInfo.id, l.status)} 
+                    isLocked={l.isLocked} />))}
                 </div>
 
                 <div className="employee-action-panel module">

@@ -1,9 +1,11 @@
 import type { ModuleType } from "./ModuleType";
 import type { LessonAttemptType } from "./Lessons/LessonAttemptType";
+import type { DocumentReference } from "firebase/firestore";
 
 export type ModuleAttemptType = {
-    attempt_id: number;
+    id: string;
     moduleInfo: ModuleType;
+    moduleRef: DocumentReference;
     status?: "not begun" | "completed" | "started";
     percent?: number;
     lessons?: LessonAttemptType[];

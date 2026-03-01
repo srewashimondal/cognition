@@ -268,8 +268,8 @@ export default function EmployeeDashBoard() {
           <Routes>
             <Route index element={<EmployeeHome user={user} workspace={workspace} />} />
             <Route path="simulations" element={<SimulationModules user={user} />} />
-            {/*<Route path="simulations/:moduleID" element={<SimulationLessons />} />
-            <Route path="simulations/:moduleID/:lessonID/:simIdx" element={<SimulationPage role={"employee"} />} /> */}
+            <Route path="simulations/:moduleID" element={<SimulationLessons />} />
+            {/*<Route path="simulations/:moduleID/:lessonID/:simIdx" element={<SimulationPage role={"employee"} />} /> */}
             {/*<Route path="simulation-lesson-view" element={<SimulationLessonView />} />
             <Route path="simulation-view" element={<SimulationView />} />*/}
             {/*<Route path="simulations/:moduleId/performance" element={<SimulationPerformance />}/>

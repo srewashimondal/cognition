@@ -98,7 +98,7 @@ export default function StandardLessons() {
                         return { ...lesson, isLocked: false };
                     }
                     const prev = sorted[index - 1];
-                  
+                    
                     return {
                       ...lesson,
                       isLocked: prev.status !== "completed",

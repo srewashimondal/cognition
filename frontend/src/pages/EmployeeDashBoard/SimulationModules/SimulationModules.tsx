@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react';
 //import { moduleAttempts } from '../../../dummy_data/modulesAttempt_data';
 import ModuleCard from '../../../cards/ModuleCard/ModuleCard';
 import type { EmployeeUserType } from '../../../types/User/UserType';
+import type { ModuleType } from '../../../types/Modules/ModuleType';
 import type { ModuleAttemptType } from '../../../types/Modules/ModuleAttemptType';
 import { collection, doc, getDoc, getDocs, query, where } from "firebase/firestore";
 import { db } from '../../../firebase';
@@ -75,6 +76,7 @@ const modules: ModuleAttemptType[] = [
 */
 export default function SimulationModules({ user }: { user: EmployeeUserType }) {
     const [loading, setLoading] = useState(false);
+    const [moduleAttempts, setModuleAttempts] = useState<ModuleAttemptType[]>([]);
 
     useEffect(() => {
         window.scrollTo({ top: 0, left: 0, behavior: "instant" });
@@ -83,66 +85,72 @@ export default function SimulationModules({ user }: { user: EmployeeUserType }) 
     useEffect(() => {
         async function fetchModuleAttempts() {
             if (!user?.workspaceID) return;
-        
+    
             setLoading(true);
+    
             try {
                 const currentUserRef = doc(db, "users", user.uid);
+    
                 const q = query(
                     collection(db, "simulationModuleAttempts"),
                     where("user", "==", currentUserRef),
                     where("workspaceRef", "==", user.workspaceID)
                 );
-      
+    
                 const snapshot = await getDocs(q);
+    
                 const attempts = await Promise.all(
                     snapshot.docs.map(async (docSnap) => {
                         const data = docSnap.data();
-                        console.log("data:", data);
-                        console.log("moduleRef:", data.moduleInfo);
-                        const moduleSnap = await getDoc(data.moduleInfo);
-                        const moduleInfo = moduleSnap.exists() ? 
-                            {
-                                id: moduleSnap.id,
-                                ...(moduleSnap.data() as Omit<StandardModuleType, "id">),
-                            } : null;
                         const moduleAttemptRef = docSnap.ref;
+    
                         const lessonSnap = await getDocs(
                             query(
-                                collection(db, "standardLessonAttempts"),
+                                collection(db, "simulationLessonAttempts"),
                                 where("moduleRef", "==", moduleAttemptRef)
                             )
                         );
-
+    
                         const totalLessons = lessonSnap.size;
+    
                         let completedCount = 0;
-
                         lessonSnap.docs.forEach((lessonDoc) => {
-                            const lessonData = lessonDoc.data();
-                            if (lessonData.status === "completed") {
+                            if (lessonDoc.data().status === "completed") {
                                 completedCount++;
                             }
                         });
-
-                        const percent = totalLessons === 0 ? 0 : Math.round((completedCount / totalLessons) * 100);
-                        
+    
+                        const percent =
+                            totalLessons === 0
+                                ? 0
+                                : Math.round((completedCount / totalLessons) * 100);
+    
+                        const moduleRef = data.moduleInfo; 
+                        const moduleSnap = await getDoc(moduleRef);
+    
+                        const moduleInfo = moduleSnap.exists()
+                            ? { id: moduleSnap.id, ...moduleSnap.data() as Omit<ModuleType, "id">}
+                            : null;
+    
                         return {
                             id: docSnap.id,
                             status: data.status,
                             percent,
-                            moduleInfo
+                            moduleInfo,
+                            moduleRef
                         } as ModuleAttemptType;
                     })
                 );
-      
-                setModuleAttempts(attempts);
-                console.log("Received module attempts")
+    
+                setModuleAttempts(attempts.filter(Boolean));
+    
             } catch (error) {
-                    console.error("Error fetching module attempts:", error);
+                console.error("Error fetching module attempts:", error);
             } finally {
-                    setLoading(false);
+                setLoading(false);
             }
         }
-      
+    
         fetchModuleAttempts();
     }, [user]);
 
@@ -156,7 +164,7 @@ export default function SimulationModules({ user }: { user: EmployeeUserType }) 
             </div>
 
             <div className="modules-grid">
-                {/*moduleAttempts.map((m) => (<ModuleCard moduleInfo={m.moduleInfo} type={"simulation"} role={"employee"} status={m.status} percent={m.percent} style={true} />))*/}
+                {moduleAttempts.map((m) => (<ModuleCard moduleInfo={m.moduleInfo} type={"simulation"} role={"employee"} status={m.status} percent={m.percent} style={true} attemptId={m.id} />))}
             </div>
 
             <div className="filler-space"></div>
