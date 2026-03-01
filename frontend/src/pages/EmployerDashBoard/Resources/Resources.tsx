@@ -14,6 +14,7 @@ export type ResourceItem = {
   title: string;
   section: string;
   filePath: string;
+  summary?: string;
 };
 
 export type ResourceSection = {
@@ -135,6 +136,7 @@ export default function Resources({ workspace }: { workspace: WorkspaceType }) {
   const [activeFile, setActiveFile] = useState<ResourceItem | null>(null);
   const [activeFileUrl, setActiveFileUrl] = useState<string | null>(null);
   const [openUploadModal, setOpenUploadModal] = useState(false);
+  const [activeFileSummary, setActiveFileSummary] = useState("");
 
   useEffect(() => {
     window.scrollTo({ top: 0, left: 0, behavior: "instant" });
@@ -187,6 +189,7 @@ export default function Resources({ workspace }: { workspace: WorkspaceType }) {
   
     setActiveFile(item);
     setActiveFileUrl(url);
+    setActiveFileSummary(item.summary ?? "")
   };
 
   const [uploadTitle, setUploadTitle] = useState("");
@@ -250,7 +253,8 @@ export default function Resources({ workspace }: { workspace: WorkspaceType }) {
                     id: docRef.id,
                     title: uploadTitle.trim(),
                     filePath: storagePath,
-                    section: section.title
+                    section: section.title,
+                    summary: structuredSummaryString
                   }
                 ]
               }
@@ -373,7 +377,7 @@ export default function Resources({ workspace }: { workspace: WorkspaceType }) {
       {activeFile && (
         <div
           className="modal-overlay"
-          onClick={() => setActiveFile(null)}
+          onClick={() => {setActiveFile(null); setActiveFileSummary("");}}
         >
           <div
             className="modal-content"
@@ -383,6 +387,15 @@ export default function Resources({ workspace }: { workspace: WorkspaceType }) {
               <h3>{activeFile.title}</h3>
               
               <div className="modal-actions">
+                {activeFileUrl &&
+                <a
+                  className="delete-btn"
+                  href={activeFileUrl}
+                  download={activeFile.title}
+                >
+                  Download File
+                </a>}
+
                 <button
                   className="delete-btn"
                   onClick={handleDeleteFile}
@@ -392,7 +405,7 @@ export default function Resources({ workspace }: { workspace: WorkspaceType }) {
 
                 <button
                   className="close-btn"
-                  onClick={() => setActiveFile(null)}
+                  onClick={() => {setActiveFile(null); setActiveFileSummary("");}}
                 >
                   ✕
                 </button>
@@ -401,10 +414,15 @@ export default function Resources({ workspace }: { workspace: WorkspaceType }) {
 
             <div className="modal-body">
               {activeFileUrl?.includes(".pdf") && (
-                <iframe
-                  src={activeFileUrl}
-                  title="PDF Preview"
-                />
+                <>
+                  <iframe
+                    src={activeFileUrl}
+                    title="PDF Preview"
+                  />
+                  <div className="resource-summary-section">
+                    Summary: {activeFileSummary}
+                  </div>
+                </>
               )}
 
               {activeFileUrl &&
@@ -417,12 +435,18 @@ export default function Resources({ workspace }: { workspace: WorkspaceType }) {
                     alt="Preview"
                   />
                 )}
+              
+              { activeFileUrl && activeFileUrl?.includes(".pdf") &&
+                <div>
 
-              {activeFileUrl &&
+                </div>
+              }
+
+              {/*activeFileUrl &&
               !activeFile?.title.toLowerCase().endsWith(".pdf") &&
               !activeFile?.title.toLowerCase().match(/\.(png|jpg|jpeg|webp)$/) && (
                   <div className="file-fallback">
-                    {/*<p>Preview not available.</p>*/}
+                    <p>Preview not available.</p>
                     <a
                       href={activeFileUrl}
                       download={activeFile.title}
@@ -430,7 +454,7 @@ export default function Resources({ workspace }: { workspace: WorkspaceType }) {
                       Download File
                     </a>
                   </div>
-                )}
+                )*/}
             </div>
           </div>
         </div>
