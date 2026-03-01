@@ -1,5 +1,6 @@
 import "./EmployerHome.css";
 import { useState, useEffect } from "react";
+import { janeCooper } from "../../../dummy_data/user_data";
 import ProfilePage from "../ProfilePage/ProfilePage";
 import type { WorkspaceType } from "../../../types/User/WorkspaceType";
 import WorkspaceHero from "../../../components/WorkspaceHero/WorkspaceHero";
@@ -17,6 +18,103 @@ import x_icon from '../../../assets/icons/simulations/grey-x-icon.svg';
 import {collection,query,where,onSnapshot, doc} from "firebase/firestore";
 import { db } from "../../../firebase";
 
+const modulePerformance = [
+  {
+    title: "Store Orientation and Navigation",
+    avgScore: 78,
+    completion: 82,
+    totalEnrolled: 156
+  },
+  {
+    title: "Product Knowledge & Inventory",
+    avgScore: 74,
+    completion: 76,
+    totalEnrolled: 156
+  },
+  {
+    title: "Customer Interaction & Communication",
+    avgScore: 81,
+    completion: 85,
+    totalEnrolled: 139
+  },
+  {
+    title: "Checkout, POS & Transactions",
+    avgScore: 72,
+    completion: 69,
+    totalEnrolled: 162
+  },
+  {
+    title: "Safety, Compliance & Store Policy",
+    avgScore: 88,
+    completion: 91,
+    totalEnrolled: 141
+  },
+  {
+    title: "Multitasking & Real-World Pressure",
+    avgScore: 70,
+    completion: 64,
+    totalEnrolled: 110
+  }
+];
+
+const employeeRankings = [
+  {
+    ranking: 1,
+    name: "Sarah Johnson",
+    department: "Sales Floor",
+    score: 95,
+    totalCompletedLessons: 24
+  },
+  {
+    ranking: 2,
+    name: "Marcus Chen",
+    department: "Electronics",
+    score: 93,
+    totalCompletedLessons: 22
+  },
+  {
+    ranking: 3,
+    name: "Emily Rodriguez",
+    department: "Customer Service",
+    score: 92,
+    totalCompletedLessons: 26
+  },
+  {
+    ranking: 4,
+    name: "James Wilson",
+    department: "Sales Floor",
+    score: 91,
+    totalCompletedLessons: 20
+  },
+  {
+    ranking: 5,
+    name: "Lisa Park",
+    department: "Apparel",
+    score: 91,
+    totalCompletedLessons: 23
+  },
+];
+
+const needAttention = [
+  {
+    name: "Alex Turner",
+    department: "Electronics",
+    score: 62,
+    totalCompletedLessons: 8
+  },
+  {
+    name: "Jordan Lee",
+    department: "Customer Service",
+    score: 65,
+    totalCompletedLessons: 6
+  },
+  {
+    name: "Sam Patel",
+    department: "Sales Floor",
+    score: 68,
+    totalCompletedLessons: 9
+  }
+];
 
 export default function EmployerHome({ viewer, workspace }: { viewer: EmployerUserType, workspace: WorkspaceType }) {
   
