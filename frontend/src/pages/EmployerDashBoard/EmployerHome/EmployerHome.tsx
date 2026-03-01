@@ -1,11 +1,10 @@
 import "./EmployerHome.css";
 import { useState, useEffect } from "react";
-import { janeCooper } from "../../../dummy_data/user_data";
 import ProfilePage from "../ProfilePage/ProfilePage";
 import type { WorkspaceType } from "../../../types/User/WorkspaceType";
 import WorkspaceHero from "../../../components/WorkspaceHero/WorkspaceHero";
 import InviteTeam from "../Onboarding/InviteLaunch/Subsections/InviteTeam";
-import type { EmployerUserType } from "../../../types/User/UserType";
+import type { EmployeeUserType, EmployerUserType } from "../../../types/User/UserType";
 import users_icon from '../../../assets/icons/white-users-icon.svg';
 import trending_up from '../../../assets/icons/green-trending-up-icon.svg';
 import chart_icon from '../../../assets/icons/white-line-chart-icon.svg';
@@ -15,108 +14,64 @@ import clock_icon from '../../../assets/icons/white-clock-icon.svg';
 import leaderboard_icon from '../../../assets/icons/orange-leaderboard-icon.svg';
 import warning_icon from '../../../assets/icons/orange-warning-icon.svg';
 import x_icon from '../../../assets/icons/simulations/grey-x-icon.svg';
+import {collection,query,where,onSnapshot, doc} from "firebase/firestore";
+import { db } from "../../../firebase";
 
-const employees = Array.from({ length: 9 });
-
-const modulePerformance = [
-  {
-    title: "Store Orientation and Navigation",
-    avgScore: 78,
-    completion: 82,
-    totalEnrolled: 156
-  },
-  {
-    title: "Product Knowledge & Inventory",
-    avgScore: 74,
-    completion: 76,
-    totalEnrolled: 156
-  },
-  {
-    title: "Customer Interaction & Communication",
-    avgScore: 81,
-    completion: 85,
-    totalEnrolled: 139
-  },
-  {
-    title: "Checkout, POS & Transactions",
-    avgScore: 72,
-    completion: 69,
-    totalEnrolled: 162
-  },
-  {
-    title: "Safety, Compliance & Store Policy",
-    avgScore: 88,
-    completion: 91,
-    totalEnrolled: 141
-  },
-  {
-    title: "Multitasking & Real-World Pressure",
-    avgScore: 70,
-    completion: 64,
-    totalEnrolled: 110
-  }
-];
-
-const employeeRankings = [
-  {
-    ranking: 1,
-    name: "Sarah Johnson",
-    department: "Sales Floor",
-    score: 95,
-    totalCompletedLessons: 24
-  },
-  {
-    ranking: 2,
-    name: "Marcus Chen",
-    department: "Electronics",
-    score: 93,
-    totalCompletedLessons: 22
-  },
-  {
-    ranking: 3,
-    name: "Emily Rodriguez",
-    department: "Customer Service",
-    score: 92,
-    totalCompletedLessons: 26
-  },
-  {
-    ranking: 4,
-    name: "James Wilson",
-    department: "Sales Floor",
-    score: 91,
-    totalCompletedLessons: 20
-  },
-  {
-    ranking: 5,
-    name: "Lisa Park",
-    department: "Apparel",
-    score: 91,
-    totalCompletedLessons: 23
-  },
-];
-
-const needAttention = [
-  {
-    name: "Alex Turner",
-    department: "Electronics",
-    score: 62,
-    totalCompletedLessons: 8
-  },
-  {
-    name: "Jordan Lee",
-    department: "Customer Service",
-    score: 65,
-    totalCompletedLessons: 6
-  },
-  {
-    name: "Sam Patel",
-    department: "Sales Floor",
-    score: 68,
-    totalCompletedLessons: 9
-  }
-];
 
 export default function EmployerHome({ viewer, workspace }: { viewer: EmployerUserType, workspace: WorkspaceType }) {
+  
+  const [employees, setEmployees] = useState<EmployeeUserType[]>([]);
+
+  useEffect(() => {
+    if (!workspace?.id) return;
+
+    const workspaceRef = doc(db, "workspaces", workspace.id);
+
+    const q = query(
+      collection(db, "users"),
+      where("workspaceID", "==", workspaceRef),
+      where("role", "==", "employee")
+    );
+
+    const unsubscribe = onSnapshot(q, (snapshot) => {
+      const employeeData = snapshot.docs.map(doc => ({
+        uid: doc.id,
+        ...doc.data()
+      })) as EmployeeUserType[];
+
+      setEmployees(employeeData);
+    });
+
+    return () => unsubscribe();
+  }, [workspace]);
+
+  const topPerformers = [...employees]
+      .sort((a, b) => (b.averageScore ?? 0) - (a.averageScore ?? 0))
+      .slice(0, 5);
+
+    const needsAttentionList = [...employees]
+      .sort((a, b) => (a.averageScore ?? 0) - (b.averageScore ?? 0))
+      .slice(0, 3);
+
+    const totalEmployees = employees.length;
+
+    const averageLessonScore =
+      employees.length > 0
+        ? Math.round(
+            employees.reduce((sum, e) => sum + (e.averageScore ?? 0), 0) /
+              employees.length
+          )
+        : 0;
+
+    const activeThisWeek = employees.filter((e) => {
+      if (!e.learningStreak?.lastActiveDate) return false;
+
+      const lastActive = new Date(e.learningStreak.lastActiveDate);
+      const weekAgo = new Date();
+      weekAgo.setDate(weekAgo.getDate() - 7);
+
+      return lastActive >= weekAgo;
+    }).length;
 
   console.log("EmployerHome rendering with:", { viewer, workspace });
   
@@ -132,7 +87,7 @@ export default function EmployerHome({ viewer, workspace }: { viewer: EmployerUs
 
   const [search, setSearch] = useState("");
   const [profileOpen, setProfileOpen] = useState(false);
-  const [chosenProfile, setChosenProfile] = useState<number | null>(null); // change to a different key later
+  const [chosenProfile, setChosenProfile] = useState<number | null>(null); 
   const [showAll, setShowAll] = useState(false);
   const [openModal, setOpenModal] = useState(false);
 
@@ -210,9 +165,9 @@ export default function EmployerHome({ viewer, workspace }: { viewer: EmployerUs
               </span>
               +8% this week
             </div>
-            <h3 className="analytics-value">189</h3>
+            <h3 className="analytics-value">{activeThisWeek}</h3>
             <span className="analytics-change">Active this week</span>
-            <p className="analytics-label">of 247 total</p>
+            <p className="analytics-label">of {totalEmployees} total</p>
           </div>
           <div className="analytics-icon orange">
             <img src={users_icon} />
@@ -227,7 +182,7 @@ export default function EmployerHome({ viewer, workspace }: { viewer: EmployerUs
               </span>
               +12% this week
             </div>
-            <h3 className="analytics-value">84%</h3>
+            <h3 className="analytics-value">{averageLessonScore}%</h3>
             <span className="analytics-change">Average lesson score</span>
             <p className="analytics-label">across this week</p>
           </div>
@@ -408,7 +363,7 @@ export default function EmployerHome({ viewer, workspace }: { viewer: EmployerUs
               <div className="module-breakdown">
                 <div className="module-breakdown-left">
                   <h2 className="module-breakdown-title">{p.title}</h2>
-                  <p className="module-breakdown-grey">{p.totalEnrolled} employees enrolled</p>
+                  <p className="module-breakdown-grey">{totalEmployees} employees enrolled</p>
                   <p className="module-breakdown-grey small">Average Score</p>
                   <div className="module-breakdown-bar">
                     <div className="module-breakdown-bar-fill blue" style={{ width: `${p.avgScore}%` }}/>
@@ -445,23 +400,23 @@ export default function EmployerHome({ viewer, workspace }: { viewer: EmployerUs
               <img src={leaderboard_icon} />
             </div>
             <div className="employee-leaderboard">
-              { employeeRankings.sort((a, b) => a.ranking - b.ranking).map((e) =>
-                <div className="leaderboard-item">
+              {topPerformers.map((e, index) => (
+                <div className="leaderboard-item" key={e.uid}>
                   <div className="leaderboard-info">
                     <div className="leaderboard-rank">
-                      <h2>{e.ranking}</h2>
+                      <h2>{index + 1}</h2>
                     </div>
                     <div className="leaderboard-name">
-                      <h3>{e.name}</h3>
-                      <p>{e.department}</p>
+                      <h3>{e.fullName}</h3>
+                      <p>{e.jobTitle}</p>
                     </div>
                   </div>
                   <div className="leaderboard-stats">
-                    <h4>{e.score}%</h4>
-                    <p>{e.totalCompletedLessons} lessons</p>
+                    <h4>{e.averageScore ?? 0}%</h4>
+                    <p>{e.completedModules?.length ?? 0} modules</p>
                   </div>
                 </div>
-              )}
+              ))}
             </div>
           </div>
           <div className="employee-ranking skill-breakdown-section">
@@ -473,23 +428,23 @@ export default function EmployerHome({ viewer, workspace }: { viewer: EmployerUs
               <img src={warning_icon} />
             </div>
             <div className="employee-leaderboard">
-              { needAttention.map((e) =>
-                <div className="leaderboard-item">
+              {needsAttentionList.map((e) => (
+                <div className="leaderboard-item" key={e.uid}>
                   <div className="leaderboard-info">
                     <div className="leaderboard-rank red">
                       <h2>!</h2>
                     </div>
                     <div className="leaderboard-name">
-                      <h3>{e.name}</h3>
-                      <p>{e.department}</p>
+                      <h3>{e.fullName}</h3>
+                      <p>{e.jobTitle}</p>
                     </div>
                   </div>
                   <div className="leaderboard-stats red">
-                    <h4>{e.score}%</h4>
-                    <p>{e.totalCompletedLessons} lessons</p>
+                    <h4>{e.averageScore ?? 0}%</h4>
+                    <p>{e.completedModules?.length ?? 0} modules</p>
                   </div>
                 </div>
-              )}
+              ))}
             </div>
           </div>
         </div>
@@ -498,7 +453,10 @@ export default function EmployerHome({ viewer, workspace }: { viewer: EmployerUs
             <div className="card employee-section">
               <div className="employee-header">
                 <h4 className="card-title">
-                  Total Employees <span className="employee-count">: 1285 persons</span>
+                  Total Employees{""}
+                  <span className="employee-count">
+                    : {totalEmployees} {totalEmployees === 1 ? "Employee" : "Employees"}
+                  </span>
                 </h4>
 
                 <div className="employee-controls">
@@ -515,17 +473,17 @@ export default function EmployerHome({ viewer, workspace }: { viewer: EmployerUs
               </div>
 
               <div className="employee-grid">
-              {visibleEmployees.map((_, i) => (
+              {employees.map((emp, i) => (
 
-                <div className="employee-card" key={i}>
+                <div className="employee-card" key={emp.uid}>
 
                   {/* Main info */}
                   <div className="employee-main">
                     <img src={`https://i.pravatar.cc/64?img=${i + 10}`} 
                     onClick={() => {setProfileOpen(true); setChosenProfile(i)}} />
                     <div>
-                      <p className="employee-name">{janeCooper.fullName}</p>
-                      <p className="employee-email">{janeCooper.jobTitle}</p>
+                      <p className="employee-name">{emp.fullName}</p>
+                      <p className="employee-email">{emp.jobTitle}</p>
                     </div>
                   </div>
 
@@ -549,7 +507,7 @@ export default function EmployerHome({ viewer, workspace }: { viewer: EmployerUs
                 </div>
                 <div>
                   <p className="meta-label">Join Date</p>
-                  <p>{janeCooper.joinDate}</p>
+                  <p>{emp.joinDate}</p>
                 </div>
               </div>
       </div>
