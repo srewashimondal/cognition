@@ -1,7 +1,7 @@
 import "./EmployerHome.css";
 import { useState, useEffect } from "react";
-import { janeCooper } from "../../../dummy_data/user_data";
 import ProfilePage from "../ProfilePage/ProfilePage";
+import default_icon from '../../../assets/icons/default-icon.svg';
 import type { WorkspaceType } from "../../../types/User/WorkspaceType";
 import WorkspaceHero from "../../../components/WorkspaceHero/WorkspaceHero";
 import InviteTeam from "../Onboarding/InviteLaunch/Subsections/InviteTeam";
@@ -197,6 +197,9 @@ export default function EmployerHome({ viewer, workspace }: { viewer: EmployerUs
   useEffect(() => {
     window.scrollTo({ top: 0, left: 0, behavior: "instant" });
   }, []);
+
+  const selectedEmployee =
+  chosenProfile !== null ? employees[chosenProfile] : undefined;
 
   return (
   
@@ -563,8 +566,13 @@ export default function EmployerHome({ viewer, workspace }: { viewer: EmployerUs
 
                   {/* Main info */}
                   <div className="employee-main">
-                    <img src={`https://i.pravatar.cc/64?img=${i + 10}`} 
-                    onClick={() => {setProfileOpen(true); setChosenProfile(i)}} />
+                    <img
+                      src={emp.profilePicture || default_icon}
+                      onClick={() => {
+                        setProfileOpen(true);
+                        setChosenProfile(i);
+                      }}
+                    />
                     <div>
                       <p className="employee-name">{emp.fullName}</p>
                       <p className="employee-email">{emp.jobTitle}</p>
@@ -601,8 +609,16 @@ export default function EmployerHome({ viewer, workspace }: { viewer: EmployerUs
 
       </div>
 
-      <ProfilePage key={chosenProfile} open={profileOpen} onClose={() => setProfileOpen(false)} user={janeCooper} viewer={viewer} tempPfp={`https://i.pravatar.cc/64?img=${(chosenProfile ?? 0) + 10}`} />
-
+      {profileOpen && selectedEmployee && (
+        <ProfilePage
+          key={selectedEmployee.uid}
+          open={profileOpen}
+          onClose={() => setProfileOpen(false)}
+          user={selectedEmployee}
+          viewer={viewer}
+          tempPfp={selectedEmployee.profilePicture || default_icon}
+        />
+      )}
       { openModal &&
         <div className="modal-overlay" onClick={() => setOpenModal(false)}>
           <div className="modal">
