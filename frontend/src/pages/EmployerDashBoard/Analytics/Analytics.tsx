@@ -20,7 +20,7 @@ import black_clock from '../../../assets/icons/simulations/black-clock-icon.svg'
 import bar_chart_icon from '../../../assets/icons/black-bar-chart-icon.svg';
 import black_prize from '../../../assets/icons/badges/black-medal-icon-1.svg';
 import type { EmployeeUserType } from '../../../types/User/UserType';
-import { collection, getDocs } from "firebase/firestore";
+import { collection, getDocs, doc, onSnapshot } from "firebase/firestore";
 import { db } from "../../../firebase";
 
 //To Do
@@ -171,6 +171,24 @@ export default function Analytics() {
     );
   });
 
+  useEffect(() => {
+    if (!selectedEmployee?.uid) return;
+
+    const unsub = onSnapshot(
+      doc(db, "users", selectedEmployee.uid),
+      (snapshot) => {
+        if (snapshot.exists()) {
+          setSelectedEmployee({
+            uid: snapshot.id,
+            ...snapshot.data(),
+          } as EmployeeUserType);
+        }
+      }
+    );
+
+    return () => unsub();
+  }, [selectedEmployee?.uid]);
+
   return (
   <>
 
@@ -224,7 +242,7 @@ export default function Analytics() {
                     </span>
                     +12% this week
                     </div>
-                    <h3 className="analytics-value">87%</h3>
+                    <h3 className="analytics-value"> {selectedEmployee?.averageScore ?? 0}% </h3>
                     <span className="analytics-change">Average score</span>
                     <p className="analytics-label">across all lessons</p>
                 </div>
@@ -240,7 +258,7 @@ export default function Analytics() {
                 </span>
                 +8% this week
                 </div>
-                <h3 className="analytics-value">7</h3>
+                <h3 className="analytics-value"> {selectedEmployee?.completedModules?.length ?? 0}</h3>
                 <span className="analytics-change">Lessons completed this week</span>
                 <p className="analytics-label">of 22 total</p>
             </div>
@@ -262,7 +280,7 @@ export default function Analytics() {
 
             <div className="analytics-card">
                 <div className="analytics-left">
-                    <h3 className="analytics-value">6.5</h3>
+                    <h3 className="analytics-value"> {selectedEmployee?.totalHours ?? 0}</h3>
                     <span className="analytics-change">hours invested</span>
                     <p className="analytics-label">time across lessons</p>
                 </div>
@@ -454,7 +472,12 @@ export default function Analytics() {
             </div>
 
             <div className="score">
-              <p>Your Grade: <span>8.9/10</span></p>
+              <p>Your Grade: 
+                <span>
+                  {selectedEmployee?.averageScore
+                    ? (selectedEmployee.averageScore / 10).toFixed(1)
+                    : "0.0"} / 10
+                </span></p>
               <a href="#">Click Here to See Detailed Feedback</a>
             </div>
           </div>
