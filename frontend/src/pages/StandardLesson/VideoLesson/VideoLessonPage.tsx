@@ -12,10 +12,9 @@ import play_button from '../../../assets/icons/video-play-icon.svg';
 import right_chevron from '../../../assets/icons/chevron-right-icon.svg';
 import { getAuth } from "firebase/auth";
 const auth = getAuth();
-import { collection, query, orderBy, getDocs, deleteDoc, doc } from "firebase/firestore";
+import { collection, query, orderBy, getDocs, deleteDoc, doc, updateDoc, serverTimestamp, getDoc } from "firebase/firestore";
 import { db } from '../../../firebase';
-
-
+import { updateModuleStatus } from '../../../utils/Utils';
 
 type VideoLessonPageProps = {
     lessonAttempt: StandardLessonAttempt;
@@ -48,11 +47,19 @@ export default function VideoLessonPage({ lessonAttempt, lesson, handleBack, mod
     const [isLoading, setIsLoading] = useState(false);
     const [typingMessageId, setTypingMessageId] = useState<string | null>(null);
     const [stopTyping, setStopTyping] = useState(false);
+    const [hasCompleted, setHasCompleted] = useState(lessonAttempt.status === "completed");
+    const [hasStarted, setHasStarted] = useState(lessonAttempt.status !== "not begun");
 
     useEffect(() => {
         const unsubscribe = auth.onAuthStateChanged((u) => setCurrentUser(u));
         return () => unsubscribe();
     }, []);
+
+    const lessonAttemptRef = doc(
+        db,
+        "standardLessonAttempts",
+        lessonAttempt.id
+    );
 
     useEffect(() => {
         async function loadChat() {
@@ -85,8 +92,6 @@ export default function VideoLessonPage({ lessonAttempt, lesson, handleBack, mod
         loadChat();
     }, [selectedSummary]);
 
-
-   
     useEffect(() => {
         window.scrollTo({ top: 0, left: 0, behavior: "instant" });
     }, []);
@@ -107,12 +112,67 @@ export default function VideoLessonPage({ lessonAttempt, lesson, handleBack, mod
       
         fetchVideoURL();
     }, [lesson]);
+
+    const [moduleAttemptRef, setModuleAttemptRef] = useState<any>(null);
+    useEffect(() => {
+        async function loadModuleRef() {
+            const snap = await getDoc(lessonAttemptRef);
+            if (snap.exists()) {
+                setModuleAttemptRef(snap.data().moduleRef);
+            }
+        }
+        loadModuleRef();
+    }, [lessonAttemptRef]);
       
-    
-    const handlePlay = () => {
+    const handlePlay = async () => {
         videoRef.current?.play();
         setIsPlaying(true);
+
+        if (!hasStarted) {
+            setHasStarted(true);
+            try {
+                await updateDoc(lessonAttemptRef, {
+                    status: "started",
+                    startedAt: serverTimestamp()
+                });
+
+                if (moduleAttemptRef) {
+                    await updateModuleStatus(moduleAttemptRef);
+                }
+
+            } catch (err) {
+                console.error("Error marking lesson started:", err)
+            }
+        }
     };
+
+    const handleTimeUpdate = async () => {
+        const video = videoRef.current;
+        if (!video) return;
+
+        const time = video.currentTime;
+        setCurrentTime(time);
+
+        const percentWatched = video.duration ? time / video.duration : 0;
+
+        if (percentWatched >= 0.9 && !hasCompleted) {
+            setHasCompleted(true);
+            
+            try {
+                await updateDoc(lessonAttemptRef, {
+                    status: "completed",
+                    completedAt: serverTimestamp()
+                });
+
+                if (moduleAttemptRef) {
+                    await updateModuleStatus(moduleAttemptRef);
+                }
+
+            } catch (err) {
+                console.error("Error marking lesson completed:", err);
+            }
+        }
+    }
 
     const handleSend = async () => {
         if (!userInput.trim() || !selectedSummary) return;
@@ -272,7 +332,7 @@ export default function VideoLessonPage({ lessonAttempt, lesson, handleBack, mod
 
                     <video ref={videoRef} src={videoURL ?? ""} controls={isPlaying} preload="metadata" 
                     onPause={() => setIsPlaying(false)} onEnded={() => setIsPlaying(false)} 
-                    onTimeUpdate={() => setCurrentTime(videoRef.current?.currentTime ?? 0)} />
+                    onTimeUpdate={handleTimeUpdate} />
 
                     {!isPlaying && (
                         <img className="play-button for-video" src={play_button} onClick={handlePlay} />

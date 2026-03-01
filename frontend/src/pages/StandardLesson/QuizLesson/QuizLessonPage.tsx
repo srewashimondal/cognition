@@ -8,10 +8,11 @@ import {
     computeQuizScore,
     serializeQuestionAnswersForFirebase,
 } from '../../../utils/quizScore';
-import { doc, updateDoc } from 'firebase/firestore';
+import { doc, updateDoc, serverTimestamp, getDoc } from 'firebase/firestore';
 import { db } from '../../../firebase';
 import { useAuth } from '../../../context/AuthProvider';
 import { updateLearningStreakForUser } from '../../../utils/streaks';
+import { updateModuleStatus } from '../../../utils/Utils';
 import ProgressBar from '../../../components/ProgressBar/ProgressBar';
 import QuestionItem from './QuestionItem/QuestionItem';
 import ErrorMessage from '../../../components/ErrorMessage/ErrorMessage';
@@ -48,11 +49,29 @@ export default function QuizLessonPage({ lessonAttempt, handleBack, moduleTitle 
     const [attemptResult, setAttemptResult] = useState<AttemptResult | null>(null);
     const lesson = lessonAttempt.lessonInfo.type === "quiz" ? lessonAttempt.lessonInfo : null;
 
+    const [moduleAttemptRef, setModuleAttemptRef] = useState<any>(null);
+    useEffect(() => {
+        async function loadModuleRef() {
+            const attemptRef = doc(db, "standardLessonAttempts", lessonAttempt.id);
+            const snap = await getDoc(attemptRef);
+            if (snap.exists()) {
+                setModuleAttemptRef(snap.data().moduleRef);
+            }
+        }
+        loadModuleRef();
+    }, [lessonAttempt.id]);
+
     const handleBeginQuiz = async () => {
         try {
             const attemptRef = doc(db, "standardLessonAttempts", lessonAttempt.id);
-            await updateDoc(attemptRef, { status: "started" });
+            await updateDoc(attemptRef, { 
+                status: "started",
+                startedAt: serverTimestamp()
+            });
             setCurrentStatus("started");
+            if (moduleAttemptRef) {
+                await updateModuleStatus(moduleAttemptRef);
+            }
         } catch (err) {
             console.error("Error updating quiz attempt status:", err);
             setCurrentStatus("started");
@@ -100,7 +119,24 @@ export default function QuizLessonPage({ lessonAttempt, handleBack, moduleTitle 
                             totalCount: lessonAttempt.questionAnswers?.length ?? 0,
                         }
                         : null)}
-                    onClick={() => setCurrentStatus("not begun")}
+                        onClick={async () => {
+                            const attemptRef = doc(db, "standardLessonAttempts", lessonAttempt.id);
+                        
+                            await updateDoc(attemptRef, {
+                                status: "not begun",
+                                questionAnswers: [],
+                                score: null,
+                                passed: null,
+                                completedAt: null
+                            });
+
+                            if (moduleAttemptRef) {
+                                await updateModuleStatus(moduleAttemptRef);
+                            }
+                        
+                            setAttemptResult(null);
+                            setCurrentStatus("not begun");
+                        }}
                     handleBack={handleBack}
                 />
             );
@@ -187,6 +223,18 @@ function QuizPage({
         window.scrollTo({ top: 0, left: 0, behavior: "instant" });
     }, []);
 
+    const [moduleAttemptRef, setModuleAttemptRef] = useState<any>(null);
+    useEffect(() => {
+        async function loadModuleRef() {
+            const attemptRef = doc(db, "standardLessonAttempts", lessonAttemptId);
+            const snap = await getDoc(attemptRef);
+            if (snap.exists()) {
+                setModuleAttemptRef(snap.data().moduleRef);
+            }
+        }
+        loadModuleRef();
+    }, [lessonAttemptId]);
+
     const handleBack = () => {
         setCurrentQuestionIdx(i => i - 1);
     };
@@ -223,8 +271,11 @@ function QuizPage({
                     score,
                     passed,
                     status: "completed",
-                    completedAt: new Date().toISOString(),
+                    completedAt: serverTimestamp(),
                 });
+                if (moduleAttemptRef) {
+                    await updateModuleStatus(moduleAttemptRef);
+                }
                 if (user?.role === "employee") {
                     try {
                         await updateLearningStreakForUser(user.uid);

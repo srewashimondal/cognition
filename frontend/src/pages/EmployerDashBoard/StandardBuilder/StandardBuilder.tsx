@@ -9,6 +9,7 @@ import ActionButton from '../../../components/ActionButton/ActionButton';
 import EmployerCard from '../../../cards/StandardLesson/EmployerCard/EmployerCard';
 import type { StandardModuleType } from '../../../types/Standard/StandardModule';
 import type { StandardLessonType, VideoLessonType, QuizLessonType } from '../../../types/Standard/StandardLessons';
+import type { WorkspaceType } from '../../../types/User/WorkspaceType';
 import { DndContext, closestCenter } from "@dnd-kit/core";
 import { SortableContext, verticalListSortingStrategy } from "@dnd-kit/sortable";
 import { arrayMove } from "@dnd-kit/sortable";
@@ -23,7 +24,7 @@ import cap_icon from '../../../assets/icons/simulations/black-cap-icon.svg';
 import white_plus_icon from '../../../assets/icons/simulations/white-plus-icon.svg';
 import blue_plus_icon from '../../../assets/icons/simulations/blue-plus-icon.svg';
 
-export default function StandardBuilder() {
+export default function StandardBuilder({ workspace }: { workspace: WorkspaceType }) {
     const navigate = useNavigate();
     const { moduleID } = useParams();
     const [loading, setLoading] = useState(true);
@@ -476,7 +477,8 @@ export default function StandardBuilder() {
                 hours: calculateTotalHours(lessons),
                 lessonRefs: lessonRefs,
                 numLessons: lessons.length,
-                lastModified: new Date().toISOString()
+                lastModified: new Date().toISOString(),
+                workspaceRef: doc(db, "workspaces", workspace.id),
             };
 
             if (isNewDraft) {

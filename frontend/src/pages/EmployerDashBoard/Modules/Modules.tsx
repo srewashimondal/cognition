@@ -32,20 +32,18 @@ export default function Modules({ workspace }: { workspace: WorkspaceType}) {
     
       setLoading(true);
       try {
-        const modulePromises = workspace.standardModules.map(async (moduleRef: DocumentReference) => {
-          const moduleSnap = await getDoc(moduleRef);
-          if (moduleSnap.exists()) {
-            const data = moduleSnap.data() as Omit<StandardModuleType, 'id'>;
-            return {
-              id: moduleRef.id, 
-              ...data,
-            } as StandardModuleType;
-          }
-          return null;
-        });
-    
-        const modules = await Promise.all(modulePromises);
-        setStandardModules(modules.filter((m): m is StandardModuleType => m !== null));
+        const q = query(
+          collection(db, "standardModules"),
+          where("workspaceRef", "==", doc(db, "workspaces", workspace.id))
+        );
+
+        const snapshot = await getDocs(q);
+        const modules: StandardModuleType[] = snapshot.docs.map(docSnap => ({
+          id: docSnap.id,
+          ...(docSnap.data() as Omit<StandardModuleType, "id">)
+        })); 
+
+        setStandardModules(modules);
       } catch (error) {
         console.error("Error fetching standard modules:", error);
       } finally {
@@ -70,7 +68,7 @@ export default function Modules({ workspace }: { workspace: WorkspaceType}) {
         const q = query(
           collection(db, "simulationModules"),
           where("workspaceRef", "==", doc(db, "workspaces", workspace.id))
-        )
+        );
 
         const snapshot = await getDocs(q);
         const modules: ModuleType[] = snapshot.docs.map(docSnap => ({

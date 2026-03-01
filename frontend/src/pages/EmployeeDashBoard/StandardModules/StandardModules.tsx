@@ -68,15 +68,15 @@ export default function StandardModules({ user }: { user: EmployeeUserType }) {
       
                 setModuleAttempts(attempts);
                 console.log("Received module attempts")
-          } catch (error) {
-                console.error("Error fetching module attempts:", error);
-          } finally {
-                setLoading(false);
-          }
+            } catch (error) {
+                    console.error("Error fetching module attempts:", error);
+            } finally {
+                    setLoading(false);
+            }
         }
       
         fetchModuleAttempts();
-      }, [user]);
+    }, [user]);
 
 
     return (

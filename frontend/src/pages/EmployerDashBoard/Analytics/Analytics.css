@@ -8,6 +8,47 @@
     height: 100%;
 }
 
+.search-wrapper {
+  position: relative;
+  width: 400px;
+}
+
+.employee-dropdown {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  width: 100%;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+  margin-top: 6px;
+  max-height: 250px;
+  overflow-y: auto;
+  z-index: 1000;
+  padding: 6px 0;
+}
+
+.employee-dropdown-item {
+  padding: 10px 16px;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.employee-dropdown-item:hover {
+  background: #f7f7f7;
+}
+
+.emp-name {
+  font-weight: 600;
+  font-size: 14px;
+}
+
+.emp-role {
+  font-size: 12px;
+  color: #888;
+  margin-top: 2px;
+}
+
 .employee-module-item {
     border: 2px solid #eee;
     padding: 20px 30px;

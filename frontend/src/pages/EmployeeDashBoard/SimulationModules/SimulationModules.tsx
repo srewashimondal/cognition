@@ -1,7 +1,11 @@
 import './SimulationModules.css';
-import { useEffect } from 'react';
+import { useState, useEffect } from 'react';
 //import { moduleAttempts } from '../../../dummy_data/modulesAttempt_data';
 import ModuleCard from '../../../cards/ModuleCard/ModuleCard';
+import type { EmployeeUserType } from '../../../types/User/UserType';
+import type { ModuleAttemptType } from '../../../types/Modules/ModuleAttemptType';
+import { collection, doc, getDoc, getDocs, query, where } from "firebase/firestore";
+import { db } from '../../../firebase';
 
 /*
 const modules: ModuleAttemptType[] = [
@@ -69,10 +73,78 @@ const modules: ModuleAttemptType[] = [
     },
 ];
 */
-export default function SimulationModules() {
+export default function SimulationModules({ user }: { user: EmployeeUserType }) {
+    const [loading, setLoading] = useState(false);
+
     useEffect(() => {
         window.scrollTo({ top: 0, left: 0, behavior: "instant" });
     }, []);
+
+    useEffect(() => {
+        async function fetchModuleAttempts() {
+            if (!user?.workspaceID) return;
+        
+            setLoading(true);
+            try {
+                const currentUserRef = doc(db, "users", user.uid);
+                const q = query(
+                    collection(db, "simulationModuleAttempts"),
+                    where("user", "==", currentUserRef),
+                    where("workspaceRef", "==", user.workspaceID)
+                );
+      
+                const snapshot = await getDocs(q);
+                const attempts = await Promise.all(
+                    snapshot.docs.map(async (docSnap) => {
+                        const data = docSnap.data();
+                        console.log("data:", data);
+                        console.log("moduleRef:", data.moduleInfo);
+                        const moduleSnap = await getDoc(data.moduleInfo);
+                        const moduleInfo = moduleSnap.exists() ? 
+                            {
+                                id: moduleSnap.id,
+                                ...(moduleSnap.data() as Omit<StandardModuleType, "id">),
+                            } : null;
+                        const moduleAttemptRef = docSnap.ref;
+                        const lessonSnap = await getDocs(
+                            query(
+                                collection(db, "standardLessonAttempts"),
+                                where("moduleRef", "==", moduleAttemptRef)
+                            )
+                        );
+
+                        const totalLessons = lessonSnap.size;
+                        let completedCount = 0;
+
+                        lessonSnap.docs.forEach((lessonDoc) => {
+                            const lessonData = lessonDoc.data();
+                            if (lessonData.status === "completed") {
+                                completedCount++;
+                            }
+                        });
+
+                        const percent = totalLessons === 0 ? 0 : Math.round((completedCount / totalLessons) * 100);
+                        
+                        return {
+                            id: docSnap.id,
+                            status: data.status,
+                            percent,
+                            moduleInfo
+                        } as ModuleAttemptType;
+                    })
+                );
+      
+                setModuleAttempts(attempts);
+                console.log("Received module attempts")
+            } catch (error) {
+                    console.error("Error fetching module attempts:", error);
+            } finally {
+                    setLoading(false);
+            }
+        }
+      
+        fetchModuleAttempts();
+    }, [user]);
 
     return (
         <div className="employee-modules">

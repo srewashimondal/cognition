@@ -259,8 +259,8 @@ export default function EmployerDashBoard() {
             <Route path="settings" element={<Settings />} /> */}
             <Route path="modules/builder" element={<Builder workspace={workspace}/>} />
             <Route path="modules/builder/:moduleID" element={<Builder workspace={workspace} />} /> 
-            <Route path="modules/standard-builder" element={<StandardBuilder />} />
-            <Route path="modules/standard-builder/:moduleID" element={<StandardBuilder />} />
+            <Route path="modules/standard-builder" element={<StandardBuilder workspace={workspace}/>} />
+            <Route path="modules/standard-builder/:moduleID" element={<StandardBuilder workspace={workspace}/>} />
             <Route path="modules/quiz-builder" element={<QuizBuilder />} /> 
             <Route path="modules/standard-builder/:moduleID/:quizID" element={<QuizBuilder />} /> 
             <Route path="*" element={<Navigate to="/employer" replace/>} /> 

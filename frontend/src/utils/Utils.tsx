@@ -1,3 +1,6 @@
+import { collection, query, getDocs, updateDoc, where } from "firebase/firestore";
+import { db } from '../firebase';
+
 export function formatTimestamp(timestamp: string) {
     if (!timestamp) return 'Unknown';
     
@@ -31,5 +34,37 @@ export function formatTimestampString(timestamp: string) {
         hour: "2-digit",
         minute: "2-digit",
         hour12: true,
+    });
+}
+
+export async function updateModuleStatus(moduleAttemptRef: any) {
+    const lessonSnap = await getDocs(
+        query(
+            collection(db, "standardLessonAttempts"),
+            where("moduleRef", "==", moduleAttemptRef)
+        )
+    );
+
+    let started = false;
+    let completedCount = 0;
+
+    lessonSnap.docs.forEach(doc => {
+        const data = doc.data();
+        if (data.status !== "not begun") started = true;
+        if (data.status === "completed") completedCount++;
+    });
+
+    const total = lessonSnap.size;
+
+    let newStatus = "not begun";
+    if (completedCount === total && total > 0) {
+        newStatus = "completed";
+    } else if (started) {
+        newStatus = "started";
+    }
+
+    await updateDoc(moduleAttemptRef, {
+        status: newStatus,
+        percent: total === 0 ? 0 : Math.round((completedCount / total) * 100),
     });
 }
