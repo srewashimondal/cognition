@@ -1,9 +1,8 @@
 import './Analytics.css';
 /*import FullCalendar from '@fullcalendar/react';
 import dayGridPlugin from '@fullcalendar/daygrid';*/
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import search_icon from '../../../assets/icons/lesson-edit/grey-search.svg';
-import { janeCooper } from '../../../dummy_data/user_data';
 import { Tooltip } from "@radix-ui/themes";
 
 import trending_up from '../../../assets/icons/green-trending-up-icon.svg';
@@ -20,6 +19,9 @@ import ai_icon from '../../../assets/icons/simulations/white-ai-icon.svg';
 import black_clock from '../../../assets/icons/simulations/black-clock-icon.svg';
 import bar_chart_icon from '../../../assets/icons/black-bar-chart-icon.svg';
 import black_prize from '../../../assets/icons/badges/black-medal-icon-1.svg';
+import type { EmployeeUserType } from '../../../types/User/UserType';
+import { collection, getDocs } from "firebase/firestore";
+import { db } from "../../../firebase";
 
 //To Do
   /*const initialTodos = [
@@ -107,6 +109,7 @@ const aiInsights = [
 export default function Analytics() {
   const MAX_HOURS = 80;
   const MAX_BAR_HEIGHT = 100; 
+  
 
   const getHeight = (value: number) =>
   `${(value / MAX_HOURS) * MAX_BAR_HEIGHT}px`;
@@ -134,19 +137,82 @@ export default function Analytics() {
     map: map_icon,
   };
 
+  const [employees, setEmployees] = useState<EmployeeUserType[]>([]);
+  const [search, setSearch] = useState("");
+  const [selectedEmployee, setSelectedEmployee] = useState<EmployeeUserType | null>(null);
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+
+  useEffect(() => {
+    const fetchEmployees = async () => {
+      const snap = await getDocs(collection(db, "users"));
+      const list: EmployeeUserType[] = [];
+
+      snap.forEach((doc) => {
+        const data = doc.data();
+        if (data.role === "employee") {
+          list.push({ uid: doc.id, ...data } as EmployeeUserType);
+        }
+      });
+
+      setEmployees(list);
+    };
+
+    fetchEmployees();
+  }, []);
+
+  const filteredEmployees = employees.filter((emp) => {
+    if (!search.trim()) return true;
+
+    const term = search.toLowerCase();
+
+    return (
+      (emp.fullName ?? "").toLowerCase().includes(term) ||
+      (emp.employeeID ?? "").toLowerCase().includes(term)
+    );
+  });
+
   return (
-    <>
+  <>
 
         <div className="search-wrapper">
-            <span className="analytics-search-icon">
-              <img src={search_icon} />
-            </span>
-            <input
-              className="search-input"
-              placeholder="Search by Employee Name or ID"
-            />
+          <span className="analytics-search-icon">
+            <img src={search_icon} />
+          </span>
+
+          <input
+            className="search-input"
+            placeholder="Search by Employee Name or ID"
+            value={search}
+            onChange={(e) => {
+              setSearch(e.target.value);
+              setIsDropdownOpen(true);
+            }}
+            onFocus={() => setIsDropdownOpen(true)}
+          />
+
+          {isDropdownOpen && search && (
+            <div className="employee-dropdown">
+              {filteredEmployees.map((emp) => (
+                <div
+                  key={emp.uid}
+                  className="employee-dropdown-item"
+                  onClick={() => {
+                    setSelectedEmployee(emp);
+                    setSearch(emp.fullName ?? "");
+                    setIsDropdownOpen(false);
+                  }}
+                >
+                  <div className="emp-name">{emp.fullName}</div>
+                  <div className="emp-role">{emp.jobTitle}</div>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
-      <h2>Employee Name: John Doe</h2>
+
+    {selectedEmployee && (
+    <>
+      <h2>Employee Name: {selectedEmployee.fullName}</h2>
 
       <div className="section">
         <div className="analytics-grid">
@@ -428,15 +494,17 @@ export default function Analytics() {
             Badges
           </div>
           <div className="progress-list">
-              {janeCooper.achievements.map((a) => 
+              {selectedEmployee?.achievements?.map((a) => (
                 <div className="badge-item">
-                  <img src={iconByBadge[a.icon as BadgeIcon]} />
+                  {iconByBadge[a.icon as BadgeIcon] && (
+                    <img src={iconByBadge[a.icon as BadgeIcon]} />
+                  )}
                   <div className="badge-item-name">
                     <h4>{a.name}</h4>
                     <p>{a.description}</p>
                   </div>
                 </div>
-              )}
+              ))}
             </div>
         </div>
 
@@ -551,8 +619,8 @@ export default function Analytics() {
         <h2 className="section-title margin">Module Performance</h2>
         <p className="analytics-label">How John Doe is performing across modules</p>
         <div className="employee-breakdown employer-view">
-          { janeCooper.completedModules.map((m) =>
-            <div className="employee-module-item">
+          { selectedEmployee?.completedModules?.map((m) => (
+            <div className="employee-module-item" key={m.moduleInfo.id}>
               <div className="employee-module-item-left">
                 <h4>{m.moduleInfo.title}</h4>
                 <p>{m.lessons?.length} of {m.moduleInfo.lessons?.length} complete</p>
@@ -569,32 +637,12 @@ export default function Analytics() {
                 </Tooltip>
               </div>
             </div>
-          )}
-          { janeCooper.modulesInProgress.map((m) =>
-            <div className="employee-module-item progress">
-              <div className="employee-module-item-top">
-                <div className="employee-module-item-left">
-                  <h4>{m.moduleInfo.title}</h4>
-                  <p>{m.lessons?.length} of {m.moduleInfo.lessons?.length} complete</p>
-                </div>
-                <div className="employee-module-item-right">
-                  <div className="employee-module-item-score">
-                    <h2>{m.score}%</h2>
-                    <p>Current Score</p>
-                  </div>
-                </div>
-              </div>
-              <div className="employee-module-item-bottom">
-                <p>{m.percent}% Progress</p>
-                <div className="module-progress-bar">
-                  <div className="module-progress-bar-fill" style={{ width: `${m.percent}%` }}/>
-                </div>
-              </div>
-            </div>
-          )}
+          ))}
         </div>
       </div>
 
-    </>
+     </>
+    )}
+  </>
   );
 }
