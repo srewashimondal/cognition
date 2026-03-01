@@ -9,6 +9,12 @@ export type SummaryChatThread = {
     messages: MessageType[];
 };
 
+export type LessonEvaluation = {
+    strengths?: string;
+    shortcomings?: string;
+    overallFeedback?: string;
+};
+
 export type StandardLessonAttempt = {
     id: string;
     lessonInfo: StandardLessonType;
@@ -20,6 +26,7 @@ export type StandardLessonAttempt = {
     messages?: SummaryChatThread[];
     isLocked?: boolean;
     timeSpent?: number;
+    evaluation?: LessonEvaluation;
 };
 
 export type StandardModuleAttempt = {

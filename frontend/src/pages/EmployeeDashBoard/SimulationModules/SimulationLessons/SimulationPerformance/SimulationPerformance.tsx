@@ -1,7 +1,10 @@
 import './SimulationPerformance.css';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useState, useMemo, useEffect } from 'react';
-import { moduleAttempts } from '../../../../../dummy_data/modulesAttempt_data';
+import { collection, query, where, getDocs, doc } from "firebase/firestore";
+import { db } from "../../../../../firebase";  
+import { getAuth } from "firebase/auth";
+import type { StandardModuleAttempt } from '../../../../../types/Standard/StandardAttempt';
 import back_arrow from '../../../../../assets/icons/orange-left-arrow.svg';
 import ActionButton from '../../../../../components/ActionButton/ActionButton';
 
@@ -11,31 +14,79 @@ export default function SimulationPerformance() {
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState<'overview' | 'detailed'>('overview');
 
-  const moduleAttempt = useMemo(() => {
-    return moduleAttempts.find(attempt => attempt.moduleInfo.id === Number(moduleId));
+  const [moduleAttempt, setModuleAttempt] = useState<StandardModuleAttempt | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchModuleAttempt = async () => {
+      if (!moduleId) return;
+
+      const auth = getAuth();
+      const user = auth.currentUser;
+      if (!user) return;
+
+      try {
+        const attemptsRef = collection(db, "standardModuleAttempts");
+
+        const q = query(
+          attemptsRef,
+          where("user", "==", doc(db, "users", user.uid)),
+          where("moduleInfo", "==", doc(db, "standardModules", moduleId))
+        );
+
+        const snapshot = await getDocs(q);
+
+        if (!snapshot.empty) {
+          const docSnap = snapshot.docs[0];
+
+          setModuleAttempt({
+            id: docSnap.id,
+            ...docSnap.data()
+          } as StandardModuleAttempt);
+        } else {
+          console.log("No module attempt found");
+          setModuleAttempt(null);
+        }
+      } catch (err) {
+        console.error(err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchModuleAttempt();
   }, [moduleId]);
 
-  if (!moduleAttempt) {
-    return <div className="simulation-performance">Module not found</div>;
-  }
+  useEffect(() => {
+    window.scrollTo({ top: 0, left: 0, behavior: "instant" });
+  }, []);
 
   // Aggregate evaluation data from all completed lessons
   const aggregatedEvaluation = useMemo(() => {
+    if (!moduleAttempt) {
+      return {
+        strengths: [],
+        shortcomings: [],
+        overallFeedback: ""
+      };
+    }
+
     const completedLessons = moduleAttempt.lessons?.filter(
-      lesson => lesson.status === 'completed' && lesson.evaluation
+      (lesson: any) => lesson.status === 'completed' && lesson.evaluation
     ) || [];
 
     const allStrengths = completedLessons
       .map(lesson => lesson.evaluation?.strengths || '')
       .filter(s => s.length > 0);
-    
+
     const allShortcomings = completedLessons
       .map(lesson => lesson.evaluation?.shortcomings || '')
       .filter(s => s.length > 0);
 
-    const overallFeedback = completedLessons.length > 0
-      ? completedLessons[completedLessons.length - 1].evaluation?.overallFeedback || ''
-      : '';
+    const overallFeedback =
+      completedLessons.length > 0
+        ? completedLessons[completedLessons.length - 1].evaluation?.overallFeedback || ''
+        : '';
 
     return {
       strengths: allStrengths,
@@ -45,15 +96,28 @@ export default function SimulationPerformance() {
   }, [moduleAttempt]);
 
   const timeSpent = useMemo(() => {
+    if (!moduleAttempt) return "0 min";
+
     const completedLessons = moduleAttempt.lessons?.filter(
       lesson => lesson.status === 'completed'
     ) || [];
+
     const totalMinutes = completedLessons.reduce(
-      (sum, lesson) => sum + (lesson.lessonInfo.duration || 0), 
+      (sum, lesson) => sum + (lesson.lessonInfo.duration || 0),
       0
     );
+
     return `${totalMinutes} min`;
   }, [moduleAttempt]);
+
+  if (loading) {
+    return <div className="simulation-performance">Loading...</div>;
+  }
+
+  if (!moduleAttempt) {
+    return <div className="simulation-performance">Module not found</div>;
+  }
+
 
   const completionDate = moduleAttempt.completionDate;
   
@@ -132,9 +196,6 @@ export default function SimulationPerformance() {
     ]
   };
 
-  useEffect(() => {
-    window.scrollTo({ top: 0, left: 0, behavior: "instant" });
-  }, []);
 
   return (
     <div className="simulation-performance">

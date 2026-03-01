@@ -5,7 +5,7 @@ import ModuleCard from '../../../cards/ModuleCard/ModuleCard';
 import type { StandardModuleType } from '../../../types/Standard/StandardModule';
 import type { EmployeeUserType } from '../../../types/User/UserType';
 import type { StandardModuleAttempt } from '../../../types/Standard/StandardAttempt';
-import { collection, doc, getDoc, getDocs, query, where } from "firebase/firestore";
+import { collection, doc, getDoc, getDocs, query, updateDoc, where } from "firebase/firestore";
 import { db } from '../../../firebase';
 
 export default function StandardModules({ user }: { user: EmployeeUserType }) {
@@ -56,6 +56,11 @@ export default function StandardModules({ user }: { user: EmployeeUserType }) {
                         });
 
                         const percent = totalLessons === 0 ? 0 : Math.round((completedCount / totalLessons) * 100);
+                        if (percent === 100 && data.status !== "completed") {
+                        await updateDoc(moduleAttemptRef, {
+                            status: "completed"
+                        });
+                        }
                         
                         return {
                             id: docSnap.id,
