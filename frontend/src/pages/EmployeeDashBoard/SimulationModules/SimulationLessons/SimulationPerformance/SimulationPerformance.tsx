@@ -1,7 +1,7 @@
 import './SimulationPerformance.css';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useState, useMemo, useEffect } from 'react';
-import { collection, query, where, getDocs, doc } from "firebase/firestore";
+import { collection, query, where, getDocs, doc, onSnapshot } from "firebase/firestore";
 import { db } from "../../../../../firebase";  
 import { getAuth } from "firebase/auth";
 import type { StandardModuleAttempt } from '../../../../../types/Standard/StandardAttempt';
@@ -18,43 +18,34 @@ export default function SimulationPerformance() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const fetchModuleAttempt = async () => {
-      if (!moduleId) return;
+    if (!moduleId) return;
 
-      const auth = getAuth();
-      const user = auth.currentUser;
-      if (!user) return;
+    const auth = getAuth();
+    const user = auth.currentUser;
+    if (!user) return;
 
-      try {
-        const attemptsRef = collection(db, "standardModuleAttempts");
+    const attemptsRef = collection(db, "standardModuleAttempts");
 
-        const q = query(
-          attemptsRef,
-          where("user", "==", doc(db, "users", user.uid)),
-          where("moduleInfo", "==", doc(db, "standardModules", moduleId))
-        );
+    const q = query(
+      attemptsRef,
+      where("user", "==", doc(db, "users", user.uid)),
+      where("moduleInfo", "==", doc(db, "standardModules", moduleId))
+    );
 
-        const snapshot = await getDocs(q);
-
-        if (!snapshot.empty) {
-          const docSnap = snapshot.docs[0];
-
-          setModuleAttempt({
-            id: docSnap.id,
-            ...docSnap.data()
-          } as StandardModuleAttempt);
-        } else {
-          console.log("No module attempt found");
-          setModuleAttempt(null);
-        }
-      } catch (err) {
-        console.error(err);
-      } finally {
-        setLoading(false);
+    const unsubscribe = onSnapshot(q, (snapshot) => {
+      if (!snapshot.empty) {
+        const docSnap = snapshot.docs[0];
+        setModuleAttempt({
+          id: docSnap.id,
+          ...docSnap.data()
+        } as StandardModuleAttempt);
+      } else {
+        setModuleAttempt(null);
       }
-    };
+      setLoading(false);
+    });
 
-    fetchModuleAttempt();
+    return () => unsubscribe();
   }, [moduleId]);
 
   useEffect(() => {
