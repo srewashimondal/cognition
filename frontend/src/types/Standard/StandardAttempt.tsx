@@ -19,6 +19,7 @@ export type StandardLessonAttempt = {
     completedAt?: string;
     messages?: SummaryChatThread[];
     isLocked?: boolean;
+    timeSpent?: number;
 };
 
 export type StandardModuleAttempt = {

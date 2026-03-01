@@ -157,6 +157,8 @@ export default function EmployerHome({ viewer, workspace }: { viewer: EmployerUs
       return lastActive >= weekAgo;
     }).length;
 
+  const activePercent = totalEmployees > 0 ? Math.round((activeThisWeek / totalEmployees) * 100): 0;
+
   console.log("EmployerHome rendering with:", { viewer, workspace });
   
   if (!workspace) {
@@ -201,6 +203,28 @@ export default function EmployerHome({ viewer, workspace }: { viewer: EmployerUs
   const selectedEmployee =
   chosenProfile !== null ? employees[chosenProfile] : undefined;
 
+  const totalModuleCompletions = moduleAttempts.filter(
+    (a) => a.status === "completed"
+  ).length;
+
+  const totalPossibleCompletions = employees.length * modules.length;
+
+  const overallCompletionRate = totalPossibleCompletions > 0 ? Math.round((totalModuleCompletions / totalPossibleCompletions) * 100): 0;
+
+  const averageTimePerLesson =
+  moduleAttempts.length > 0
+    ? (
+        moduleAttempts.reduce((sum, m) => {
+          const lessonTime =
+            m.lessons?.reduce(
+              (lessonSum, l) => lessonSum + (l.timeSpent ?? 0),
+              0
+            ) ?? 0;
+          return sum + lessonTime;
+        }, 0) / moduleAttempts.length
+      ).toFixed(1)
+    : 0;
+
   return (
   
     <div className="employer-dashboard">
@@ -240,7 +264,9 @@ export default function EmployerHome({ viewer, workspace }: { viewer: EmployerUs
       <WorkspaceHero role={"employer"} workspace={workspace} onClick={() => setOpenModal(true)} />
 
       <div className="analytics-header">
-        <h3 className="section-title">Acme Retail Analytics Overview</h3>
+        <h3 className="section-title">
+          {workspace.name} Analytics Overview
+        </h3>
       </div>
   
       <div className="analytics-grid">
@@ -250,7 +276,7 @@ export default function EmployerHome({ viewer, workspace }: { viewer: EmployerUs
               <span>
                 <img src={trending_up} />
               </span>
-              +8% this week
+              +{activePercent}% this week
             </div>
             <h3 className="analytics-value">{activeThisWeek}</h3>
             <span className="analytics-change">Active this week</span>
@@ -267,7 +293,7 @@ export default function EmployerHome({ viewer, workspace }: { viewer: EmployerUs
               <span>
                 <img src={trending_up} />
               </span>
-              +12% this week
+              {averageLessonScore > 0 ? `+${averageLessonScore}%` : "0%"} overall
             </div>
             <h3 className="analytics-value">{averageLessonScore}%</h3>
             <span className="analytics-change">Average lesson score</span>
@@ -286,7 +312,7 @@ export default function EmployerHome({ viewer, workspace }: { viewer: EmployerUs
               </span>
               -5% this week
             </div>
-            <h3 className="analytics-value">78%</h3>
+            <h3 className="analytics-value">{overallCompletionRate}%</h3>
             <span className="analytics-change">Completion rate</span>
             <p className="analytics-label">modules finished</p>
           </div>
@@ -297,7 +323,7 @@ export default function EmployerHome({ viewer, workspace }: { viewer: EmployerUs
 
         <div className="analytics-card">
           <div className="analytics-left">
-            <h3 className="analytics-value">12.5</h3>
+            <h3 className="analytics-value">{averageTimePerLesson}</h3>
             <span className="analytics-change">minutes on average</span>
             <p className="analytics-label">time per lesson</p>
           </div>
