@@ -177,15 +177,69 @@ export default function EmployerHome({ viewer, workspace }: { viewer: EmployerUs
   const [showAll, setShowAll] = useState(false);
   const [openModal, setOpenModal] = useState(false);
 
-  const visibleEmployees = employees.filter(() => {
-  if (!search) return true;
+  let processedEmployees = [...employees];
+    const [filterType, setFilterType] = useState<
+    "all" | "top" | "attention" | "active"
+  >("all");
 
-  const term = search.toLowerCase();
-    return (
-      "jane cooper".includes(term) ||
-      "121948ash".includes(term)
+  const [sortType, setSortType] = useState<
+    "name" | "score" | "joinDate"
+  >("name");
+
+  // 🔹 FILTER
+  if (filterType === "top") {
+    processedEmployees = processedEmployees.filter(
+      (e) => (e.averageScore ?? 0) >= 80
     );
-  });
+  }
+
+  if (filterType === "attention") {
+    processedEmployees = processedEmployees.filter(
+      (e) => (e.averageScore ?? 0) < 60
+    );
+  }
+
+  if (filterType === "active") {
+    processedEmployees = processedEmployees.filter((e) => {
+      if (!e.learningStreak?.lastActiveDate) return false;
+
+      const lastActive = new Date(e.learningStreak.lastActiveDate);
+      const weekAgo = new Date();
+      weekAgo.setDate(weekAgo.getDate() - 7);
+
+      return lastActive >= weekAgo;
+    });
+  }
+
+  if (search.trim()) {
+    const term = search.toLowerCase().trim();
+
+    processedEmployees = processedEmployees.filter((emp) =>
+      (emp.fullName ?? "").toLowerCase().includes(term) ||
+      (emp.jobTitle ?? "").toLowerCase().includes(term) ||
+      (emp.employeeID ?? "").toLowerCase().includes(term)
+    );
+  }
+
+  if (sortType === "name") {
+    processedEmployees.sort((a, b) =>
+      (a.fullName ?? "").localeCompare(b.fullName ?? "")
+    );
+  }
+
+  if (sortType === "score") {
+    processedEmployees.sort(
+      (a, b) => (b.averageScore ?? 0) - (a.averageScore ?? 0)
+    );
+  }
+
+  if (sortType === "joinDate") {
+    processedEmployees.sort(
+      (a, b) =>
+        new Date(b.joinDate).getTime() -
+        new Date(a.joinDate).getTime()
+    );
+  }
 
   useEffect(() => {
     if (profileOpen) return;
@@ -580,13 +634,31 @@ export default function EmployerHome({ viewer, workspace }: { viewer: EmployerUs
                     onChange={(e) => setSearch(e.target.value)}
                   />
 
-                  <button className="control-btn">Filter</button>
-                  <button className="control-btn">Sort</button>
+                  <select
+                    className="control-btn"
+                    value={filterType}
+                    onChange={(e) => setFilterType(e.target.value as any)}
+                  >
+                    <option value="all">All</option>
+                    <option value="top">Top Performers</option>
+                    <option value="attention">Needs Attention</option>
+                    <option value="active">Active This Week</option>
+                  </select>
+
+                  <select
+                    className="control-btn"
+                    value={sortType}
+                    onChange={(e) => setSortType(e.target.value as any)}
+                  >
+                    <option value="name">Sort by Name</option>
+                    <option value="score">Sort by Score</option>
+                    <option value="joinDate">Sort by Join Date</option>
+                  </select>
                 </div>
               </div>
 
               <div className="employee-grid">
-              {employees.map((emp, i) => (
+              {processedEmployees.map((emp, i) => (
 
                 <div className="employee-card" key={emp.uid}>
 
