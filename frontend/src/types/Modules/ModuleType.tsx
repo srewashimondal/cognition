@@ -14,4 +14,5 @@ export type ModuleType = {
     kind: "simulation";
     lastModified?: string;
     orderNumber: number;
+    workspaceRef: DocumentReference;
 };

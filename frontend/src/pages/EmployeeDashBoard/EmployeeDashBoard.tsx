@@ -11,10 +11,6 @@ import defaultIcon from '../../assets/icons/default-icon.svg';
 // import { workspace } from '../../dummy_data/workspace_data';
 import { useAuth } from "../../context/AuthProvider.tsx"; 
 import { useWorkspace } from '../../context/WorkspaceProvider.tsx';
-/*
-import SimulationLessonView from './SimulationLessonView/SimulationLessonView/SimulationLessonView';
-import SimulationView from './SimulationView/SimulationView';
-*/
 import StandardModules from './StandardModules/StandardModules';
 import SimulationModules from './SimulationModules/SimulationModules';
 import EmployeeHome from './EmployeeHome/EmployeeHome';
@@ -269,9 +265,7 @@ export default function EmployeeDashBoard() {
             <Route index element={<EmployeeHome user={user} workspace={workspace} />} />
             <Route path="simulations" element={<SimulationModules user={user} />} />
             <Route path="simulations/:moduleID" element={<SimulationLessons />} />
-            {/*<Route path="simulations/:moduleID/:lessonID/:simIdx" element={<SimulationPage role={"employee"} />} /> */}
-            {/*<Route path="simulation-lesson-view" element={<SimulationLessonView />} />
-            <Route path="simulation-view" element={<SimulationView />} />*/}
+            <Route path="simulations/:moduleID/:lessonID/:simIdx" element={<SimulationPage role={"employee"} />} /> 
             {/*<Route path="simulations/:moduleId/performance" element={<SimulationPerformance />}/>
             <Route path="schedule" element={<Schedule />} />*/}
             <Route path="standard-modules" element={<StandardModules user={user} />} />

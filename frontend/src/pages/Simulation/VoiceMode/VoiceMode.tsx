@@ -11,7 +11,7 @@ type VoiceModeProps = {
     messages: MessageType[];
     switchType: () => void;
     handleBack: () => void;
-    handleClick: (messageID: number) => void;
+    handleClick: (messageID: string) => void;
 };
 
 export default function VoiceMode({ title, idx, messages, switchType, handleBack, handleClick }: VoiceModeProps) {
@@ -48,10 +48,10 @@ export default function VoiceMode({ title, idx, messages, switchType, handleBack
                 (<div className="scroll-wrapper">
                     <div className="scrollable-transcript" ref={transcriptRef}>
                         {chatMessages.filter(m => m.role !== "assistant").map((m, i, arr) => <ChatBubble key={m.id} 
-                        message={m} allMessages={chatMessages} className={i === arr.length - 1 ? "last-message" : i === 0 ? "first-message": ""}
+                        message={m} className={i === arr.length - 1 ? "last-message" : i === 0 ? "first-message": ""}
                         handleClick={() => handleClick(m.id)} />)}
                     </div>
-                    <p>Transcript</p>
+                    <p className="transcript-label">Transcript</p>
                     <div className="blur-top" />
                     <div className="blur-bottom" />
                 </div>) :

@@ -91,3 +91,19 @@ class AICreateRequest(BaseModel):
     module_id: str
     user_message: str
     reference_ids: Optional[List[str]] = None
+
+class CreateSimulationRequest(BaseModel):
+    workspace_id: str
+    lesson_attempt_id: str
+    sim_index: int
+    store_info: dict
+    lesson_title: str
+    lesson_skills: List[str]
+    lesson_difficulty: str
+    lesson_abstract: dict
+    reference_ids: Optional[List[str]] = None
+
+class SimulationReplyRequest(BaseModel):
+    lesson_attempt_id: str
+    sim_index: int
+    reply_to_id: str

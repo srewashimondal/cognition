@@ -11,44 +11,44 @@ type TypeModeProps = {
     messages: MessageType[];
     switchType: () => void;
     handleBack: () => void;
-    handleClick: (messageID: number) => void;
+    handleClick: (messageID: string) => void;
+    handleSendMessage: (text: string) => void;
+    onTypingComplete: () => void;
+    typingMessageId: string | null;
+    name: string;
 };
 
-export default function TypeMode({ title, idx, messages, switchType, handleBack, handleClick }: TypeModeProps) {
+export default function TypeMode({ title, idx, messages, switchType, handleBack, handleClick, handleSendMessage, onTypingComplete, typingMessageId, name }: TypeModeProps) {
     const transcriptRef = useRef<HTMLDivElement | null>(null);
-    const [chatMessages, setChatMessages] = useState<MessageType[]>(messages ?? []);
     const [userInput, setUserInput] = useState("");
+    const [isLoading, setIsLoading] = useState(false);
 
     useEffect(() => {
         if (transcriptRef.current) {
           transcriptRef.current.scrollTop =
             transcriptRef.current.scrollHeight;
         }
-    }, [chatMessages]);
+    }, [messages]);
 
     useEffect(() => {
         const el = transcriptRef.current;
         if (!el) return;
     
         el.scrollTop = el.scrollHeight;
-    }, [chatMessages]);
+    }, [messages]);
 
-    const handleSend = () => {
-        if (!userInput.trim()) return;
+    const handleSend = async () => {
+        const text = userInput.trim();
+        if (!text) return;
 
-        setChatMessages(prev => {
-            const lastId = prev.length > 0 ? prev[prev.length - 1].id : 0;
-
-            const newMessage: MessageType = {
-                id: lastId + 1,
-                role: "user",
-                content: userInput,
-            };
-
-            return [...prev, newMessage];
-        });
         setUserInput("");
+        setIsLoading(true);
+
+        await handleSendMessage(text);
+        setIsLoading(false);
     };
+
+    console.log(messages);
 
     return (
         <div className="type-chat">
@@ -60,11 +60,27 @@ export default function TypeMode({ title, idx, messages, switchType, handleBack,
                 <div className="filler text" />
             </div>
             <div className="scroll-wrapper text">
-            { (chatMessages.length > 0) ?
+            { (messages.length > 0) ?
                 (<div className="scrollable-transcript text" ref={transcriptRef}>
-                    <div className="scroll-spacer" />
-                    {chatMessages.filter(m => m.role !== "assistant").map((m, i, arr) => <ChatBubble key={m.id} message={m} allMessages={chatMessages} 
-                    className={i === arr.length - 1 ? "last-message" : i === 0 ? "first-message": ""} handleClick={() => handleClick(m.id)} />)}
+                    {messages.filter(m => m.role !== "assistant").map((m, i, arr) => 
+                        {   
+                            const shouldType = m.role === "character" && m.id === typingMessageId;
+                            const isFirst = m.id === arr[0]?.id;
+                            const isLast = m.id === arr[arr.length - 1]?.id;
+
+                            return (<ChatBubble key={m.id} message={m} 
+                            className={isLast ? "last-message" : isFirst ? "first-message": ""} 
+                            handleClick={() => handleClick(m.id)} 
+                            shouldType={shouldType} onTypingComplete={onTypingComplete} />)
+                        })}
+                    {isLoading && (
+                        <div className="chat-bubble-wrapper character loading-simulation">
+                            <span className="role-text">{name}</span>
+                            <div className="chat-bubble assistant loading-bubble">
+                                <div className="spinner" />
+                            </div>
+                        </div>
+                    )}
                 </div>) :
                 (<div className="empty-wrapper text">
 
@@ -85,7 +101,8 @@ export default function TypeMode({ title, idx, messages, switchType, handleBack,
                     </div>
                 </div>*/}
                 <div className="chatbar-wrapper chat-input">
-                    <ChatBar context="simulation" userInput={userInput} setUserInput={setUserInput} handleSend={handleSend} handleVoiceMode={switchType} />
+                    <ChatBar context="simulation" userInput={userInput} setUserInput={setUserInput} handleSend={handleSend} handleVoiceMode={switchType} 
+                    typingMessageId={typingMessageId} handleStop={onTypingComplete} />
                 </div>
             </div>
         </div>

@@ -915,3 +915,279 @@ class LLMService:
             parsed["message"]["id"] = str(uuid.uuid4())
 
         return parsed
+    
+    def generate_simulation(
+        self, 
+        store_info: dict,
+        lesson_title: str, 
+        lesson_skills: List[str], 
+        lesson_difficulty: str, 
+        lesson_abstract: dict, 
+        reference_summaries: Optional[List[dict]] = None
+    ):
+
+        prompt = f"""
+        You are an AI system generating a structured retail employee training simulation.
+
+        The goal is to create a realistic, skill-focused scenario that helps the employee practice applying the lesson concepts in a live customer interaction.
+
+        STORE INFORMATION:
+        {store_info}
+
+        LESSON INTFORMATION:
+        
+        Title: {lesson_title}
+
+        Skills Being Practiced:
+        {", ".join(lesson_skills)}
+
+        Lesson Difficulty:
+        {lesson_difficulty}
+
+        Lesson Abstract (Summary of Key Concepts):
+        {lesson_abstract}
+
+        Reference Materials (If available):
+        {reference_summaries or "None provided"}
+
+        DIFFICULTY FRAMEWORK:
+
+        Beginner:
+            - Customer is calm and cooperative
+            - Single clear problem
+            - Low emotional tension
+            - Straightforward solution
+            - Minimal policy conflict
+
+        Intermediate:
+            - Customer shows mild frustration or confusion
+            - Multiple factors involved
+            - Requires prioritization or clarification
+            - Minor policy or constraint complication
+
+        Advanced:
+            - Customer is emotionally charged, impatient, or skeptical
+            - Multi-layered problem
+            - Requires balancing customer satisfaction with company policy
+            - Ambiguity or conflicting goals present
+            - High decision-making pressure
+
+        INSTRUCTIONS:
+        
+        1. Generate a realistic customer character:
+            - Provide a first name. Avoid making it too generic since the employee can meet customers of any background.
+        
+        2. Create a scenario premise:
+            - 4-6 sentences
+            - The first 1-2 sentences are a short description of who the character is
+            - The remaining sentences should be the premise itself.
+            - Realistic retail environment
+            - All scenarios MUST take place in the store environment specified.
+            - The customer behavior, products, and challenges must match this store type.
+            - Must require use of the lesson skills
+            - Adjust the scenario complexity to match the specified difficulty level
+            - The employee must make decisions (not just answer a question)
+            - The scenario must reference realistic products or services specific to the store type.
+            - Do not invent unrelated product categories.
+            - Make sure the scenario is randomized. 
+
+        3. Generate the first in-character opening message from the customer:
+            - 2-4 sentences
+            - Written as dialogue (what the customer would say)
+            - Must reflect emotional tone and difficulty level
+            - Must introduce the problem naturally
+            - Must NOT include evaluation
+            - Must NOT mention this is a simulation
+        
+        4. Generate structured evaluation criteria that define how employee responses should be assessed during this simulation. These criteria must:
+            - Be directly tied to the lesson skills
+            - Reflect the specified difficulty
+            - Include measurable indicators
+            - Not require re-reading lesson abstracts during scoring
+
+        5. Ensure:
+            - The situation feels authentic
+            - The customer has a clear goal
+            - There is room for the employee to make mistakes
+            - The skills from the lesson are REQUIRED to handle it well
+
+        5. Do NOT include:
+            - Dialogue
+            - Bullet points
+            - Extra commentary
+            - Markdown formatting
+            - Any text outside of valid JSON
+
+        RESPONSE FORMAT (STRICT JSON ONLY):
+
+        {{
+            "characterName": "First name of the customer only",
+            "premise": "4-6 sentence scenario premise written as a paragraph.",
+            "openingMessage": "Customer's first spoken line.",
+            "evaluationCriteria": {{
+                "skillApplication": {{
+                    "description": "How well the employee applies lesson-specific skills.",
+                    "indicators": []
+                }},
+                "communicationQuality": {{
+                    "indicators": []
+                }},
+                "policyAdherence": {{
+                    "requiredChecks": []
+                }},
+                "emotionalIntelligence": {{
+                    "expectedBehaviors": []
+                }},
+                "storeAlignment": {{
+                    "brandToneRequirements": [],
+                    "productKnowledgeExpectations": [],
+                    "storeSpecificConstraints": [],
+                    "targetCustomerConsiderations": []
+                }},
+                "difficultyModifiers": {{
+                    "pressurePoints": [],
+                    "expectedDecisionComplexity": "Brief description of decision complexity."
+                }}
+            }}
+        }}
+
+        Return ONLY valid JSON.
+
+        """
+
+        response = self.client.chat.completions.create(
+            model="gpt-4o-mini",
+            messages=[{"role": "user", "content": prompt}],
+            temperature=0.4,
+            response_format={"type": "json_object"}
+        )
+
+        parsed = json.loads(response.choices[0].message.content)
+        return parsed
+    
+    def generate_simulation_reply(
+        self,
+        character_name: str,
+        premise: str,
+        evaluation_criteria: dict,
+        conversation_history: List[dict],
+    ):
+        message_history = []
+
+        for msg in conversation_history:
+            if msg["role"] == "assistant":
+                continue  
+
+            if msg["role"] == "character":
+                message_history.append({
+                    "role": "assistant",   
+                    "content": f"{character_name}: {msg["content"]}"
+                })
+            else:
+                message_history.append({
+                    "role": "user",
+                    "content": msg["content"]
+                })
+
+        system_message = """
+            You are operating inside a structured AI-powered retail training simulation.
+
+            You have TWO distinct responsibilities:
+
+            1) Character Mode:
+            - Play the customer character realistically.
+            - Maintain emotional continuity.
+            - Reflect the scenario difficulty and pressure points.
+            - Progress the situation naturally.
+            - Do NOT evaluate the employee while in character.
+
+            2) Evaluator Mode:
+            - Evaluate ONLY the employee's MOST RECENT message.
+            - Use the provided evaluation criteria strictly.
+            - Do NOT invent new criteria.
+            - Do NOT evaluate earlier messages.
+            - Do NOT reward generic or vague responses.
+
+            SCORING RULES:
+            - Score each category from 1 to 10.
+            - A score of 10 represents near-perfect execution with no missing indicators.
+            - Average performance should fall between 5 and 7.
+            - Missing required indicators must reduce the score.
+            - Violating policy checks must significantly reduce the score.
+            - If emotional intelligence is required but not demonstrated, deduct points.
+            - Be fair but critical.
+
+            IMPORTANT:
+            - Do not break character inside the character reply.
+            - Do not include commentary outside JSON.
+            - Return STRICT valid JSON only.
+            - No markdown.
+            - No extra explanation.
+        """
+
+        context_message = f"""
+            SIMULATION CONTEXT
+
+            Character Name:
+            {character_name}
+
+            Scenario Premise:
+            {premise}
+
+            Evaluation Criteria:
+            {json.dumps(evaluation_criteria, ensure_ascii=False, indent=2)}
+
+            You will now receive the full chronological conversation history.
+            The LAST message in the conversation is the employee's newest response.
+            Evaluate ONLY that final employee message.
+
+            INSTRUCTIONS:
+
+            STEP 1 — CHARACTER RESPONSE
+            Generate the next reply from the customer.
+            - 2–5 sentences.
+            - Maintain realism.
+            - Reflect the emotional state described in the premise.
+            - If difficulty requires pressure or constraints, introduce them naturally.
+            - Do NOT evaluate inside this reply.
+
+            STEP 2 — EVALUATION
+            Switch to evaluator mode.
+
+            Evaluate ONLY the employee's most recent message.
+
+            Return the following JSON structure EXACTLY:
+
+            {{
+                "characterReply": "Customer reply here.",
+                "evaluation": {{
+                    "overallScore": integer,
+                    "criteriaBreakdown": {{
+                        "skillApplication": integer,
+                        "communicationQuality": integer,
+                        "policyAdherence": integer,
+                        "emotionalIntelligence": integer,
+                        "storeAlignment": integer
+                    }},
+                    "strengths": ["List of what the employee did well."],
+                    "areasForImprovement": ["List of specific weaknesses."],
+                    "improvedResponse": "A rewritten version of the employee's last message that would score 10/10."
+                }}
+            }}
+
+            Return STRICT JSON ONLY.
+        """
+
+        response = self.client.chat.completions.create(
+            model="gpt-4o-mini",
+            messages=[
+                {"role": "system", "content": system_message},
+                {"role": "user", "content": context_message},
+                *message_history
+            ],
+            temperature=0.4,
+            response_format={"type": "json_object"}
+        )
+
+        parsed = json.loads(response.choices[0].message.content)
+        return parsed

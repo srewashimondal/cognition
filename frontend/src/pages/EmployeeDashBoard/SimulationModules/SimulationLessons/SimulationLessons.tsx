@@ -125,15 +125,31 @@ export default function SimulationLessons() {
         fetchModuleAttempt();
     }, [moduleID]);
 
-    const handleSimNavigate = (moduleID: string, lessonID: string, status: string) => {
+    const handleSimNavigate = async (moduleID: string, lessonAttemptID: string, status: string) => {
         if (status === "not begun") {
-            navigate(`/employee/simulations/${moduleID}/${lessonID}/1`);
+            navigate(`/employee/simulations/${moduleID}/${lessonAttemptID}/1`);
             return;
         }
-        const lessonAttempt = moduleAttempt?.lessons?.find(l => l.lessonInfo.id === lessonID);
-        const nextSimIndex = lessonAttempt?.simulations?.findIndex(s => s.status !== "completed") ?? 0;
-        navigate(`/employee/simulations/${moduleID}/${lessonID}/${nextSimIndex + 1}`);
-    };
+      
+        try {
+            const simsRef = collection(
+                db,
+                "simulationLessonAttempts",
+                lessonAttemptID,
+                "simulations"
+            );
+      
+            const snap = await getDocs(simsRef);
+            const sims = snap.docs.map(d => ({ id: d.id, ...d.data() })).sort((a, b) => a.id.localeCompare(b.id)); 
+            const nextIndex = sims.findIndex((s: any) => s.status !== "completed");
+            const simIndex = nextIndex === -1 ? sims.length - 1 : nextIndex;
+      
+            navigate(`/employee/simulations/${moduleID}/${lessonAttemptID}/${simIndex + 1}`);
+        } catch (err) {
+            console.error("Error fetching simulations:", err);
+            navigate(`/employee/simulations/${moduleID}/${lessonAttemptID}/1`);
+        }
+    }
 
     const handleModuleReset = () => {
         /* nothing for now */
@@ -190,7 +206,7 @@ export default function SimulationLessons() {
                 <div className="lessons-list">
                     {lessonAttempts?.map((l) => (<LessonCard lessonInfo={l.lessonInfo} 
                     role={"employee"} status={l.status} evaluation={l.evaluation} 
-                    navigateToSim={() => handleSimNavigate(moduleID ?? "", l.lessonInfo.id, l.status)} 
+                    navigateToSim={() => handleSimNavigate(moduleID ?? "", l.id, l.status)} 
                     isLocked={l.isLocked} />))}
                 </div>
 

@@ -91,6 +91,8 @@ export default function ChatBar({ context, userInput, setUserInput, handleSend, 
         handleSend();
         setSelectedContext([]);
     }   
+
+    console.log("ChatBar typingMessageId:", typingMessageId);
       
     return (
         <div className={`main-chat-wrapper ${context}`} ref={chatBarRef}>
@@ -133,7 +135,7 @@ export default function ChatBar({ context, userInput, setUserInput, handleSend, 
                 <div className={`chat-bar-input ${(showFileCond && (attachedFiles?.length ?? 0)) ? "expanded" : ""}`}>
                     <textarea placeholder={contextToPlaceholder[context]} value={userInput} 
                     onChange={(e) => {setUserInput(e.target.value); handleTextareaChange(e);}} 
-                    onKeyDown={(e) => {if (e.key === "Enter") {e.preventDefault(); handleSend(); setSelectedContext([]);}}} />
+                    onKeyUp={(e) => {if (e.key === "Enter") {e.preventDefault(); handleSend(); setSelectedContext([]);}}} />
                     <span className="send-icon" onClick={handleSendOrStop}>
                         <img src={typingMessageId !== null ? stop_icon : send_icon} />
                     </span>

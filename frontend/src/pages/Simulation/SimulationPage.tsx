@@ -1,9 +1,14 @@
 import './SimulationPage.css';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import VoiceMode from './VoiceMode/VoiceMode';
 import TypeMode from './TypeMode/TypeMode';
 import ActionButton from '../../components/ActionButton/ActionButton';
+import { collection, doc, query,  getDoc, setDoc, onSnapshot, orderBy, addDoc, serverTimestamp } from "firebase/firestore";
+import { db } from "../../firebase";
+import type { DocumentReference } from 'firebase/firestore';
+import type { LessonAttemptType } from '../../types/Modules/Lessons/LessonAttemptType';
+import type { ModuleType } from '../../types/Modules/ModuleType';
 // dummy data
 import { moduleAttempts } from '../../dummy_data/modulesAttempt_data';
 import black_lines_icon from '../../assets/icons/simulations/black-lines-icon.svg';
@@ -12,30 +17,195 @@ import grey_lines_icon from '../../assets/icons/simulations/grey-lines-icon.svg'
 import grey_ai_icon from '../../assets/icons/simulations/grey-ai-icon.svg';
 import message_icon from '../../assets/icons/simulations/message-icon.svg';
 import blue_trend_icon from '../../assets/icons/simulations/blue-trending-up-icon.svg';
+import type { LessonType } from '../../types/Modules/Lessons/LessonType';
+import type { MessageType } from '../../types/Modules/Lessons/Simulations/MessageType';
 
 export default function SimulationPage({ role }: { role: "employee" | "employer" }) {
     const { moduleID, lessonID, simIdx } = useParams();
-    const moduleId = Number(moduleID);
-    const lessonId = Number(lessonID);
-    const simulationIndex = simIdx !== undefined ? Number(simIdx) - 1 : 0;
+    const simulationIndex = Number(simIdx);
 
-    const moduleAttempt = moduleAttempts.find(m => m.moduleInfo.id === moduleId);
-    const lessonAttempts = moduleAttempt?.lessons;
-    const lessonAttempt = lessonAttempts?.find(l => l.lessonInfo.id === lessonId);
-    const lessonTitle = lessonAttempt?.lessonInfo.title;
-    const simAttempt = lessonAttempt?.simulations?.[simulationIndex];
-    const simInfo = simAttempt?.simulationInfo; // contains character name and sim premise
-    const messages = simAttempt?.messages;
+    const [lessonAttempt, setLessonAttempt] = useState<LessonAttemptType | null>(null);
+    const [simData, setSimData] = useState<any>(null);
+    const [messages, setMessages] = useState<any[]>([]);
+    const loading = !lessonAttempt || !simData || simData.generationStatus !== "ready";
 
     const [voiceMode, setVoiceMode] = useState(true);
     const [selectOption, setSelectOption] = useState<"premise" | "feedback">("premise");
-    const [selectedMessage, setSelectedMessage] = useState<number | null>(null);
+    const [selectedMessage, setSelectedMessage] = useState<string | null>(null);
     const messageInfo = selectedMessage !== null ? (messages?.find(m => selectedMessage === m.id)) ?? null : null;
     const feedbackInfo = selectedMessage !== null ? (messages?.find(m => selectedMessage === m.replyToId)) ?? null : null;
+    const [typingMessageId, setTypingMessageId] = useState<string | null>(null);
 
     useEffect(() => {
         window.scrollTo({ top: 0, left: 0, behavior: "instant" });
     }, []);
+
+    useEffect(() => {
+        if (!lessonID) return;
+      
+        const lessonAttemptRef = doc(
+            db,
+            "simulationLessonAttempts",
+            lessonID
+        );
+        
+        const unsub = onSnapshot(lessonAttemptRef, async (snap) => {
+            if (!snap.exists()) return;
+
+            const attemptData = snap.data() as Omit<LessonAttemptType, "id" | "lessonInfo"> 
+                & { lessonInfo: DocumentReference };
+            const lessonRef = attemptData.lessonInfo; 
+            const lessonSnap = await getDoc(lessonRef);
+
+            if (!lessonSnap.exists()) return;
+
+            const lessonInfo: LessonType = {
+                id: lessonSnap.id,
+                ...(lessonSnap.data() as Omit<LessonType, "id">)
+            };
+        
+            setLessonAttempt({
+                id: snap.id,
+                ...attemptData,
+                lessonInfo,
+            });
+        });
+      
+        return () => unsub();
+    }, [lessonID]);
+    
+    useEffect(() => {
+        if (!lessonID || !lessonAttempt) return;
+      
+        const simDocRef = doc(
+            db,
+            "simulationLessonAttempts",
+            lessonID,
+            "simulations",
+            `sim_${simulationIndex}`
+        );
+      
+        async function ensureSimulationExists() {
+            const snap = await getDoc(simDocRef);
+            const data = snap.data();
+        
+            console.log("Simulation exists?", snap.exists());
+            console.log("Generation status:", data?.generationStatus);
+        
+            if (snap.exists() && data?.generationStatus === "ready") {
+                return;
+            }
+        
+            if (!snap.exists()) {
+                await setDoc(simDocRef, {
+                generationStatus: "generating",
+                completionStatus: "not begun",
+                createdAt: new Date()
+                });
+            }
+        
+            const moduleAttemptRef = lessonAttempt?.moduleRef;
+            if (!moduleAttemptRef) return;
+        
+            const moduleAttemptSnap = await getDoc(moduleAttemptRef);
+            if (!moduleAttemptSnap.exists()) return;
+        
+            const moduleAttemptData = moduleAttemptSnap.data();
+            const moduleInfoRef = moduleAttemptData.moduleInfo;
+        
+            const moduleInfoSnap = await getDoc(moduleInfoRef);
+            if (!moduleInfoSnap.exists()) return;
+        
+            const moduleInfoData = moduleInfoSnap.data() as Omit<ModuleType, "id">;
+        
+            const lessonDifficulty = moduleInfoData.difficulty;
+            const referenceIds =
+                moduleInfoData.references?.map((ref: DocumentReference) => ref.id) ?? [];
+        
+            const workspaceRef = moduleInfoData.workspaceRef;
+        
+            const workspaceSnap = await getDoc(workspaceRef);
+            if (!workspaceSnap.exists()) return;
+        
+            const storeRef = workspaceSnap.data().storeID;
+            const storeSnap = await getDoc(storeRef);
+            if (!storeSnap.exists()) return;
+        
+            const storeInfo = storeSnap.data();
+        
+            console.log("Calling backend...");
+        
+            await fetch("http://127.0.0.1:8000/ai/create-simulation", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                workspace_id: workspaceRef.id,
+                lesson_attempt_id: lessonID,
+                sim_index: simulationIndex,
+                store_info: storeInfo,
+                lesson_title: lessonAttempt.lessonInfo.title,
+                lesson_skills: lessonAttempt.lessonInfo.skills,
+                lesson_difficulty: lessonDifficulty,
+                lesson_abstract: lessonAttempt.lessonInfo.lessonAbstractInfo,
+                reference_ids: referenceIds
+                })
+            });
+        }
+      
+        ensureSimulationExists();
+    }, [lessonID, simulationIndex, lessonAttempt]);
+ 
+    useEffect(() => {
+        if (!lessonID) return;
+      
+        const messagesRef = collection(
+            db,
+            "simulationLessonAttempts",
+            lessonID,
+            "simulations",
+            `sim_${simulationIndex}`,
+            "messages"
+        );
+      
+        const unsub = onSnapshot(
+            query(messagesRef, orderBy("timestamp")),
+            (snap) => {
+                const msgs = snap.docs.map(d => ({
+                    id: d.id,
+                    ...(d.data() as Omit<MessageType, "id">)
+                }));
+                setMessages(msgs);
+
+                const last = msgs[msgs.length - 1];
+                if (last?.role === "character" && expectingReply) {
+                    setTypingMessageId(last.id);
+                    setExpectingReply(false);
+                }
+            }
+        );
+      
+        return () => unsub();
+    }, [lessonID, simulationIndex]);
+
+    useEffect(() => {
+        if (!lessonID) return;
+    
+        const simDocRef = doc(
+            db,
+            "simulationLessonAttempts",
+            lessonID,
+            "simulations",
+            `sim_${simulationIndex}`
+        );
+    
+        const unsub = onSnapshot(simDocRef, (snap) => {
+            if (!snap.exists()) return;
+    
+            setSimData(snap.data()); 
+        });
+    
+        return () => unsub();
+    }, [lessonID, simulationIndex])
 
     const navigate = useNavigate();
     const handleBack = () => {
@@ -48,7 +218,7 @@ export default function SimulationPage({ role }: { role: "employee" | "employer"
 
     const handleNext = () => {
         if (role === "employee") {
-            navigate(`/employee/simulations/${moduleID}/${lessonID}/${simulationIndex + 2}`);
+            navigate(`/employee/simulations/${moduleID}/${lessonID}/${simulationIndex + 1}`);
         }
     };
 
@@ -56,16 +226,53 @@ export default function SimulationPage({ role }: { role: "employee" | "employer"
         /* Nothing for now */
     };
 
+    const [expectingReply, setExpectingReply] = useState(false);
+    const handleUserSend = async (text: string) => {
+        if (!lessonID) return;
+    
+        const messagesRef = collection(
+            db,
+            "simulationLessonAttempts",
+            lessonID,
+            "simulations",
+            `sim_${simulationIndex}`,
+            "messages"
+        );
+    
+        const userDocRef = await addDoc(messagesRef, {
+            role: "user",
+            content: text,
+            timestamp: serverTimestamp()
+        });
+
+        setExpectingReply(true);  
+        await fetch("http://127.0.0.1:8000/ai/simulation-reply", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                lesson_attempt_id: lessonID,
+                sim_index: simulationIndex,
+                reply_to_id: userDocRef.id
+            })
+        });
+    };
+
+    console.log("typingMessageId:", typingMessageId);
+
     return (
-        <div className={`simulation-page ${role}`}>
+        loading ?
+            <div className="generating-pg">
+                Generating your simulation...
+            </div>
+        : <div className={`simulation-page ${role}`}>
             <div className="chat-section">
                 {(voiceMode) ?
-                (<VoiceMode key={`voice-${simulationIndex}`} title={lessonTitle ?? ""} idx={simulationIndex + 1} 
+                (<VoiceMode key={`voice-${simulationIndex}`} title={lessonAttempt?.lessonInfo.title ?? ""} idx={simulationIndex} 
                 messages={messages ?? []} switchType={() => setVoiceMode(false)}
-                handleBack={handleBack} handleClick={(messageID: number) => {setSelectedMessage(messageID); setSelectOption("feedback");}} /> ) :
-                (<TypeMode key={`type-${simulationIndex}`} title={lessonTitle ?? ""} idx={simulationIndex + 1} 
-                messages={messages ?? []} switchType={() => setVoiceMode(true)}
-                handleBack={handleBack} handleClick={(messageID: number) => {setSelectedMessage(messageID); setSelectOption("feedback");}} />)
+                handleBack={handleBack} handleClick={(messageID: string) => {setSelectedMessage(messageID); setSelectOption("feedback");}} /> ) :
+                (<TypeMode key={`type-${simulationIndex}`} title={lessonAttempt?.lessonInfo.title ?? ""} idx={simulationIndex} typingMessageId={typingMessageId}
+                messages={messages ?? []} switchType={() => setVoiceMode(true)} handleSendMessage={handleUserSend} onTypingComplete={() => setTypingMessageId(null)}
+                handleBack={handleBack} handleClick={(messageID: string) => {setSelectedMessage(messageID); setSelectOption("feedback");}} name={simData.characterName} />)
                 }
             </div>
 
@@ -90,8 +297,8 @@ export default function SimulationPage({ role }: { role: "employee" | "employer"
                     </div>
                         { (selectOption === "premise") ? 
                             (<div className="premise-info">
-                                <h3>Meet {simInfo?.characterName}</h3>
-                                <p><span className="sim-prompt">Scenario Premise: </span> {simInfo?.premise}</p>
+                                <h3>Meet {simData?.characterName}</h3>
+                                <p><span className="sim-prompt">Scenario Premise: </span> {simData?.premise}</p>
                                 <p className="sim-prompt">How would you approach this situation?</p>
                             </div>) : 
                             (messageInfo ? 

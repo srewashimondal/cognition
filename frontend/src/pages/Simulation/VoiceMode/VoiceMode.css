@@ -122,7 +122,7 @@
     );
 }
 
-.scroll-wrapper p {
+.transcript-label {
     margin: 0;
     position: absolute;
     top: 5%;

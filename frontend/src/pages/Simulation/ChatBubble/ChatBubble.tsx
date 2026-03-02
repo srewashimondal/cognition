@@ -59,7 +59,7 @@ export default function ChatBubble({ message, className, handleClick, shouldType
 
 
                 <div className="content-text">
-                    { role === "assistant" && shouldType ?
+                    { (role === "assistant" || role === "character") && shouldType ?
                         <TypingMessage text={content} shouldStop={stopTyping} onComplete={onTypingComplete} onUpdate={onTypingUpdate}/> : 
                         <ReactMarkdown remarkPlugins={[remarkGfm]}> 
                             {cleanedContent}

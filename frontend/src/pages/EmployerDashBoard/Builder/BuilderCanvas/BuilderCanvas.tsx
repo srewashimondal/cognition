@@ -463,7 +463,7 @@ export default function BuilderCanvas({ id, workspace }: BuilderCanvasProps) {
             if (last?.role === "assistant" && typingMessageId === null && !last.applied) {
                 setTypingMessageId(last.id);
                 setStopTyping(false);
-              }
+            }
         });
     
         return () => unsubscribe();

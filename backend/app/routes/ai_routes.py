@@ -481,3 +481,172 @@ async def create_module(request: AICreateRequest):
         })
 
     return assistant_message
+
+@router.post("/create-simulation")
+async def create_simulation(request: CreateSimulationRequest):
+
+    print("[1] Grabbing simulation reference")
+    sim_ref = (
+        db.collection("simulationLessonAttempts")
+        .document(request.lesson_attempt_id)
+        .collection("simulations")
+        .document(f"sim_{request.sim_index}")
+    )
+
+    try:
+        workspace_ref = db.collection("workspaces").document(request.workspace_id)
+
+        reference_summaries = []
+        if request.reference_ids:
+            for ref_id in request.reference_ids:
+                resource_ref = workspace_ref.collection("resources").document(ref_id)
+                resource_doc = resource_ref.get()
+
+                if not resource_doc.exists:
+                    continue
+
+                ref_data = resource_doc.to_dict()
+
+                if ref_data.get("section") == "Maps":
+                    reference_summaries.append({
+                        "type": "map",
+                        "data": ref_data
+                    })
+                else:
+                    summary = ref_data.get("summary")
+                    if summary:
+                        reference_summaries.append({
+                            "type": "document",
+                            "data": summary
+                        })
+        
+        print(f"[2] Processes {len(reference_summaries)} references")
+
+        existing_sim = sim_ref.get()
+        if existing_sim.exists:
+            existing_data = existing_sim.to_dict()
+            if existing_data.get("generationStatus") == "ready":
+                return { "success": True, "simulation": existing_data }
+
+        print("[3] Calling LLM...")
+        ai_response = llm.generate_simulation(
+            store_info=request.store_info,
+            lesson_title=request.lesson_title,
+            lesson_skills=request.lesson_skills,
+            lesson_difficulty=request.lesson_difficulty,
+            lesson_abstract=request.lesson_abstract,
+            reference_summaries=reference_summaries
+        )
+        
+        print("[4] Updating Firebase")
+        sim_ref.set({
+            "characterName": ai_response["characterName"],
+            "premise": ai_response["premise"],
+            "evaluationCriteria": ai_response["evaluationCriteria"],
+            "generationStatus": "ready",
+            "completionStatus": "not begun",
+            "updatedAt": firestore.SERVER_TIMESTAMP
+        }, merge=True)
+
+        messages_ref = sim_ref.collection("messages")
+
+        messages_ref.add({
+            "role": "character",
+            "name": ai_response["characterName"],
+            "content": ai_response["openingMessage"],
+            "timestamp": firestore.SERVER_TIMESTAMP
+        })
+
+        print("[5] Generation complete.")
+
+        return {
+            "success": True,
+            "simulation": ai_response
+        }
+
+    except Exception as e:
+        print("Simulation creation failed:", e)
+
+        try:
+            sim_ref.set({
+                "generationStatus": "failed",
+                "updatedAt": SERVER_TIMESTAMP
+            }, merge=True)
+        except:
+            pass
+
+        raise HTTPException(status_code=500, detail="Simulation generation failed")
+    
+@router.post("/simulation-reply")
+async def simulation_reply(request: SimulationReplyRequest):
+    try:
+        sim_ref = (
+            db.collection("simulationLessonAttempts")
+            .document(request.lesson_attempt_id)
+            .collection("simulations")
+            .document(f"sim_{request.sim_index}")
+        )
+
+        sim_snap = sim_ref.get()
+        if not sim_snap.exists:
+            raise HTTPException(status_code=404, detail="Simulation not found")
+
+        sim_data = sim_snap.to_dict()
+
+        character_name = sim_data.get("characterName")
+        premise = sim_data.get("premise")
+        evaluation_criteria = sim_data.get("evaluationCriteria")
+
+        if not all([character_name, premise, evaluation_criteria]):
+            raise HTTPException(
+                status_code=400,
+                detail="Simulation missing required fields"
+            )
+
+        messages_ref = sim_ref.collection("messages")
+        message_docs = messages_ref.order_by("timestamp").stream()
+
+        conversation_history = []
+        for doc in message_docs:
+            msg = doc.to_dict()
+
+            conversation_history.append({
+                "role": msg.get("role"),
+                "content": msg.get("content")
+            })
+
+        ai_response = llm.generate_simulation_reply(
+            character_name=character_name,
+            premise=premise,
+            evaluation_criteria=evaluation_criteria,
+            conversation_history=conversation_history
+        )
+
+        character_reply = ai_response["characterReply"]
+        evaluation = ai_response["evaluation"]
+
+        messages_ref.add({
+            "role": "character",
+            "name": character_name,
+            "content": character_reply,
+            "timestamp": firestore.SERVER_TIMESTAMP
+        })
+
+        messages_ref.add({
+            "role": "assistant",
+            "content": "\n".join(evaluation.get("strengths", [])),
+            "rating": evaluation.get("overallScore"),
+            "criteriaBreakdown": evaluation.get("criteriaBreakdown"),
+            "areasForImprovement": evaluation.get("areasForImprovement"),
+            "improved": evaluation.get("improvedResponse"),
+            "replyToId": request.reply_to_id,
+            "timestamp": firestore.SERVER_TIMESTAMP
+        })
+
+        return {
+            "success": True
+        }
+
+    except Exception as e:
+        print("Simulation reply failed:", e)
+        raise HTTPException(status_code=500, detail="Simulation reply failed")
