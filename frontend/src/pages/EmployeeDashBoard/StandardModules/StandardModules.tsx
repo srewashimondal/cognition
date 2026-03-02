@@ -56,11 +56,6 @@ export default function StandardModules({ user }: { user: EmployeeUserType }) {
                         });
 
                         const percent = totalLessons === 0 ? 0 : Math.round((completedCount / totalLessons) * 100);
-                        if (percent === 100 && data.status !== "completed") {
-                        await updateDoc(moduleAttemptRef, {
-                            status: "completed"
-                        });
-                        }
                         
                         return {
                             id: docSnap.id,
