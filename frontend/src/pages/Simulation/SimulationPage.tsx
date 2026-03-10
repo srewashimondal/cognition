@@ -387,7 +387,9 @@ export default function SimulationPage({ role }: { role: "employee" | "employer"
                         {(voiceMode) ?
                         (<VoiceMode key={`voice-${simulationIndex}`} title={lessonAttempt?.lessonInfo.title ?? ""} idx={simulationIndex} 
                         messages={messages ?? []} switchType={() => setVoiceMode(false)}
-                        handleBack={handleBack} handleClick={(messageID: string) => {setSelectedMessage(messageID); setSelectOption("feedback");}} /> ) :
+                        handleBack={handleBack} handleClick={(messageID: string) => {setSelectedMessage(messageID); setSelectOption("feedback");}}
+                        handleSendMessage={handleUserSend} characterName={simData.characterName}
+                        voiceDescription={simData?.premise} /> ) :
                         (<TypeMode key={`type-${simulationIndex}`} title={lessonAttempt?.lessonInfo.title ?? ""} idx={simulationIndex} typingMessageId={typingMessageId}
                         messages={messages ?? []} switchType={() => setVoiceMode(true)} handleSendMessage={handleUserSend} onTypingComplete={() => setTypingMessageId(null)}
                         handleBack={handleBack} handleClick={(messageID: string) => {setSelectedMessage(messageID); setSelectOption("feedback");}} name={simData.characterName} />)

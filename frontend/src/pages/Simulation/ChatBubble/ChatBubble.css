@@ -266,6 +266,35 @@
     align-items: center;
 }
 
+.speak-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 10px;
+    border-radius: 7px;
+    border: 1px solid #d7d7d7;
+    background: white;
+    color: #111;
+    font-size: 12px;
+    cursor: pointer;
+    transition: 0.15s ease;
+}
+
+.speak-btn img {
+    width: 14px;
+    height: 14px;
+}
+
+.speak-btn:hover {
+    border-color: #bdbdbd;
+    background: #fafafa;
+}
+
+.speak-btn.speaking {
+    border-color: #ff5a1f;
+    color: #ff5a1f;
+}
+
 .chat-bubble p {
     font-size: 13px !important;
     color: inherit;
