@@ -252,14 +252,15 @@ export default function SimulationPage({ role }: { role: "employee" | "employer"
             timestamp: serverTimestamp()
         });
 
-        setExpectingReply(true);  
+        setExpectingReply(true);
         await fetch("http://127.0.0.1:8000/ai/simulation-reply", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
                 lesson_attempt_id: lessonID,
                 sim_index: simulationIndex,
-                reply_to_id: userDocRef.id
+                reply_to_id: userDocRef.id,
+                latest_user_message: text
             })
         });
     };
