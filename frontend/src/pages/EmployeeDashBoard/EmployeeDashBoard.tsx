@@ -7,7 +7,7 @@ import logo from '../../assets/branding/cognition-logo.png';
 import bell from '../../assets/icons/bell.svg';
 import sidebar_icon from '../../assets/icons/sidebar-icon.svg';
 import ProfilePage from "../EmployerDashBoard/ProfilePage/ProfilePage";
-import defaultIcon from '../../assets/icons/default-icon.svg';
+import defaultAvatar from '../../assets/icons/default-avatar.png';
 // import { workspace } from '../../dummy_data/workspace_data';
 import { useAuth } from "../../context/AuthProvider.tsx"; 
 import { useWorkspace } from '../../context/WorkspaceProvider.tsx';
@@ -246,7 +246,7 @@ export default function EmployeeDashBoard() {
                 onClick={() => setProfileOpen(prev => !prev)}
               >
                 <img
-                  src={user.profilePicture ?? defaultIcon}
+                  src={user.profilePicture ?? defaultAvatar}
                   className="avatar"
                 />
                 {/*<span className="username">{employee.fullName}</span>

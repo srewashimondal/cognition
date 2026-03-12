@@ -154,6 +154,7 @@ html.readability-dark .score a {
 html.readability-dark .interface-card,
 html.readability-dark .performance-inner,
 html.readability-dark .notifications-section .notification-item,
+html.readability-dark .notifications-section .notification-list,
 html.readability-dark .account-settings {
   background: var(--theme-bg-card) !important;
   border-color: var(--theme-border) !important;
@@ -202,14 +203,19 @@ html.readability-dark .content .settings-page {
   color: var(--theme-text);
 }
 
-/* Home page and other full-page content */
+/* Home page and other full-page content - no separate panel, blend with page */
 html.readability-dark .main {
-  background: var(--theme-bg-page);
+  background: transparent !important;
 }
 
-/* Settings page wrapper */
+/* Settings page wrapper - no box, sit on page background */
 html.readability-dark .settings-page {
-  background-color: var(--theme-bg-page) !important;
+  background-color: transparent !important;
+}
+
+/* Ensure content area doesn't create a box */
+html.readability-dark .content {
+  background-color: transparent !important;
 }
 
 /* Employer home / analytics section backgrounds */
@@ -264,6 +270,23 @@ html.readability-dark hr {
 }
 
 /* ========== Dark mode: sidebar icons always white (comfortable visibility) ========== */
+html.readability-dark .sidebar .logo-text {
+  color: #ffffff !important;
+}
+html.readability-dark .sidebar .nav-item {
+  color: #ffffff !important;
+}
+html.readability-dark .sidebar .nav-item.active {
+  color: #ffffff !important;
+}
+html.readability-dark .sidebar .workspace-title,
+html.readability-dark .sidebar .workspace-title p,
+html.readability-dark .sidebar .workspace-title h4 {
+  color: #ffffff !important;
+}
+html.readability-dark .sidebar-toggle img {
+  filter: brightness(0) invert(1);
+}
 html.readability-dark .sidebar .sidebar-icon.black {
   opacity: 0 !important;
 }

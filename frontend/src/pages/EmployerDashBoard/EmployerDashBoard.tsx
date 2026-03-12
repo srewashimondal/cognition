@@ -18,7 +18,7 @@ import sidebar_icon from '../../assets/icons/sidebar-icon.svg';
 // import { workspace } from '../../dummy_data/workspace_data.tsx'; // keep this in case
 import { useAuth } from "../../context/AuthProvider.tsx"; 
 import { useWorkspace } from '../../context/WorkspaceProvider.tsx';
-import defaultIcon from '../../assets/icons/default-icon.svg';
+import defaultAvatar from '../../assets/icons/default-avatar.png';
 
 import white_home from '../../assets/icons/sidebar/white-home-icon.svg';
 import black_home from '../../assets/icons/sidebar/black-home-icon.svg';
@@ -229,7 +229,7 @@ export default function EmployerDashBoard() {
                 onClick={() => setProfileOpen(true)}
               >
                 <img
-                  src={user.profilePicture ?? defaultIcon}
+                  src={user.profilePicture ?? defaultAvatar}
                   className="avatar"
                 />
                 {/*<span className="username">{employer.fullName}</span>
