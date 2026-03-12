@@ -28,13 +28,29 @@ html {
   line-height: var(--readability-line-height, 1.5);
 }
 
+/* Readability: user font size is applied on html via --readability-font-size in JS */
+/* Theme variables for light (default) */
+:root {
+  --readability-scale: 1;
+  --theme-bg-page: #fbfbfb;
+  --theme-bg-sidebar: #ffffff;
+  --theme-bg-topbar: #ffffff;
+  --theme-bg-content: transparent;
+  --theme-bg-card: #ffffff;
+  --theme-bg-card-alt: #fafafa;
+  --theme-text: #1f2d3d;
+  --theme-text-muted: #6b7280;
+  --theme-border: #eee;
+  --theme-border-light: #e5e7eb;
+  --theme-input-bg: #f9fafb;
+}
+
 body {
   margin: 0;
   padding: 0;
   min-width: 320px;
   min-height: 100vh;
 }
-
 
 button {
   border-radius: 8px;
@@ -54,22 +70,6 @@ button:hover {
 button:focus,
 button:focus-visible {
   outline: 4px auto -webkit-focus-ring-color;
-}
-
-/* Readability: user font size is applied on html via --readability-font-size in JS */
-/* Theme variables for light (default) */
-:root {
-  --theme-bg-page: #fbfbfb;
-  --theme-bg-sidebar: #ffffff;
-  --theme-bg-topbar: #ffffff;
-  --theme-bg-content: transparent;
-  --theme-bg-card: #ffffff;
-  --theme-bg-card-alt: #fafafa;
-  --theme-text: #1f2d3d;
-  --theme-text-muted: #6b7280;
-  --theme-border: #eee;
-  --theme-border-light: #e5e7eb;
-  --theme-input-bg: #f9fafb;
 }
 
 /* Dark theme from settings */
@@ -98,6 +98,7 @@ html.readability-dark body {
 /* Apply theme variables to dashboard layout (shared by employer + employee) */
 .dashboard {
   background-color: var(--theme-bg-page) !important;
+  zoom: var(--readability-scale, 1);
 }
 
 .dashboard.white {

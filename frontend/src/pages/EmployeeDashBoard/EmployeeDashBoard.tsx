@@ -1,6 +1,6 @@
 import './EmployeeDashBoard.css';
 import { Routes, Route, Navigate, Link, NavLink } from "react-router-dom";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useMatch } from "react-router-dom";
 import { Tooltip } from "@radix-ui/themes";
 import logo from '../../assets/branding/cognition-logo.png';
@@ -11,6 +11,7 @@ import defaultAvatar from '../../assets/icons/default-avatar.png';
 // import { workspace } from '../../dummy_data/workspace_data';
 import { useAuth } from "../../context/AuthProvider.tsx"; 
 import { useWorkspace } from '../../context/WorkspaceProvider.tsx';
+import { getInterfacePrefs, applyInterfacePrefs } from '../../utils/interfacePrefs';
 import StandardModules from './StandardModules/StandardModules';
 import SimulationModules from './SimulationModules/SimulationModules';
 import EmployeeHome from './EmployeeHome/EmployeeHome';
@@ -54,6 +55,13 @@ export default function EmployeeDashBoard() {
     
     const { user, loading: authLoading } = useAuth();
     const { workspace, loading: workspaceLoading } = useWorkspace();
+
+    useEffect(() => {
+      if (user?.uid) {
+        const prefs = getInterfacePrefs(user.uid);
+        applyInterfacePrefs(prefs);
+      }
+    }, [user?.uid]);
 
     console.log("Current state:", { 
       authLoading, 

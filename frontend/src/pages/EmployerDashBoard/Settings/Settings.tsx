@@ -79,7 +79,7 @@ export default function Settings({ user, workspace }: SettingsProps) {
       {activeTab === "workspace" && <WorkspaceSettings workspace={workspace} />}
       {/*activeTab === "security" && <SecuritySettings />*/}
       {activeTab === "notifications" && <NotificationSettings user={user} />}
-      {activeTab === "interface" && <InterfaceSettings />}
+      {activeTab === "interface" && <InterfaceSettings user={user} />}
       {activeTab === "payments" && <PaymentsSettings />}
       
     </div>
@@ -292,8 +292,8 @@ function NotificationSettings({ user }: { user: EmployerUserType }) {
 }
 
 
-function InterfaceSettings() {
-  const [prefs, setPrefs] = useState(() => getInterfacePrefs());
+function InterfaceSettings({ user }: { user: EmployerUserType }) {
+  const [prefs, setPrefs] = useState(() => getInterfacePrefs(user.uid));
   const [saved, setSaved] = useState(false);
 
   useEffect(() => {
@@ -302,7 +302,7 @@ function InterfaceSettings() {
 
   const updatePref = <K extends keyof typeof prefs>(key: K, value: typeof prefs[K]) => {
     setPrefs((p) => ({ ...p, [key]: value }));
-    saveInterfacePrefs({ ...prefs, [key]: value });
+    saveInterfacePrefs({ ...prefs, [key]: value }, user.uid);
     setSaved(true);
     setTimeout(() => setSaved(false), 2000);
   };

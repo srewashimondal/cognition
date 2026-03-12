@@ -1,6 +1,6 @@
 import './EmployerDashBoard.css';
 import { Routes, Route, Navigate, Link, NavLink } from "react-router-dom";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useLocation } from "react-router-dom";
 import { Tooltip } from "@radix-ui/themes";
 import Analytics from "./Analytics/Analytics";
@@ -19,6 +19,7 @@ import sidebar_icon from '../../assets/icons/sidebar-icon.svg';
 import { useAuth } from "../../context/AuthProvider.tsx"; 
 import { useWorkspace } from '../../context/WorkspaceProvider.tsx';
 import defaultAvatar from '../../assets/icons/default-avatar.png';
+import { getInterfacePrefs, applyInterfacePrefs } from '../../utils/interfacePrefs';
 
 import white_home from '../../assets/icons/sidebar/white-home-icon.svg';
 import black_home from '../../assets/icons/sidebar/black-home-icon.svg';
@@ -57,6 +58,13 @@ export default function EmployerDashBoard() {
   
   const { user, loading: authLoading } = useAuth();
   const { workspace, loading: workspaceLoading } = useWorkspace();
+
+  useEffect(() => {
+    if (user?.uid) {
+      const prefs = getInterfacePrefs(user.uid);
+      applyInterfacePrefs(prefs);
+    }
+  }, [user?.uid]);
 
   console.log("Current state:", { 
     authLoading, 
