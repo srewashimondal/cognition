@@ -107,6 +107,7 @@ class SimulationReplyRequest(BaseModel):
     lesson_attempt_id: str
     sim_index: int
     reply_to_id: str
+    latest_user_message: str  
 
 class TTSRequest(BaseModel):
     character_name: str

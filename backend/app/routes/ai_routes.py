@@ -612,11 +612,17 @@ async def simulation_reply(request: SimulationReplyRequest):
         conversation_history = []
         for doc in message_docs:
             msg = doc.to_dict()
-
             conversation_history.append({
                 "role": msg.get("role"),
                 "content": msg.get("content")
             })
+
+        latest = (request.latest_user_message or "").strip()
+        if latest:
+            if not conversation_history or conversation_history[-1].get("role") != "user":
+                conversation_history.append({"role": "user", "content": latest})
+            else:
+                conversation_history[-1] = {"role": "user", "content": latest}
 
         ai_response = llm.generate_simulation_reply(
             character_name=character_name,

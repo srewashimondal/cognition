@@ -1147,6 +1147,8 @@ class LLMService:
             Generate the next reply from the customer.
             - 2–5 sentences.
             - Maintain realism.
+            - You MUST respond directly to what the employee just said; do not ignore their message or repeat your previous line.
+            - Do NOT repeat or rephrase your earlier messages. Move the conversation forward based on the employee's latest response.
             - Reflect the emotional state described in the premise.
             - If difficulty requires pressure or constraints, introduce them naturally.
             - Do NOT evaluate inside this reply.
