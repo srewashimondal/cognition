@@ -10,6 +10,7 @@ import { doc, updateDoc } from "firebase/firestore";
 import { db } from "../../../firebase";
 import type { EmployerUserType } from "../../../types/User/UserType";
 import type { WorkspaceType } from "../../../types/User/WorkspaceType";
+import { getInterfacePrefs, saveInterfacePrefs, applyInterfacePrefs } from "../../../utils/interfacePrefs";
 
 type Tab = "account" | "notifications" | "interface" | "payments" | "workspace";
 
@@ -292,74 +293,85 @@ function NotificationSettings({ user }: { user: EmployerUserType }) {
 
 
 function InterfaceSettings() {
-  const [theme, setTheme] = useState("light");
-  const [fontSize, setFontSize] = useState(14);
-  const [lineSpacing, setLineSpacing] = useState(1.5);
-  const [reducedMotion, setReducedMotion] = useState(false);
-  const [focusMode, setFocusMode] = useState(false);
+  const [prefs, setPrefs] = useState(() => getInterfacePrefs());
+  const [saved, setSaved] = useState(false);
+
+  useEffect(() => {
+    applyInterfacePrefs(prefs);
+  }, [prefs]);
+
+  const updatePref = <K extends keyof typeof prefs>(key: K, value: typeof prefs[K]) => {
+    setPrefs((p) => ({ ...p, [key]: value }));
+    saveInterfacePrefs({ ...prefs, [key]: value });
+    setSaved(true);
+    setTimeout(() => setSaved(false), 2000);
+  };
 
   return (
     <div className="interface-section">
-      <h3 className="section-title">Interface Preferences</h3>
+      <h3 className="section-title">Readability &amp; display</h3>
       <p className="section-subtitle">
-        Customize the interface to improve focus, readability, and comfort.
+        Adjust text size and spacing for easier reading. Changes apply immediately across the app.
       </p>
 
       <div className="interface-card">
-        {/* Theme */}
-        <div className="interface-row">
-          <div>
-            <h4>Theme</h4>
-            <p>Choose a light or dark interface</p>
-          </div>
-
-          <div className="theme-toggle">
-            <button
-              className={theme === "light" ? "active light" : "light"}
-              onClick={() => setTheme("light")}
-            >
-              ☀ Light
-            </button>
-
-            <button
-              className={theme === "dark" ? "active dark" : "dark"}
-              onClick={() => setTheme("dark")}
-            >
-              🌙 Dark
-            </button>
-          </div>
-        </div>
-
-
         {/* Text size */}
         <div className="interface-row">
           <div>
             <h4>Text size</h4>
-            <p>Adjust text for easier reading</p>
+            <p>Base font size for the app (12–24px)</p>
           </div>
-          <input
-            type="range"
-            min={12}
-            max={18}
-            value={fontSize}
-            onChange={(e) => setFontSize(Number(e.target.value))}
-          />
+          <div className="slider-with-value">
+            <input
+              type="range"
+              min={12}
+              max={24}
+              value={prefs.fontSize}
+              onChange={(e) => updatePref("fontSize", Number(e.target.value))}
+            />
+            <span className="slider-value">{prefs.fontSize}px</span>
+          </div>
         </div>
 
         {/* Line spacing */}
         <div className="interface-row">
           <div>
             <h4>Line spacing</h4>
-            <p>Increase spacing to reduce visual clutter</p>
+            <p>Space between lines (1.2–2.5)</p>
           </div>
-          <input
-            type="range"
-            min={1.2}
-            max={2}
-            step={0.1}
-            value={lineSpacing}
-            onChange={(e) => setLineSpacing(Number(e.target.value))}
-          />
+          <div className="slider-with-value">
+            <input
+              type="range"
+              min={1.2}
+              max={2.5}
+              step={0.1}
+              value={prefs.lineSpacing}
+              onChange={(e) => updatePref("lineSpacing", Number(e.target.value))}
+            />
+            <span className="slider-value">{prefs.lineSpacing}</span>
+          </div>
+        </div>
+
+        {/* Theme */}
+        <div className="interface-row">
+          <div>
+            <h4>Theme</h4>
+            <p>Light or dark interface</p>
+          </div>
+          <div className="theme-toggle">
+            <button
+              className={prefs.theme === "light" ? "active light" : "light"}
+              onClick={() => updatePref("theme", "light")}
+            >
+              ☀ Light
+            </button>
+            <button
+              className={prefs.theme === "dark" ? "active dark" : "dark"}
+              onClick={() => updatePref("theme", "dark")}
+            >
+              🌙 Dark
+            </button>
+          </div>
         </div>
 
         {/* Reduced motion */}
@@ -371,8 +383,8 @@ function InterfaceSettings() {
           <label className="switch">
             <input
               type="checkbox"
-              checked={reducedMotion}
-              onChange={() => setReducedMotion(!reducedMotion)}
+              checked={prefs.reducedMotion}
+              onChange={() => updatePref("reducedMotion", !prefs.reducedMotion)}
             />
             <span className="slider" />
           </label>
@@ -387,8 +399,8 @@ function InterfaceSettings() {
           <label className="switch">
             <input
               type="checkbox"
-              checked={focusMode}
-              onChange={() => setFocusMode(!focusMode)}
+              checked={prefs.focusMode}
+              onChange={() => updatePref("focusMode", !prefs.focusMode)}
             />
             <span className="slider" />
           </label>
@@ -396,7 +408,7 @@ function InterfaceSettings() {
       </div>
 
       <div className="actions">
-        <button className="primary">Save Settings</button>
+        {saved && <span className="saved-hint">Preferences saved. They apply across the app.</span>}
       </div>
     </div>
   );

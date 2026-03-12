@@ -452,7 +452,24 @@ button.secondary:hover {
   width: 140px;
 }
 
-/* =============================== Theme Toggle ================================ */
+.slider-with-value {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.slider-with-value input[type="range"] {
+  width: 160px;
+}
+
+.slider-value {
+  font-size: 13px;
+  font-weight: 600;
+  color: #374151;
+  min-width: 44px;
+}
+
+/* Theme Toggle */
 
 .theme-toggle {
   display: flex;

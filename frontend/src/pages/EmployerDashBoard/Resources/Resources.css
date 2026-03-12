@@ -11,10 +11,11 @@
   font-size: 26px;
   font-weight: 700;
   margin-bottom: 6px;
+  color: var(--theme-text);
 }
 
 .resources-header p {
-  color: #6b7280;
+  color: var(--theme-text-muted);
   font-size: 15px;
 }
 
@@ -26,8 +27,8 @@
 
 .resource-card {
   position: relative;
-  background: #ffffff;
-  border: 1px solid #e5e7eb;
+  background: var(--theme-bg-card);
+  border: 1px solid var(--theme-border);
   border-radius: 16px;
   padding: 22px;
   transition: transform 0.25s ease, box-shadow 0.25s ease;
@@ -42,6 +43,7 @@
   font-size: 18px;
   font-weight: 600;
   margin-bottom: 6px;
+  color: var(--theme-text);
 }
 
 .card-header h3::after {
@@ -56,7 +58,7 @@
 
 .card-header p {
   font-size: 14px;
-  color: #6b7280;
+  color: var(--theme-text-muted);
   margin-bottom: 14px;
 }
 
@@ -116,6 +118,7 @@
   flex: 1;
   font-size: 14px;
   font-weight: 500;
+  color: var(--theme-text);
 }
 
 /* Section icon */

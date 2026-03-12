@@ -2,7 +2,6 @@
 
 :root {
   font-family: 'Inter', system-ui, Avenir, Helvetica, Arial, sans-serif;
-  line-height: 1.5;
   font-weight: 400;
 
   color-scheme: light;
@@ -25,6 +24,8 @@ a {
 html {
   margin: 0;
   padding: 0;
+  font-size: var(--readability-font-size, 16px);
+  line-height: var(--readability-line-height, 1.5);
 }
 
 body {
@@ -53,6 +54,337 @@ button:hover {
 button:focus,
 button:focus-visible {
   outline: 4px auto -webkit-focus-ring-color;
+}
+
+/* Readability: user font size is applied on html via --readability-font-size in JS */
+/* Theme variables for light (default) */
+:root {
+  --theme-bg-page: #fbfbfb;
+  --theme-bg-sidebar: #ffffff;
+  --theme-bg-topbar: #ffffff;
+  --theme-bg-content: transparent;
+  --theme-bg-card: #ffffff;
+  --theme-bg-card-alt: #fafafa;
+  --theme-text: #1f2d3d;
+  --theme-text-muted: #6b7280;
+  --theme-border: #eee;
+  --theme-border-light: #e5e7eb;
+  --theme-input-bg: #f9fafb;
+}
+
+/* Dark theme from settings */
+html.readability-dark {
+  color-scheme: dark;
+  color: #e5e7eb;
+  background-color: #0f172a;
+  --theme-bg-page: #0f172a;
+  --theme-bg-sidebar: #1e293b;
+  --theme-bg-topbar: #1e293b;
+  --theme-bg-content: transparent;
+  --theme-bg-card: #1e293b;
+  --theme-bg-card-alt: #334155;
+  --theme-text: #f1f5f9;
+  --theme-text-muted: #94a3b8;
+  --theme-border: #334155;
+  --theme-border-light: #475569;
+  --theme-input-bg: #334155;
+}
+
+html.readability-dark body {
+  background-color: #0f172a;
+  color: #e5e7eb;
+}
+
+/* Apply theme variables to dashboard layout (shared by employer + employee) */
+.dashboard {
+  background-color: var(--theme-bg-page) !important;
+}
+
+.dashboard.white {
+  background-color: var(--theme-bg-card) !important;
+}
+
+.sidebar {
+  background: var(--theme-bg-sidebar) !important;
+  border-right-color: var(--theme-border) !important;
+}
+
+.topbar {
+  background: var(--theme-bg-topbar) !important;
+  border-bottom-color: var(--theme-border) !important;
+}
+
+.content {
+  background-color: var(--theme-bg-content);
+  color: var(--theme-text);
+}
+
+.card {
+  background: var(--theme-bg-card) !important;
+  color: var(--theme-text);
+}
+
+/* Dark mode overrides for nested elements */
+html.readability-dark .nav-item:hover {
+  background: #334155 !important;
+}
+
+html.readability-dark .card-title,
+html.readability-dark .interface-row h4,
+html.readability-dark .section-title,
+html.readability-dark h2,
+html.readability-dark h3,
+html.readability-dark h4 {
+  color: var(--theme-text) !important;
+}
+
+html.readability-dark .interface-row p,
+html.readability-dark .section-subtitle,
+html.readability-dark .analytics-label,
+html.readability-dark .progress-text,
+html.readability-dark .resource-size,
+html.readability-dark .slider-value,
+html.readability-dark .bar-label,
+html.readability-dark .y-axis span,
+html.readability-dark .legend,
+html.readability-dark .score a {
+  color: var(--theme-text-muted) !important;
+}
+
+html.readability-dark .interface-card,
+html.readability-dark .performance-inner,
+html.readability-dark .notifications-section .notification-item,
+html.readability-dark .account-settings {
+  background: var(--theme-bg-card) !important;
+  border-color: var(--theme-border) !important;
+}
+
+html.readability-dark .settings-page,
+html.readability-dark .settings-tabs {
+  color: var(--theme-text);
+}
+
+html.readability-dark .search-wrapper,
+html.readability-dark .search-input {
+  background: var(--theme-input-bg) !important;
+  border-color: var(--theme-border) !important;
+  color: var(--theme-text);
+}
+
+html.readability-dark input,
+html.readability-dark select,
+html.readability-dark textarea {
+  background: var(--theme-input-bg) !important;
+  border-color: var(--theme-border) !important;
+  color: var(--theme-text);
+}
+
+html.readability-dark .theme-toggle {
+  background: #334155 !important;
+}
+
+html.readability-dark .theme-toggle button:not(.active) {
+  color: #94a3b8;
+}
+
+html.readability-dark .theme-toggle button.dark.active {
+  background: #475569 !important;
+  color: #fff !important;
+}
+
+html.readability-dark .theme-toggle button.light.active {
+  background: #475569 !important;
+  color: #f97316 !important;
+}
+
+/* Settings page background */
+html.readability-dark .content .settings-page {
+  color: var(--theme-text);
+}
+
+/* Home page and other full-page content */
+html.readability-dark .main {
+  background: var(--theme-bg-page);
+}
+
+/* Settings page wrapper */
+html.readability-dark .settings-page {
+  background-color: var(--theme-bg-page) !important;
+}
+
+/* Employer home / analytics section backgrounds */
+html.readability-dark .section,
+html.readability-dark .dashboard-row,
+html.readability-dark .dashboard-row-wide,
+html.readability-dark .skill-breakdown-section {
+  color: var(--theme-text);
+}
+
+html.readability-dark .analytics-card {
+  background: var(--theme-bg-card) !important;
+  color: var(--theme-text);
+}
+
+html.readability-dark .analytics-value,
+html.readability-dark .analytics-change {
+  color: var(--theme-text);
+}
+
+html.readability-dark .employee-module-item {
+  background: var(--theme-bg-card) !important;
+  border-color: var(--theme-border) !important;
+  color: var(--theme-text);
+}
+
+html.readability-dark .ai-powered-insights {
+  background: #1e3a5f !important;
+  color: #e5e7eb;
+}
+
+html.readability-dark .workspace-title {
+  border-bottom-color: var(--theme-border) !important;
+}
+
+html.readability-dark label,
+html.readability-dark .section-label,
+html.readability-dark .form-grid label {
+  color: var(--theme-text-muted) !important;
+}
+
+html.readability-dark .settings-tabs span {
+  color: var(--theme-text-muted);
+}
+
+html.readability-dark .settings-tabs .active {
+  color: #f97316;
+}
+
+html.readability-dark hr {
+  border-top-color: var(--theme-border);
+}
+
+/* ========== Dark mode: sidebar icons always white (comfortable visibility) ========== */
+html.readability-dark .sidebar .sidebar-icon.black {
+  opacity: 0 !important;
+}
+html.readability-dark .sidebar .sidebar-icon.white {
+  opacity: 1 !important;
+}
+html.readability-dark .sidebar .sidebar-icon.blue {
+  opacity: 0;
+}
+html.readability-dark .nav-item:hover .sidebar .sidebar-icon.blue {
+  opacity: 1;
+}
+html.readability-dark .nav-item:hover .sidebar .sidebar-icon.white {
+  opacity: 0;
+}
+html.readability-dark .nav-item.active .sidebar-icon.white {
+  opacity: 1 !important;
+}
+html.readability-dark .nav-item.active .sidebar-icon.blue {
+  opacity: 0;
+}
+html.readability-dark .nav-item.active .sidebar-icon.black {
+  opacity: 0 !important;
+}
+
+/* ========== Dark mode: Login page (comfortable, easy to see) ========== */
+html.readability-dark .login-page {
+  background: var(--theme-bg-page);
+  min-height: 100vh;
+}
+html.readability-dark .login-wrapper h2 {
+  color: #f97316;
+}
+html.readability-dark .login-wrapper h3,
+html.readability-dark .login-text h3 {
+  color: var(--theme-text) !important;
+}
+html.readability-dark .signup-text .p {
+  color: var(--theme-text-muted);
+}
+html.readability-dark .login-page .input-wrapper {
+  background: var(--theme-input-bg) !important;
+  border-color: var(--theme-border) !important;
+}
+html.readability-dark .login-page input {
+  background: transparent !important;
+  color: var(--theme-text);
+}
+html.readability-dark .login-page input::placeholder {
+  color: var(--theme-text-muted);
+}
+html.readability-dark .login-page .input-icon img,
+html.readability-dark .login-page .eye-icon img {
+  filter: brightness(0) invert(1);
+  opacity: 0.9;
+}
+html.readability-dark .login-page .signin-button {
+  background: #f97316;
+  color: #fff;
+  border-color: #f97316;
+}
+html.readability-dark .login-page .signin-button:hover {
+  background: #ea580c;
+  color: #fff;
+  border-color: #ea580c;
+}
+html.readability-dark .login-page .cta {
+  color: #fb923c;
+}
+html.readability-dark .login-page .blob {
+  opacity: 0.15;
+}
+
+/* NavBar on login and home: dark mode */
+html.readability-dark .navbar {
+  background: var(--theme-bg-topbar) !important;
+  border-bottom: 1px solid var(--theme-border);
+}
+html.readability-dark .navbar .hyper-link p,
+html.readability-dark .navbar p {
+  color: var(--theme-text) !important;
+}
+html.readability-dark .navbar .login-button {
+  background: #f97316;
+  color: #fff;
+  border-color: #f97316;
+}
+html.readability-dark .navbar .login-button:hover {
+  background: #ea580c;
+  color: #fff;
+  border-color: #ea580c;
+}
+
+/* Home page dark mode */
+html.readability-dark .home-page {
+  background: var(--theme-bg-page);
+}
+html.readability-dark .hero-page h1,
+html.readability-dark .hero-page p,
+html.readability-dark .sec2-page h2,
+html.readability-dark .sec2-page h3,
+html.readability-dark .sec2-page h4,
+html.readability-dark .sec3-page h4,
+html.readability-dark .additional-features-pg h4,
+html.readability-dark .grey-header {
+  color: var(--theme-text) !important;
+}
+html.readability-dark .hero-highlight,
+html.readability-dark .sec2-bottom-highlight,
+html.readability-dark .h4-highlight-blue,
+html.readability-dark .h4-highlight-orange {
+  color: #f97316;
+}
+html.readability-dark .homepage-grey-text,
+html.readability-dark .sec2-middle-card-description {
+  color: var(--theme-text-muted) !important;
+}
+html.readability-dark .sec2-middle-card,
+html.readability-dark .sec2-top,
+html.readability-dark .sec2-bottom-text {
+  color: var(--theme-text);
 }
 
 @media (prefers-color-scheme: light) {
