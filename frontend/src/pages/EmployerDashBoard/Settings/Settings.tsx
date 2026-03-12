@@ -5,12 +5,20 @@ import eye_off from '../../../assets/icons/eye_off.svg';
 import default_icon from '../../../assets/icons/default-icon.svg';
 import icon_stroke from '../../../assets/icons/icon-stroke.svg';
 import add_cta from '../../../assets/icons/add-cta.svg';
-import { workspace } from "../../../dummy_data/workspace_data";
 import { Tooltip, Select } from "@radix-ui/themes";
+import { doc, updateDoc } from "firebase/firestore";
+import { db } from "../../../firebase";
+import type { EmployerUserType } from "../../../types/User/UserType";
+import type { WorkspaceType } from "../../../types/User/WorkspaceType";
 
 type Tab = "account" | "notifications" | "interface" | "payments" | "workspace";
 
-export default function Settings() {
+type SettingsProps = {
+  user: EmployerUserType;
+  workspace: WorkspaceType | null;
+};
+
+export default function Settings({ user, workspace }: SettingsProps) {
   const [activeTab, setActiveTab] = useState<Tab>("account");
 
   useEffect(() => {
@@ -66,10 +74,10 @@ export default function Settings() {
 
 
       {/* CONTENT */}
-      {activeTab === "account" && <AccountSettings />}
-      {activeTab === "workspace" && <WorkspaceSettings />}
+      {activeTab === "account" && <AccountSettings user={user} />}
+      {activeTab === "workspace" && <WorkspaceSettings workspace={workspace} />}
       {/*activeTab === "security" && <SecuritySettings />*/}
-      {activeTab === "notifications" && <NotificationSettings />}
+      {activeTab === "notifications" && <NotificationSettings user={user} />}
       {activeTab === "interface" && <InterfaceSettings />}
       {activeTab === "payments" && <PaymentsSettings />}
       
@@ -77,7 +85,37 @@ export default function Settings() {
   );
 }
 
-function AccountSettings() {
+function AccountSettings({ user }: { user: EmployerUserType }) {
+  const [fullName, setFullName] = useState(user.fullName ?? "");
+  const [email, setEmail] = useState(user.email ?? "");
+  const [saving, setSaving] = useState(false);
+  const [saved, setSaved] = useState(false);
+
+  useEffect(() => {
+    setFullName(user.fullName ?? "");
+    setEmail(user.email ?? "");
+  }, [user.fullName, user.email]);
+
+  const handleSave = async () => {
+    setSaving(true);
+    setSaved(false);
+    try {
+      await updateDoc(doc(db, "users", user.uid), {
+        fullName: fullName.trim(),
+        email: email.trim(),
+      });
+      setSaved(true);
+    } catch (e) {
+      console.error("Failed to save account settings:", e);
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const handleReset = () => {
+    setFullName(user.fullName ?? "");
+    setEmail(user.email ?? "");
+  };
 
   return (
     <div className="account-settings">
@@ -85,33 +123,30 @@ function AccountSettings() {
       <div className="form-grid">
         <div>
           <label>Full name</label>
-          <input placeholder="Please enter your full name" />
+          <input
+            placeholder="Please enter your full name"
+            value={fullName}
+            onChange={(e) => setFullName(e.target.value)}
+          />
         </div>
 
         <div>
           <label>Email</label>
-          <input placeholder="Please enter your email" />
+          <input
+            placeholder="Please enter your email"
+            type="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+          />
         </div>
-
-        {/*<div>
-          <label>Username</label>
-          <input placeholder="Please enter your username" />
-        </div>
-
-        <div>
-          <label>Phone number</label>
-          <input placeholder="Please enter your phone number" />
-        </div>*/}
       </div>
 
-      {/*<div className="bio-section">
-        <label>Bio</label>
-        <textarea placeholder="Write your Bio here e.g your hobbies, interests ETC" />
-      </div>*/}
-
       <div className="actions">
-        <button className="primary">Save Changes</button>
-        <button className="secondary">Reset</button>
+        <button className="primary" onClick={handleSave} disabled={saving}>
+          {saving ? "Saving..." : "Save Changes"}
+        </button>
+        <button className="secondary" onClick={handleReset} type="button">Reset</button>
+        {saved && <span className="saved-hint">Saved.</span>}
       </div>
       <div className="security-wrapper">
         {SecuritySettings()}
@@ -184,7 +219,28 @@ function SecuritySettings() {
 }
 
 
-function NotificationSettings() {
+function NotificationSettings({ user }: { user: EmployerUserType }) {
+  const [preference, setPreference] = useState<"In-App" | "E-mail">(user.notifPreference ?? "In-App");
+  const [saving, setSaving] = useState(false);
+  const [saved, setSaved] = useState(false);
+
+  useEffect(() => {
+    setPreference(user.notifPreference ?? "In-App");
+  }, [user.notifPreference]);
+
+  const handleSave = async () => {
+    setSaving(true);
+    setSaved(false);
+    try {
+      await updateDoc(doc(db, "users", user.uid), { notifPreference: preference });
+      setSaved(true);
+    } catch (e) {
+      console.error("Failed to save notification settings:", e);
+    } finally {
+      setSaving(false);
+    }
+  };
+
   return (
     <div className="notifications-section">
       <h3 className="section-title">Notification Preferences</h3>
@@ -193,45 +249,42 @@ function NotificationSettings() {
       </p>
 
       <div className="notification-list">
-        {/* Email */}
+        <div className="notification-item">
+          <div>
+            <h4>In-App notifications</h4>
+            <p>Receive updates within the app</p>
+          </div>
+          <label className="switch">
+            <input
+              type="checkbox"
+              checked={preference === "In-App"}
+              onChange={() => setPreference("In-App")}
+            />
+            <span className="slider" />
+          </label>
+        </div>
+
         <div className="notification-item">
           <div>
             <h4>Email notifications</h4>
             <p>Receive important updates via email</p>
           </div>
           <label className="switch">
-            <input type="checkbox" />
-            <span className="slider" />
-          </label>
-        </div>
-
-        {/* SMS */}
-        <div className="notification-item">
-          <div>
-            <h4>SMS notifications</h4>
-            <p>Get text messages for critical alerts</p>
-          </div>
-          <label className="switch">
-            <input type="checkbox" />
-            <span className="slider" />
-          </label>
-        </div>
-
-        {/* Product Updates */}
-        <div className="notification-item">
-          <div>
-            <h4>Product updates</h4>
-            <p>Stay informed about new features and improvements</p>
-          </div>
-          <label className="switch">
-            <input type="checkbox" />
+            <input
+              type="checkbox"
+              checked={preference === "E-mail"}
+              onChange={() => setPreference("E-mail")}
+            />
             <span className="slider" />
           </label>
         </div>
       </div>
 
       <div className="actions">
-        <button className="primary">Save Preferences</button>
+        <button className="primary" onClick={handleSave} disabled={saving}>
+          {saving ? "Saving..." : "Save Preferences"}
+        </button>
+        {saved && <span className="saved-hint">Saved.</span>}
       </div>
     </div>
   );
@@ -509,14 +562,25 @@ function PaymentsSettings() {
   );
 }
 
-function WorkspaceSettings() {
+function WorkspaceSettings({ workspace }: { workspace: WorkspaceType | null }) {
   const fileInputRef = useRef<HTMLInputElement | null>(null);
-  const [uploadedPFP, setUploadedPFP] = useState<string | File>(workspace.icon ?? "");
+  const [uploadedPFP, setUploadedPFP] = useState<string | File>(workspace?.icon ?? "");
   const [imagePreview, setImagePreview] = useState<string | null>(null);
-  const [workspaceTitle, setWorkspaceTitle] = useState(workspace.name);
-  const [storeTitle, setStoreTitle] = useState(workspace.store.storeName);
-  const [category, setCategory] = useState(workspace.store.category);
-  const [format, setFormat] = useState(workspace.store.storeFormat);
+  const [workspaceTitle, setWorkspaceTitle] = useState(workspace?.name ?? "");
+  const [storeTitle, setStoreTitle] = useState(workspace?.store?.storeName ?? "");
+  const [category, setCategory] = useState(workspace?.store?.category ?? "General Retail");
+  const [format, setFormat] = useState(workspace?.store?.storeFormat ?? "Standalone Store");
+  const [saving, setSaving] = useState(false);
+  const [saved, setSaved] = useState(false);
+
+  useEffect(() => {
+    if (!workspace) return;
+    setWorkspaceTitle(workspace.name ?? "");
+    setStoreTitle(workspace.store?.storeName ?? "");
+    setCategory(workspace.store?.category ?? "General Retail");
+    setFormat(workspace.store?.storeFormat ?? "Standalone Store");
+    setUploadedPFP(workspace.icon ?? "");
+  }, [workspace]);
 
   useEffect(() => {
     if (typeof uploadedPFP === "string") {
@@ -535,6 +599,54 @@ function WorkspaceSettings() {
 
   const storeFormats = ["Standalone Store", "Mall Location", "Department Store Section"];
   type storeFormat = "Standalone Store" | "Mall Location" | "Department Store Section";
+
+  const handleSaveWorkspace = async () => {
+    if (!workspace) return;
+    setSaving(true);
+    setSaved(false);
+    try {
+      await updateDoc(doc(db, "workspaces", workspace.id), { name: workspaceTitle.trim() });
+      setSaved(true);
+    } catch (e) {
+      console.error("Failed to save workspace:", e);
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const handleSaveStore = async () => {
+    if (!workspace?.storeID) return;
+    setSaving(true);
+    setSaved(false);
+    try {
+      await updateDoc(workspace.storeID, {
+        storeName: storeTitle.trim(),
+        category,
+        storeFormat: format,
+      });
+      setSaved(true);
+    } catch (e) {
+      console.error("Failed to save store:", e);
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const handleReset = () => {
+    if (!workspace) return;
+    setWorkspaceTitle(workspace.name ?? "");
+    setStoreTitle(workspace.store?.storeName ?? "");
+    setCategory(workspace.store?.category ?? "General Retail");
+    setFormat(workspace.store?.storeFormat ?? "Standalone Store");
+  };
+
+  if (!workspace) {
+    return (
+      <div className="workspace-settings">
+        <p className="muted">No workspace loaded. Your workspace data will appear here when available.</p>
+      </div>
+    );
+  }
 
   return (
     <div className="workspace-settings">
@@ -564,8 +676,11 @@ function WorkspaceSettings() {
           </div>
 
           <div className="actions workspace">
-            <button className="primary">Save Changes</button>
-            <button className="secondary">Reset</button>
+            <button className="primary" onClick={handleSaveWorkspace} disabled={saving}>
+              {saving ? "Saving..." : "Save workspace"}
+            </button>
+            <button className="secondary" onClick={handleReset} type="button">Reset</button>
+            {saved && <span className="saved-hint">Saved.</span>}
           </div>
         </div>
         <div className="store-info-wrapper">
@@ -601,8 +716,11 @@ function WorkspaceSettings() {
             </div>
 
             <div className="actions workspace">
-              <button className="primary">Save Changes</button>
-              <button className="secondary">Reset</button>
+              <button className="primary" onClick={handleSaveStore} disabled={saving}>
+                {saving ? "Saving..." : "Save store"}
+              </button>
+              <button className="secondary" onClick={handleReset} type="button">Reset</button>
+              {saved && <span className="saved-hint">Saved.</span>}
             </div>
 
           </div>

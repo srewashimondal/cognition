@@ -272,8 +272,8 @@ export default function EmployeeDashBoard() {
             <Route path="standard-modules/:moduleID" element={<StandardLessons />} />
             <Route path="standard-modules/:moduleID/:lessonID" element={<StandardLessonPage />} />
             <Route path="resources" element={<EmployeeResources workspace={workspace} />} />
-            {/*<Route path="settings" element={<EmployeeSettings />} />
-            <Route path="*" element={<Navigate to="" />} />*/}
+            <Route path="settings" element={<EmployeeSettings user={user} />} />
+            <Route path="*" element={<Navigate to="/employee" replace />} />
           </Routes>
         </section>
         }

@@ -249,6 +249,7 @@ export default function EmployerDashBoard() {
             <Route path="analytics" element={<Analytics />} />
             <Route path="modules" element={<Modules workspace={workspace}/>} />
             <Route path="resources" element={<Resources workspace={workspace} />} />
+            <Route path="settings" element={<Settings user={user} workspace={workspace} />} />
             {/* <Route path="modules/:id" element={<Lessons />} />
             <Route path="simulations/:moduleID/:lessonID/:simIdx" element={<SimulationPage role={"employer"} />} />
             <Route path="ai-studio" element={<AIStudio />} />
