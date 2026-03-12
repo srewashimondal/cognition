@@ -211,3 +211,91 @@
     padding-bottom: 0;
 }
 
+/* Badges */
+.badges-card {
+  padding: 20px;
+}
+
+.analytics-badges-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: 14px;
+  margin-top: 12px;
+}
+
+.analytics-badge-card {
+  background: linear-gradient(145deg, #fff9f6 0%, #fff 100%);
+  border: 1px solid #fde7d9;
+  border-radius: 12px;
+  padding: 16px;
+  text-align: center;
+  transition: box-shadow 0.2s ease, transform 0.2s ease;
+}
+
+.analytics-badge-card:hover {
+  box-shadow: 0 6px 20px rgba(255, 90, 31, 0.12);
+  transform: translateY(-2px);
+}
+
+.analytics-badge-icon {
+  width: 48px;
+  height: 48px;
+  margin: 0 auto 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 90, 31, 0.1);
+  border-radius: 50%;
+}
+
+.analytics-badge-icon img {
+  width: 28px;
+  height: 28px;
+  object-fit: contain;
+}
+
+.analytics-badge-icon .badge-emoji {
+  font-size: 24px;
+}
+
+.analytics-badge-name {
+  font-size: 13px;
+  font-weight: 600;
+  color: #111827;
+  margin: 0 0 4px;
+  line-height: 1.2;
+}
+
+.analytics-badge-desc {
+  font-size: 11px;
+  color: #6b7280;
+  margin: 0;
+  line-height: 1.35;
+}
+
+.analytics-badges-empty {
+  text-align: center;
+  padding: 32px 20px;
+  background: #f9fafb;
+  border-radius: 12px;
+  margin-top: 12px;
+  border: 1px dashed #e5e7eb;
+}
+
+.analytics-badges-empty-icon {
+  font-size: 40px;
+  margin-bottom: 10px;
+  opacity: 0.7;
+}
+
+.analytics-badges-empty p {
+  font-size: 15px;
+  font-weight: 600;
+  color: #374151;
+  margin: 0 0 4px;
+}
+
+.analytics-badges-empty span {
+  font-size: 13px;
+  color: #6b7280;
+}
