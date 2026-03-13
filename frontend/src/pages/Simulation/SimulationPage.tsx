@@ -161,10 +161,11 @@ export default function SimulationPage({ role }: { role: "employee" | "employer"
       
         ensureSimulationExists();
     }, [lessonID, simulationIndex, lessonAttempt]);
- 
+    
+    const lastCharacterMessageRef = useRef<string | null>(null);
     useEffect(() => {
         if (!lessonID) return;
-      
+    
         const messagesRef = collection(
             db,
             "simulationLessonAttempts",
@@ -173,7 +174,7 @@ export default function SimulationPage({ role }: { role: "employee" | "employer"
             `sim_${simulationIndex}`,
             "messages"
         );
-      
+    
         const unsub = onSnapshot(
             query(messagesRef, orderBy("timestamp")),
             (snap) => {
@@ -181,16 +182,22 @@ export default function SimulationPage({ role }: { role: "employee" | "employer"
                     id: d.id,
                     ...(d.data() as Omit<MessageType, "id">)
                 }));
+    
                 setMessages(msgs);
-
+    
                 const last = msgs[msgs.length - 1];
-                if (last?.role === "character" && expectingReply) {
+    
+                if (
+                    last &&
+                    last.role === "character" &&
+                    last.id !== lastCharacterMessageRef.current
+                ) {
                     setTypingMessageId(last.id);
-                    setExpectingReply(false);
+                    lastCharacterMessageRef.current = last.id;
                 }
             }
         );
-      
+    
         return () => unsub();
     }, [lessonID, simulationIndex]);
 
@@ -233,7 +240,6 @@ export default function SimulationPage({ role }: { role: "employee" | "employer"
         /* Nothing for now */
     };
 
-    const [expectingReply, setExpectingReply] = useState(false);
     const handleUserSend = async (text: string) => {
         if (!lessonID) return;
     
@@ -252,7 +258,6 @@ export default function SimulationPage({ role }: { role: "employee" | "employer"
             timestamp: serverTimestamp()
         });
 
-        setExpectingReply(true);  
         await fetch("http://127.0.0.1:8000/ai/simulation-reply", {
             method: "POST",
             headers: { "Content-Type": "application/json" },

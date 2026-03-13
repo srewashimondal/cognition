@@ -22,8 +22,8 @@
 
 .sim-info {
     width: 30%;
-    background-color: #FAFAFA;
-    border-left: 1px solid #C6C6C6;
+    background-color: white;
+    border-left: 1px solid #eee;
     height: 100%;
     padding: 20px;
     display: flex;

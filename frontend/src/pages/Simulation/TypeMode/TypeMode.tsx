@@ -4,6 +4,9 @@ import type { MessageType } from '../../../types/Modules/Lessons/Simulations/Mes
 import ChatBubble from '../ChatBubble/ChatBubble';
 import ChatBar from '../../../components/ChatBar/ChatBar';
 import left_arrow from '../../../assets/icons/orange-left-arrow.svg';
+import send_icon from '../../../assets/icons/chatbar/send-icon.svg';
+import stop_icon from '../../../assets/icons/chatbar/black-stop-icon.svg';
+import voice_icon from '../../../assets/icons/chatbar/voice-msg-icon.svg';
 
 type TypeModeProps = {
     title: string;
@@ -48,7 +51,8 @@ export default function TypeMode({ title, idx, messages, switchType, handleBack,
         setIsLoading(false);
     };
 
-    console.log(messages);
+    console.log("typingMessageId:", typingMessageId);
+    const inputEmpty = userInput.trim() === "";
 
     return (
         <div className="type-chat">
@@ -76,7 +80,7 @@ export default function TypeMode({ title, idx, messages, switchType, handleBack,
                     {isLoading && (
                         <div className="chat-bubble-wrapper character loading-simulation">
                             <span className="role-text">{name}</span>
-                            <div className="chat-bubble assistant loading-bubble">
+                            <div className="chat-bubble character loading-bubble">
                                 <div className="spinner" />
                             </div>
                         </div>
@@ -86,8 +90,8 @@ export default function TypeMode({ title, idx, messages, switchType, handleBack,
 
                 </div>)
             }    
-                <div className="blur-top text" />
-                <div className="blur-bottom text" />
+                {/*<div className="blur-top text" />
+                <div className="blur-bottom text" />*/}
                 {/*<div className="chat-input">
                     <div className="chat-wrapper">
                         <span className="chat-input-icon" onClick={switchType}>
@@ -101,8 +105,42 @@ export default function TypeMode({ title, idx, messages, switchType, handleBack,
                     </div>
                 </div>*/}
                 <div className="chatbar-wrapper chat-input">
-                    <ChatBar context="simulation" userInput={userInput} setUserInput={setUserInput} handleSend={handleSend} handleVoiceMode={switchType} 
-                    typingMessageId={typingMessageId} handleStop={onTypingComplete} />
+                    {/*<ChatBar context="simulation" userInput={userInput} setUserInput={setUserInput} handleSend={handleSend} handleVoiceMode={switchType} 
+                    typingMessageId={typingMessageId} handleStop={onTypingComplete} />*/}
+                    <div className="simulation-chatbar">
+                        <textarea placeholder="Enter your response" value={userInput} 
+                        onChange={(e) => setUserInput(e.target.value)}
+                        onKeyDown={(e) => {
+                          if (e.key === "Enter" && !e.shiftKey) {
+                            e.preventDefault();
+                            handleSend();
+                        }}} />
+                    </div>
+                    <div className="simulation-chatbar-cta" 
+                        onClick={() => {
+                            if (typingMessageId !== null) {
+                                onTypingComplete();
+                                return;
+                            }
+                        
+                            if (inputEmpty) {
+                                switchType(); 
+                                return;
+                            }
+                        
+                            handleSend();
+                        }}
+                    >
+                        <img
+                            src={
+                                typingMessageId !== null
+                                ? stop_icon
+                                : inputEmpty
+                                ? voice_icon
+                                : send_icon
+                            }
+                        />
+                    </div>
                 </div>
             </div>
         </div>

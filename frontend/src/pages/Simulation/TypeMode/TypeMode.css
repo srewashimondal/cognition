@@ -25,18 +25,18 @@
     position: relative;
     max-height: 80vh;
     overflow: hidden;
-    padding: 10px;
     width: 100%;
     display: flex;
     flex-direction: column;
     align-items: center;
+    background-color: #fafafa;
 }
 
 .scrollable-transcript.text {
     width: 100%;
-    margin-bottom: 78px;
     display: flex;
     flex-direction: column;
+    margin-bottom: 40px;
 }
 
 .blur-top.text {
@@ -52,7 +52,6 @@
     z-index: 1000;
     bottom: 2%;
     width: 92%;
-    margin-right: 20px;
 }
 
 .chat-wrapper {
@@ -72,8 +71,11 @@
 }
 
 .chatbar-wrapper.chat-input {
-    bottom: -10%;
-    width: 680px;
+    width: 100%;
+    background-color: white;
+    border-top: 1px solid #eee;
+    height: 80px;
+    bottom: -1%;
 }
 
 .chat-input-icon {
@@ -96,8 +98,75 @@
 .scroll-wrapper.text,
 .scrollable-transcript.text {
     min-height: 0;
+    width: 100%;
 }
 
 .chat-bubble-wrapper.character.loading-simulation {
-    margin-bottom: 30px;
+    margin-bottom: 40px;
+    border-radius: 10px 10px 10px 0px;
+}
+
+.simulation-chatbar {
+    display: flex;
+    flex-direction: row;
+    width: 100%;
+    justify-content: center;
+    align-items: center;
+    padding: 2px 7px;
+    flex: 1;
+    background-color: white;
+    border: 1px solid #eee;
+    border-radius: 10px;
+    margin: 10px;
+}
+
+.simulation-chatbar-cta {
+    background-color: white;
+    border: 1px solid #eee;
+    border-radius: 10px;
+    margin: 10px 10px 10px 0px;
+    width: 48px;
+    height: 48px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.simulation-chatbar textarea {
+    background: none;
+    width: 100%;
+    resize: none;            
+    border: none;
+    outline: none;
+    background: none;
+    font-size: 16px;
+    line-height: 1.4;
+    font-family: 'Instrument Sans', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+    box-sizing: border-box;
+    min-height: 44px;       
+    max-height: 140px;
+    overflow-y: auto; 
+    padding: 10px 2px; 
+}
+
+.simulation-chatbar textarea:placeholder-shown {
+    padding-top: 12px;
+    max-height: 20px;
+    overflow: hidden;
+}
+
+.simulation-chatbar textarea:not(:placeholder-shown) {
+    padding-top: 8px;
+}
+
+.simulation-chatbar-cta  img {
+    width: 24px;
+    height: 24px;
+    justify-content: center;
+    align-items: center;
+    transition: 0.2s ease;
+}
+
+.simulation-chatbar-cta:hover img {
+    transform: scale(1.1);
 }

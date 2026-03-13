@@ -14,6 +14,7 @@
     align-items: center;
     width: 100%;
     gap: 10px;
+    border-bottom: 1px solid #eee;
 }
 
 .info-btn {
@@ -35,6 +36,7 @@
     padding: 5px;
     transition: 0.25s ease;
     border-radius: 5px;
+    border: 1px solid #eee;
 }
 
 .back-to-lessons img {
@@ -43,7 +45,7 @@
 
 .back-to-lessons:hover {
     background-color: #d0d0d0;
-    border: none;
+    border: 1px solid #eee;
 }
 
 .title-section h3 {
@@ -86,7 +88,6 @@
     position: relative;
     max-height: 50vh;
     overflow: hidden;
-    padding: 30px 30px 30px 20px;
     width: 95%;
 }
 
