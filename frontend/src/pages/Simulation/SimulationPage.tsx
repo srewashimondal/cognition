@@ -257,14 +257,15 @@ export default function SimulationPage({ role }: { role: "employee" | "employer"
             content: text,
             timestamp: serverTimestamp()
         });
-
+  
         await fetch("http://127.0.0.1:8000/ai/simulation-reply", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
                 lesson_attempt_id: lessonID,
                 sim_index: simulationIndex,
-                reply_to_id: userDocRef.id
+                reply_to_id: userDocRef.id,
+                latest_user_message: text
             })
         });
     };
@@ -392,7 +393,9 @@ export default function SimulationPage({ role }: { role: "employee" | "employer"
                         {(voiceMode) ?
                         (<VoiceMode key={`voice-${simulationIndex}`} title={lessonAttempt?.lessonInfo.title ?? ""} idx={simulationIndex} 
                         messages={messages ?? []} switchType={() => setVoiceMode(false)}
-                        handleBack={handleBack} handleClick={(messageID: string) => {setSelectedMessage(messageID); setSelectOption("feedback");}} /> ) :
+                        handleBack={handleBack} handleClick={(messageID: string) => {setSelectedMessage(messageID); setSelectOption("feedback");}}
+                        handleSendMessage={handleUserSend} characterName={simData.characterName}
+                        voiceDescription={simData?.premise} /> ) :
                         (<TypeMode key={`type-${simulationIndex}`} title={lessonAttempt?.lessonInfo.title ?? ""} idx={simulationIndex} typingMessageId={typingMessageId}
                         messages={messages ?? []} switchType={() => setVoiceMode(true)} handleSendMessage={handleUserSend} onTypingComplete={() => setTypingMessageId(null)}
                         handleBack={handleBack} handleClick={(messageID: string) => {setSelectedMessage(messageID); setSelectOption("feedback");}} name={simData.characterName} />)

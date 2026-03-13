@@ -2,11 +2,18 @@ import { useState, useEffect } from "react";
 import "./EmployeeSettings.css";
 import eye_on from '../../../assets/icons/eye_on.svg';
 import eye_off from '../../../assets/icons/eye_off.svg';
+import { doc, updateDoc } from "firebase/firestore";
+import { db } from "../../../firebase";
+import type { EmployeeUserType } from "../../../types/User/UserType";
+import { getInterfacePrefs, saveInterfacePrefs, applyInterfacePrefs } from "../../../utils/interfacePrefs";
 
-type Tab = "account" | "security" | "notifications" | "interface" ;
+type Tab = "account" | "security" | "notifications" | "interface";
 
+type EmployeeSettingsProps = {
+  user: EmployeeUserType;
+};
 
-export default function EmployeeSettings() {
+export default function EmployeeSettings({ user }: EmployeeSettingsProps) {
   const [activeTab, setActiveTab] = useState<Tab>("account");
 
   useEffect(() => {
@@ -50,48 +57,89 @@ export default function EmployeeSettings() {
       <hr />
 
       {/* CONTENT */}
-      {activeTab === "account" && <AccountSettings />}
+      {activeTab === "account" && <AccountSettings user={user} />}
       {/*activeTab === "security" && <SecuritySettings />*/}
-      {activeTab === "notifications" && <NotificationSettings />}
-      {activeTab === "interface" && <InterfaceSettings />}
+      {activeTab === "notifications" && <NotificationSettings user={user} />}
+      {activeTab === "interface" && <InterfaceSettings user={user} />}
     </div>
   );
 }
 
-function AccountSettings() {
+function AccountSettings({ user }: { user: EmployeeUserType }) {
+  const [fullName, setFullName] = useState(user.fullName ?? "");
+  const [email, setEmail] = useState(user.email ?? "");
+  const [jobTitle, setJobTitle] = useState(user.jobTitle ?? "");
+  const [saving, setSaving] = useState(false);
+  const [saved, setSaved] = useState(false);
+
+  useEffect(() => {
+    setFullName(user.fullName ?? "");
+    setEmail(user.email ?? "");
+    setJobTitle(user.jobTitle ?? "");
+  }, [user.fullName, user.email, user.jobTitle]);
+
+  const handleSave = async () => {
+    setSaving(true);
+    setSaved(false);
+    try {
+      await updateDoc(doc(db, "users", user.uid), {
+        fullName: fullName.trim(),
+        email: email.trim(),
+        jobTitle: jobTitle.trim(),
+      });
+      setSaved(true);
+    } catch (e) {
+      console.error("Failed to save account settings:", e);
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const handleReset = () => {
+    setFullName(user.fullName ?? "");
+    setEmail(user.email ?? "");
+    setJobTitle(user.jobTitle ?? "");
+  };
+
   return (
     <div className="account-settings">
       <h3 className="security-title">Account Information</h3>
       <div className="form-grid">
         <div>
           <label>Full name</label>
-          <input placeholder="Please enter your full name" />
+          <input
+            placeholder="Please enter your full name"
+            value={fullName}
+            onChange={(e) => setFullName(e.target.value)}
+          />
         </div>
 
         <div>
           <label>Email</label>
-          <input placeholder="Please enter your email" />
+          <input
+            placeholder="Please enter your email"
+            type="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+          />
         </div>
 
         <div>
-          <label>Username</label>
-          <input placeholder="Please enter your username" />
+          <label>Job title</label>
+          <input
+            placeholder="e.g. Sales Associate"
+            value={jobTitle}
+            onChange={(e) => setJobTitle(e.target.value)}
+          />
         </div>
-
-        <div>
-          <label>Phone number</label>
-          <input placeholder="Please enter your phone number" />
-        </div>
-      </div>
-
-      <div className="bio-section">
-        <label>Bio</label>
-        <textarea placeholder="Write your Bio here e.g your hobbies, interests ETC" />
       </div>
 
       <div className="actions">
-        <button className="primary">Save Changes</button>
-        <button className="secondary">Reset</button>
+        <button className="primary" onClick={handleSave} disabled={saving}>
+          {saving ? "Saving..." : "Save Changes"}
+        </button>
+        <button className="secondary" onClick={handleReset} type="button">Reset</button>
+        {saved && <span className="saved-hint">Saved.</span>}
       </div>
       <div className="security-wrapper">
         {SecuritySettings()}
@@ -164,7 +212,28 @@ function SecuritySettings() {
 }
 
 
-function NotificationSettings() {
+function NotificationSettings({ user }: { user: EmployeeUserType }) {
+  const [preference, setPreference] = useState<"In-App" | "E-mail">(user.notifPreference ?? "In-App");
+  const [saving, setSaving] = useState(false);
+  const [saved, setSaved] = useState(false);
+
+  useEffect(() => {
+    setPreference(user.notifPreference ?? "In-App");
+  }, [user.notifPreference]);
+
+  const handleSave = async () => {
+    setSaving(true);
+    setSaved(false);
+    try {
+      await updateDoc(doc(db, "users", user.uid), { notifPreference: preference });
+      setSaved(true);
+    } catch (e) {
+      console.error("Failed to save notification settings:", e);
+    } finally {
+      setSaving(false);
+    }
+  };
+
   return (
     <div className="notifications-section">
       <h3 className="section-title">Notification Preferences</h3>
@@ -173,120 +242,128 @@ function NotificationSettings() {
       </p>
 
       <div className="notification-list">
-        {/* Email */}
+        <div className="notification-item">
+          <div>
+            <h4>In-App notifications</h4>
+            <p>Receive updates within the app</p>
+          </div>
+          <label className="switch">
+            <input
+              type="checkbox"
+              checked={preference === "In-App"}
+              onChange={() => setPreference("In-App")}
+            />
+            <span className="slider" />
+          </label>
+        </div>
+
         <div className="notification-item">
           <div>
             <h4>Email notifications</h4>
             <p>Receive important updates via email</p>
           </div>
           <label className="switch">
-            <input type="checkbox" />
-            <span className="slider" />
-          </label>
-        </div>
-
-        {/* SMS */}
-        <div className="notification-item">
-          <div>
-            <h4>SMS notifications</h4>
-            <p>Get text messages for critical alerts</p>
-          </div>
-          <label className="switch">
-            <input type="checkbox" />
-            <span className="slider" />
-          </label>
-        </div>
-
-        {/* Product Updates */}
-        <div className="notification-item">
-          <div>
-            <h4>Product updates</h4>
-            <p>Stay informed about new features and improvements</p>
-          </div>
-          <label className="switch">
-            <input type="checkbox" />
+            <input
+              type="checkbox"
+              checked={preference === "E-mail"}
+              onChange={() => setPreference("E-mail")}
+            />
             <span className="slider" />
           </label>
         </div>
       </div>
 
       <div className="actions">
-        <button className="primary">Save Preferences</button>
+        <button className="primary" onClick={handleSave} disabled={saving}>
+          {saving ? "Saving..." : "Save Preferences"}
+        </button>
+        {saved && <span className="saved-hint">Saved.</span>}
       </div>
     </div>
   );
 }
 
 
-function InterfaceSettings() {
-  const [theme, setTheme] = useState("light");
-  const [fontSize, setFontSize] = useState(14);
-  const [lineSpacing, setLineSpacing] = useState(1.5);
-  const [reducedMotion, setReducedMotion] = useState(false);
-  const [focusMode, setFocusMode] = useState(false);
+function InterfaceSettings({ user }: { user: EmployeeUserType }) {
+  const [prefs, setPrefs] = useState(() => getInterfacePrefs(user.uid));
+  const [saved, setSaved] = useState(false);
+
+  useEffect(() => {
+    applyInterfacePrefs(prefs);
+  }, [prefs]);
+
+  const updatePref = <K extends keyof typeof prefs>(key: K, value: typeof prefs[K]) => {
+    setPrefs((p) => ({ ...p, [key]: value }));
+    saveInterfacePrefs({ ...prefs, [key]: value }, user.uid);
+    setSaved(true);
+    setTimeout(() => setSaved(false), 2000);
+  };
 
   return (
     <div className="interface-section">
-      <h3 className="section-title">Interface Preferences</h3>
+      <h3 className="section-title">Readability &amp; display</h3>
       <p className="section-subtitle">
-        Customize the interface to improve focus, readability, and comfort.
+        Adjust text size and spacing for easier reading. Changes apply immediately across the app.
       </p>
 
       <div className="interface-card">
-        {/* Theme */}
-        <div className="interface-row">
-          <div>
-            <h4>Theme</h4>
-            <p>Choose a light or dark interface</p>
-          </div>
-
-          <div className="theme-toggle">
-            <button
-              className={theme === "light" ? "active light" : "light"}
-              onClick={() => setTheme("light")}
-            >
-              ☀ Light
-            </button>
-
-            <button
-              className={theme === "dark" ? "active dark" : "dark"}
-              onClick={() => setTheme("dark")}
-            >
-              🌙 Dark
-            </button>
-          </div>
-        </div>
-
-
         {/* Text size */}
         <div className="interface-row">
           <div>
             <h4>Text size</h4>
-            <p>Adjust text for easier reading</p>
+            <p>Base font size for the app (12–24px)</p>
           </div>
-          <input
-            type="range"
-            min={12}
-            max={18}
-            value={fontSize}
-            onChange={(e) => setFontSize(Number(e.target.value))}
-          />
+          <div className="slider-with-value">
+            <input
+              type="range"
+              min={12}
+              max={24}
+              value={prefs.fontSize}
+              onChange={(e) => updatePref("fontSize", Number(e.target.value))}
+            />
+            <span className="slider-value">{prefs.fontSize}px</span>
+          </div>
         </div>
 
         {/* Line spacing */}
         <div className="interface-row">
           <div>
             <h4>Line spacing</h4>
-            <p>Increase spacing to reduce visual clutter</p>
+            <p>Space between lines (1.2–2.5)</p>
           </div>
-          <input
-            type="range"
-            min={1.2}
-            max={2}
-            step={0.1}
-            value={lineSpacing}
-            onChange={(e) => setLineSpacing(Number(e.target.value))}
-          />
+          <div className="slider-with-value">
+            <input
+              type="range"
+              min={1.2}
+              max={2.5}
+              step={0.1}
+              value={prefs.lineSpacing}
+              onChange={(e) => updatePref("lineSpacing", Number(e.target.value))}
+            />
+            <span className="slider-value">{prefs.lineSpacing}</span>
+          </div>
+        </div>
+
+        {/* Theme */}
+        <div className="interface-row">
+          <div>
+            <h4>Theme</h4>
+            <p>Light or dark interface</p>
+          </div>
+          <div className="theme-toggle">
+            <button
+              className={prefs.theme === "light" ? "active light" : "light"}
+              onClick={() => updatePref("theme", "light")}
+            >
+              ☀ Light
+            </button>
+            <button
+              className={prefs.theme === "dark" ? "active dark" : "dark"}
+              onClick={() => updatePref("theme", "dark")}
+            >
+              🌙 Dark
+            </button>
+          </div>
         </div>
 
         {/* Reduced motion */}
@@ -298,8 +375,8 @@ function InterfaceSettings() {
           <label className="switch">
             <input
               type="checkbox"
-              checked={reducedMotion}
-              onChange={() => setReducedMotion(!reducedMotion)}
+              checked={prefs.reducedMotion}
+              onChange={() => updatePref("reducedMotion", !prefs.reducedMotion)}
             />
             <span className="slider" />
           </label>
@@ -314,8 +391,8 @@ function InterfaceSettings() {
           <label className="switch">
             <input
               type="checkbox"
-              checked={focusMode}
-              onChange={() => setFocusMode(!focusMode)}
+              checked={prefs.focusMode}
+              onChange={() => updatePref("focusMode", !prefs.focusMode)}
             />
             <span className="slider" />
           </label>
@@ -323,7 +400,7 @@ function InterfaceSettings() {
       </div>
 
       <div className="actions">
-        <button className="primary">Save Settings</button>
+        {saved && <span className="saved-hint">Preferences saved. They apply across the app.</span>}
       </div>
     </div>
   );

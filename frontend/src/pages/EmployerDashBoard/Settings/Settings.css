@@ -336,8 +336,8 @@ button.secondary:hover {
 }
 
 .notification-list {
-  background: #ffffff;
-  border: 1px solid #e5e7eb;
+  background: var(--theme-bg-card);
+  border: 1px solid var(--theme-border);
   border-radius: 14px;
   padding: 8px 0;
 }
@@ -350,18 +350,19 @@ button.secondary:hover {
 }
 
 .notification-item:not(:last-child) {
-  border-bottom: 1px solid #f1f5f9;
+  border-bottom: 1px solid var(--theme-border);
 }
 
 .notification-item h4 {
   font-size: 15px;
   font-weight: 600;
   margin-bottom: 4px;
+  color: var(--theme-text);
 }
 
 .notification-item p {
   font-size: 13px;
-  color: #6b7280;
+  color: var(--theme-text-muted);
 }
 
 .switch {
@@ -452,7 +453,24 @@ button.secondary:hover {
   width: 140px;
 }
 
-/* =============================== Theme Toggle ================================ */
+.slider-with-value {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.slider-with-value input[type="range"] {
+  width: 160px;
+}
+
+.slider-value {
+  font-size: 13px;
+  font-weight: 600;
+  color: #374151;
+  min-width: 44px;
+}
+
+/* Theme Toggle */
 
 .theme-toggle {
   display: flex;

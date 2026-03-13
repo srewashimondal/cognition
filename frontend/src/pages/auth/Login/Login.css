@@ -29,6 +29,7 @@
 .login-wrapper h3 {
     font-size: 30px;
     font-weight: 600;
+    color: #1f2d3d;
 }
 
 .signup-text {
@@ -81,7 +82,7 @@ input {
 }
 
 input::placeholder {
-    color: #CACACA;
+    color: #6b7280;
     font-size: 14px;
 }
 

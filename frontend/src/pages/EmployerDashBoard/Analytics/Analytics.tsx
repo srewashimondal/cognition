@@ -54,6 +54,30 @@ import { db } from "../../../firebase";
 
 type BadgeIcon = "star" | "bolt" | "map";
 
+function parseHours(hoursStr: string): number {
+  if (!hoursStr || typeof hoursStr !== "string") return 0;
+  const [h, m] = hoursStr.trim().split(":").map(Number);
+  return (h || 0) + (m || 0) / 60;
+}
+
+function getMonthKey(dateStr: string | undefined): string | null {
+  if (!dateStr) return null;
+  const d = new Date(dateStr);
+  if (Number.isNaN(d.getTime())) return null;
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
+}
+
+function getLastMonthLabels(count: number): string[] {
+  const now = new Date();
+  const labels: string[] = [];
+  const shortMonths = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+  for (let i = count - 1; i >= 0; i--) {
+    const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+    labels.push(shortMonths[d.getMonth()]);
+  }
+  return labels;
+}
+
 const aiInsights = [
   {
     title: "💙 Exceptional Customer Empathy",
@@ -105,28 +129,34 @@ const aiInsights = [
   },
 ];
 
+/** Get ISO date string from Firestore completionDate (string or Timestamp) */
+function getCompletionDateStr(m: { completionDate?: string | { toDate?: () => Date } }): string | undefined {
+  const c = m.completionDate;
+  if (!c) return undefined;
+  if (typeof c === "string") return c;
+  if (c && typeof c === "object" && typeof (c as { toDate?: () => Date }).toDate === "function") {
+    return (c as { toDate: () => Date }).toDate().toISOString();
+  }
+  return undefined;
+}
+
+const SHORT_MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+
+function getLastMonths(count: number): { key: string; label: string }[] {
+  const out: { key: string; label: string }[] = [];
+  const now = new Date();
+  for (let i = count - 1; i >= 0; i--) {
+    const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+    out.push({
+      key: `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`,
+      label: SHORT_MONTHS[d.getMonth()],
+    });
+  }
+  return out;
+}
+
 
 export default function Analytics() {
-  const MAX_HOURS = 80;
-  const MAX_BAR_HEIGHT = 100; 
-  
-
-  const getHeight = (value: number) =>
-  `${(value / MAX_HOURS) * MAX_BAR_HEIGHT}px`;
-
-  //To-Do
-  // const [todos, setTodos] = useState(initialTodos);
-
-  /*const toggleTodo = (id: number) => {
-    setTodos(prev =>
-      prev.map(todo =>
-        todo.id === id
-          ? { ...todo, completed: !todo.completed }
-          : todo
-      )
-    );
-  };*/
-
   useEffect(() => {
     window.scrollTo({ top: 0, left: 0, behavior: "instant" });
   }, []);
@@ -188,6 +218,32 @@ export default function Analytics() {
 
     return () => unsub();
   }, [selectedEmployee?.uid]);
+
+
+  const last6Months = getLastMonths(6);
+  const hoursChartData = (() => {
+    const map = new Map<string, { simulation: number; standard: number }>();
+    last6Months.forEach(({ key }) => map.set(key, { simulation: 0, standard: 0 }));
+    selectedEmployee?.completedModules?.forEach((m) => {
+      const key = getMonthKey(getCompletionDateStr(m));
+      if (!key || !map.has(key)) return;
+      const modInfo = m.moduleInfo as { hours?: string; kind?: string };
+      const hours = parseHours(modInfo?.hours ?? "0");
+      const entry = map.get(key)!;
+      if (modInfo?.kind === "standard") entry.standard += hours;
+      else entry.simulation += hours;
+    });
+    return last6Months.map(({ key, label }) => ({
+      month: label,
+      ...(map.get(key) ?? { simulation: 0, standard: 0 }),
+    }));
+  })();
+
+  const maxChartHours = Math.max(1, ...hoursChartData.map((d) => d.simulation + d.standard));
+
+  // Performance grade 0–10 from averageScore (0–100)
+  const performanceGrade = selectedEmployee?.averageScore != null ? selectedEmployee.averageScore / 10 : 0;
+  const gaugeRotation = -90 + (performanceGrade / 10) * 180;
 
   return (
   <>
@@ -259,8 +315,8 @@ export default function Analytics() {
                 +8% this week
                 </div>
                 <h3 className="analytics-value"> {selectedEmployee?.completedModules?.length ?? 0}</h3>
-                <span className="analytics-change">Lessons completed this week</span>
-                <p className="analytics-label">of 22 total</p>
+                <span className="analytics-change">Modules completed</span>
+                <p className="analytics-label">of {selectedEmployee?.assignedModules?.length ?? 0} assigned</p>
             </div>
             <div className="analytics-icon orange">
                 <img src={lessons_completed} />
@@ -269,7 +325,7 @@ export default function Analytics() {
 
             <div className="analytics-card">
                 <div className="analytics-left">
-                    <h3 className="analytics-value">3</h3>
+                    <h3 className="analytics-value">{selectedEmployee?.achievements?.length ?? 0}</h3>
                     <span className="analytics-change">Badges earned</span>
                     <p className="analytics-label">Keep it up!</p>
                 </div>
@@ -352,47 +408,34 @@ export default function Analytics() {
           </div>
 
           <div className="hours-legend">
-            <span><span className="dot study" /> Study</span>
-            <span><span className="dot test" /> Online Test</span>
+            <span><span className="dot study" /> Simulations</span>
+            <span><span className="dot test" /> Standard modules</span>
           </div>
 
           <div className="hours-chart-wrapper">
-            {/* Y axis */}
             <div className="y-axis">
-              <span>80 Hr</span>
-              <span>60 Hr</span>
-              <span>40 Hr</span>
-              <span>20 Hr</span>
+              <span>{Math.ceil(maxChartHours)} Hr</span>
+              <span>{Math.ceil(maxChartHours * 0.75)} Hr</span>
+              <span>{Math.ceil(maxChartHours * 0.5)} Hr</span>
+              <span>{Math.ceil(maxChartHours * 0.25)} Hr</span>
               <span>0 Hr</span>
             </div>
-            {/* Chart */}
             <div className="hours-chart">
-              {[
-                { month: "Jan", study: 45, test: 30 },
-                { month: "Feb", study: 20, test: 15 },
-                { month: "Mar", study: 70, test: 25 },
-                { month: "Apr", study: 38, test: 22 },
-                { month: "May", study: 18, test: 10 },
-              ].map((item, i) => (
-                <div className="bar-group" key={i}>
-                  <div
-                    className="bar-stack"
-                    data-tooltip={`🟧 ${item.study} Hr\n⬜ ${item.test} Hr`}
-                  >
+              {hoursChartData.map((item, i) => {
+                const maxH = Math.max(maxChartHours, 1);
+                return (
+                  <div className="bar-group" key={i}>
                     <div
-                      className="bar study"
-                      style={{ height: getHeight(item.study) }}
-                    />
-                    <div
-                      className="bar test"
-                      style={{ height: getHeight(item.test) }}
-                    />
+                      className="bar-stack"
+                      data-tooltip={`Simulations: ${item.simulation.toFixed(1)} Hr\nStandard: ${item.standard.toFixed(1)} Hr`}
+                    >
+                      <div className="bar study" style={{ height: `${(item.simulation / maxH) * 100}px` }} />
+                      <div className="bar test" style={{ height: `${(item.standard / maxH) * 100}px` }} />
+                    </div>
+                    <span className="bar-label">{item.month}</span>
                   </div>
-
-                  <span className="bar-label">{item.month}</span>
-                </div>
-              ))}
-
+                );
+              })}
             </div>
           </div>
         </div>
@@ -426,59 +469,51 @@ export default function Analytics() {
                 <path
                   d="M20 100 A80 80 0 0 1 180 100"
                   fill="none"
-                  stroke="#f3f4f6"
-                  strokeWidth="12"
+                  stroke="#e5e7eb"
+                  strokeWidth="14"
                   strokeLinecap="round"
                 />
-
                 <path
-                  d="M20 100 A80 80 0 0 1 140 40"
+                  d="M20 100 A80 80 0 0 1 180 100"
                   fill="none"
-                  stroke="#ff5a1f"
-                  strokeWidth="12"
+                  stroke="url(#gaugeGrad)"
+                  strokeWidth="14"
                   strokeLinecap="round"
+                  strokeDasharray={`${(performanceGrade / 10) * 251.2} 251.2`}
                 />
-
+                <defs>
+                  <linearGradient id="gaugeGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+                    <stop offset="0%" stopColor="#ef4444" />
+                    <stop offset="50%" stopColor="#f59e0b" />
+                    <stop offset="100%" stopColor="#22c55e" />
+                  </linearGradient>
+                </defs>
                 {[...Array(11)].map((_, i) => {
                   const angle = (-90 + i * 18) * (Math.PI / 180);
-                  const x1 = 100 + Math.cos(angle) * 60;
-                  const y1 = 100 + Math.sin(angle) * 60;
-                  const x2 = 100 + Math.cos(angle) * 68;
-                  const y2 = 100 + Math.sin(angle) * 68;
+                  const x1 = 100 + Math.cos(angle) * 58;
+                  const y1 = 100 + Math.sin(angle) * 58;
+                  const x2 = 100 + Math.cos(angle) * 66;
+                  const y2 = 100 + Math.sin(angle) * 66;
                   return (
-                    <line
-                      key={i}
-                      x1={x1}
-                      y1={y1}
-                      x2={x2}
-                      y2={y2}
-                      stroke="#e5e7eb"
-                      strokeWidth="2"
-                    />
+                    <line key={i} x1={x1} y1={y1} x2={x2} y2={y2} stroke="#d1d5db" strokeWidth="1.5" />
                   );
                 })}
-
                 <line
                   x1="100"
                   y1="100"
-                  x2="145"
-                  y2="55"
-                  stroke="#ff5a1f"
+                  x2={100 + Math.cos((gaugeRotation * Math.PI) / 180) * 52}
+                  y2={100 + Math.sin((gaugeRotation * Math.PI) / 180) * 52}
+                  stroke="#111827"
                   strokeWidth="3"
+                  strokeLinecap="round"
                 />
-
-                <circle cx="100" cy="100" r="6" fill="#ff5a1f" />
+                <circle cx="100" cy="100" r="8" fill="#111827" />
               </svg>
             </div>
 
             <div className="score">
-              <p>Your Grade: 
-                <span>
-                  {selectedEmployee?.averageScore
-                    ? (selectedEmployee.averageScore / 10).toFixed(1)
-                    : "0.0"} / 10
-                </span></p>
-              <a href="#">Click Here to See Detailed Feedback</a>
+              <p>Grade: <span>{performanceGrade.toFixed(1)} / 10</span></p>
+              <a href="#module-performance">See module breakdown below</a>
             </div>
           </div>
         </div>
@@ -509,26 +544,36 @@ export default function Analytics() {
           </div>
         </div>*/}
 
-        <div className="card">
+        <div className="card badges-card">
           <div className="card-title">
             <span>
               <img src={black_prize} />
             </span>
             Badges
           </div>
-          <div className="progress-list">
-              {selectedEmployee?.achievements?.map((a) => (
-                <div className="badge-item">
-                  {iconByBadge[a.icon as BadgeIcon] && (
-                    <img src={iconByBadge[a.icon as BadgeIcon]} />
-                  )}
-                  <div className="badge-item-name">
-                    <h4>{a.name}</h4>
-                    <p>{a.description}</p>
+          {selectedEmployee?.achievements?.length ? (
+            <div className="analytics-badges-grid">
+              {selectedEmployee.achievements.map((a) => (
+                <div className="analytics-badge-card" key={a.id ?? a.name}>
+                  <div className="analytics-badge-icon">
+                    {iconByBadge[a.icon as BadgeIcon] ? (
+                      <img src={iconByBadge[a.icon as BadgeIcon]} alt="" />
+                    ) : (
+                      <span className="badge-emoji">🏅</span>
+                    )}
                   </div>
+                  <h4 className="analytics-badge-name">{a.name}</h4>
+                  <p className="analytics-badge-desc">{a.description}</p>
                 </div>
               ))}
             </div>
+          ) : (
+            <div className="analytics-badges-empty">
+              <div className="analytics-badges-empty-icon">🏆</div>
+              <p>No badges yet</p>
+              <span>Complete modules and simulations to earn badges.</span>
+            </div>
+          )}
         </div>
 
       </div> 
@@ -606,7 +651,7 @@ export default function Analytics() {
             </div>
             <div className="ai-powered-insights-title">
                 <h3>AI-Powered Insights</h3>
-                <p>Data-driven recommendations for coaching John Doe</p>
+                <p>Data-driven recommendations for coaching {selectedEmployee.fullName}</p>
             </div>
         </div>
         <div className="ai-feedback-list">
@@ -638,9 +683,9 @@ export default function Analytics() {
         </div>
       </div>
 
-      <div className="skill-breakdown-section">
+      <div className="skill-breakdown-section" id="module-performance">
         <h2 className="section-title margin">Module Performance</h2>
-        <p className="analytics-label">How John Doe is performing across modules</p>
+        <p className="analytics-label">How {selectedEmployee.fullName} is performing across modules</p>
         <div className="employee-breakdown employer-view">
           { selectedEmployee?.completedModules?.map((m) => (
             <div className="employee-module-item" key={m.moduleInfo.id}>

@@ -77,6 +77,51 @@
     );
 }
 
+.voice-receiver.recording {
+    cursor: pointer;
+}
+
+.voice-receiver.disabled {
+    cursor: default;
+    opacity: 0.65;
+}
+
+.voice-receiver.disabled .voice-circle {
+    background: radial-gradient(
+        circle at center,
+        #b0b0b0 0%,
+        #e8e8e8 100%
+    );
+}
+
+.voice-circle.pulse {
+    animation: pulse 1.2s ease-in-out infinite;
+}
+
+@keyframes pulse {
+    0% {
+        transform: scale(1);
+        opacity: 1;
+    }
+    50% {
+        transform: scale(1.08);
+        opacity: 0.85;
+    }
+    100% {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+.voice-circle.processing {
+    animation: processing 1s ease-in-out infinite;
+}
+
+@keyframes processing {
+    0%, 100% { opacity: 0.7; }
+    50% { opacity: 1; }
+}
+
 .empty-wrapper {
     padding: 30px;
     font-size: 14px;

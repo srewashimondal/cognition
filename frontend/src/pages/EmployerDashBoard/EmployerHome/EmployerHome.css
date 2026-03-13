@@ -116,9 +116,9 @@
 }
 
 .employee-card {
-  border: 1px solid #e5e7eb;
+  border: 1px solid var(--theme-border);
   border-radius: 18px;
-  background: #ffffff;
+  background: var(--theme-bg-card);
   padding: 14px;
   display: flex;
   flex-direction: column;
@@ -188,11 +188,12 @@
 .employee-name {
   font-size: 18px;
   font-weight: 600;
+  color: var(--theme-text);
 }
 
 .employee-email {
   font-size: 15px;
-  color: #6b7280;
+  color: var(--theme-text-muted);
 }
 
 .employee-meta {
@@ -207,6 +208,10 @@
   display: flex;
   justify-content: space-between;
   font-size: 14px;
+}
+
+.employee-footer p {
+  color: var(--theme-text);
 }
 
 .meta-label {
@@ -751,6 +756,50 @@
   margin-top: 0px;
 }
 
+/* Match Module Performance, Top Performers, Needs Attention to analytics cards */
+.skill-breakdown-section {
+  background: var(--theme-bg-card);
+  border-radius: 16px;
+  padding: 18px 20px;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.06);
+  border: 1px solid var(--theme-border);
+}
+
+.skill-breakdown-section .analytics-label {
+  color: var(--theme-text-muted);
+}
+
+.skill-breakdown-section .section-title {
+  color: var(--theme-text);
+}
+
+.module-breakdown {
+  border: 2px solid var(--theme-border);
+  padding: 20px 30px;
+  border-radius: 10px;
+  display: flex;
+  background: var(--theme-bg-card-alt);
+  color: var(--theme-text);
+}
+
+.module-breakdown h2 {
+  margin: 0;
+  font-size: 18px;
+}
+
+.module-breakdown-left {
+  width: 50%;
+}
+
+.module-breakdown-title {
+  font-weight: 600;
+  color: var(--theme-text);
+}
+
+.module-breakdown-grey {
+  color: var(--theme-text-muted);
+}
+
 .employee-breakdown {
   padding: 10px;
   padding-top: 0;
@@ -779,30 +828,6 @@
 
 .employee-breakdown-view-all button:focus {
   outline: none;
-}
-
-.module-breakdown {
-  border: 2px solid #eee;
-  padding: 20px 30px;
-  border-radius: 10px;
-  display: flex;
-}
-
-.module-breakdown h2 {
-  margin: 0;
-  font-size: 18px;
-}
-
-.module-breakdown-left {
-  width: 50%;
-}
-
-.module-breakdown-title {
-  font-weight: 600;
-}
-
-.module-breakdown-grey {
-  color: #888888;
 }
 
 .module-breakdown-grey.small {
@@ -850,8 +875,12 @@
   margin: 0;
 }
 
+.module-breakdown-stats h2 {
+  color: var(--theme-text);
+}
+
 .module-breakdown-stats p {
-  color: #888888;
+  color: var(--theme-text-muted);
 }
 
 .employee-rankings {
@@ -880,8 +909,9 @@
   width: 100%;
   justify-content: space-between;
   padding: 10px 20px;
-  border: 2px solid #eee;
+  border: 2px solid var(--theme-border);
   border-radius: 10px;
+  background: var(--theme-bg-card-alt);
 }
 
 .leaderboard-item h2, .leaderboard-item h3, .leaderboard-item h4, .leaderboard-item p {
@@ -891,6 +921,11 @@
 .leaderboard-name h3 {
   font-size: 18px;
   font-weight: 600;
+  color: var(--theme-text);
+}
+
+.leaderboard-name p {
+  color: var(--theme-text);
 }
 
 .leaderboard-item h4 {
@@ -900,7 +935,7 @@
 
 .leaderboard-info p {
   font-size: 14px;
-  color: #888888;
+  color: var(--theme-text-muted);
   font-weight: 500;
 }
 

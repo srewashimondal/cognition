@@ -1,6 +1,8 @@
 // import { useState } from 'react'
+import { useEffect } from 'react';
 import { Routes, Route } from 'react-router-dom';
 import './App.css';
+import { getInterfacePrefs, applyInterfacePrefs } from './utils/interfacePrefs';
 import HomePage from './pages/HomePage/HomePage.tsx';
 import EmployeeDashBoard from './pages/EmployeeDashBoard/EmployeeDashBoard.tsx';
 import EmployerDashBoard from './pages/EmployerDashBoard/EmployerDashBoard.tsx';
@@ -10,6 +12,10 @@ import EmployerOnboarding from './pages/EmployerDashBoard/Onboarding/EmployerOnb
 import EmployeeOnboarding from './pages/EmployeeDashBoard/Onboarding/EmployeeOnboarding.tsx';
 
 function App() {
+  useEffect(() => {
+    applyInterfacePrefs(getInterfacePrefs());
+  }, []);
+
   return (
     <Routes>
       <Route path='/' element={<HomePage />}/>

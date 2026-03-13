@@ -1,6 +1,6 @@
 import './EmployerDashBoard.css';
 import { Routes, Route, Navigate, Link, NavLink } from "react-router-dom";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useLocation } from "react-router-dom";
 import { Tooltip } from "@radix-ui/themes";
 import Analytics from "./Analytics/Analytics";
@@ -18,7 +18,8 @@ import sidebar_icon from '../../assets/icons/sidebar-icon.svg';
 // import { workspace } from '../../dummy_data/workspace_data.tsx'; // keep this in case
 import { useAuth } from "../../context/AuthProvider.tsx"; 
 import { useWorkspace } from '../../context/WorkspaceProvider.tsx';
-import defaultIcon from '../../assets/icons/default-icon.svg';
+import defaultAvatar from '../../assets/icons/default-avatar.png';
+import { getInterfacePrefs, applyInterfacePrefs } from '../../utils/interfacePrefs';
 
 import white_home from '../../assets/icons/sidebar/white-home-icon.svg';
 import black_home from '../../assets/icons/sidebar/black-home-icon.svg';
@@ -57,6 +58,13 @@ export default function EmployerDashBoard() {
   
   const { user, loading: authLoading } = useAuth();
   const { workspace, loading: workspaceLoading } = useWorkspace();
+
+  useEffect(() => {
+    if (user?.uid) {
+      const prefs = getInterfacePrefs(user.uid);
+      applyInterfacePrefs(prefs);
+    }
+  }, [user?.uid]);
 
   console.log("Current state:", { 
     authLoading, 
@@ -229,7 +237,7 @@ export default function EmployerDashBoard() {
                 onClick={() => setProfileOpen(true)}
               >
                 <img
-                  src={user.profilePicture ?? defaultIcon}
+                  src={user.profilePicture ?? defaultAvatar}
                   className="avatar"
                 />
                 {/*<span className="username">{employer.fullName}</span>
@@ -249,6 +257,7 @@ export default function EmployerDashBoard() {
             <Route path="analytics" element={<Analytics />} />
             <Route path="modules" element={<Modules workspace={workspace}/>} />
             <Route path="resources" element={<Resources workspace={workspace} />} />
+            <Route path="settings" element={<Settings user={user} workspace={workspace} />} />
             {/* <Route path="modules/:id" element={<Lessons />} />
             <Route path="simulations/:moduleID/:lessonID/:simIdx" element={<SimulationPage role={"employer"} />} />
             <Route path="ai-studio" element={<AIStudio />} />

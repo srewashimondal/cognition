@@ -1,4 +1,5 @@
 from fastapi import APIRouter, HTTPException, UploadFile, File
+from fastapi.responses import StreamingResponse
 from app.llms.llm_service import LLMService
 import firebase_admin
 from firebase_admin import credentials, firestore
@@ -13,6 +14,8 @@ import os
 import copy
 import time
 import uuid
+import json
+import requests
 
 router = APIRouter()
 llm = LLMService()
@@ -609,11 +612,17 @@ async def simulation_reply(request: SimulationReplyRequest):
         conversation_history = []
         for doc in message_docs:
             msg = doc.to_dict()
-
             conversation_history.append({
                 "role": msg.get("role"),
                 "content": msg.get("content")
             })
+
+        latest = (request.latest_user_message or "").strip()
+        if latest:
+            if not conversation_history or conversation_history[-1].get("role") != "user":
+                conversation_history.append({"role": "user", "content": latest})
+            else:
+                conversation_history[-1] = {"role": "user", "content": latest}
 
         ai_response = llm.generate_simulation_reply(
             character_name=character_name,
@@ -650,3 +659,132 @@ async def simulation_reply(request: SimulationReplyRequest):
     except Exception as e:
         print("Simulation reply failed:", e)
         raise HTTPException(status_code=500, detail="Simulation reply failed")
+
+@router.post("/tts")
+async def tts(request: TTSRequest):
+    """
+    Synthesize speech for simulation character messages via Hume TTS.
+
+    Env vars:
+      - HUME_API_KEY (required)
+      - HUME_VOICE_MAP (optional JSON): {"Alex":"Serena","Jordan":"Miles"}
+      - HUME_VOICE_PROVIDER (optional): "HUME_AI" | "CUSTOM_VOICE" (default "HUME_AI")
+      - HUME_DEFAULT_VOICE_NAME (optional, default "Serena")
+      - HUME_DESCRIPTION_MAP (optional JSON): {"Serena":"Warm, supportive, professional."}
+      - HUME_DEFAULT_DESCRIPTION (optional)
+    """
+    hume_api_key = os.getenv("HUME_API_KEY")
+    if not hume_api_key:
+        raise HTTPException(status_code=500, detail="Missing HUME_API_KEY")
+
+    text = (request.text or "").strip()
+    if not text:
+        raise HTTPException(status_code=422, detail="Missing text")
+
+    voice_map_raw = os.getenv("HUME_VOICE_MAP", "{}")
+    try:
+        voice_map = json.loads(voice_map_raw) if voice_map_raw else {}
+    except Exception:
+        voice_map = {}
+
+    default_voice_name = os.getenv("HUME_DEFAULT_VOICE_NAME", "").strip()
+    resolved_voice_name = (request.voice_name or voice_map.get(request.character_name) or default_voice_name or "").strip()
+
+    provider = request.voice_provider or os.getenv("HUME_VOICE_PROVIDER", "HUME_AI")
+    if provider not in ("HUME_AI", "CUSTOM_VOICE"):
+        provider = "HUME_AI"
+
+    desc_map_raw = os.getenv("HUME_DESCRIPTION_MAP", "{}")
+    try:
+        desc_map = json.loads(desc_map_raw) if desc_map_raw else {}
+    except Exception:
+        desc_map = {}
+
+    description = request.description or desc_map.get(resolved_voice_name) or os.getenv(
+        "HUME_DEFAULT_DESCRIPTION",
+        "Natural, clear, conversational delivery."
+    )
+
+    utterance = {
+        "text": text,
+        "description": description,
+        "speed": 1,
+        "trailing_silence": 0.25
+    }
+
+    if resolved_voice_name:
+        utterance["voice"] = {
+            "name": resolved_voice_name,
+            "provider": provider
+        }
+
+    body = {
+        "utterances": [
+            utterance
+        ],
+        "format": { "type": "mp3" }
+    }
+
+    try:
+        resp = requests.post(
+            "https://api.hume.ai/v0/tts/file",
+            headers={
+                "Content-Type": "application/json",
+                "X-Hume-Api-Key": hume_api_key
+            },
+            json=body,
+            stream=True,
+            timeout=60
+        )
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Hume request failed: {str(e)}")
+
+    if resp.status_code != 200:
+        try:
+            detail = resp.text
+        except Exception:
+            detail = "Unknown error"
+        raise HTTPException(status_code=500, detail=f"Hume TTS failed: {detail}")
+
+    return StreamingResponse(resp.iter_content(chunk_size=1024 * 64), media_type="audio/mpeg")
+
+
+@router.post("/stt")
+async def stt(file: UploadFile = File(...)):
+    """
+    Speech-to-text for voice messages. Uses OpenAI Whisper.
+
+    Expects multipart/form-data with "file".
+    Returns: { "text": "..." }
+    """
+    if not os.getenv("OPENAI_API_KEY"):
+        raise HTTPException(status_code=500, detail="Missing OPENAI_API_KEY")
+
+    tmp_path = None
+    try:
+        suffix = os.path.splitext(file.filename or "")[1] or ".webm"
+        with tempfile.NamedTemporaryFile(delete=False, suffix=suffix) as tmp:
+            tmp_path = tmp.name
+            contents = await file.read()
+            if not contents:
+                raise HTTPException(status_code=422, detail="Empty audio file")
+            tmp.write(contents)
+
+        with open(tmp_path, "rb") as audio_file:
+            transcript = llm.client.audio.transcriptions.create(
+                model="whisper-1",
+                file=audio_file
+            )
+
+        text = getattr(transcript, "text", None) or ""
+        return {"text": text}
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"STT failed: {str(e)}")
+    finally:
+        if tmp_path and os.path.exists(tmp_path):
+            try:
+                os.unlink(tmp_path)
+            except Exception:
+                pass

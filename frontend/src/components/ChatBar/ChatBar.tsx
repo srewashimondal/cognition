@@ -36,6 +36,9 @@ export default function ChatBar({ context, userInput, setUserInput, handleSend, 
     const [showContext, setShowContext] = useState(false);
     const [pageContextState, setPageContextState] = useState<{ id: string; label: string; isModule?: boolean }[] | null>(pageContext ?? null);
     const [selectedContext, setSelectedContext] = useState<string[]>([]);
+    const [isRecording, setIsRecording] = useState(false);
+    const mediaRecorderRef = useRef<MediaRecorder | null>(null);
+    const audioChunksRef = useRef<BlobPart[]>([]);
 
     const handleTextareaChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
         setUserInput(e.target.value);
@@ -91,6 +94,63 @@ export default function ChatBar({ context, userInput, setUserInput, handleSend, 
         handleSend();
         setSelectedContext([]);
     }   
+
+    const handleVoiceMessage = async () => {
+        try {
+            if (isRecording) {
+                mediaRecorderRef.current?.stop();
+                return;
+            }
+
+            const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+            const recorder = new MediaRecorder(stream);
+            mediaRecorderRef.current = recorder;
+            audioChunksRef.current = [];
+
+            recorder.ondataavailable = (e) => {
+                if (e.data && e.data.size > 0) audioChunksRef.current.push(e.data);
+            };
+
+            recorder.onstop = async () => {
+                try {
+                    setIsRecording(false);
+                    stream.getTracks().forEach(t => t.stop());
+
+                    const blob = new Blob(audioChunksRef.current, { type: recorder.mimeType || "audio/webm" });
+                    audioChunksRef.current = [];
+
+                    const form = new FormData();
+                    form.append("file", blob, "voice.webm");
+
+                    const resp = await fetch("http://127.0.0.1:8000/ai/stt", {
+                        method: "POST",
+                        body: form,
+                    });
+
+                    if (!resp.ok) return;
+                    const data = await resp.json();
+                    const text = (data?.text ?? "").trim();
+                    if (!text) return;
+
+                    setUserInput(text);
+
+                    // auto-send for simulation context; otherwise just fill textbox
+                    if (context === "simulation") {
+                        // ensure state update has applied before sending
+                        setTimeout(() => handleSend(), 0);
+                    }
+                } catch {
+                    setIsRecording(false);
+                    stream.getTracks().forEach(t => t.stop());
+                }
+            };
+
+            recorder.start();
+            setIsRecording(true);
+        } catch {
+            setIsRecording(false);
+        }
+    };
 
     console.log("ChatBar typingMessageId:", typingMessageId);
       
@@ -165,11 +225,11 @@ export default function ChatBar({ context, userInput, setUserInput, handleSend, 
                         <div className="chat-action-divider" />
                     </>
                     }
-                    <div className="chat-action" onClick={handleVoiceMode}>
+                    <div className="chat-action" onClick={handleVoiceMessage}>
                         <span className="chat-action-icon">
-                            <img src={voice_icon} />
+                            <img src={isRecording ? stop_icon : voice_icon} />
                         </span>
-                        Voice Message
+                        {isRecording ? "Stop Recording" : "Voice Message"}
                     </div>
                 </div>
             </div>

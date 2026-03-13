@@ -1,16 +1,17 @@
 import './EmployeeDashBoard.css';
 import { Routes, Route, Navigate, Link, NavLink } from "react-router-dom";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useMatch } from "react-router-dom";
 import { Tooltip } from "@radix-ui/themes";
 import logo from '../../assets/branding/cognition-logo.png';
 import bell from '../../assets/icons/bell.svg';
 import sidebar_icon from '../../assets/icons/sidebar-icon.svg';
 import ProfilePage from "../EmployerDashBoard/ProfilePage/ProfilePage";
-import defaultIcon from '../../assets/icons/default-icon.svg';
+import defaultAvatar from '../../assets/icons/default-avatar.png';
 // import { workspace } from '../../dummy_data/workspace_data';
 import { useAuth } from "../../context/AuthProvider.tsx"; 
 import { useWorkspace } from '../../context/WorkspaceProvider.tsx';
+import { getInterfacePrefs, applyInterfacePrefs } from '../../utils/interfacePrefs';
 import StandardModules from './StandardModules/StandardModules';
 import SimulationModules from './SimulationModules/SimulationModules';
 import EmployeeHome from './EmployeeHome/EmployeeHome';
@@ -54,6 +55,13 @@ export default function EmployeeDashBoard() {
     
     const { user, loading: authLoading } = useAuth();
     const { workspace, loading: workspaceLoading } = useWorkspace();
+
+    useEffect(() => {
+      if (user?.uid) {
+        const prefs = getInterfacePrefs(user.uid);
+        applyInterfacePrefs(prefs);
+      }
+    }, [user?.uid]);
 
     console.log("Current state:", { 
       authLoading, 
@@ -246,7 +254,7 @@ export default function EmployeeDashBoard() {
                 onClick={() => setProfileOpen(prev => !prev)}
               >
                 <img
-                  src={user.profilePicture ?? defaultIcon}
+                  src={user.profilePicture ?? defaultAvatar}
                   className="avatar"
                 />
                 {/*<span className="username">{employee.fullName}</span>
@@ -272,8 +280,8 @@ export default function EmployeeDashBoard() {
             <Route path="standard-modules/:moduleID" element={<StandardLessons />} />
             <Route path="standard-modules/:moduleID/:lessonID" element={<StandardLessonPage />} />
             <Route path="resources" element={<EmployeeResources workspace={workspace} />} />
-            {/*<Route path="settings" element={<EmployeeSettings />} />
-            <Route path="*" element={<Navigate to="" />} />*/}
+            <Route path="settings" element={<EmployeeSettings user={user} />} />
+            <Route path="*" element={<Navigate to="/employee" replace />} />
           </Routes>
         </section>
         }
