@@ -142,7 +142,7 @@ function AccountSettings({ user }: { user: EmployeeUserType }) {
         {saved && <span className="saved-hint">Saved.</span>}
       </div>
       <div className="security-wrapper">
-        {SecuritySettings()}
+        <SecuritySettings />
       </div>
     </div>
   );

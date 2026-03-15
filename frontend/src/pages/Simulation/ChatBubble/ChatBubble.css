@@ -283,6 +283,7 @@
     font-size: 12px;
     cursor: pointer;
     transition: 0.15s ease;
+    margin-left: 14px;
 }
 
 .speak-btn img {
