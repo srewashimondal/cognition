@@ -235,11 +235,20 @@ export default function BuilderCanvas({ id, workspace }: BuilderCanvasProps) {
     const [unDeployModal, setUnDeployModal] = useState(false);
     const handleDeploy = async () => {
         try {
-            await handleSave(); 
+            await handleSave();
             const moduleRef = doc(db, "simulationModules", id!);
             await updateDoc(moduleRef, {
                 deployed: true,
             });
+            const res = await fetch("http://127.0.0.1:8000/ai/deploy-simulation-module", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ module_id: id }),
+            });
+            if (!res.ok) {
+                const err = await res.json().catch(() => ({}));
+                throw new Error((err as { detail?: string }).detail || "Failed to enroll employees");
+            }
             setIsDeployed(true);
         } catch (error) {
             console.error("Error deploying module:", error);

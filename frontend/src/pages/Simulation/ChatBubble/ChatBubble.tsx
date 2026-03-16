@@ -25,9 +25,11 @@ type ChatBubbleProps = {
     lessons?: LessonType[];
     handleApply?: () => void;
     voiceDescription?: string;
+    lessonAttemptId?: string;
+    simIndex?: number;
 };
 
-export default function ChatBubble({ message, className, handleClick, shouldType, stopTyping, onTypingComplete, shouldRegenerate, handleRegenerate, onTypingUpdate, lessons, handleApply, voiceDescription }: ChatBubbleProps) {
+export default function ChatBubble({ message, className, handleClick, shouldType, stopTyping, onTypingComplete, shouldRegenerate, handleRegenerate, onTypingUpdate, lessons, handleApply, voiceDescription, lessonAttemptId, simIndex }: ChatBubbleProps) {
     if (!message) return null; 
 
     const { role, name, content } = message;
@@ -48,19 +50,33 @@ export default function ChatBubble({ message, className, handleClick, shouldType
             }
 
             const characterName = (role === "character" ? (name ?? "Character") : "Cognition");
-            const text = cleanedContent.trim();
+            // Speak only this bubble's message text – no other lines or transcript
+            const rawText = typeof message.content === "string" ? message.content : "";
+            const text = rawText
+                .replace(/\n{3,}/g, "\n\n")
+                .replace(/\*\*([^*]+)\*\*/g, "$1")
+                .replace(/\*([^*]+)\*/g, "$1")
+                .replace(/__([^_]+)__/g, "$1")
+                .replace(/_([^_]+)_/g, "$1")
+                .replace(/\[([^\]]+)\]\([^)]+\)/g, "$1")
+                .trim();
             if (!text) return;
 
             setIsSpeaking(true);
 
+            const body: Record<string, unknown> = {
+                character_name: characterName,
+                text,
+                description: voiceDescription
+            };
+            if (lessonAttemptId != null && simIndex != null) {
+                body.lesson_attempt_id = lessonAttemptId;
+                body.sim_index = simIndex;
+            }
             const resp = await fetch("http://127.0.0.1:8000/ai/tts", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({
-                    character_name: characterName,
-                    text,
-                    description: voiceDescription
-                })
+                body: JSON.stringify(body)
             });
 
             if (!resp.ok) {

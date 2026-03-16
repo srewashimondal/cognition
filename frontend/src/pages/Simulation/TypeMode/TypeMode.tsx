@@ -10,7 +10,10 @@ import voice_icon from '../../../assets/icons/chatbar/voice-msg-icon.svg';
 
 type TypeModeProps = {
     title: string;
-    idx: number; 
+    idx: number;
+    lessonAttemptId?: string;
+    simIndex?: number;
+    voiceDescription?: string;
     messages: MessageType[];
     switchType: () => void;
     handleBack: () => void;
@@ -21,7 +24,7 @@ type TypeModeProps = {
     name: string;
 };
 
-export default function TypeMode({ title, idx, messages, switchType, handleBack, handleClick, handleSendMessage, onTypingComplete, typingMessageId, name }: TypeModeProps) {
+export default function TypeMode({ title, idx, lessonAttemptId, simIndex, voiceDescription, messages, switchType, handleBack, handleClick, handleSendMessage, onTypingComplete, typingMessageId, name }: TypeModeProps) {
     const transcriptRef = useRef<HTMLDivElement | null>(null);
     const [userInput, setUserInput] = useState("");
     const [isLoading, setIsLoading] = useState(false);
@@ -72,10 +75,11 @@ export default function TypeMode({ title, idx, messages, switchType, handleBack,
                             const isFirst = m.id === arr[0]?.id;
                             const isLast = m.id === arr[arr.length - 1]?.id;
 
-                            return (<ChatBubble key={m.id} message={m} 
-                            className={isLast ? "last-message" : isFirst ? "first-message": ""} 
-                            handleClick={() => handleClick(m.id)} 
-                            shouldType={shouldType} onTypingComplete={onTypingComplete} />)
+                            return (<ChatBubble key={m.id} message={m}
+                            className={isLast ? "last-message" : isFirst ? "first-message": ""}
+                            handleClick={() => handleClick(m.id)}
+                            shouldType={shouldType} onTypingComplete={onTypingComplete}
+                            voiceDescription={voiceDescription} lessonAttemptId={lessonAttemptId} simIndex={simIndex} />)
                         })}
                     {isLoading && (
                         <div className="chat-bubble-wrapper character loading-simulation">

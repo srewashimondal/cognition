@@ -8,6 +8,8 @@ import left_arrow from '../../../assets/icons/orange-left-arrow.svg';
 type VoiceModeProps = {
     title: string;
     idx: number;
+    lessonAttemptId?: string;
+    simIndex?: number;
     messages: MessageType[];
     switchType: () => void;
     handleBack: () => void;
@@ -17,7 +19,7 @@ type VoiceModeProps = {
     voiceDescription?: string;
 };
 
-export default function VoiceMode({ title, idx, messages, switchType, handleBack, handleClick, handleSendMessage, characterName, voiceDescription }: VoiceModeProps) {
+export default function VoiceMode({ title, idx, lessonAttemptId, simIndex, messages, switchType, handleBack, handleClick, handleSendMessage, characterName, voiceDescription }: VoiceModeProps) {
     const transcriptRef = useRef<HTMLDivElement | null>(null);
     const [isRecording, setIsRecording] = useState(false);
     const [isProcessing, setIsProcessing] = useState(false);
@@ -108,7 +110,8 @@ export default function VoiceMode({ title, idx, messages, switchType, handleBack
                     <div className="scrollable-transcript" ref={transcriptRef}>
                         {displayMessages.map((m, i, arr) => <ChatBubble key={m.id}
                         message={m} className={i === arr.length - 1 ? "last-message" : i === 0 ? "first-message": ""}
-                        handleClick={() => handleClick(m.id)} voiceDescription={voiceDescription} />)}
+                        handleClick={() => handleClick(m.id)} voiceDescription={voiceDescription}
+                        lessonAttemptId={lessonAttemptId} simIndex={simIndex} />)}
                     </div>
                     <p className="transcript-label">Transcript</p>
                     <div className="blur-top" />

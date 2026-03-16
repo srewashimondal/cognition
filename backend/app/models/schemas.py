@@ -92,6 +92,10 @@ class AICreateRequest(BaseModel):
     user_message: str
     reference_ids: Optional[List[str]] = None
 
+class DeploySimulationModuleRequest(BaseModel):
+    module_id: str
+
+
 class CreateSimulationRequest(BaseModel):
     workspace_id: str
     lesson_attempt_id: str
@@ -115,3 +119,5 @@ class TTSRequest(BaseModel):
     voice_name: Optional[str] = None
     voice_provider: Optional[Literal["HUME_AI", "CUSTOM_VOICE"]] = None
     description: Optional[str] = None
+    lesson_attempt_id: Optional[str] = None
+    sim_index: Optional[int] = None

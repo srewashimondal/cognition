@@ -29,6 +29,66 @@ if not firebase_admin._apps:
 db = firestore.client()
 
 
+def _create_and_save_hume_voice(
+    hume_api_key: str,
+    voice_name: str,
+    opening_text: str,
+    description: str,
+) -> str:
+    """
+    Generate speech from description + opening text via Hume JSON TTS,
+    then save that generation as a reusable custom voice. Returns the voice name.
+    """
+    # 1. Generate with description (voice design) to get generation_id
+    json_body = {
+        "utterances": [
+            {
+                "text": (opening_text or "").strip() or "Hello.",
+                "description": (description or "").strip() or "Natural, clear, conversational delivery.",
+                "speed": 1,
+                "trailing_silence": 0.25,
+            }
+        ],
+        "num_generations": 1,
+        "format": {"type": "mp3"},
+    }
+    resp = requests.post(
+        "https://api.hume.ai/v0/tts",
+        headers={
+            "Content-Type": "application/json",
+            "X-Hume-Api-Key": hume_api_key,
+        },
+        json=json_body,
+        timeout=60,
+    )
+    if resp.status_code != 200:
+        raise RuntimeError(f"Hume TTS JSON failed: {resp.status_code} {resp.text}")
+
+    data = resp.json()
+    generations = data.get("generations") or []
+    if not generations:
+        raise RuntimeError("Hume TTS returned no generations")
+    generation_id = generations[0].get("generation_id")
+    if not generation_id:
+        raise RuntimeError("Hume TTS response missing generation_id")
+
+    # 2. Save as named custom voice
+    save_body = {"generation_id": generation_id, "name": voice_name}
+    save_resp = requests.post(
+        "https://api.hume.ai/v0/tts/voices",
+        headers={
+            "Content-Type": "application/json",
+            "X-Hume-Api-Key": hume_api_key,
+        },
+        json=save_body,
+        timeout=30,
+    )
+    if save_resp.status_code != 200:
+        raise RuntimeError(f"Hume create voice failed: {save_resp.status_code} {save_resp.text}")
+
+    return voice_name
+
+
 @router.post("/generate-video-transcript")
 async def generate_video_transcript(request: TranscriptRequest):
     """
@@ -485,6 +545,84 @@ async def create_module(request: AICreateRequest):
 
     return assistant_message
 
+
+@router.post("/deploy-simulation-module")
+async def deploy_simulation_module(request: DeploySimulationModuleRequest):
+    """
+    When an employer deploys a simulation module, create simulationModuleAttempt
+    and simulationLessonAttempts for each employee in the same workspace so they
+    see the module in their Simulation Modules list.
+    """
+    try:
+        module_ref = db.collection("simulationModules").document(request.module_id)
+        module_doc = module_ref.get()
+        if not module_doc.exists:
+            raise HTTPException(status_code=404, detail="Module not found")
+
+        module_data = module_doc.to_dict()
+        workspace_ref = module_data.get("workspaceRef")
+        if not workspace_ref:
+            raise HTTPException(status_code=400, detail="Module missing workspaceRef")
+
+        employees_snap = (
+            db.collection("users")
+            .where("workspaceID", "==", workspace_ref)
+            .where("role", "==", "employee")
+            .stream()
+        )
+        employee_user_refs = [doc.reference for doc in employees_snap]
+
+        if not employee_user_refs:
+            return {"success": True, "created": 0, "message": "No employees in workspace"}
+
+        existing_snap = (
+            db.collection("simulationModuleAttempts")
+            .where("moduleInfo", "==", module_ref)
+            .stream()
+        )
+        existing_user_ids = set()
+        for doc in existing_snap:
+            d = doc.to_dict()
+            u = d.get("user")
+            if u is not None and getattr(u, "id", None):
+                existing_user_ids.add(u.id)
+
+        lessons_snap = (
+            db.collection("simulationLessons")
+            .where("moduleRef", "==", module_ref)
+            .stream()
+        )
+        lesson_refs = [doc.reference for doc in lessons_snap]
+
+        created = 0
+        for user_ref in employee_user_refs:
+            if user_ref.id in existing_user_ids:
+                continue
+            attempt_ref = db.collection("simulationModuleAttempts").document()
+            attempt_ref.set({
+                "user": user_ref,
+                "workspaceRef": workspace_ref,
+                "moduleInfo": module_ref,
+                "status": "not begun",
+                "percent": 0,
+            })
+            existing_user_ids.add(user_ref.id)
+            created += 1
+            for lesson_ref in lesson_refs:
+                db.collection("simulationLessonAttempts").add({
+                    "moduleRef": attempt_ref,
+                    "lessonInfo": lesson_ref,
+                    "status": "not begun",
+                })
+
+        return {"success": True, "created": created}
+    except HTTPException:
+        raise
+    except Exception as e:
+        print("Deploy simulation module failed:", e)
+        raise HTTPException(status_code=500, detail=str(e))
+
+
 @router.post("/create-simulation")
 async def create_simulation(request: CreateSimulationRequest):
 
@@ -497,41 +635,79 @@ async def create_simulation(request: CreateSimulationRequest):
     )
 
     try:
-        workspace_ref = db.collection("workspaces").document(request.workspace_id)
-
-        reference_summaries = []
-        if request.reference_ids:
-            for ref_id in request.reference_ids:
-                resource_ref = workspace_ref.collection("resources").document(ref_id)
-                resource_doc = resource_ref.get()
-
-                if not resource_doc.exists:
-                    continue
-
-                ref_data = resource_doc.to_dict()
-
-                if ref_data.get("section") == "Maps":
-                    reference_summaries.append({
-                        "type": "map",
-                        "data": ref_data
-                    })
-                else:
-                    summary = ref_data.get("summary")
-                    if summary:
-                        reference_summaries.append({
-                            "type": "document",
-                            "data": summary
-                        })
-        
-        print(f"[2] Processes {len(reference_summaries)} references")
-
         existing_sim = sim_ref.get()
         if existing_sim.exists:
             existing_data = existing_sim.to_dict()
             if existing_data.get("generationStatus") == "ready":
                 return { "success": True, "simulation": existing_data }
 
-        print("[3] Calling LLM...")
+        lesson_attempt_ref = db.collection("simulationLessonAttempts").document(request.lesson_attempt_id)
+        lesson_attempt_doc = lesson_attempt_ref.get()
+        if not lesson_attempt_doc.exists:
+            raise HTTPException(status_code=404, detail="Lesson attempt not found")
+        lesson_ref = lesson_attempt_doc.to_dict().get("lessonInfo")
+        if not lesson_ref:
+            raise HTTPException(status_code=400, detail="Lesson attempt missing lessonInfo")
+
+        lesson_doc = lesson_ref.get()
+        if not lesson_doc.exists:
+            raise HTTPException(status_code=404, detail="Lesson not found")
+
+        lesson_data = lesson_doc.to_dict() or {}
+        canonical_map = lesson_data.get("canonicalSimulations") or {}
+        key = str(request.sim_index)
+        canonical = canonical_map.get(key)
+
+        if canonical:
+            print("[2] Using canonical simulation content for this lesson")
+            sim_ref.set({
+                "characterName": canonical["characterName"],
+                "premise": canonical["premise"],
+                "evaluationCriteria": canonical.get("evaluationCriteria") or {},
+                "generationStatus": "ready",
+                "completionStatus": "not begun",
+                "updatedAt": firestore.SERVER_TIMESTAMP
+            }, merge=True)
+            if canonical.get("humeVoiceName"):
+                sim_ref.set({"humeVoiceName": canonical["humeVoiceName"]}, merge=True)
+
+            messages_ref = sim_ref.collection("messages")
+            existing_messages = list(messages_ref.limit(1).stream())
+            if not existing_messages:
+                messages_ref.add({
+                    "role": "character",
+                    "name": canonical["characterName"],
+                    "content": canonical.get("openingMessage") or "",
+                    "timestamp": firestore.SERVER_TIMESTAMP
+                })
+
+            return {
+                "success": True,
+                "simulation": {
+                    "characterName": canonical["characterName"],
+                    "premise": canonical["premise"],
+                    "openingMessage": canonical.get("openingMessage") or "",
+                    "evaluationCriteria": canonical.get("evaluationCriteria") or {}
+                }
+            }
+
+        workspace_ref = db.collection("workspaces").document(request.workspace_id)
+        reference_summaries = []
+        if request.reference_ids:
+            for ref_id in request.reference_ids:
+                resource_ref = workspace_ref.collection("resources").document(ref_id)
+                resource_doc = resource_ref.get()
+                if not resource_doc.exists:
+                    continue
+                ref_data = resource_doc.to_dict()
+                if ref_data.get("section") == "Maps":
+                    reference_summaries.append({"type": "map", "data": ref_data})
+                else:
+                    summary = ref_data.get("summary")
+                    if summary:
+                        reference_summaries.append({"type": "document", "data": summary})
+
+        print("[3] Calling LLM... (first employee for this lesson – will become canonical)")
         ai_response = llm.generate_simulation(
             store_info=request.store_info,
             lesson_title=request.lesson_title,
@@ -540,44 +716,73 @@ async def create_simulation(request: CreateSimulationRequest):
             lesson_abstract=request.lesson_abstract,
             reference_summaries=reference_summaries
         )
-        
+
+        voice_name = None
+        hume_api_key = os.getenv("HUME_API_KEY")
+        if hume_api_key:
+            try:
+                safe_lesson_id = "".join(c if c.isalnum() or c in "_-" else "_" for c in lesson_ref.id)
+                voice_name = f"lesson_{safe_lesson_id}_{request.sim_index}"
+                _create_and_save_hume_voice(
+                    hume_api_key,
+                    voice_name,
+                    ai_response.get("openingMessage") or "",
+                    ai_response.get("premise") or "",
+                )
+                print("[4a] Hume voice created and saved for character (canonical).")
+            except Exception as voice_err:
+                print("[4a] Hume voice creation failed:", voice_err)
+
+        canonical_entry = {
+            "characterName": ai_response["characterName"],
+            "premise": ai_response["premise"],
+            "openingMessage": ai_response.get("openingMessage") or "",
+            "evaluationCriteria": ai_response.get("evaluationCriteria") or {},
+        }
+        if voice_name:
+            canonical_entry["humeVoiceName"] = voice_name
+
+        lesson_ref.update({
+            "canonicalSimulations": {**canonical_map, key: canonical_entry}
+        })
+
         print("[4] Updating Firebase")
         sim_ref.set({
             "characterName": ai_response["characterName"],
             "premise": ai_response["premise"],
-            "evaluationCriteria": ai_response["evaluationCriteria"],
+            "evaluationCriteria": ai_response.get("evaluationCriteria") or {},
             "generationStatus": "ready",
             "completionStatus": "not begun",
             "updatedAt": firestore.SERVER_TIMESTAMP
         }, merge=True)
+        if voice_name:
+            sim_ref.set({"humeVoiceName": voice_name}, merge=True)
 
         messages_ref = sim_ref.collection("messages")
-
         messages_ref.add({
             "role": "character",
             "name": ai_response["characterName"],
-            "content": ai_response["openingMessage"],
+            "content": ai_response.get("openingMessage") or "",
             "timestamp": firestore.SERVER_TIMESTAMP
         })
 
         print("[5] Generation complete.")
-
         return {
             "success": True,
             "simulation": ai_response
         }
 
+    except HTTPException:
+        raise
     except Exception as e:
         print("Simulation creation failed:", e)
-
         try:
             sim_ref.set({
                 "generationStatus": "failed",
                 "updatedAt": SERVER_TIMESTAMP
             }, merge=True)
-        except:
+        except Exception:
             pass
-
         raise HTTPException(status_code=500, detail="Simulation generation failed")
     
 @router.post("/simulation-reply")
@@ -681,18 +886,38 @@ async def tts(request: TTSRequest):
     if not text:
         raise HTTPException(status_code=422, detail="Missing text")
 
-    voice_map_raw = os.getenv("HUME_VOICE_MAP", "{}")
-    try:
-        voice_map = json.loads(voice_map_raw) if voice_map_raw else {}
-    except Exception:
-        voice_map = {}
-
-    default_voice_name = os.getenv("HUME_DEFAULT_VOICE_NAME", "").strip()
-    resolved_voice_name = (request.voice_name or voice_map.get(request.character_name) or default_voice_name or "").strip()
-
-    provider = request.voice_provider or os.getenv("HUME_VOICE_PROVIDER", "HUME_AI")
+    resolved_voice_name = (request.voice_name or "").strip()
+    provider = (request.voice_provider or os.getenv("HUME_VOICE_PROVIDER", "HUME_AI"))
     if provider not in ("HUME_AI", "CUSTOM_VOICE"):
         provider = "HUME_AI"
+
+    # Prefer saved voice for this simulation when lesson_attempt_id + sim_index are provided
+    if request.lesson_attempt_id is not None and request.sim_index is not None:
+        try:
+            sim_ref = (
+                db.collection("simulationLessonAttempts")
+                .document(request.lesson_attempt_id)
+                .collection("simulations")
+                .document(f"sim_{request.sim_index}")
+            )
+            sim_snap = sim_ref.get()
+            if sim_snap.exists:
+                sim_data = sim_snap.to_dict()
+                saved_voice = (sim_data.get("humeVoiceName") or "").strip()
+                if saved_voice:
+                    resolved_voice_name = saved_voice
+                    provider = "CUSTOM_VOICE"
+        except Exception:
+            pass
+
+    if not resolved_voice_name:
+        voice_map_raw = os.getenv("HUME_VOICE_MAP", "{}")
+        try:
+            voice_map = json.loads(voice_map_raw) if voice_map_raw else {}
+        except Exception:
+            voice_map = {}
+        default_voice_name = os.getenv("HUME_DEFAULT_VOICE_NAME", "").strip()
+        resolved_voice_name = (voice_map.get(request.character_name) or default_voice_name or "").strip()
 
     desc_map_raw = os.getenv("HUME_DESCRIPTION_MAP", "{}")
     try:
