@@ -28,8 +28,29 @@ html {
   line-height: var(--readability-line-height, 1.5);
 }
 
-/* Readability: user font size is applied on html via --readability-font-size in JS */
-/* Theme variables for light (default) */
+body {
+  line-height: var(--readability-line-height, 1.5);
+}
+
+.dashboard .content,
+.dashboard .content p,
+.settings-page .section-subtitle,
+.settings-page .interface-row p,
+.section-subtitle,
+.interface-row p,
+.content-text,
+.scrollable-transcript,
+.premise-info,
+.premise-info p,
+.chat-bubble .content-text,
+.chat-bubble .content-text p,
+.modules-header p,
+.card-title + p,
+.section-title + p {
+  line-height: var(--readability-line-height, 1.5);
+}
+
+
 :root {
   --readability-scale: 1;
   --theme-bg-page: #fbfbfb;
@@ -72,7 +93,6 @@ button:focus-visible {
   outline: 4px auto -webkit-focus-ring-color;
 }
 
-/* Dark theme from settings */
 html.readability-dark {
   color-scheme: dark;
   color: #e5e7eb;
@@ -95,7 +115,6 @@ html.readability-dark body {
   color: #e5e7eb;
 }
 
-/* Apply theme variables to dashboard layout (shared by employer + employee) */
 .dashboard {
   background-color: var(--theme-bg-page) !important;
   zoom: var(--readability-scale, 1);
@@ -125,7 +144,6 @@ html.readability-dark body {
   color: var(--theme-text);
 }
 
-/* Dark mode overrides for nested elements */
 html.readability-dark .nav-item:hover {
   background: #334155 !important;
 }
@@ -199,27 +217,22 @@ html.readability-dark .theme-toggle button.light.active {
   color: #f97316 !important;
 }
 
-/* Settings page background */
 html.readability-dark .content .settings-page {
   color: var(--theme-text);
 }
 
-/* Home page and other full-page content - no separate panel, blend with page */
 html.readability-dark .main {
   background: transparent !important;
 }
 
-/* Settings page wrapper - no box, sit on page background */
 html.readability-dark .settings-page {
   background-color: transparent !important;
 }
 
-/* Ensure content area doesn't create a box */
 html.readability-dark .content {
   background-color: transparent !important;
 }
 
-/* Employer home / analytics section backgrounds */
 html.readability-dark .section,
 html.readability-dark .dashboard-row,
 html.readability-dark .dashboard-row-wide,
@@ -270,7 +283,6 @@ html.readability-dark hr {
   border-top-color: var(--theme-border);
 }
 
-/* ========== Dark mode: sidebar icons always white (comfortable visibility) ========== */
 html.readability-dark .sidebar .logo-text {
   color: #ffffff !important;
 }
@@ -313,7 +325,6 @@ html.readability-dark .nav-item.active .sidebar-icon.black {
   opacity: 0 !important;
 }
 
-/* ========== Dark mode: Login page (comfortable, easy to see) ========== */
 html.readability-dark .login-page {
   background: var(--theme-bg-page);
   min-height: 100vh;
@@ -361,7 +372,6 @@ html.readability-dark .login-page .blob {
   opacity: 0.15;
 }
 
-/* NavBar on login and home: dark mode */
 html.readability-dark .navbar {
   background: var(--theme-bg-topbar) !important;
   border-bottom: 1px solid var(--theme-border);
@@ -381,7 +391,6 @@ html.readability-dark .navbar .login-button:hover {
   border-color: #ea580c;
 }
 
-/* Home page dark mode */
 html.readability-dark .home-page {
   background: var(--theme-bg-page);
 }
