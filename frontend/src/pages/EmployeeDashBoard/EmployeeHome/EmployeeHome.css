@@ -977,3 +977,15 @@
     grid-template-columns: repeat(2, 2fr);
     gap: 16px;
 }
+
+.ai-insights-loading {
+    align-items: center;
+    justify-content: center;
+    min-height: 120px;
+}
+
+.insights-loading-text {
+    margin: 0;
+    color: var(--theme-text-muted, #6b7280);
+    font-size: 14px;
+}

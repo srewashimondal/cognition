@@ -1,5 +1,5 @@
 import './EmployeeHome.css';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import ModuleCard from '../../../cards/ModuleCard/ModuleCard';
 import WorkspaceHero from '../../../components/WorkspaceHero/WorkspaceHero';
@@ -15,34 +15,49 @@ import clock_icon from '../../../assets/icons/white-clock-icon.svg';
 import lessons_completed from '../../../assets/icons/white-lessons-completed-icon.svg';
 import ai_icon from '../../../assets/icons/simulations/white-ai-icon.svg';
 
-const aiInsights = [
-    {
-        title: "💚 Strong Empathy Skills",
-        description: "You consistently demonstrate excellent empathy in customer interactions, scoring 95% in tone and emotional intelligence.",
-        suggestion: "Keep it up! Your empathy is a standout skill."
-    },
-    {
-        title: "📚 Product Knowledge Gap",
-        description: "AI detected you hesitate when discussing technical specifications. You scored 78% on product detail questions.",
-        suggestion: "Review the 'Electronics Features Guide' to boost confidence."
-    },
-    {
-        title: "⚡ Faster Response Times",
-        description: "Your average response time is 8 seconds. Top performers respond in 5-6 seconds while maintaining quality.",
-        suggestion: "Practice the 'Quick Assessment Framework' to speed up without sacrificing accuracy."
-    },
-    {
-        title: "🎯 Conflict De-escalation Master",
-        description: "You've successfully de-escalated 12 difficult customer scenarios this week with a 92% satisfaction rate.",
-        suggestion: "Amazing work! You're in the top 10% for this skill."
-    },
-];
+export type InsightItem = {
+    title: string;
+    description: string;
+    suggestion: string;
+};
 
 export default function EmployeeHome({ user, workspace }: { user: EmployeeUserType | EmployerUserType,  workspace: WorkspaceType}) {
     const navigate = useNavigate();
+    const [insights, setInsights] = useState<InsightItem[]>([]);
+    const [insightsLoading, setInsightsLoading] = useState(true);
+
     useEffect(() => {
         window.scrollTo({ top: 0, left: 0, behavior: "instant" });
     }, []);
+
+    useEffect(() => {
+        if (!user?.uid || !workspace?.id) {
+            setInsightsLoading(false);
+            return;
+        }
+        let cancelled = false;
+        setInsightsLoading(true);
+        fetch("http://127.0.0.1:8000/ai/employee-insights", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ user_id: user.uid, workspace_id: workspace.id }),
+        })
+            .then((res) => (res.ok ? res.json() : Promise.reject(new Error("Failed to load insights"))))
+            .then((data) => {
+                if (!cancelled && Array.isArray(data?.insights)) setInsights(data.insights);
+            })
+            .catch(() => {
+                if (!cancelled) setInsights([{
+                    title: "🚀 Get started",
+                    description: "Complete simulation modules to see personalized feedback and insights here.",
+                    suggestion: "Go to Simulations and complete at least one scenario to unlock your first insight."
+                }]);
+            })
+            .finally(() => {
+                if (!cancelled) setInsightsLoading(false);
+            });
+        return () => { cancelled = true; };
+    }, [user?.uid, workspace?.id]);
 
     const isEmployee = user.role === "employee";
     const streak: LearningStreak | undefined =
@@ -523,27 +538,33 @@ export default function EmployeeHome({ user, workspace }: { user: EmployeeUserTy
             <div className="ai-powered-insights">
                 <div className="ai-powered-insights-top">
                     <div className="ai-icon-wrapper">
-                        <img src={ai_icon} />
+                        <img src={ai_icon} alt="" />
                     </div>
                     <div className="ai-powered-insights-title">
                         <h3>AI-Powered Insights</h3>
                         <p>Personalized feedback to help you improve</p>
                     </div>
                 </div>
-                <div className="ai-feedback-grid">
-                    { aiInsights.map((a) =>
-                        <div className="ai-feedback-item">
-                            <h4>{a.title}</h4>
-                            <p>{a.description}</p>
-                            <div className="improved-msg ai">
-                                <div className="blue-thing ai" />
-                                <div className="improved-msg-content ai">
-                                    {a.suggestion}
+                {insightsLoading ? (
+                    <div className="ai-feedback-grid ai-insights-loading">
+                        <p className="insights-loading-text">Loading your insights…</p>
+                    </div>
+                ) : (
+                    <div className="ai-feedback-grid">
+                        {insights.map((a, i) => (
+                            <div key={i} className="ai-feedback-item">
+                                <h4>{a.title}</h4>
+                                <p>{a.description}</p>
+                                <div className="improved-msg ai">
+                                    <div className="blue-thing ai" />
+                                    <div className="improved-msg-content ai">
+                                        {a.suggestion}
+                                    </div>
                                 </div>
                             </div>
-                        </div>
-                    )}
-                </div>
+                        ))}
+                    </div>
+                )}
             </div>
 
         </div>
