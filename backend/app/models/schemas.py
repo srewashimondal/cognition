@@ -126,3 +126,7 @@ class TTSRequest(BaseModel):
     description: Optional[str] = None
     lesson_attempt_id: Optional[str] = None
     sim_index: Optional[int] = None
+
+class POSConnectRequest(BaseModel):
+    workspace_id: str
+    settings: list[str] = []

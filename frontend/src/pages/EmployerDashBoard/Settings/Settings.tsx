@@ -1,16 +1,21 @@
 import { useState, useEffect, useRef } from "react";
 import "./Settings.css";
+import Question from "../Onboarding/Question/Question";
 import eye_on from '../../../assets/icons/eye_on.svg';
 import eye_off from '../../../assets/icons/eye_off.svg';
 import default_icon from '../../../assets/icons/default-icon.svg';
 import icon_stroke from '../../../assets/icons/icon-stroke.svg';
 import add_cta from '../../../assets/icons/add-cta.svg';
+import lightspeed_logo from '../../../assets/illustrations/lightspeed_logo.svg';
+import zoho_logo from '../../../assets/illustrations/zoho_logo.png';
 import { Tooltip, Select } from "@radix-ui/themes";
-import { doc, updateDoc } from "firebase/firestore";
+import { doc, updateDoc, getDoc } from "firebase/firestore";
 import { db } from "../../../firebase";
 import type { EmployerUserType } from "../../../types/User/UserType";
 import type { WorkspaceType } from "../../../types/User/WorkspaceType";
 import { getInterfacePrefs, saveInterfacePrefs, applyInterfacePrefs } from "../../../utils/interfacePrefs";
+import { toast } from "react-hot-toast";
+import green_check from '../../../assets/icons/green_pos_check.svg';
 
 type Tab = "account" | "notifications" | "interface" | "payments" | "workspace";
 
@@ -584,9 +589,14 @@ function WorkspaceSettings({ workspace }: { workspace: WorkspaceType | null }) {
   const [format, setFormat] = useState(workspace?.store?.storeFormat ?? "Standalone Store");
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
+  const [posProvider, setPOSProvider] = useState("");
+  const [selectedSettings, setSelectedSettings] = useState<string[]>(["Sync Inventory", "Sync Products"]);
+  const [workspaceId, setWorkspaceId] = useState(workspace?.id ?? "");
+  const [updateProvider, setUpdateProvider] = useState(false);
 
   useEffect(() => {
     if (!workspace) return;
+    setWorkspaceId(workspace.id ?? "");
     setWorkspaceTitle(workspace.name ?? "");
     setStoreTitle(workspace.store?.storeName ?? "");
     setCategory(workspace.store?.category ?? "General Retail");
@@ -652,6 +662,65 @@ function WorkspaceSettings({ workspace }: { workspace: WorkspaceType | null }) {
     setFormat(workspace.store?.storeFormat ?? "Standalone Store");
   };
 
+
+  const handlePOSConnect = async () => {
+    if (posProvider === "Lightspeed") {
+
+      const res = await fetch(
+        `http://127.0.0.1:8000/integrations/lightspeed/connect?workspace_id=${workspaceId}`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({
+            settings: selectedSettings
+          })
+        }
+      );
+
+      const data = await res.json();
+      window.open(data.auth_url, "_blank");
+    }
+  }
+
+  useEffect(() => {
+    const handleMessage = (event: MessageEvent) => {
+      console.log("MESSAGE RECEIVED:", event.data);
+  
+      if (event.data?.type === "lightspeed_connected") {
+        toast.success("Lightspeed connected!");
+      }
+
+      setUpdateProvider(false);
+    };
+  
+    window.addEventListener("message", handleMessage);
+  
+    return () => window.removeEventListener("message", handleMessage);
+  }, []);
+
+  const [connectedPOS, setConnectedPOS] = useState<string | null>(null);
+  useEffect(() => {
+    const checkPOS = async () => {
+      const ref = doc(
+        db,
+        "workspaces",
+        workspaceId,
+        "integrations",
+        "lightspeed"
+      );
+  
+      const snap = await getDoc(ref);
+  
+      if (snap.exists()) {
+        setConnectedPOS("Lightspeed");
+      }
+    };
+  
+    checkPOS();
+  }, [workspaceId]);
+
   if (!workspace) {
     return (
       <div className="workspace-settings">
@@ -695,6 +764,7 @@ function WorkspaceSettings({ workspace }: { workspace: WorkspaceType | null }) {
             {saved && <span className="saved-hint">Saved.</span>}
           </div>
         </div>
+
         <div className="store-info-wrapper">
           <h3 className="security-title">Store Information</h3>
           <div className="form-grid workspace">
@@ -736,6 +806,42 @@ function WorkspaceSettings({ workspace }: { workspace: WorkspaceType | null }) {
             </div>
 
           </div>
+        </div>
+
+        <div className="store-info-wrapper pos">
+          <h3 className="security-title">Point of Scale Inventory Connection</h3>
+            
+          {connectedPOS &&
+          <div className="view-pos-provider">
+            <div className="pos-provider-info-wrapper">
+              <label>Current Provider</label>
+              <div className="pos-provider-info">
+                  <img src={green_check} />
+                  <p>{connectedPOS}</p>
+                  <div className="green-pill">
+                    Connected
+                  </div>
+              </div>
+            </div>
+            <button onClick={() => setUpdateProvider(true)}>Update</button>
+          </div>}
+
+          { (!connectedPOS || updateProvider) &&
+          <div className="ai-studio-section ai-studio-pos-integration">
+              <Question question={"Select your Point of Scale System Provider"} input_type={"image-buttons"} 
+              value={posProvider} onChange={(newProvider) => {setPOSProvider(newProvider);}} 
+              options={["Lightspeed", "Zoho"]} fileOptions={[lightspeed_logo, zoho_logo]}
+              direction={"Select an option."} />
+
+              <div className="connect-div ai-studio">
+                  <button onClick={handlePOSConnect}>Connect</button>
+              </div>
+          </div>}
+
+          <Question question={"Advanced Settings"} input_type={"checkbox"} 
+          value={selectedSettings} onChange={(newSettings) => {setSelectedSettings(newSettings);}} 
+          options={["Sync Inventory", "Sync Products"]} />
+
         </div>
     </div>
   );

@@ -1,5 +1,6 @@
 // import { useState } from 'react'
 import { useEffect } from 'react';
+import { Toaster } from "react-hot-toast";
 import { Routes, Route } from 'react-router-dom';
 import './App.css';
 import { getInterfacePrefs, applyInterfacePrefs } from './utils/interfacePrefs';
@@ -17,17 +18,20 @@ function App() {
   }, []);
 
   return (
-    <Routes>
-      <Route path='/' element={<HomePage />}/>
-      <Route path='/employer/*' element={<EmployerDashBoard/>}/>
-      <Route path='/employee/*' element={<EmployeeDashBoard/>}/>
-      <Route path='/login/*' element={<Login />}/>
-      <Route path='/signup/*' element={<Signup role="employee"/>}/>
-      <Route path='/signup/employee' element={<Signup role="employee"/>}/>
-      <Route path='/signup/employer' element={<Signup role="employer"/>}/>
-      <Route path='/employer-onboarding' element={<EmployerOnboarding />} />
-      <Route path='/employee-onboarding' element={<EmployeeOnboarding />} />
-    </Routes>
+    <>
+       <Toaster position="bottom-right" />
+      <Routes>
+        <Route path='/' element={<HomePage />}/>
+        <Route path='/employer/*' element={<EmployerDashBoard/>}/>
+        <Route path='/employee/*' element={<EmployeeDashBoard/>}/>
+        <Route path='/login/*' element={<Login />}/>
+        <Route path='/signup/*' element={<Signup role="employee"/>}/>
+        <Route path='/signup/employee' element={<Signup role="employee"/>}/>
+        <Route path='/signup/employer' element={<Signup role="employer"/>}/>
+        <Route path='/employer-onboarding' element={<EmployerOnboarding />} />
+        <Route path='/employee-onboarding' element={<EmployeeOnboarding />} />
+      </Routes>
+    </>
   )
 }
 

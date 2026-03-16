@@ -165,7 +165,7 @@ export default function EmployerDashBoard() {
             </div>
           </NavLink>
 
-          <NavLink to="/employer/ai-studio" className="nav-item">
+          {/*<NavLink to="/employer/ai-studio" className="nav-item">
             <div className="sidebar-label">
               <div className="sidebar-icon-swap">
                 <img className="sidebar-icon white" src={white_robot} />
@@ -174,7 +174,7 @@ export default function EmployerDashBoard() {
               </div>
               { (!sidebarCollapsed) && "AI Studio" }
             </div>
-          </NavLink>
+          </NavLink>*/}
 
           <NavLink to="/employer/resources" className="nav-item">
             <div className="sidebar-label">

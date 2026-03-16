@@ -606,3 +606,65 @@ button.secondary:hover {
 .actions.workspace {
   margin-top: 0;;
 }
+
+.store-url {
+  display: flex;
+  width: 20%;
+}
+
+.store-url input {
+  background-color: #eee;
+  height: 20px;
+  border-radius: 5px;
+}
+
+.view-pos-provider {
+  display: flex;
+  width: 60%;
+  justify-content: space-between;
+  background-color: white;
+  border: 1px solid #eee;
+  padding: 24px;
+  border-radius: 10px;
+}
+
+.view-pos-provider button {
+  background-color: white;
+  border: 1px solid #d7d7d7;
+  padding: 5px 10px;
+  border-radius: 10px;
+  transition: 0.2s ease;
+}
+
+.view-pos-provider button:hover {
+  border: 1px solid #d7d7d7;
+  transform: scale(1.02);
+  box-shadow: 0 6px 10px rgba(0, 0, 0, 0.04);
+}
+
+.store-info-wrapper.pos {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.pos-provider-info {
+  display: flex;
+  gap: 7px;
+}
+
+.pos-provider-info img {
+  width: 16px;
+}
+
+.green-pill {
+  font-size: 12px;
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  padding: 2px 7px;
+  border-radius: 25px;
+  background-color: #c2f2d3;
+  color: #5a9d71;
+  font-weight: 600;
+}

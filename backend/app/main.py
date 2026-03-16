@@ -3,6 +3,7 @@ load_dotenv()
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi import FastAPI
 from app.routes import ai_routes
+from app.routes import integration_routes
 
 app = FastAPI()
 
@@ -16,3 +17,4 @@ app.add_middleware(
 
 
 app.include_router(ai_routes.router, prefix="/ai")
+app.include_router(integration_routes.router, prefix="/integrations")

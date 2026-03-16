@@ -12,16 +12,11 @@
   transition: 0.2s ease;
 }
 
-.ai-studio-section:hover {
-  transform: scale(1.01);
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
-}
-
 .ai-studio-contents {
     display: flex;
     flex-direction: column;
     gap: 30px;
-    padding-left: 16px;  /* ✅ padding instead of margin */
+    padding-left: 16px;  
     padding-right: 16px;
     box-sizing: border-box;
 }
