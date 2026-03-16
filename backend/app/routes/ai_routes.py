@@ -16,6 +16,7 @@ import time
 import uuid
 import json
 import requests
+from collections import Counter
 
 router = APIRouter()
 llm = LLMService()
@@ -620,6 +621,199 @@ async def deploy_simulation_module(request: DeploySimulationModuleRequest):
         raise
     except Exception as e:
         print("Deploy simulation module failed:", e)
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@router.post("/employee-insights")
+async def employee_insights(request: EmployeeInsightsRequest):
+    """
+    Aggregate simulation and standard module performance for this employee and return
+    real AI-powered insights (strengths, areas for improvement, scores) from the modules they've been doing.
+    """
+    try:
+        user_ref = db.collection("users").document(request.user_id)
+        workspace_ref = db.collection("workspaces").document(request.workspace_id)
+
+        # Simulations
+        mod_attempts = (
+            db.collection("simulationModuleAttempts")
+            .where("user", "==", user_ref)
+            .where("workspaceRef", "==", workspace_ref)
+            .stream()
+        )
+
+        ratings = []
+        all_strengths = []
+        all_areas = []
+        criteria_sums = {}
+        criteria_counts = {}
+        improved_examples = []
+
+        for mod_doc in mod_attempts:
+            lesson_attempts = (
+                db.collection("simulationLessonAttempts")
+                .where("moduleRef", "==", mod_doc.reference)
+                .stream()
+            )
+            for lesson_doc in lesson_attempts:
+                for sim_index in (1, 2, 3):
+                    sim_ref = lesson_doc.reference.collection("simulations").document(f"sim_{sim_index}")
+                    messages = sim_ref.collection("messages").where("role", "==", "assistant").stream()
+                    for msg_doc in messages:
+                        d = msg_doc.to_dict()
+                        r = d.get("rating")
+                        if r is not None:
+                            try:
+                                ratings.append(int(r))
+                            except (TypeError, ValueError):
+                                pass
+                        content = d.get("content") or ""
+                        if content:
+                            for line in content.replace("\r\n", "\n").split("\n"):
+                                line = line.strip()
+                                if line:
+                                    all_strengths.append(line)
+                        areas = d.get("areasForImprovement")
+                        if isinstance(areas, list):
+                            all_areas.extend([str(a).strip() for a in areas if a])
+                        elif isinstance(areas, str) and areas.strip():
+                            all_areas.append(areas.strip())
+                        cb = d.get("criteriaBreakdown")
+                        if isinstance(cb, dict):
+                            for k, v in cb.items():
+                                if v is not None:
+                                    try:
+                                        v = int(v)
+                                        criteria_sums[k] = criteria_sums.get(k, 0) + v
+                                        criteria_counts[k] = criteria_counts.get(k, 0) + 1
+                                    except (TypeError, ValueError):
+                                        pass
+                        imp = d.get("improved")
+                        if imp and isinstance(imp, str) and imp.strip():
+                            improved_examples.append(imp.strip())
+
+        # Standard 
+        standard_scores = []  
+        standard_completed = 0
+        standard_passed = 0
+
+        std_mod_attempts = (
+            db.collection("standardModuleAttempts")
+            .where("user", "==", user_ref)
+            .where("workspaceRef", "==", workspace_ref)
+            .stream()
+        )
+        for std_mod_doc in std_mod_attempts:
+            std_mod_data = std_mod_doc.to_dict()
+            module_info_ref = std_mod_data.get("moduleInfo")
+            module_title = ""
+            if module_info_ref:
+                mod_snap = module_info_ref.get()
+                if mod_snap.exists:
+                    module_title = (mod_snap.to_dict() or {}).get("title") or ""
+
+            std_lesson_attempts = (
+                db.collection("standardLessonAttempts")
+                .where("moduleRef", "==", std_mod_doc.reference)
+                .stream()
+            )
+            for std_lesson_doc in std_lesson_attempts:
+                ld = std_lesson_doc.to_dict()
+                if ld.get("status") == "completed":
+                    standard_completed += 1
+                    if ld.get("passed") is True:
+                        standard_passed += 1
+                score = ld.get("score")
+                if score is not None:
+                    try:
+                        score_val = int(score)
+                        lesson_title = ""
+                        lesson_info_ref = ld.get("lessonInfo")
+                        if lesson_info_ref:
+                            lesson_snap = lesson_info_ref.get()
+                            if lesson_snap.exists:
+                                lesson_title = (lesson_snap.to_dict() or {}).get("title") or ""
+                        standard_scores.append((score_val, module_title, lesson_title))
+                    except (TypeError, ValueError):
+                        pass
+
+        insights = []
+
+        if ratings:
+            avg = round(sum(ratings) / len(ratings), 1)
+            count = len(ratings)
+            pct = min(100, round(avg * 10))
+            insights.append({
+                "title": "📊 Simulation performance",
+                "description": f"You've received feedback on {count} scenario response{'' if count == 1 else 's'} with an average score of {avg}/10 ({pct}%).",
+                "suggestion": "Keep practicing to maintain and improve your scores."
+            })
+
+        if all_strengths:
+            strength_counts = Counter(all_strengths)
+            top_strength = strength_counts.most_common(1)[0][0]
+            short = top_strength[:120] + "…" if len(top_strength) > 120 else top_strength
+            insights.append({
+                "title": "💚 Strength",
+                "description": short,
+                "suggestion": "Keep it up—this is a standout skill in your simulations."
+            })
+
+        if all_areas:
+            area_counts = Counter(all_areas)
+            top_area = area_counts.most_common(1)[0][0]
+            short = top_area[:120] + "…" if len(top_area) > 120 else top_area
+            insights.append({
+                "title": "📚 Area to improve",
+                "description": f"Feedback often suggests: {short}",
+                "suggestion": "Try the related simulation again or review reference materials to strengthen this."
+            })
+
+        if criteria_sums and criteria_counts:
+            avg_by_criterion = {}
+            for k, total in criteria_sums.items():
+                n = criteria_counts.get(k, 0)
+                if n:
+                    avg_by_criterion[k] = round(total / n, 1)
+            if avg_by_criterion:
+                best_name = max(avg_by_criterion, key=avg_by_criterion.get)
+                best_score = avg_by_criterion[best_name]
+                label = best_name.replace("_", " ").replace("storeAlignment", "store alignment").title()
+                insights.append({
+                    "title": "🎯 Strongest criterion",
+                    "description": f"You score highest on \"{label}\" in simulation feedback (avg {best_score}/10).",
+                    "suggestion": "Use this strength when handling difficult scenarios."
+                })
+
+        if standard_scores:
+            avg_score = round(sum(s[0] for s in standard_scores) / len(standard_scores))
+            insights.append({
+                "title": "📖 Standard modules performance",
+                "description": f"You've completed {standard_completed} standard lesson{'' if standard_completed == 1 else 's'} with an average quiz/assessment score of {avg_score}% ({standard_passed} passed).",
+                "suggestion": "Keep completing modules to build your knowledge and track progress."
+            })
+        low_standard = [(s, mt, lt) for s, mt, lt in standard_scores if s < 70]
+        if low_standard:
+            score_val, mod_title, lesson_title = low_standard[0]
+            lesson_label = lesson_title or "this lesson"
+            mod_label = mod_title or "Standard Modules"
+            insights.append({
+                "title": "📚 Review opportunity",
+                "description": f"\"{lesson_label}\" in {mod_label} was scored {score_val}%. A quick review could strengthen this area.",
+                "suggestion": "Revisit the lesson or reference materials and try again to improve your score."
+            })
+
+        if not insights:
+            insights.append({
+                "title": "🚀 Get started",
+                "description": "Complete simulation and standard modules to see personalized feedback and insights here.",
+                "suggestion": "Go to Simulations or Standard Modules and complete at least one lesson to unlock your first insight."
+            })
+
+        return {"insights": insights[:6]}
+
+    except Exception as e:
+        print("Employee insights failed:", e)
         raise HTTPException(status_code=500, detail=str(e))
 
 

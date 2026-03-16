@@ -113,6 +113,11 @@ class SimulationReplyRequest(BaseModel):
     reply_to_id: str
     latest_user_message: str  
 
+class EmployeeInsightsRequest(BaseModel):
+    user_id: str
+    workspace_id: str
+
+
 class TTSRequest(BaseModel):
     character_name: str
     text: str
