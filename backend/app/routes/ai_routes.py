@@ -17,9 +17,11 @@ import uuid
 import json
 import requests
 from collections import Counter
+from app.services.pinecone_service import PineconeService
 
 router = APIRouter()
 llm = LLMService()
+pinecone = PineconeService()
 
 if not firebase_admin._apps:
     cred = credentials.Certificate("firebase-key.json")
@@ -88,6 +90,68 @@ def _create_and_save_hume_voice(
         raise RuntimeError(f"Hume create voice failed: {save_resp.status_code} {save_resp.text}")
 
     return voice_name
+
+def get_store_product_context(workspace_id: str, max_products: int = 30):
+    products_ref = (
+        db.collection("workspaces")
+        .document(workspace_id)
+        .collection("products")
+        .limit(max_products)
+        .stream()
+    )
+
+    products = []
+    for doc in products_ref:
+        data = doc.to_dict() or {}
+        products.append(data)
+
+    def normalize_name(value):
+        if isinstance(value, dict):
+            return value.get("name")
+        return value
+
+    categories = []
+    brands = []
+
+    for p in products:
+        category = normalize_name(p.get("product_category"))
+        brand = normalize_name(p.get("brand"))
+
+        if category:
+            categories.append(category)
+        if brand:
+            brands.append(brand)
+
+    category_counts = Counter(categories)
+    brand_counts = Counter(brands)
+
+    top_categories = [name for name, _ in category_counts.most_common(5)]
+    top_brands = [name for name, _ in brand_counts.most_common(5)]
+
+    example_products = []
+    seen_names = set()
+
+    for p in products:
+        name = p.get("name")
+        if not name or name in seen_names:
+            continue
+
+        example_products.append({
+            "name": name,
+            "brand": normalize_name(p.get("brand")),
+            "category": normalize_name(p.get("product_category")),
+            "price": p.get("price")
+        })
+        seen_names.add(name)
+
+        if len(example_products) >= 8:
+            break
+
+    return {
+        "categories": top_categories,
+        "brands": top_brands,
+        "exampleProducts": example_products
+    }
 
 
 @router.post("/generate-video-transcript")
@@ -901,6 +965,9 @@ async def create_simulation(request: CreateSimulationRequest):
                     if summary:
                         reference_summaries.append({"type": "document", "data": summary})
 
+        print("[2.5] Getting store product context")
+        store_product_context = get_store_product_context(request.workspace_id)
+
         print("[3] Calling LLM... (first employee for this lesson – will become canonical)")
         ai_response = llm.generate_simulation(
             store_info=request.store_info,
@@ -908,7 +975,8 @@ async def create_simulation(request: CreateSimulationRequest):
             lesson_skills=request.lesson_skills,
             lesson_difficulty=request.lesson_difficulty,
             lesson_abstract=request.lesson_abstract,
-            reference_summaries=reference_summaries
+            reference_summaries=reference_summaries,
+            store_product_context=store_product_context
         )
 
         voice_name = None
@@ -1033,6 +1101,21 @@ async def simulation_reply(request: SimulationReplyRequest):
         character_reply = ai_response["characterReply"]
         evaluation = ai_response["evaluation"]
 
+        product_hints = pinecone.search(
+            workspace_id=request.workspace_id,
+            query=f"""
+            Customer situation:
+            {premise}
+
+            Latest request: 
+            {character_reply}
+
+            Employee Context:
+            {latest}
+            """,
+            top_k=3
+        )
+
         messages_ref.add({
             "role": "character",
             "name": character_name,
@@ -1052,7 +1135,8 @@ async def simulation_reply(request: SimulationReplyRequest):
         })
 
         return {
-            "success": True
+            "success": True,
+            "productHints": product_hints
         }
 
     except Exception as e:
@@ -1207,3 +1291,21 @@ async def stt(file: UploadFile = File(...)):
                 os.unlink(tmp_path)
             except Exception:
                 pass
+
+@router.post("/search-products")
+async def search_products(request: ProductSearchRequest):
+    try:
+        results = pinecone.search(
+            workspace_id=request.workspace_id,
+            query=request.query,
+            top_k=request.top_k
+        )
+
+        return {
+            "success": True,
+            "products": results
+        }
+    
+    except Exception as e:
+        print("Product search failed: ", e)
+        raise HTTPException(status_code=500, detail="Product search failed")

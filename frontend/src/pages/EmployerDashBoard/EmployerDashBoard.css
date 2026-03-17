@@ -153,7 +153,7 @@
 
 .content {
   padding: 18px;
-  overflow-y: auto;
+  overflow: visible;
   flex: 1;
   overflow-x: hidden;
 }

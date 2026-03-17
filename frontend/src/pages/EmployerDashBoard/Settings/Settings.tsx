@@ -667,13 +667,14 @@ function WorkspaceSettings({ workspace }: { workspace: WorkspaceType | null }) {
     if (posProvider === "Lightspeed") {
 
       const res = await fetch(
-        `http://127.0.0.1:8000/integrations/lightspeed/connect?workspace_id=${workspaceId}`,
+        "http://127.0.0.1:8000/integrations/lightspeed/connect",
         {
           method: "POST",
           headers: {
             "Content-Type": "application/json"
           },
           body: JSON.stringify({
+            workspace_id: workspaceId,
             settings: selectedSettings
           })
         }

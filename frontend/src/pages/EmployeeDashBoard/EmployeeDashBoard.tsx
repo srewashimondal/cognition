@@ -220,7 +220,7 @@ export default function EmployeeDashBoard() {
       </aside>
 
       {/* Main layout */}
-      <main className="main employee">
+      <main className={`main employee ${isSimulationPage ? "stretched-height" : ""}`}>
         {/* Topbar */}
         <header className="topbar employee">
           {/*
@@ -268,12 +268,12 @@ export default function EmployeeDashBoard() {
         </header>
         
         { user && user?.role === "employee" &&
-        <section className={`content employee ${(isSimulationPage || isSimulationLesson || isStandardLesson || isStandardLessonPg || isPerformancePg) ? "no-padding" : ""}`}>
+        <section className={`content employee ${(isSimulationPage || isSimulationLesson || isStandardLesson || isStandardLessonPg || isPerformancePg) ? "no-padding" : ""} ${isSimulationPage ? "stretched-height" : ""}`}>
           <Routes>
             <Route index element={<EmployeeHome user={user} workspace={workspace} />} />
             <Route path="simulations" element={<SimulationModules user={user} />} />
             <Route path="simulations/:moduleID" element={<SimulationLessons />} />
-            <Route path="simulations/:moduleID/:lessonID/:simIdx" element={<SimulationPage role={"employee"} />} /> 
+            <Route path="simulations/:moduleID/:lessonID/:simIdx" element={<SimulationPage role={"employee"} workspaceID={workspace.id ?? ""} />} /> 
             {/*<Route path="simulations/:moduleId/performance" element={<SimulationPerformance />}/>
             <Route path="schedule" element={<Schedule />} />*/}
             <Route path="standard-modules" element={<StandardModules user={user} />} />

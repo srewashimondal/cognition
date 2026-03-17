@@ -22,9 +22,10 @@ type TypeModeProps = {
     onTypingComplete: () => void;
     typingMessageId: string | null;
     name: string;
+    productHints?: any;
 };
 
-export default function TypeMode({ title, idx, lessonAttemptId, simIndex, voiceDescription, messages, switchType, handleBack, handleClick, handleSendMessage, onTypingComplete, typingMessageId, name }: TypeModeProps) {
+export default function TypeMode({ title, idx, lessonAttemptId, simIndex, voiceDescription, messages, switchType, handleBack, handleClick, handleSendMessage, onTypingComplete, typingMessageId, name, productHints }: TypeModeProps) {
     const transcriptRef = useRef<HTMLDivElement | null>(null);
     const [userInput, setUserInput] = useState("");
     const [isLoading, setIsLoading] = useState(false);
@@ -77,7 +78,7 @@ export default function TypeMode({ title, idx, lessonAttemptId, simIndex, voiceD
 
                             return (<ChatBubble key={m.id} message={m}
                             className={isLast ? "last-message" : isFirst ? "first-message": ""}
-                            handleClick={() => handleClick(m.id)}
+                            handleClick={() => handleClick(m.id)} productHints={(productHints.length !== 0 && isLast && !isFirst) ? productHints : null}
                             shouldType={shouldType} onTypingComplete={onTypingComplete}
                             voiceDescription={voiceDescription} lessonAttemptId={lessonAttemptId} simIndex={simIndex} />)
                         })}

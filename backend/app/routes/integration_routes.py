@@ -2,15 +2,14 @@ from fastapi import APIRouter, HTTPException, Request
 from fastapi.responses import HTMLResponse
 import firebase_admin
 from firebase_admin import credentials, firestore
-import traceback
-import json
 import requests
 import os
 import secrets
 from app.models.schemas import POSConnectRequest
-
+from app.services.pinecone_service import PineconeService
 
 router = APIRouter()
+pinecone = PineconeService()
 
 if not firebase_admin._apps:
     cred = credentials.Certificate("firebase-key.json")
@@ -20,7 +19,7 @@ if not firebase_admin._apps:
 
 db = firestore.client()
 
-@router.get('/lightspeed/connect')
+@router.post('/lightspeed/connect')
 def connect_lightspeed(req: POSConnectRequest):
     client_id = os.getenv("LIGHTSPEED_CLIENT_ID")
     redirect_uri = os.getenv("LIGHTSPEED_REDIRECT_URI")
@@ -140,17 +139,22 @@ def lightspeed_callback(code: str | None = None, domain_prefix: str | None = Non
 
         for product in products:
             product_id = product["id"]
+            
+            # save in firestore
             workspace_ref.collection("products").document(product_id).set({
                 "name": product.get("name"),
                 "sku": product.get("sku"),
                 "brand": product.get("brand_name"),
-                "price": product.get("price"),
+                "retail_price": product.get("price_excluding_tax"),
                 "source": "lightspeed",
                 "external_id": product_id,
                 "description": product.get("description"),
                 "product_category": product.get("product_category"),
                 "last_synced": firestore.SERVER_TIMESTAMP
             }, merge=True)
+
+            # save in pinecone
+            pinecone.upsert_product(workspace_id, product)
 
         products_url = data.get("links", {}).get("next")
 

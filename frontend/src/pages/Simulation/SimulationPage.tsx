@@ -23,8 +23,9 @@ import x_icon from '../../assets/icons/simulations/grey-x-icon.svg';
 import note_icon from '../../assets/icons/orange-note-icon.svg';
 import type { LessonType } from '../../types/Modules/Lessons/LessonType';
 import type { MessageType } from '../../types/Modules/Lessons/Simulations/MessageType';
+import { workspace } from '../../dummy_data/workspace_data';
 
-export default function SimulationPage({ role }: { role: "employee" | "employer" }) {
+export default function SimulationPage({ role, workspaceID }: { role: "employee" | "employer", workspaceID: string }) {
     const { moduleID, lessonID, simIdx } = useParams();
     const simulationIndex = Number(simIdx);
 
@@ -239,6 +240,7 @@ export default function SimulationPage({ role }: { role: "employee" | "employer"
     const handleRead = () => {
     };
 
+    const [productHints, setProductHints] = useState<any[]>([]);
     const handleUserSend = async (text: string) => {
         if (!lessonID) return;
     
@@ -256,18 +258,35 @@ export default function SimulationPage({ role }: { role: "employee" | "employer"
             content: text,
             timestamp: serverTimestamp()
         });
+
+        console.log(
+            `lesson_attempt_id: ${lessonID},
+            sim_index: ${simulationIndex},
+            reply_to_id: ${userDocRef.id},
+            latest_user_message: ${text},
+            workspace_id: ${workspaceID}`
+        );
   
-        await fetch("http://127.0.0.1:8000/ai/simulation-reply", {
+        const response = await fetch("http://127.0.0.1:8000/ai/simulation-reply", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
                 lesson_attempt_id: lessonID,
                 sim_index: simulationIndex,
                 reply_to_id: userDocRef.id,
-                latest_user_message: text
+                latest_user_message: text,
+                workspace_id: workspaceID
             })
         });
+
+        const data = await response.json();
+
+        if (data.success) {
+            setProductHints(data.productHints || []);
+        }
     };
+
+    console.log(productHints);
 
     useEffect(() => {
         const fetchResources = async () => {
@@ -395,10 +414,10 @@ export default function SimulationPage({ role }: { role: "employee" | "employer"
                         messages={messages ?? []} switchType={() => setVoiceMode(false)}
                         handleBack={handleBack} handleClick={(messageID: string) => {setSelectedMessage(messageID); setSelectOption("feedback");}}
                         handleSendMessage={handleUserSend} characterName={simData.characterName}
-                        voiceDescription={simData?.premise} /> ) :
+                        voiceDescription={simData?.premise} productHints={productHints} /> ) :
                         (<TypeMode key={`type-${simulationIndex}`} title={lessonAttempt?.lessonInfo.title ?? ""} idx={simulationIndex}
                         lessonAttemptId={lessonID} simIndex={simulationIndex} voiceDescription={simData?.premise}
-                        typingMessageId={typingMessageId}
+                        typingMessageId={typingMessageId} productHints={productHints}
                         messages={messages ?? []} switchType={() => setVoiceMode(true)} handleSendMessage={handleUserSend} onTypingComplete={() => setTypingMessageId(null)}
                         handleBack={handleBack} handleClick={(messageID: string) => {setSelectedMessage(messageID); setSelectOption("feedback");}} name={simData.characterName} />)
                         }

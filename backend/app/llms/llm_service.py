@@ -923,7 +923,8 @@ class LLMService:
         lesson_skills: List[str], 
         lesson_difficulty: str, 
         lesson_abstract: dict, 
-        reference_summaries: Optional[List[dict]] = None
+        reference_summaries: Optional[List[dict]] = None,
+        store_product_context: Optional[dict] = None
     ):
 
         prompt = f"""
@@ -933,6 +934,9 @@ class LLMService:
 
         STORE INFORMATION:
         {store_info}
+
+        STORE PRODUCT CONTEXT:
+        {store_product_context}
 
         LESSON INTFORMATION:
         
@@ -982,12 +986,16 @@ class LLMService:
             - The first 1-2 sentences are a short description of who the character is
             - The remaining sentences should be the premise itself.
             - Realistic retail environment
+            - The scenario must stay grounded in the store product context provided.
+            - Use the provided store categories, brands, and example products to infer what the store sells.
+            - Do not invent unrelated product categories or merchandise outside the provided store product context.
+            - If exact products are not mentioned, keep the scenario within the provided categories.
             - All scenarios MUST take place in the store environment specified.
-            - The customer behavior, products, and challenges must match this store type.
+            - The customer behavior, products, and challenges must be within the store product context.
             - Must require use of the lesson skills
             - Adjust the scenario complexity to match the specified difficulty level
             - The employee must make decisions (not just answer a question)
-            - The scenario must reference realistic products or services specific to the store type.
+            - The scenario must reference realistic products or services that align with the provided store product context.
             - Do not invent unrelated product categories.
             - Make sure the scenario is randomized. 
 

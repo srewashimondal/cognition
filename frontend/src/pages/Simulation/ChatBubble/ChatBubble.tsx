@@ -27,9 +27,10 @@ type ChatBubbleProps = {
     voiceDescription?: string;
     lessonAttemptId?: string;
     simIndex?: number;
+    productHints?: any;
 };
 
-export default function ChatBubble({ message, className, handleClick, shouldType, stopTyping, onTypingComplete, shouldRegenerate, handleRegenerate, onTypingUpdate, lessons, handleApply, voiceDescription, lessonAttemptId, simIndex }: ChatBubbleProps) {
+export default function ChatBubble({ message, className, handleClick, shouldType, stopTyping, onTypingComplete, shouldRegenerate, handleRegenerate, onTypingUpdate, lessons, handleApply, voiceDescription, lessonAttemptId, simIndex, productHints }: ChatBubbleProps) {
     if (!message) return null; 
 
     const { role, name, content } = message;
@@ -39,6 +40,7 @@ export default function ChatBubble({ message, className, handleClick, shouldType
 
     const [isSpeaking, setIsSpeaking] = useState(false);
     const audioRef = useRef<HTMLAudioElement | null>(null);
+    const [showHints, setShowHints] = useState(false);
 
     const handleSpeak = async () => {
         try {
@@ -105,6 +107,8 @@ export default function ChatBubble({ message, className, handleClick, shouldType
             setIsSpeaking(false);
         }
     };
+
+    console.log("From chatBubble product hints: ", productHints);
       
     return (
         <div className={`chat-bubble-wrapper ${role} ${className ?? ""} `}>
@@ -140,18 +144,48 @@ export default function ChatBubble({ message, className, handleClick, shouldType
                     }
                 </div>
             </div>
+             { showHints && productHints !== null &&
+                <div className="product-hints-wrapper">
+                    <div className="product-hints-label">
+                        <div className="hint-circle">!</div>
+                        Product hint
+                    </div>
+                    <div className="product-hints">
+                        {productHints.map((hint:any, idx: number) => 
+                            <div key={idx} className="product-hint-card">
+                                <div className="hint-name">{hint.name}</div>
+                                <div className="hint-category">Category: {hint.category}</div>
+                                <div className="hint-bottom">
+                                    <div className="green-pill">In stock</div>
+                                    <div>${hint.price}</div>
+                                </div>
+                            </div>
+                        )}
+                    </div>
+                    <div className="product-hints-message">These hints are only visible to you - use them to guide your response.</div>
+                    
+                </div> }
             <div className="chat-bubble-actions">
                 {(role === "character") && (
-                    <button
-                        className={`speak-btn ${isSpeaking ? "speaking" : ""}`}
-                        type="button"
-                        onClick={handleSpeak}
-                        aria-label={isSpeaking ? "Stop voice" : "Play voice"}
-                        title={isSpeaking ? "Stop voice" : "Play voice"}
-                    >
-                        <img src={speaker_icon} alt="" />
-                        {isSpeaking ? "Stop" : "Speak"}
-                    </button>
+                    <>
+                        <button
+                            className={`speak-btn ${isSpeaking ? "speaking" : ""}`}
+                            type="button"
+                            onClick={handleSpeak}
+                            aria-label={isSpeaking ? "Stop voice" : "Play voice"}
+                            title={isSpeaking ? "Stop voice" : "Play voice"}
+                        >
+                            <img src={speaker_icon} alt="" />
+                            {isSpeaking ? "Stop" : "Speak"}
+                        </button>
+                        {productHints !== null &&
+                        <button
+                            className="speak-btn"
+                            onClick={() => setShowHints(prev => !prev)}
+                        >
+                            {showHints ? "Hide" : "Show"} product hints
+                        </button>}
+                    </>
                 )}
                 { role == "assistant" && handleApply &&
                     <button className="apply-btn" type="button" onClick={handleApply}>

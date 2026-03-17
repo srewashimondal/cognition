@@ -20,3 +20,4 @@ def make_json_safe(obj):
         return obj.isoformat()
     else:
         return obj
+

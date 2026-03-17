@@ -1,11 +1,17 @@
 .simulation-page {
     display: flex;
     justify-content: space-between;
-    padding: 0;
-    height: 91vh;       
+    padding: 0;       
     align-items: stretch;
     width: 100%;
+    height: 100%;
 }
+
+.sim-page-wrapper {
+    width: 100%;
+    height: 100%;
+}
+
 
 .simulation-page.employer {
     height: 92vh;
@@ -14,8 +20,6 @@
 .chat-section {
     background-color: white;
     width: 70%;
-    height: 100%;
-    min-height: 0;
     display: flex;
     flex-direction: column;
 }
@@ -24,7 +28,6 @@
     width: 30%;
     background-color: white;
     border-left: 1px solid #eee;
-    height: 100%;
     padding: 20px;
     display: flex;
     flex-direction: column;
@@ -172,6 +175,7 @@
 .sim-prompt {
     font-weight: 600;
 }
+
 
 .score-section {
     border: 1px solid #C6C6C6;

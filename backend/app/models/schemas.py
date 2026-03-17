@@ -112,6 +112,7 @@ class SimulationReplyRequest(BaseModel):
     sim_index: int
     reply_to_id: str
     latest_user_message: str  
+    workspace_id: str
 
 class EmployeeInsightsRequest(BaseModel):
     user_id: str
@@ -130,3 +131,8 @@ class TTSRequest(BaseModel):
 class POSConnectRequest(BaseModel):
     workspace_id: str
     settings: list[str] = []
+
+class ProductSearchRequest(BaseModel):
+    workspace_id: str
+    query: str
+    top_k: int = 3

@@ -17,9 +17,10 @@ type VoiceModeProps = {
     handleSendMessage: (text: string) => void;
     characterName: string;
     voiceDescription?: string;
+    productHints?: any;
 };
 
-export default function VoiceMode({ title, idx, lessonAttemptId, simIndex, messages, switchType, handleBack, handleClick, handleSendMessage, characterName, voiceDescription }: VoiceModeProps) {
+export default function VoiceMode({ title, idx, lessonAttemptId, simIndex, messages, switchType, handleBack, handleClick, handleSendMessage, characterName, voiceDescription, productHints }: VoiceModeProps) {
     const transcriptRef = useRef<HTMLDivElement | null>(null);
     const [isRecording, setIsRecording] = useState(false);
     const [isProcessing, setIsProcessing] = useState(false);
@@ -108,14 +109,17 @@ export default function VoiceMode({ title, idx, lessonAttemptId, simIndex, messa
             { (displayMessages.length > 0) ?
                 (<div className="scroll-wrapper">
                     <div className="scrollable-transcript" ref={transcriptRef}>
-                        {displayMessages.map((m, i, arr) => <ChatBubble key={m.id}
+                        {displayMessages.map((m, i, arr) => {
+                        const isFirst = m.id === arr[0]?.id;
+                        const isLast = m.id === arr[arr.length - 1]?.id;
+                        return (<ChatBubble key={m.id}
                         message={m} className={i === arr.length - 1 ? "last-message" : i === 0 ? "first-message": ""}
                         handleClick={() => handleClick(m.id)} voiceDescription={voiceDescription}
-                        lessonAttemptId={lessonAttemptId} simIndex={simIndex} />)}
+                        lessonAttemptId={lessonAttemptId} simIndex={simIndex} 
+                        productHints={(productHints.length !== 0 && isLast && !isFirst) ? productHints : null}/>)
+                        })}
                     </div>
                     <p className="transcript-label">Transcript</p>
-                    <div className="blur-top" />
-                    <div className="blur-bottom" />
                 </div>) :
                 (<div className="empty-wrapper">
                     Your transcript will show up here.
