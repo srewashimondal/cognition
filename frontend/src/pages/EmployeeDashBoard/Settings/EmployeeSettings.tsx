@@ -7,7 +7,7 @@ import { db } from "../../../firebase";
 import type { EmployeeUserType } from "../../../types/User/UserType";
 import { getInterfacePrefs, saveInterfacePrefs, applyInterfacePrefs } from "../../../utils/interfacePrefs";
 
-type Tab = "account" | "security" | "notifications" | "interface";
+type Tab = "account" | "security" | "notifications" | "interface" | "simulation";
 
 type EmployeeSettingsProps = {
   user: EmployeeUserType;
@@ -28,7 +28,7 @@ export default function EmployeeSettings({ user }: EmployeeSettingsProps) {
           className={activeTab === "account" ? "active" : ""}
           onClick={() => setActiveTab("account")}
         >
-          Account Setting
+          Account Settings
         </span>
 
         {/*<span
@@ -52,6 +52,13 @@ export default function EmployeeSettings({ user }: EmployeeSettingsProps) {
           Interface
         </span>
 
+        <span
+          className={activeTab === "simulation" ? "active" : ""}
+          onClick={() => setActiveTab("simulation")}
+        >
+          Simulation Settings
+        </span>
+
       </div>
 
       <hr />
@@ -61,6 +68,7 @@ export default function EmployeeSettings({ user }: EmployeeSettingsProps) {
       {/*activeTab === "security" && <SecuritySettings />*/}
       {activeTab === "notifications" && <NotificationSettings user={user} />}
       {activeTab === "interface" && <InterfaceSettings user={user} />}
+      {activeTab === "simulation" && <SimulationSettings user={user} />}
     </div>
   );
 }
@@ -402,6 +410,34 @@ function InterfaceSettings({ user }: { user: EmployeeUserType }) {
       <div className="actions">
         {saved && <span className="saved-hint">Preferences saved. They apply across the app.</span>}
       </div>
+    </div>
+  );
+}
+
+function SimulationSettings({ user }: { user: EmployeeUserType }) {
+  return (
+    <div className="simulation-settings">
+      <h3 className="section-title">Simulation Preferences</h3>
+      <p className="section-subtitle">
+        Select your preferences for simulations. Changes apply immediately across the app.
+      </p>
+
+      <div className="interface-card">
+        <div className="interface-row">
+        <div>
+            <h4>Share Simulation Feedback with Employer</h4>
+            <p>Your employer can view your performance feedback to support your training.</p>
+          </div>
+          <label className="switch">
+            <input
+              type="checkbox"
+              defaultChecked
+            />
+            <span className="slider" />
+          </label>
+        </div>
+      </div>
+
     </div>
   );
 }
