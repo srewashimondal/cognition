@@ -3,6 +3,7 @@ import { useState, useEffect, useRef } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import VoiceMode from './VoiceMode/VoiceMode';
 import TypeMode from './TypeMode/TypeMode';
+import ProgressBar from '../../components/ProgressBar/ProgressBar';
 import ActionButton from '../../components/ActionButton/ActionButton';
 import { collection, doc, query,  getDoc, setDoc, onSnapshot, orderBy, addDoc, serverTimestamp } from "firebase/firestore";
 import { db, storage } from "../../firebase";
@@ -33,6 +34,12 @@ export default function SimulationPage({ role, workspaceID }: { role: "employee"
     const [simData, setSimData] = useState<any>(null);
     const [messages, setMessages] = useState<any[]>([]);
     const loading = !lessonAttempt || !simData || simData.generationStatus !== "ready";
+    const lastCharacterMessage = [...messages]
+        .reverse()
+        .find(m => m.role === "character");
+
+    const productHints = lastCharacterMessage?.productHints || [];
+    const generalHints = lastCharacterMessage?.hints || [];
 
     const [voiceMode, setVoiceMode] = useState(true);
     const [selectOption, setSelectOption] = useState<"premise" | "feedback">("premise");
@@ -240,7 +247,7 @@ export default function SimulationPage({ role, workspaceID }: { role: "employee"
     const handleRead = () => {
     };
 
-    const [productHints, setProductHints] = useState<any[]>([]);
+    // const [productHints, setProductHints] = useState<any[]>([]);
     const handleUserSend = async (text: string) => {
         if (!lessonID) return;
     
@@ -267,7 +274,8 @@ export default function SimulationPage({ role, workspaceID }: { role: "employee"
             workspace_id: ${workspaceID}`
         );
   
-        const response = await fetch("http://127.0.0.1:8000/ai/simulation-reply", {
+        // const response = 
+        await fetch("http://127.0.0.1:8000/ai/simulation-reply", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
@@ -279,14 +287,12 @@ export default function SimulationPage({ role, workspaceID }: { role: "employee"
             })
         });
 
-        const data = await response.json();
+        // const data = await response.json();
 
-        if (data.success) {
+        /*if (data.success) {
             setProductHints(data.productHints || []);
-        }
+        }*/
     };
-
-    console.log(productHints);
 
     useEffect(() => {
         const fetchResources = async () => {
@@ -409,17 +415,33 @@ export default function SimulationPage({ role, workspaceID }: { role: "employee"
             <div className={`simulation-page ${role}`}>
                     <div className="chat-section">
                         {(voiceMode) ?
-                        (<VoiceMode key={`voice-${simulationIndex}`} title={lessonAttempt?.lessonInfo.title ?? ""} idx={simulationIndex}
-                        lessonAttemptId={lessonID} simIndex={simulationIndex}
-                        messages={messages ?? []} switchType={() => setVoiceMode(false)}
-                        handleBack={handleBack} handleClick={(messageID: string) => {setSelectedMessage(messageID); setSelectOption("feedback");}}
-                        handleSendMessage={handleUserSend} characterName={simData.characterName}
-                        voiceDescription={simData?.premise} productHints={productHints} /> ) :
-                        (<TypeMode key={`type-${simulationIndex}`} title={lessonAttempt?.lessonInfo.title ?? ""} idx={simulationIndex}
-                        lessonAttemptId={lessonID} simIndex={simulationIndex} voiceDescription={simData?.premise}
-                        typingMessageId={typingMessageId} productHints={productHints}
-                        messages={messages ?? []} switchType={() => setVoiceMode(true)} handleSendMessage={handleUserSend} onTypingComplete={() => setTypingMessageId(null)}
-                        handleBack={handleBack} handleClick={(messageID: string) => {setSelectedMessage(messageID); setSelectOption("feedback");}} name={simData.characterName} />)
+                        (<VoiceMode 
+                            key={`voice-${simulationIndex}`} 
+                            title={lessonAttempt?.lessonInfo.title ?? ""} 
+                            idx={simulationIndex}
+                            lessonAttemptId={lessonID} 
+                            simIndex={simulationIndex}
+                            messages={messages ?? []} 
+                            switchType={() => setVoiceMode(false)}
+                            handleBack={handleBack} 
+                            handleClick={(messageID: string) => {setSelectedMessage(messageID); setSelectOption("feedback");}}
+                            handleSendMessage={handleUserSend} 
+                            characterName={simData.characterName}
+                            voiceDescription={simData?.voiceDescription} 
+                        /> ) :
+                        (<TypeMode 
+                            key={`type-${simulationIndex}`} 
+                            title={lessonAttempt?.lessonInfo.title ?? ""} 
+                            idx={simulationIndex}
+                            lessonAttemptId={lessonID} 
+                            simIndex={simulationIndex} 
+                            voiceDescription={simData?.voiceDescription}
+                            typingMessageId={typingMessageId} 
+                            messages={messages ?? []} 
+                            switchType={() => setVoiceMode(true)} 
+                            handleSendMessage={handleUserSend} 
+                            onTypingComplete={() => setTypingMessageId(null)}
+                            handleBack={handleBack} handleClick={(messageID: string) => {setSelectedMessage(messageID); setSelectOption("feedback");}} name={simData.characterName} />)
                         }
                     </div>
 
@@ -448,7 +470,7 @@ export default function SimulationPage({ role, workspaceID }: { role: "employee"
                                         <p><span className="sim-prompt">Scenario Premise: </span> {simData?.premise}</p>
                                         <p className="sim-prompt">How would you approach this situation?</p>
                                     </div>) : 
-                                    (messageInfo ? 
+                                    (messageInfo && feedbackInfo ? 
                                         (<div className="feedback-info">
                                             <div className="score-section">
                                                 <p>Overall Score</p>
@@ -458,8 +480,31 @@ export default function SimulationPage({ role, workspaceID }: { role: "employee"
                                                     </span>
                                                     <h3>{feedbackInfo?.rating}/10</h3>
                                                 </div>
-                                                <div className="score-divider" />
+                                                <ProgressBar percent={feedbackInfo?.rating * 10} style1={true} hideCompletion={true} />
                                                 <p className="score-content">{feedbackInfo?.content}</p>
+                                            </div>
+                                            <div className="suggestion-section">
+                                                <div className="suggestion-title">
+                                                    <div className="green-dot" />
+                                                    Strengths
+                                                </div>
+                                                
+                                                {feedbackInfo?.strengths.map((s: any) => 
+                                                    (<div className="strengths-card">
+                                                        <div className="strengths-check">
+                                                            ✓
+                                                        </div>
+                                                        <div className="strength-content">
+                                                            <p className="strength-title">
+                                                                {s.title}
+                                                            </p>
+                                                            <p className="strength-description">
+                                                                {s.description}
+                                                            </p>
+                                                        </div>
+                                                    </div>))}
+                                                
+                                                
                                             </div>
                                             <div className="suggestion-section">
                                                 <div className="suggestion-title">

@@ -1013,13 +1013,21 @@ class LLMService:
             - Include measurable indicators
             - Not require re-reading lesson abstracts during scoring
 
-        5. Ensure:
+        5.  Generate a voice description for TTS:
+        - 1 sentence maximum
+        - Describe only how the customer should sound
+        - Focus on tone, pacing, and emotion
+        - Do NOT include story details, products, or premise content
+        - Include the gender of the character and approximate age
+        - Example style: "Friendly, slightly overwhelmed, conversational retail customer. Female, Age 31."
+
+        6. Ensure:
             - The situation feels authentic
             - The customer has a clear goal
             - There is room for the employee to make mistakes
             - The skills from the lesson are REQUIRED to handle it well
 
-        5. Do NOT include:
+        7. Do NOT include:
             - Dialogue
             - Bullet points
             - Extra commentary
@@ -1032,6 +1040,7 @@ class LLMService:
             "characterName": "First name of the customer only",
             "premise": "4-6 sentence scenario premise written as a paragraph.",
             "openingMessage": "Customer's first spoken line.",
+            "voiceDescription": "A short voice style description for TTS, 1 sentence max. Focus only on delivery style and emotional tone, not story details. Make sure to include the character's gender and approximate age."
             "evaluationCriteria": {{
                 "skillApplication": {{
                     "description": "How well the employee applies lesson-specific skills.",
@@ -1079,12 +1088,14 @@ class LLMService:
         premise: str,
         evaluation_criteria: dict,
         conversation_history: List[dict],
+        previous_hints: List[dict] = None,
+        previous_product_hints: List[dict] = None,
     ):
         message_history = []
 
         for msg in conversation_history:
             if msg["role"] == "assistant":
-                continue  
+                continue
 
             if msg["role"] == "character":
                 message_history.append({
@@ -1145,6 +1156,19 @@ class LLMService:
             Evaluation Criteria:
             {json.dumps(evaluation_criteria, ensure_ascii=False, indent=2)}
 
+            PREVIOUS GUIDANCE (for evaluation context only):
+
+            General Hints Previously Given:
+            {json.dumps(previous_hints or [], ensure_ascii=False, indent=2)}
+
+            Product Hints Previously Given:
+            {json.dumps(previous_product_hints or [], ensure_ascii=False, indent=2)}
+
+            INSTRUCTION:
+            - Consider whether the employee followed or ignored the provided hints.
+            - If hints were ignored, reflect that in scoring and feedback.
+            - If hints were followed well, reward appropriately in evaluation.
+
             You will now receive the full chronological conversation history.
             The LAST message in the conversation is the employee's newest response.
             Evaluate ONLY that final employee message.
@@ -1161,7 +1185,34 @@ class LLMService:
             - If difficulty requires pressure or constraints, introduce them naturally.
             - Do NOT evaluate inside this reply.
 
-            STEP 2 — EVALUATION
+            STEP 2 - NEXT RESPONSE HINTS
+
+            Generate actionable hints to help the employee respond to the customer’s latest reply.
+
+            - These hints are for the NEXT message the employee will send.
+            - Base them on:
+            - The character’s latest reply
+            - The mistakes identified in the evaluation
+            - The evaluation criteria
+
+            HINT RULES:
+            - You MUST return 2 to 3 hints.
+            - Do NOT return 0.
+            - Do NOT return more than 3.
+            - Each hint must be actionable (tell the employee what to do, not just what was wrong).
+            - Each hint must directly help improve the NEXT response.
+            - Each hint MUST explicitly reference something the customer said, asked, or implied.
+            - Identify a specific need, concern, or goal from the customer’s latest message.
+            - Then provide guidance that directly addresses that need.
+            - Do NOT generate generic advice that could apply to any situation.
+            - Avoid vague advice (e.g., "be better", "improve communication").
+            - Prefer hints that align with evaluation criteria (policy, empathy, clarity, etc.).
+            - Hints should NOT repeat the strengths.
+            - Hints should NOT restate weaknesses — they must guide improvement.
+
+            If the hints are not useful for crafting the next response, the response is invalid.
+
+            STEP 3 — EVALUATION
             Switch to evaluator mode.
 
             Evaluate ONLY the employee's most recent message.
@@ -1170,6 +1221,12 @@ class LLMService:
 
             {{
                 "characterReply": "Customer reply here.",
+                "hints": [
+                    {{
+                        "title": "Short actionable hint (3-6 words)",
+                        "description": "Reference what the customer said or wants, then explain what the employee should do next."
+                    }}
+                ]
                 "evaluation": {{
                     "overallScore": integer,
                     "criteriaBreakdown": {{
@@ -1179,11 +1236,25 @@ class LLMService:
                         "emotionalIntelligence": integer,
                         "storeAlignment": integer
                     }},
-                    "strengths": ["List of what the employee did well."],
+                    "strengths": [
+                        {{
+                            "title": "Brief strength label (3-5 words)",
+                            "description": "One sentence explaining what the employee did well and why it matters."
+                        }}
+                    ],
                     "areasForImprovement": ["List of specific weaknesses."],
+                    "summary": "Provide a 3-4 sentence overall evaluation of the employee's response, highlighting the strengths and weaknesses."
                     "improvedResponse": "A rewritten version of the employee's last message that would score 10/10."
                 }}
             }}
+
+            STRENGTHS RULES:
+            - You MUST return 1 to 2 strengths only.
+            - Do NOT return more than 2.
+            - Do NOT return 0.
+            - Each strength must be specific to the employee’s latest message.
+            - Avoid generic praise (e.g., "Good job", "Nice response").
+            - Each strength must clearly tie to one or more evaluation criteria.
 
             Return STRICT JSON ONLY.
         """

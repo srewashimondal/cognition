@@ -134,19 +134,20 @@
 
 .simulation-chatbar textarea {
     background: none;
-    width: 100%;
-    resize: none;            
+    width: 100%;         
     border: none;
     outline: none;
     background: none;
     font-size: 16px;
     line-height: 1.4;
     font-family: 'Instrument Sans', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
-    box-sizing: border-box;
-    min-height: 44px;       
-    max-height: 140px;
-    overflow-y: auto; 
+    box-sizing: border-box;  
+    height: 44px;
+    min-height: 44px;
+    max-height: 44px;
     padding: 10px 2px; 
+    resize: none;
+    overflow-y: auto;
 }
 
 .simulation-chatbar textarea:placeholder-shown {

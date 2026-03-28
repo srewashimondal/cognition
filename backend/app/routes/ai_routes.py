@@ -915,12 +915,14 @@ async def create_simulation(request: CreateSimulationRequest):
         canonical_map = lesson_data.get("canonicalSimulations") or {}
         key = str(request.sim_index)
         canonical = canonical_map.get(key)
-
+        
+        '''
         if canonical:
             print("[2] Using canonical simulation content for this lesson")
             sim_ref.set({
                 "characterName": canonical["characterName"],
                 "premise": canonical["premise"],
+                "voiceDescription": voice_description,
                 "evaluationCriteria": canonical.get("evaluationCriteria") or {},
                 "generationStatus": "ready",
                 "completionStatus": "not begun",
@@ -944,10 +946,12 @@ async def create_simulation(request: CreateSimulationRequest):
                 "simulation": {
                     "characterName": canonical["characterName"],
                     "premise": canonical["premise"],
+                    "voiceDescription": voice_description,
                     "openingMessage": canonical.get("openingMessage") or "",
                     "evaluationCriteria": canonical.get("evaluationCriteria") or {}
                 }
             }
+        '''
 
         workspace_ref = db.collection("workspaces").document(request.workspace_id)
         reference_summaries = []
@@ -981,6 +985,7 @@ async def create_simulation(request: CreateSimulationRequest):
 
         voice_name = None
         hume_api_key = os.getenv("HUME_API_KEY")
+        voice_description = (ai_response.get("voiceDescription")).strip()
         if hume_api_key:
             try:
                 safe_lesson_id = "".join(c if c.isalnum() or c in "_-" else "_" for c in lesson_ref.id)
@@ -989,7 +994,7 @@ async def create_simulation(request: CreateSimulationRequest):
                     hume_api_key,
                     voice_name,
                     ai_response.get("openingMessage") or "",
-                    ai_response.get("premise") or "",
+                    voice_description or "Friendly, natural, conversational retail customer.",
                 )
                 print("[4a] Hume voice created and saved for character (canonical).")
             except Exception as voice_err:
@@ -998,20 +1003,24 @@ async def create_simulation(request: CreateSimulationRequest):
         canonical_entry = {
             "characterName": ai_response["characterName"],
             "premise": ai_response["premise"],
+            "voiceDescription": voice_description,
             "openingMessage": ai_response.get("openingMessage") or "",
             "evaluationCriteria": ai_response.get("evaluationCriteria") or {},
         }
         if voice_name:
             canonical_entry["humeVoiceName"] = voice_name
 
+        '''
         lesson_ref.update({
             "canonicalSimulations": {**canonical_map, key: canonical_entry}
         })
+        '''
 
         print("[4] Updating Firebase")
         sim_ref.set({
             "characterName": ai_response["characterName"],
             "premise": ai_response["premise"],
+            "voice_description": voice_description,
             "evaluationCriteria": ai_response.get("evaluationCriteria") or {},
             "generationStatus": "ready",
             "completionStatus": "not begun",
@@ -1091,14 +1100,27 @@ async def simulation_reply(request: SimulationReplyRequest):
             else:
                 conversation_history[-1] = {"role": "user", "content": latest}
 
+        last_character_hints = []
+        last_product_hints = []
+
+        for doc in reversed(list(message_docs)):
+            msg = doc.to_dict()
+            if msg.get("role") == "character":
+                last_character_hints = msg.get("hints") or []
+                last_product_hints = msg.get("productHints") or []
+                break
+
         ai_response = llm.generate_simulation_reply(
             character_name=character_name,
             premise=premise,
             evaluation_criteria=evaluation_criteria,
-            conversation_history=conversation_history
+            conversation_history=conversation_history,
+            previous_hints=last_character_hints,
+            previous_product_hints=last_product_hints   
         )
 
         character_reply = ai_response["characterReply"]
+        hints = ai_response["hints"]
         evaluation = ai_response["evaluation"]
 
         product_hints = pinecone.search(
@@ -1120,22 +1142,26 @@ async def simulation_reply(request: SimulationReplyRequest):
             "role": "character",
             "name": character_name,
             "content": character_reply,
+            "productHints": product_hints,
+            "hints": hints,
             "timestamp": firestore.SERVER_TIMESTAMP
         })
 
         messages_ref.add({
             "role": "assistant",
-            "content": "\n".join(evaluation.get("strengths", [])),
+            "content": evaluation.get("summary"),
             "rating": evaluation.get("overallScore"),
             "criteriaBreakdown": evaluation.get("criteriaBreakdown"),
             "areasForImprovement": evaluation.get("areasForImprovement"),
             "improved": evaluation.get("improvedResponse"),
+            "strengths": evaluation.get("strengths"),
             "replyToId": request.reply_to_id,
             "timestamp": firestore.SERVER_TIMESTAMP
         })
 
         return {
             "success": True,
+            "generalHints": hints,
             "productHints": product_hints
         }
 
@@ -1185,6 +1211,8 @@ async def tts(request: TTSRequest):
                 if saved_voice:
                     resolved_voice_name = saved_voice
                     provider = "CUSTOM_VOICE"
+
+                saved_description = (sim_data.get("voiceDescription") or "").strip()
         except Exception:
             pass
 
@@ -1203,7 +1231,7 @@ async def tts(request: TTSRequest):
     except Exception:
         desc_map = {}
 
-    description = request.description or desc_map.get(resolved_voice_name) or os.getenv(
+    description = request.description or saved_description or desc_map.get(resolved_voice_name) or os.getenv(
         "HUME_DEFAULT_DESCRIPTION",
         "Natural, clear, conversational delivery."
     )

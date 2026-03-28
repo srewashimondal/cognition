@@ -7,4 +7,6 @@ export type MessageType = {
     replyToId?: number;
     improved?: string;
     scope?: string[];
+    productHints?: any;
+    hints?: any;
 };

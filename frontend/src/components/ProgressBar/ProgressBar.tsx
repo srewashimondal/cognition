@@ -1,6 +1,6 @@
 import './ProgressBar.css';
 
-export default function ProgressBar({ percent, style, style1 }: {percent: number, style?: boolean, style1?: boolean}) {
+export default function ProgressBar({ percent, style, style1, hideCompletion=false }: {percent: number, style?: boolean, style1?: boolean, hideCompletion?: boolean}) {
 
     return (
         <div className="progress-bar-div">
@@ -8,7 +8,7 @@ export default function ProgressBar({ percent, style, style1 }: {percent: number
                 <div className={`progress-bar-fill ${(style) ? "styled" : ""} ${(style1) ? "styled1" : ""}`}
                     style={{ width: `${percent}%` }} />
             </div>
-            <span className="progress-label">{percent}% complete</span>
+            { !hideCompletion && <span className="progress-label">{percent}% complete</span> }
         </div>
     );
 }

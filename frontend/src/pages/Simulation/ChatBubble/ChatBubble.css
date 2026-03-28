@@ -307,36 +307,39 @@
 }
 
 .product-hints {
-    width: 90%;
+    width: 100%;
     display: flex;
-    justify-content: space-around;
+    gap: 5px;
+    padding: 10px;
 }
 
 .product-hints-wrapper {
-    width: 90%;
+    width: 70%;
     display: flex;
     flex-direction: column;
-    background-color: #fceae9;
-    padding: 10px;
+    background-color: #FFF8F4;
     margin-left: 14px;
     border-radius: 10px;
     border: 1px solid rgb(210, 192, 192);
     margin-bottom: 10px;
+    padding: 0;
+    padding-top: 10px;
+    padding-bottom: 10px;
 }
 
 .product-hint-card {
     background-color: white;
-    border: 1px solid rgb(210, 192, 192);
+    border: 1px solid rgba(212, 175, 175, 0.703);
     border-radius: 7px;
     padding: 6px;
     display: flex;
     flex-direction: column;
-    gap: 5px;
 }
 
 .hint-bottom {
     display: flex;
     justify-content: space-between;
+    margin-top: 7px;
 }
 
 .hint-name {
@@ -353,9 +356,9 @@
 .product-hints-label {
     margin-left: 8px;
     margin-bottom: 7px;
-    font-size: 11px;
+    font-size: 13px;
     font-weight: 600;
-    color: rgb(202, 119, 119);
+    color: rgb(148, 79, 79);
     display: flex;
     align-items: center;
     gap: 4px;
@@ -364,17 +367,59 @@
 .hint-circle {
     width: 14px; 
     height: 14px;
-    border: 1px solid rgb(202, 119, 119);
+    border: 1px solid rgb(148, 79, 79);
     display: flex;
     justify-content: center;
     align-items: center;
     border-radius: 50%;
+    margin-left: 8px;
+}
+
+.hints-label {
+    color: rgb(148, 79, 79);
+    font-weight: 600;
+    margin-left: 12px;
+    margin-top: 7px;
+}
+
+.hints-divider {
+    width: 95%;
+    height: 0.5px;
+    background-color: rgba(212, 175, 175, 0.703);
+    margin: 5px;
+    margin-left: 7px;
 }
 
 .product-hints-message {
-    margin-left: 8px;
-    margin-top: 7px;
+    margin-left: 16px;
+    margin-top: 1px;
     font-size: 10px;
     font-weight: 500;
     color: rgb(202, 151, 119);
+}
+
+.general-hints {
+    display: flex;
+    flex-direction: column;
+    font-weight: 400;
+    gap: 10px;
+    padding: 10px;
+    margin-left: 7px;
+}
+
+.general-hint-card {
+    color: rgb(83, 47, 47);
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    padding-top: 5px;
+}
+
+.general-hint-card:not(:first-child) {
+    border-top: 1px solid rgba(0, 0, 0, 0.08);
+}
+
+.hint-desc {
+    font-size: 12px;
+    font-weight: 400;
 }

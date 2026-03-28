@@ -172,11 +172,11 @@
 
 .transcript-label {
     margin: 0;
-    position: absolute;
-    top: 5%;
-    z-index: 3;
     font-size: 10px;
     color: #8F8F8F;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
 }
 
 .blur-bottom {
@@ -192,29 +192,48 @@
 
 .voice-pg-footer {
     display: flex;
-    justify-content: flex-start;
-    align-items: flex-start;
-    width: 100%;
-    margin-bottom: 10px;
+    justify-content: flex-end;
+    align-items: center;
+    width: 60%;
+    height: 20px;
 }
 
-.voice-pg-footer button {
-    background-color: #FF9E76;
-    border: 1px solid #FF9E76;
-    color: white;
+.scroll-top button {
     display: flex;
     align-items: center;
     justify-content: center;
     font-size: 12px;
     gap: 5px;
-    height: 35px;
-    border-radius: 5px;
-    padding: 5px;
+    height: 25px;
+    border-radius: 4px;
+    padding: 2px;
     margin-left: 10px;
     transition: 0.2s ease;
+    background-color: white;
+    border: 1px solid #eee;
+    border-radius: 5px;
+    margin: 5px 5px 5px 0px;
 }
 
-.voice-pg-footer button:hover {
-    background-color: #f39168;
-    border: 1px solid #f39168;
+.scroll-top img {
+    width: 20px;
+}
+
+.scroll-top button:hover {
+    border: 1px solid #eee;
+    transform: scale(1.1);
+}
+
+.scrollable-transcript.voice {
+    height: 80%;
+    border-radius: 10px;
+    border: 1px solid #eee;
+    background-color: #fafafa;
+}
+
+.scroll-top {
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 5px;
 }

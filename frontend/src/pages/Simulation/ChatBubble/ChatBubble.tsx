@@ -28,9 +28,11 @@ type ChatBubbleProps = {
     lessonAttemptId?: string;
     simIndex?: number;
     productHints?: any;
+    generalHints?: any;
+    onShowHints?: () => void;
 };
 
-export default function ChatBubble({ message, className, handleClick, shouldType, stopTyping, onTypingComplete, shouldRegenerate, handleRegenerate, onTypingUpdate, lessons, handleApply, voiceDescription, lessonAttemptId, simIndex, productHints }: ChatBubbleProps) {
+export default function ChatBubble({ message, className, handleClick, shouldType, stopTyping, onTypingComplete, shouldRegenerate, handleRegenerate, onTypingUpdate, lessons, handleApply, voiceDescription, lessonAttemptId, simIndex, productHints, generalHints, onShowHints }: ChatBubbleProps) {
     if (!message) return null; 
 
     const { role, name, content } = message;
@@ -148,16 +150,32 @@ export default function ChatBubble({ message, className, handleClick, shouldType
                 <div className="product-hints-wrapper">
                     <div className="product-hints-label">
                         <div className="hint-circle">!</div>
-                        Product hint
+                        Hints
                     </div>
+                    <div className="hints-label">Possible Products</div>
                     <div className="product-hints">
-                        {productHints.map((hint:any, idx: number) => 
+                        {(productHints ?? []).map((hint:any, idx: number) => 
                             <div key={idx} className="product-hint-card">
                                 <div className="hint-name">{hint.name}</div>
                                 <div className="hint-category">Category: {hint.category}</div>
                                 <div className="hint-bottom">
                                     <div className="green-pill">In stock</div>
                                     <div>${hint.price}</div>
+                                </div>
+                            </div>
+                        )}
+                    </div>
+                    <div className="hints-divider" />
+                    <div className="hints-label">General Tips</div>
+                    <div className="general-hints">
+                        {(generalHints ?? []).map((hint:any, idx: number) =>
+                            <div key={idx} className="general-hint-card">
+                                <div className="hint-name">
+                                    ‣ {hint.title}. 
+                                    {" "}
+                                    <span className="hint-desc">
+                                        {hint.description}
+                                    </span>
                                 </div>
                             </div>
                         )}
@@ -181,9 +199,21 @@ export default function ChatBubble({ message, className, handleClick, shouldType
                         {productHints !== null &&
                         <button
                             className="speak-btn"
-                            onClick={() => setShowHints(prev => !prev)}
+                            onClick={() => {
+                                setShowHints(prev => {
+                                    const next = !prev;
+                        
+                                    if (!prev && next) {
+                                        setTimeout(() => {
+                                            onShowHints?.();
+                                        }, 0);
+                                    }
+                        
+                                    return next;
+                                });
+                            }}
                         >
-                            {showHints ? "Hide" : "Show"} product hints
+                            {showHints ? "Hide" : "Show"} hints
                         </button>}
                     </>
                 )}

@@ -2,8 +2,9 @@ import './VoiceMode.css';
 import { useState, useEffect, useRef } from "react";
 import type { MessageType } from '../../../types/Modules/Lessons/Simulations/MessageType';
 import ChatBubble from '../ChatBubble/ChatBubble';
-import keyboard_icon from '../../../assets/icons/keyboard.svg';
 import left_arrow from '../../../assets/icons/orange-left-arrow.svg';
+import { Tooltip } from "@radix-ui/themes";
+import keyboard_icon from '../../../assets/icons/black-keyboard-icon.svg';
 
 type VoiceModeProps = {
     title: string;
@@ -17,10 +18,9 @@ type VoiceModeProps = {
     handleSendMessage: (text: string) => void;
     characterName: string;
     voiceDescription?: string;
-    productHints?: any;
 };
 
-export default function VoiceMode({ title, idx, lessonAttemptId, simIndex, messages, switchType, handleBack, handleClick, handleSendMessage, characterName, voiceDescription, productHints }: VoiceModeProps) {
+export default function VoiceMode({ title, idx, lessonAttemptId, simIndex, messages, switchType, handleBack, handleClick, handleSendMessage, characterName, voiceDescription }: VoiceModeProps) {
     const transcriptRef = useRef<HTMLDivElement | null>(null);
     const [isRecording, setIsRecording] = useState(false);
     const [isProcessing, setIsProcessing] = useState(false);
@@ -89,6 +89,15 @@ export default function VoiceMode({ title, idx, lessonAttemptId, simIndex, messa
             setIsProcessing(false);
         }
     };
+
+    const scrollToBottom = () => {
+        const el = transcriptRef.current;
+        if (!el) return;
+        el.scrollTo({
+            top: el.scrollHeight,
+            behavior: "smooth" 
+        });
+    };
       
     return (
         <div className="voice-chat">
@@ -108,31 +117,43 @@ export default function VoiceMode({ title, idx, lessonAttemptId, simIndex, messa
             </div>
             { (displayMessages.length > 0) ?
                 (<div className="scroll-wrapper">
-                    <div className="scrollable-transcript" ref={transcriptRef}>
+                    <div className="scroll-top">
+                        <div className="transcript-label">Transcript</div>
+                        <Tooltip content="Switch to typing">
+                            <button onClick={switchType}>
+                                    <img src={keyboard_icon} />
+                            </button>
+                        </Tooltip>
+                    </div>
+                    <div className="scrollable-transcript voice" ref={transcriptRef}>
                         {displayMessages.map((m, i, arr) => {
                         const isFirst = m.id === arr[0]?.id;
                         const isLast = m.id === arr[arr.length - 1]?.id;
-                        return (<ChatBubble key={m.id}
-                        message={m} className={i === arr.length - 1 ? "last-message" : i === 0 ? "first-message": ""}
-                        handleClick={() => handleClick(m.id)} voiceDescription={voiceDescription}
-                        lessonAttemptId={lessonAttemptId} simIndex={simIndex} 
-                        productHints={(productHints.length !== 0 && isLast && !isFirst) ? productHints : null}/>)
+                        return (
+                        <ChatBubble 
+                            key={m.id} message={m} 
+                            className={i === arr.length - 1 ? "last-message" : i === 0 ? "first-message": ""}
+                            handleClick={() => handleClick(m.id)} 
+                            voiceDescription={voiceDescription}
+                            lessonAttemptId={lessonAttemptId} 
+                            simIndex={simIndex} 
+                            onShowHints={scrollToBottom} 
+                            productHints={(m.productHints && isLast && !isFirst) ? m.productHints : null}
+                        />)
                         })}
                     </div>
-                    <p className="transcript-label">Transcript</p>
                 </div>) :
                 (<div className="empty-wrapper">
                     Your transcript will show up here.
                 </div>)
             }
-            <div className="voice-pg-footer">
-                <button onClick={switchType}>
-                    <span>
-                        <img src={keyboard_icon} />
-                    </span>
-                    Switch to Typing
-                </button>
-            </div>
+            {/*<div className="voice-pg-footer">
+                <Tooltip content="Switch to typing">
+                    <button onClick={switchType}>
+                            <img src={keyboard_icon} />
+                    </button>
+                </Tooltip>
+            </div>*/}
         </div>
     );
 }

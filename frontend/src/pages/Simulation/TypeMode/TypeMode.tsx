@@ -2,7 +2,7 @@ import './TypeMode.css';
 import { useState, useEffect, useRef } from 'react';
 import type { MessageType } from '../../../types/Modules/Lessons/Simulations/MessageType';
 import ChatBubble from '../ChatBubble/ChatBubble';
-import ChatBar from '../../../components/ChatBar/ChatBar';
+import { Tooltip } from "@radix-ui/themes";
 import left_arrow from '../../../assets/icons/orange-left-arrow.svg';
 import send_icon from '../../../assets/icons/chatbar/send-icon.svg';
 import stop_icon from '../../../assets/icons/chatbar/black-stop-icon.svg';
@@ -22,10 +22,10 @@ type TypeModeProps = {
     onTypingComplete: () => void;
     typingMessageId: string | null;
     name: string;
-    productHints?: any;
+    generalHints?: any;
 };
 
-export default function TypeMode({ title, idx, lessonAttemptId, simIndex, voiceDescription, messages, switchType, handleBack, handleClick, handleSendMessage, onTypingComplete, typingMessageId, name, productHints }: TypeModeProps) {
+export default function TypeMode({ title, idx, lessonAttemptId, simIndex, voiceDescription, messages, switchType, handleBack, handleClick, handleSendMessage, onTypingComplete, typingMessageId, name }: TypeModeProps) {
     const transcriptRef = useRef<HTMLDivElement | null>(null);
     const [userInput, setUserInput] = useState("");
     const [isLoading, setIsLoading] = useState(false);
@@ -58,6 +58,15 @@ export default function TypeMode({ title, idx, lessonAttemptId, simIndex, voiceD
     console.log("typingMessageId:", typingMessageId);
     const inputEmpty = userInput.trim() === "";
 
+    const scrollToBottom = () => {
+        const el = transcriptRef.current;
+        if (!el) return;
+        el.scrollTo({
+            top: el.scrollHeight,
+            behavior: "smooth" 
+        });
+    };
+
     return (
         <div className="type-chat">
             <div className="title-section type">
@@ -76,11 +85,20 @@ export default function TypeMode({ title, idx, lessonAttemptId, simIndex, voiceD
                             const isFirst = m.id === arr[0]?.id;
                             const isLast = m.id === arr[arr.length - 1]?.id;
 
-                            return (<ChatBubble key={m.id} message={m}
-                            className={isLast ? "last-message" : isFirst ? "first-message": ""}
-                            handleClick={() => handleClick(m.id)} productHints={(productHints.length !== 0 && isLast && !isFirst) ? productHints : null}
-                            shouldType={shouldType} onTypingComplete={onTypingComplete}
-                            voiceDescription={voiceDescription} lessonAttemptId={lessonAttemptId} simIndex={simIndex} />)
+                            return (
+                            <ChatBubble 
+                                key={m.id} message={m}
+                                className={isLast ? "last-message" : isFirst ? "first-message": ""}
+                                handleClick={() => handleClick(m.id)} 
+                                productHints={(m.productHints && isLast && !isFirst) ? m.productHints : null}         
+                                shouldType={shouldType} 
+                                onTypingComplete={onTypingComplete} 
+                                onShowHints={scrollToBottom} 
+                                voiceDescription={voiceDescription} 
+                                lessonAttemptId={lessonAttemptId} 
+                                simIndex={simIndex} 
+                                generalHints={(m.hints && isLast && !isFirst) ? m.hints : null}
+                            />)
                         })}
                     {isLoading && (
                         <div className="chat-bubble-wrapper character loading-simulation">
@@ -121,31 +139,33 @@ export default function TypeMode({ title, idx, lessonAttemptId, simIndex, voiceD
                             handleSend();
                         }}} />
                     </div>
-                    <div className="simulation-chatbar-cta" 
-                        onClick={() => {
-                            if (typingMessageId !== null) {
-                                onTypingComplete();
-                                return;
-                            }
-                        
-                            if (inputEmpty) {
-                                switchType(); 
-                                return;
-                            }
-                        
-                            handleSend();
-                        }}
-                    >
-                        <img
-                            src={
-                                typingMessageId !== null
-                                ? stop_icon
-                                : inputEmpty
-                                ? voice_icon
-                                : send_icon
-                            }
-                        />
-                    </div>
+                    <Tooltip content={typingMessageId !== null ? "Stop" : inputEmpty ? "Switch to speaking" : "Send"}>
+                        <div className="simulation-chatbar-cta" 
+                            onClick={() => {
+                                if (typingMessageId !== null) {
+                                    onTypingComplete();
+                                    return;
+                                }
+                            
+                                if (inputEmpty) {
+                                    switchType(); 
+                                    return;
+                                }
+                            
+                                handleSend();
+                            }}
+                        >
+                            <img
+                                src={
+                                    typingMessageId !== null
+                                    ? stop_icon
+                                    : inputEmpty
+                                    ? voice_icon
+                                    : send_icon
+                                }
+                            />
+                        </div>
+                    </Tooltip>
                 </div>
             </div>
         </div>
