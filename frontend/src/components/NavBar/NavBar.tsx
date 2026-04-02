@@ -4,9 +4,11 @@ import logo from "../../assets/branding/cognition-logo.png";
 
 type NavBarProps = {
     login?: boolean;
+    isAuthenticated?: boolean;
+    role?: "employer" | "employee";
 }
 
-export default function NavBar({ login=true }: NavBarProps) {
+export default function NavBar({ login=true, isAuthenticated=false, role }: NavBarProps) {
     return (
     <div className="navbar">
         <div className="logo-div">
@@ -25,9 +27,14 @@ export default function NavBar({ login=true }: NavBarProps) {
         </div>
         <div className="login-div">
             {
-            (login) && <Link to="/login">
+            (login && !isAuthenticated) && <Link to="/login">
                             <button className="login-button">Login</button>
                         </Link>
+            }
+            {(isAuthenticated) &&
+                <Link to={role === "employer" ? "/employer" : "/employee"}>
+                    <button className="login-button">Go to Dashboard →</button>
+                </Link>
             }
         </div>
     </div>);

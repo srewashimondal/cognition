@@ -20,11 +20,23 @@ import sec4Feature4 from '../../assets/illustrations/homepage-graphics/section 4
 import sec4Feature2 from '../../assets/illustrations/homepage-graphics/section 4/feature-2.svg';
 import sec4Feature3 from '../../assets/illustrations/homepage-graphics/section 4/feature-3.svg';
 import whiteLogo from '../../assets/branding/cognition-logo-white.svg';
+import LoadingPage from '../LoadingPages/LoadingPage/LoadingPage.tsx';
+import { useAuth } from "../../context/AuthProvider.tsx";
 
 export default function HomePage() {
     useEffect(() => {
         window.scrollTo({ top: 0, left: 0, behavior: "instant" });
     }, []);
+
+    const { user, loading: authLoading } = useAuth();
+    if (authLoading) {
+        return (
+            <LoadingPage />
+        );
+    }
+
+    const isAuthenticated = !!user;
+    const role = user?.role;
 
     return (
         <div className="home-page">
@@ -34,7 +46,7 @@ export default function HomePage() {
                 <div className="blob blob-2" />
                 <div className="blob blob-3" />
             </div>
-            <NavBar />
+            <NavBar isAuthenticated={isAuthenticated} role={role} />
             <Hero />
             <Section2 />
             <Section3 />
