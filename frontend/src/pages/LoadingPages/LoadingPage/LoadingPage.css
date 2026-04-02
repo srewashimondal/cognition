@@ -1,0 +1,63 @@
+.loading-page {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+}
+
+.loading-slabs {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+    width: 100px;
+    height: 100px;
+}
+
+.blue-slab,
+.orange-slab {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 100px;
+  transform: translate(-50%, -50%);
+}
+
+.blue-slab {
+    animation: orbitA 3s linear infinite;
+}
+
+.orange-slab {
+    animation: orbitB 3s linear infinite;
+    opacity: 0.60;
+}
+  
+@keyframes orbitA {
+    0% {
+      transform: translate(-50%, -50%) translate(-10px, -5px);
+      z-index: 1;
+    }
+    50% {
+      transform: translate(-50%, -50%) translate(10px, 5px);
+      z-index: 3;
+    }
+    100% {
+      transform: translate(-50%, -50%) translate(-10px, -5px);
+      z-index: 1;
+    }
+  }
+  
+  @keyframes orbitB {
+    0% {
+      transform: translate(-50%, -50%) translate(10px, 5px);
+      z-index: 3;
+    }
+    50% {
+      transform: translate(-50%, -50%) translate(-10px, -5px);
+      z-index: 1;
+    }
+    100% {
+      transform: translate(-50%, -50%) translate(10px, 5px);
+      z-index: 3;
+    }
+}

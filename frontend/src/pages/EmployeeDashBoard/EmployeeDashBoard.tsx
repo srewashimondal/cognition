@@ -42,7 +42,7 @@ import white_controller from '../../assets/icons/sidebar/white-controller-icon.s
 import black_controller from '../../assets/icons/sidebar/black-controller-icon.svg';
 import blue_controller from '../../assets/icons/sidebar/blue-controller-icon.svg';
 import SimulationPerformance from './SimulationModules/SimulationLessons/SimulationPerformance/SimulationPerformance';
-
+import LoadingPage from '../LoadingPages/LoadingPage/LoadingPage.tsx';
 
 export default function EmployeeDashBoard() {
     const [profileOpen, setProfileOpen] = useState(false);
@@ -73,14 +73,7 @@ export default function EmployeeDashBoard() {
 
     if (authLoading || workspaceLoading) {
       return (
-        <div style={{ 
-          display: 'flex', 
-          justifyContent: 'center', 
-          alignItems: 'center', 
-          height: '100vh' 
-        }}>
-          Loading...
-        </div>
+        <LoadingPage />
       );
     }
 

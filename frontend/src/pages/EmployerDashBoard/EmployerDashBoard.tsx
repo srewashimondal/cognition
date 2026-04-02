@@ -41,11 +41,11 @@ import black_clipboard from '../../assets/icons/sidebar/black-clipboard-icon.svg
 import blue_clipboard from '../../assets/icons/sidebar/blue-clipboard-icon.svg';
 
 /*import EmployeeDashBoard from '../EmployeeDashBoard/EmployeeDashBoard';*/
-import AIStudioAssignments from './AI Studio/AIStudioAssignments/AIStudioAssignments';
 import ProfilePage from "./ProfilePage/ProfilePage";
 import Builder from './Builder/Builder.tsx';
 import StandardBuilder from './StandardBuilder/StandardBuilder.tsx';
 import QuizBuilder from './StandardBuilder/QuizBuilder/QuizBuilder.tsx';
+import LoadingPage from '../LoadingPages/LoadingPage/LoadingPage.tsx';
 
 export default function EmployerDashBoard() {
   console.log("EmployerDashboard mounted");
@@ -76,14 +76,7 @@ export default function EmployerDashBoard() {
 
   if (authLoading || workspaceLoading) {
     return (
-      <div style={{ 
-        display: 'flex', 
-        justifyContent: 'center', 
-        alignItems: 'center', 
-        height: '100vh' 
-      }}>
-        Loading...
-      </div>
+      <LoadingPage />
     );
   }
 

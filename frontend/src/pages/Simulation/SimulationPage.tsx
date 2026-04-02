@@ -25,6 +25,7 @@ import note_icon from '../../assets/icons/orange-note-icon.svg';
 import type { LessonType } from '../../types/Modules/Lessons/LessonType';
 import type { MessageType } from '../../types/Modules/Lessons/Simulations/MessageType';
 import { workspace } from '../../dummy_data/workspace_data';
+import GenerationLoadingPage from '../LoadingPages/GenerationLoading/GenerationLoadingPage';
 
 export default function SimulationPage({ role, workspaceID }: { role: "employee" | "employer", workspaceID: string }) {
     const { moduleID, lessonID, simIdx } = useParams();
@@ -361,9 +362,7 @@ export default function SimulationPage({ role, workspaceID }: { role: "employee"
 
     return (
         loading ?
-            <div className="generating-pg">
-                Generating your simulation...
-            </div>
+            <GenerationLoadingPage type={"simulation"} />
         : <div className="sim-page-wrapper">
             { openModal && 
                 <div className="attach-overlay">
