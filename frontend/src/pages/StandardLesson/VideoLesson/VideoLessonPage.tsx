@@ -322,7 +322,7 @@ export default function VideoLessonPage({ lessonAttempt, lesson, handleBack, mod
                         <img src={left_arrow} />
                     </div>
                     <div className="builder-page-title">
-                        Simulation Modules / {moduleTitle} / Video Lesson
+                        Standard Modules / {moduleTitle} / Video Lesson
                     </div>
                 </div>
                 <div className="video-title">

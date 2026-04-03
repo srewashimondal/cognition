@@ -140,7 +140,12 @@ export default function SimulationLessons() {
             );
       
             const snap = await getDocs(simsRef);
-            const sims = snap.docs.map(d => ({ id: d.id, ...d.data() })).sort((a, b) => a.id.localeCompare(b.id)); 
+            const sims = snap.docs.map(d => ({ id: d.id, ...d.data() }))
+                .sort((a, b) => {
+                    const aNum = Number(a.id.split("_")[1]);
+                    const bNum = Number(b.id.split("_")[1]);
+                    return aNum - bNum;
+                }); 
             const nextIndex = sims.findIndex((s: any) => s.status !== "completed");
             const simIndex = nextIndex === -1 ? sims.length - 1 : nextIndex;
       

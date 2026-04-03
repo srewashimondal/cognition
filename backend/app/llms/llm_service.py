@@ -999,7 +999,14 @@ class LLMService:
             - Do not invent unrelated product categories.
             - Make sure the scenario is randomized. 
 
-        3. Generate the first in-character opening message from the customer:
+        3. Generate EXACTLY 3 goals clear and actionable goals for the employee to accomplish during the simulation.
+        The goals should:
+            - Be specific to the scenario
+            - Reflect real-world retail behavior
+            - Encourage good communication, problem-solving, or sales skills
+            - Be achievable within a short conversation
+
+        4. Generate the first in-character opening message from the customer:
             - 2-4 sentences
             - Written as dialogue (what the customer would say)
             - Must reflect emotional tone and difficulty level
@@ -1007,27 +1014,27 @@ class LLMService:
             - Must NOT include evaluation
             - Must NOT mention this is a simulation
         
-        4. Generate structured evaluation criteria that define how employee responses should be assessed during this simulation. These criteria must:
+        5. Generate structured evaluation criteria that define how employee responses should be assessed during this simulation. These criteria must:
             - Be directly tied to the lesson skills
             - Reflect the specified difficulty
             - Include measurable indicators
             - Not require re-reading lesson abstracts during scoring
 
-        5.  Generate a voice description for TTS:
-        - 1 sentence maximum
-        - Describe only how the customer should sound
-        - Focus on tone, pacing, and emotion
-        - Do NOT include story details, products, or premise content
-        - Include the gender of the character and approximate age
-        - Example style: "Friendly, slightly overwhelmed, conversational retail customer. Female, Age 31."
+        6.  Generate a voice description for TTS:
+            - 1 sentence maximum
+            - Describe only how the customer should sound
+            - Focus on tone, pacing, and emotion
+            - Do NOT include story details, products, or premise content
+            - Include the gender of the character and approximate age
+            - Example style: "Friendly, slightly overwhelmed, conversational retail customer. Female, Age 31."
 
-        6. Ensure:
+        7. Ensure:
             - The situation feels authentic
             - The customer has a clear goal
             - There is room for the employee to make mistakes
             - The skills from the lesson are REQUIRED to handle it well
 
-        7. Do NOT include:
+        8. Do NOT include:
             - Dialogue
             - Bullet points
             - Extra commentary
@@ -1039,6 +1046,11 @@ class LLMService:
         {{
             "characterName": "First name of the customer only",
             "premise": "4-6 sentence scenario premise written as a paragraph.",
+            "goals": [
+                "Goal 1",
+                "Goal 2",
+                "Goal 3"
+            ],
             "openingMessage": "Customer's first spoken line.",
             "voiceDescription": "A short voice style description for TTS, 1 sentence max. Focus only on delivery style and emotional tone, not story details. Make sure to include the character's gender and approximate age."
             "evaluationCriteria": {{

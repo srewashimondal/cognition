@@ -1020,6 +1020,7 @@ async def create_simulation(request: CreateSimulationRequest):
         sim_ref.set({
             "characterName": ai_response["characterName"],
             "premise": ai_response["premise"],
+            "goals": ai_response["goals"],
             "voice_description": voice_description,
             "evaluationCriteria": ai_response.get("evaluationCriteria") or {},
             "generationStatus": "ready",

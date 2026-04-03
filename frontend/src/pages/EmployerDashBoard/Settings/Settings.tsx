@@ -817,7 +817,9 @@ function WorkspaceSettings({ workspace }: { workspace: WorkspaceType | null }) {
             <div className="pos-provider-info-wrapper">
               <label>Current Provider</label>
               <div className="pos-provider-info">
-                  <img src={green_check} />
+                  <div className="strengths-check">
+                    ✓
+                  </div>
                   <p>{connectedPOS}</p>
                   <div className="green-pill">
                     Connected

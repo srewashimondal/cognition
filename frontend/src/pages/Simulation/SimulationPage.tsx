@@ -5,7 +5,8 @@ import VoiceMode from './VoiceMode/VoiceMode';
 import TypeMode from './TypeMode/TypeMode';
 import ProgressBar from '../../components/ProgressBar/ProgressBar';
 import ActionButton from '../../components/ActionButton/ActionButton';
-import { collection, doc, query,  getDoc, setDoc, onSnapshot, orderBy, addDoc, serverTimestamp } from "firebase/firestore";
+import SkillItem from '../../cards/LessonCard/SkillItem/SkillItem';
+import { collection, doc, query,  getDoc, setDoc, onSnapshot, orderBy, addDoc, serverTimestamp, updateDoc } from "firebase/firestore";
 import { db, storage } from "../../firebase";
 import { getDownloadURL, ref } from "firebase/storage";
 import type { DocumentReference } from 'firebase/firestore';
@@ -22,10 +23,14 @@ import message_icon from '../../assets/icons/simulations/message-icon.svg';
 import blue_trend_icon from '../../assets/icons/simulations/blue-trending-up-icon.svg';
 import x_icon from '../../assets/icons/simulations/grey-x-icon.svg';
 import note_icon from '../../assets/icons/orange-note-icon.svg';
+import left_arrow from '../../assets/icons/orange-left-arrow.svg';
+import clock_icon from '../../assets/icons/simulations/black-clock-icon.svg';
+import voice_msg_icon from '../../assets/icons/chatbar/voice-msg-icon.svg';
+import keyboard_icon from '../../assets/icons/grey-keyboard-icon.svg';
 import type { LessonType } from '../../types/Modules/Lessons/LessonType';
 import type { MessageType } from '../../types/Modules/Lessons/Simulations/MessageType';
-import { workspace } from '../../dummy_data/workspace_data';
 import GenerationLoadingPage from '../LoadingPages/GenerationLoading/GenerationLoadingPage';
+import LoadingPage from '../LoadingPages/LoadingPage/LoadingPage';
 
 export default function SimulationPage({ role, workspaceID }: { role: "employee" | "employer", workspaceID: string }) {
     const { moduleID, lessonID, simIdx } = useParams();
@@ -34,14 +39,6 @@ export default function SimulationPage({ role, workspaceID }: { role: "employee"
     const [lessonAttempt, setLessonAttempt] = useState<LessonAttemptType | null>(null);
     const [simData, setSimData] = useState<any>(null);
     const [messages, setMessages] = useState<any[]>([]);
-    const loading = !lessonAttempt || !simData || simData.generationStatus !== "ready";
-    const lastCharacterMessage = [...messages]
-        .reverse()
-        .find(m => m.role === "character");
-
-    const productHints = lastCharacterMessage?.productHints || [];
-    const generalHints = lastCharacterMessage?.hints || [];
-
     const [voiceMode, setVoiceMode] = useState(true);
     const [selectOption, setSelectOption] = useState<"premise" | "feedback">("premise");
     const [selectedMessage, setSelectedMessage] = useState<string | null>(null);
@@ -51,6 +48,10 @@ export default function SimulationPage({ role, workspaceID }: { role: "employee"
     const [openModal, setOpenModal] = useState(false);
     const [references, setReferences] = useState<ResourceItem[]>([]);
     const [selectedRef, setSelectedRef] = useState<ResourceItem | null>(null);
+    const [moduleTitle, setModuleTitle] = useState<string>("");
+
+    const authLoading = !lessonAttempt;
+    const simulationLoading = !simData || simData.generationStatus !== "ready";
 
     useEffect(() => {
         window.scrollTo({ top: 0, left: 0, behavior: "instant" });
@@ -288,11 +289,18 @@ export default function SimulationPage({ role, workspaceID }: { role: "employee"
             })
         });
 
-        // const data = await response.json();
-
-        /*if (data.success) {
-            setProductHints(data.productHints || []);
-        }*/
+        const lessonAttemptRef = doc(db, "simulationLessonAttempts", lessonID);
+        const lessonSnap = await getDoc(lessonAttemptRef);
+        
+        if (lessonSnap.exists()) {
+            const data = lessonSnap.data();
+        
+            if (data.status === "not begun") {
+                await updateDoc(lessonAttemptRef, {
+                    status: "started"
+                });
+            }
+        }
     };
 
     useEffect(() => {
@@ -313,6 +321,7 @@ export default function SimulationPage({ role, workspaceID }: { role: "employee"
             if (!moduleInfoSnap.exists()) return;
         
             const moduleInfoData = moduleInfoSnap.data() as Omit<ModuleType, "id">;
+            setModuleTitle(moduleInfoData.title);
             const references = moduleInfoData.references;
 
             if (!references || references.length === 0) {
@@ -358,12 +367,52 @@ export default function SimulationPage({ role, workspaceID }: { role: "employee"
         getRefUrl();
     }, [selectedRef]);
 
-    console.log("typingMessageId:", typingMessageId);
+    const [phase, setPhase] = useState<"briefing" | "simulation" | null>(null);
+    useEffect(() => {
+        if (!simData) return;
+        if (simData.generationStatus !== "ready") return;
+        setPhase("briefing");
+    }, [simData]);
+
+    if (authLoading) {
+        return <LoadingPage />;
+    }
+
+    if (simulationLoading) {
+        return <GenerationLoadingPage type={"simulation"} />
+    }
+
+    if (phase === "briefing") {
+        return (
+            <BriefingPage
+                simIdx={simulationIndex}
+                simData={simData}
+                lessonAttempt={lessonAttempt}
+                moduleTitle={moduleTitle}
+                handleBack={handleBack}
+                onStart={async () => {
+                    const simDocRef = doc(
+                        db,
+                        "simulationLessonAttempts",
+                        lessonID!,
+                        "simulations",
+                        `sim_${simulationIndex}`
+                    );
+    
+                    await updateDoc(simDocRef, {
+                        completionStatus: "started"
+                    });
+    
+                    setPhase("simulation");
+                }}
+            />
+        );
+    }
+
+    
 
     return (
-        loading ?
-            <GenerationLoadingPage type={"simulation"} />
-        : <div className="sim-page-wrapper">
+        <div className="sim-page-wrapper">
             { openModal && 
                 <div className="attach-overlay">
                     <div className="attach-modal">
@@ -550,5 +599,115 @@ export default function SimulationPage({ role, workspaceID }: { role: "employee"
                     </div>          
             </div>
         </div>
+    );
+}
+
+type BriefingPageProps = {
+    simIdx: number;
+    simData: any; 
+    lessonAttempt: any;
+    moduleTitle: string;
+    onStart: () => void;
+    handleBack: () => void;
+};
+
+function BriefingPage({ simIdx, simData, lessonAttempt, moduleTitle, onStart, handleBack }: BriefingPageProps) {
+    
+    const totalSimulations = 3;
+    const buttonLabel = simData.completionStatus === "not begun" ? "Begin Simulation" : "Continue Simulation";
+
+    return (
+        <main className="briefing-page">
+            <div className="brief-pg-top">
+                <div className="back-to-lessons" onClick={handleBack}>
+                    <img src={left_arrow} />
+                </div>
+                <div className="builder-page-title">
+                    Simulation Modules / {moduleTitle} 
+                    <span className="bold-txt blue-txt">/ Lesson {lessonAttempt.lessonInfo.orderNumber}</span>
+                </div>
+            </div>
+            <div className="briefing-lesson-header-wrapper">
+                <div className="briefing-lesson-header">
+                    <p className="briefing-lesson-label">{lessonAttempt.lessonInfo.orderNumber}. Lesson</p>
+                    <h3 className="briefing-lesson-title">{lessonAttempt.lessonInfo.title}</h3>
+                    <div className="briefing-lesson-meta">
+                        <div className="briefing lesson-skills time">
+                            <span>
+                                <img src={clock_icon} />
+                            </span>
+                            30 min
+                        </div>
+                        <div className="briefing lesson-skills">
+                            <span>Skills</span>
+                            {lessonAttempt.lessonInfo.skills.map((s: any) => (<SkillItem skill={s} role={"employee"} />))}
+                        </div>
+                    </div>
+                </div>
+                <ActionButton buttonType={"play"} text={buttonLabel} onClick={onStart} />
+            </div>
+            <div className="briefing-lesson-content">
+                <div className="sim-progress">
+                    {[...Array(totalSimulations)].map((_, i) => (
+                        <div
+                            key={i}
+                            className={`dot ${i+1 === simIdx ? "active" : ""}`}
+                        />
+                    ))}
+
+                    <span className="sim-text">
+                        Simulation {simIdx} of {totalSimulations}
+                    </span>
+                </div>
+
+                <div className="briefing-section">
+                    <p className="briefing-content-label">Your Customer</p>
+                    <div className="briefing-character-profile">
+                        <div className="briefing-character-dp">
+                            {simData.characterName?.charAt(0)}
+                        </div>
+                        <div className="briefing-character-name">
+                            {simData.characterName}
+                            <p className="briefing-character-label">Your Customer for this Simulation</p>
+                        </div>
+                    </div>
+                </div>
+                <div className="briefing-section">
+                    <p className="briefing-content-label">Premise</p>
+                    {simData.premise}
+                </div>
+                <div className="briefing-section briefing-goals">
+                    <p className="briefing-content-label">Your Goals</p>
+                    {simData.goals.map((g: any) => 
+                        <div className="briefing-goal">
+                            <div className="goals-check">
+                                ✓
+                            </div>
+                            {g}
+                        </div>
+                    )}
+                </div>
+                <div className="briefing-section">
+                    <p className="briefing-content-label">Approximate Time</p>
+                    This simulation should ideally take  
+                    <span className="bold-txt"> 10 minutes </span>. 
+                    However, there is
+                    <span className="bold-txt"> no set time limit</span>. 
+                    You can take as long as you need to help your customer, within a reasonable time limit. 
+                </div>
+            </div>
+            <div className="briefing-footer">
+                <div className="briefing-meta">
+                    <div className="briefing-meta-item">
+                        <img src={voice_msg_icon} />
+                        <span className="bold-txt">Voice simulation — speak directly with {simData.characterName}.</span> Audio is used only for transcription. Your voice recordings are not stored.
+                    </div>
+                    <div className="briefing-meta-item small-type">
+                        <img src={keyboard_icon} />
+                        Prefer typing? You can switch to text at any time during the simulation.
+                    </div>
+                </div>
+            </div>
+        </main>
     );
 }

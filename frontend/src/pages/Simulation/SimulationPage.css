@@ -465,3 +465,177 @@
     margin-top: 5px;
     margin-bottom: 10px;
 }
+
+/* BRIEFING PAGE */
+
+.briefing-page {
+    background-color: white;
+}
+
+.brief-pg-top {
+    display: flex;
+    padding: 10px 7px;
+    gap: 10px;
+    border-bottom: 1px solid #eee;
+}
+
+.bold-txt {
+    font-weight: 500;
+}
+
+.blue-txt {
+    color: #70D2F0;
+}
+
+.briefing-lesson-header-wrapper {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin: 30px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid #eee;
+}
+
+.briefing-lesson-header {
+    display: flex;
+    flex-direction: column;
+}
+
+.briefing-lesson-label {
+    color: rgb(94, 94, 94);
+    font-weight: 500;
+    font-size: 14px;
+    margin: 0;
+}
+
+.briefing-lesson-title {
+    margin: 0;
+    color: black;
+    font-size: 22px;
+}
+
+.briefing-lesson-meta {
+    display: flex;
+    font-size: 12px;
+    gap: 16px;
+    margin-top: 10px;
+}
+
+.briefing-lesson-content {
+    display: flex;
+    flex-direction: column;
+    margin: 30px;
+    padding-bottom: 30px;
+    border-bottom: 1px solid #eee;
+    gap: 20px;
+}
+
+.sim-progress {
+    display: flex;
+    align-items: center;
+    color: #8e8e8e;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.sim-progress .dot {
+    background-color: #c6c6c6;
+}
+
+.sim-progress .dot.active {
+    background-color: #FF4B00;
+}
+
+.briefing-content-label {
+    color: #8e8e8e;
+    font-size: 13px;
+}
+
+.briefing-section {
+    font-size: 14px;
+}
+
+.briefing-character-profile {
+    display: flex;
+    align-items: center;
+    padding: 5px 0 5px 0;
+    gap: 10px;
+}
+
+.briefing-character-dp {
+    background: #ecbfb2;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-weight: 700;
+}
+
+.briefing-character-name {
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.briefing-character-label {
+    font-size: 12px;
+    font-weight: 400;
+}
+
+.briefing-premise {
+    font-size: 14px;
+}
+
+.briefing-goals {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.briefing-goal {
+    font-size: 14px;
+    display: flex;
+    gap: 7px;
+}
+
+.goals-check {
+    color: #FF4B00;
+    height: 20px;
+    width: 20px;
+    border-radius: 50%;
+    background-color: #fff4f1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border: 1px solid #FF4B00;
+    font-size: 11px;
+}
+
+.briefing-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin: 30px;
+    padding-bottom: 30px;
+}
+
+.briefing-meta {
+    display: flex;
+    flex-direction: column;
+}
+
+.briefing-meta-item {
+    display: flex;
+    font-size: 12px;
+    gap: 5px;
+}
+
+.briefing-meta-item img {
+    width: 16px;
+}
+
+.briefing-meta-item.small-type {
+    color: #8e8e8e;
+}
