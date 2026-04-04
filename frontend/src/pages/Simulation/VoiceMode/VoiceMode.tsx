@@ -295,6 +295,26 @@ export default function VoiceMode({ title, idx, lessonAttemptId, simIndex, messa
             behavior: "smooth" 
         });
     };
+
+    const fillers = [
+        "pauses for a moment...",
+        "considers your words...",
+        "glances around the store...",
+        "absorbs what you said...",
+        "glances at the shelves...",
+        "tilts their head, thinking..."
+    ];
+
+    const getRandomFiller = () => {
+        return `${characterName} ${fillers[Math.floor(Math.random() * fillers.length)]}`;
+    };
+
+    const bottomRef = useRef<HTMLDivElement | null>(null);
+    useEffect(() => {
+        bottomRef.current?.scrollIntoView({
+            behavior: "smooth"
+        });
+    }, [messages]);
       
     return (
         <div className="voice-chat">
@@ -319,7 +339,7 @@ export default function VoiceMode({ title, idx, lessonAttemptId, simIndex, messa
                         }}
                     />
                     {isProcessing
-                        ? "Processing your response..."
+                        ? getRandomFiller()
                         : isRecording
                         ? "Your turn"
                         : characterName}
@@ -361,6 +381,7 @@ export default function VoiceMode({ title, idx, lessonAttemptId, simIndex, messa
                                 generalHints={(m.hints && isLast && !isFirst) ? m.hints : null}
                             />)
                             })}
+                            <div ref={bottomRef} />
                         </div>
                     </div>) :
                     (<div className="empty-wrapper">
