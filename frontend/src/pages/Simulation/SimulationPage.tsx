@@ -253,6 +253,15 @@ export default function SimulationPage({ role, workspaceID }: { role: "employee"
             console.error("Auto speak error:", e);
         }
     };
+
+    const stopAudio = () => {
+        if (audioRef.current) {
+            audioRef.current.pause();
+            audioRef.current = null;
+        }
+        setIsSpeaking(false);
+        setVoiceLevel(0);
+    };
     
     const lastCharacterMessageRef = useRef<string | null>(null);
     useEffect(() => {
@@ -314,8 +323,21 @@ export default function SimulationPage({ role, workspaceID }: { role: "employee"
     }, [lessonID, simulationIndex])
 
     const navigate = useNavigate();
-    const handleBack = () => {
+    const handleBack = async () => {
         if (role === "employee") {
+            
+            const simDocRef = doc(
+                db,
+                "simulationLessonAttempts",
+                lessonID!,
+                "simulations",
+                `sim_${simulationIndex}`
+            );
+    
+            await updateDoc(simDocRef, {
+                briefingCompleted: false,
+            });
+
             navigate(`/employee/simulations/${moduleID}`);
             return;
         }
@@ -455,7 +477,13 @@ export default function SimulationPage({ role, workspaceID }: { role: "employee"
     useEffect(() => {
         if (!simData) return;
         if (simData.generationStatus !== "ready") return;
-        setPhase("briefing");
+
+        if (simData.briefingCompleted) {
+            setPhase("simulation");
+        } else {
+            setPhase("briefing");
+        }
+
     }, [simData]);
 
     if (authLoading) {
@@ -484,6 +512,7 @@ export default function SimulationPage({ role, workspaceID }: { role: "employee"
                     );
     
                     await updateDoc(simDocRef, {
+                        briefingCompleted: true,
                         completionStatus: "started"
                     });
     
@@ -493,7 +522,6 @@ export default function SimulationPage({ role, workspaceID }: { role: "employee"
         );
     }
 
-    
     return (
         <div className="sim-page-wrapper">
             { openModal && 
@@ -562,6 +590,8 @@ export default function SimulationPage({ role, workspaceID }: { role: "employee"
                             voiceId={simData?.voice_id}
                             isSpeaking={isSpeaking}
                             voiceLevel={voiceLevel}
+                            onSpeak={(text) => speakAuto(text)}
+                            onStop={stopAudio}
                         /> ) :
                         (<TypeMode 
                             key={`type-${simulationIndex}`} 
@@ -618,6 +648,7 @@ export default function SimulationPage({ role, workspaceID }: { role: "employee"
                                                 <ProgressBar percent={feedbackInfo?.rating * 10} style1={true} hideCompletion={true} />
                                                 <p className="score-content">{feedbackInfo?.content}</p>
                                             </div>
+                                            { feedbackInfo?.strengths.length > 0 && 
                                             <div className="suggestion-section">
                                                 <div className="suggestion-title">
                                                     <div className="green-dot" />
@@ -638,9 +669,8 @@ export default function SimulationPage({ role, workspaceID }: { role: "employee"
                                                             </p>
                                                         </div>
                                                     </div>))}
-                                                
-                                                
-                                            </div>
+                                            </div> }
+
                                             <div className="suggestion-section">
                                                 <div className="suggestion-title">
                                                     <div className="blue-dot" />

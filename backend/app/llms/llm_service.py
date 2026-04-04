@@ -1103,6 +1103,14 @@ class LLMService:
         previous_hints: List[dict] = None,
         previous_product_hints: List[dict] = None,
     ):
+        
+        last_user_message = None
+
+        for msg in reversed(conversation_history):
+            if msg["role"] == "user":
+                last_user_message = msg["content"]
+                break
+        
         message_history = []
 
         for msg in conversation_history:
@@ -1196,6 +1204,8 @@ class LLMService:
             - Reflect the emotional state described in the premise.
             - If difficulty requires pressure or constraints, introduce them naturally.
             - Do NOT evaluate inside this reply.
+            - Remember that this is a simulation inside a web application. The user does not have any physical objects which they can
+            physically show you. Keep your responses realistic within the practical limits of the simulation. 
 
             STEP 2 - NEXT RESPONSE HINTS
 
@@ -1263,7 +1273,7 @@ class LLMService:
             STRENGTHS RULES:
             - You MUST return 2 to 3 strengths only.
             - Do NOT return more than 3.
-            - Do NOT return 0.
+            - Do NOT return 0 or 1.
             - Each strength must be specific to the employee’s latest message.
             - Avoid generic praise (e.g., "Good job", "Nice response").
             - Each strength must clearly tie to one or more evaluation criteria.
@@ -1276,7 +1286,18 @@ class LLMService:
             messages=[
                 {"role": "system", "content": system_message},
                 {"role": "user", "content": context_message},
-                *message_history
+                *message_history,
+                {
+                    "role": "user",
+                    "content": f"""
+                    IMPORTANT: The employee's MOST RECENT message is:
+
+                    "{last_user_message}"
+
+                    You MUST respond directly to THIS message.
+                    Do NOT respond to earlier parts of the conversation.
+                    """
+                }
             ],
             temperature=0.4,
             response_format={"type": "json_object"}

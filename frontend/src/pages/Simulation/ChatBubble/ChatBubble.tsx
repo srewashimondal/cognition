@@ -31,10 +31,10 @@ type ChatBubbleProps = {
     generalHints?: any;
     onShowHints?: () => void;
     voiceId?: string;
-    speaking?: boolean;
+    voiceMode?: boolean;
 };
 
-export default function ChatBubble({ message, className, handleClick, shouldType, stopTyping, onTypingComplete, shouldRegenerate, handleRegenerate, onTypingUpdate, lessons, handleApply, voiceDescription, lessonAttemptId, simIndex, productHints, generalHints, onShowHints, voiceId, speaking }: ChatBubbleProps) {
+export default function ChatBubble({ message, className, handleClick, shouldType, stopTyping, onTypingComplete, shouldRegenerate, handleRegenerate, onTypingUpdate, lessons, handleApply, voiceDescription, lessonAttemptId, simIndex, productHints, generalHints, onShowHints, voiceId, voiceMode }: ChatBubbleProps) {
     if (!message) return null; 
 
     const { role, name, content } = message;
@@ -244,8 +244,9 @@ export default function ChatBubble({ message, className, handleClick, shouldType
                     
                 </div> }
             <div className="chat-bubble-actions">
-                {(role === "character" && !speaking) && (
+                {(role === "character") && (
                     <>
+                        {(!voiceMode) &&
                         <button
                             className={`speak-btn ${isSpeaking ? "speaking" : ""}`}
                             type="button"
@@ -255,7 +256,7 @@ export default function ChatBubble({ message, className, handleClick, shouldType
                         >
                             <img src={speaker_icon} alt="" />
                             {isSpeaking ? "Stop" : "Speak"}
-                        </button>
+                        </button>}
                         {productHints !== null &&
                         <button
                             className="speak-btn"

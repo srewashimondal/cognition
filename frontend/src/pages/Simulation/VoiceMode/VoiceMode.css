@@ -60,11 +60,11 @@
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    font-family: 'Instrument Sans', sans-serif;
-    font-weight: 700;
+    font-weight: 500;
     font-size: 24px;
     gap: 20px;
     margin: 10px;
+    transition: margin-top 0.3s ease;
 }
 
 .voice-circle {
@@ -78,6 +78,14 @@
         #FFE1D5 100%
     );
     margin-top: 10px;
+}
+
+.voice-circle.user-turn {
+    background: radial-gradient(
+        circle at center,
+        #B4F8FF 0%,
+        #E6FBFF 100%
+    );
 }
 
 .voice-receiver.recording {
@@ -99,6 +107,37 @@
 
 .voice-circle.pulse {
     animation: pulse 1.2s ease-in-out infinite;
+}
+
+.resume-btn-wrapper {
+    display: flex;
+    justify-content: center;
+    padding-top: 10px;
+}
+
+.voice-mode-cta {
+    border: 1px solid #eee;
+    background-color: white;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 7px;
+    transition: 0.2s ease;
+}
+
+.voice-mode-cta img {
+    width: 22px;
+}
+
+.voice-mode-cta:hover {
+    border: 1px solid #eee;
+    transform: scale(1.05);
+}
+
+.voice-mode-text {
+    margin-bottom: 20px;
+    color: #999999;
+    text-align: center;
 }
 
 @keyframes pulse {
@@ -127,9 +166,23 @@
 
 .empty-wrapper {
     padding: 30px;
+    padding-top: 10px;
     font-size: 14px;
     font-weight: 500;
     height: 45vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: center;
+    width: 100%;
+}
+
+.voice-mode-actions {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
 }
 
 .scroll-wrapper {
@@ -226,7 +279,7 @@
 }
 
 .scrollable-transcript.voice {
-    height: 80%;
+    height: 60%;
     border-radius: 10px;
     border: 1px solid #eee;
     background-color: #fafafa;
@@ -237,4 +290,41 @@
     display: flex;
     justify-content: space-between;
     margin-bottom: 5px;
+}
+
+.cb-wrapper {
+    width: 100%;
+    display: flex;
+    box-sizing: border-box;
+    padding: 0 24px;
+    opacity: 0;
+    transform: translateY(70px);
+    animation: slideUpFade 0.35s ease forwards;
+    animation-delay: 0.1s;
+}
+
+@keyframes slideUpFade {
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+}
+
+.cb-wrapper.user {
+    justify-content: flex-end;
+}
+
+.cb-wrapper.character {
+    justify-content: flex-start;
+}
+
+.call-center {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+}
+
+.call-center.active .voice-receiver {
+    margin-top: 70px;
 }
