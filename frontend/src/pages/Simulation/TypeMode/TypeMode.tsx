@@ -80,7 +80,7 @@ export default function TypeMode({ title, idx, lessonAttemptId, simIndex, voiceD
             <div className="scroll-wrapper text">
             { (messages.length > 0) ?
                 (<div className="scrollable-transcript text" ref={transcriptRef}>
-                    {messages.filter(m => m.role !== "assistant").map((m, i, arr) => 
+                    {messages.filter(m => m.role !== "assistant").map((m, _, arr) => 
                         {   
                             const shouldType = m.role === "character" && m.id === typingMessageId;
                             const isFirst = m.id === arr[0]?.id;

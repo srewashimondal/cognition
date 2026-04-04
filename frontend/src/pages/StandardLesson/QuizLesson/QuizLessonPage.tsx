@@ -273,6 +273,24 @@ function QuizPage({
                     status: "completed",
                     completedAt: serverTimestamp(),
                 });
+
+                for (const qa of questionAnswers) {
+                    if (typeof qa.answer === "string") {
+                        await fetch("http://127.0.0.1:8000/ai/grade-open-ended", {
+                            method: "POST",
+                            headers: {
+                                "Content-Type": "application/json",
+                            },
+                            body: JSON.stringify({
+                                lesson_attempt_id: lessonAttemptId,
+                                question: qa.question.prompt,
+                                user_answer: qa.answer,
+                                question_id: qa.question.id
+                            }),
+                        });
+                    }
+                }
+
                 if (moduleAttemptRef) {
                     await updateModuleStatus(moduleAttemptRef);
                 }
@@ -283,13 +301,28 @@ function QuizPage({
                         console.error("Error updating learning streak:", err);
                     }
                 }
+
+                const updatedSnap = await getDoc(attemptRef);
+                const updatedData = updatedSnap.data();
+
+                const rebuiltAnswers = (updatedData?.questionAnswers ?? []).map((qa: any) => {
+                    const fullQuestion = lesson?.questions?.find(q => q.id === qa.questionId);
+                
+                    return {
+                        question: fullQuestion,
+                        answer: qa.answer,
+                        aiEvaluation: qa.aiEvaluation ?? null
+                    };
+                });
+
                 onComplete({
-                    questionAnswers,
+                    questionAnswers: rebuiltAnswers,
                     score,
                     passed,
                     correctCount,
                     totalCount,
                 });
+
             } catch (err) {
                 console.error("Error saving quiz attempt:", err);
                 setError("Something went wrong saving your answers. Please try again.");

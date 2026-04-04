@@ -3,7 +3,7 @@ import { useState, useRef, useEffect } from 'react';
 import { getStorage, ref, getDownloadURL } from "firebase/storage";
 import AITranscript from './AITranscript/AITranscript';
 import ChatBubble from '../../Simulation/ChatBubble/ChatBubble';
-import ChatBar from '../../../components/ChatBar/ChatBar';
+// import ChatBar from '../../../components/ChatBar/ChatBar';
 import { Tooltip } from "@radix-ui/themes";
 import send_icon from '../../../assets/icons/chatbar/send-icon.svg';
 import stop_icon from '../../../assets/icons/chatbar/black-stop-icon.svg';
@@ -86,7 +86,7 @@ export default function VideoLessonPage({ lessonAttempt, lesson, handleBack, mod
             const q = query(messagesRef, orderBy("timestamp", "asc"));
             const snapshot = await getDocs(q);
 
-            const loadedMessages: MessageType[] = snapshot.docs.map((docSnap, index) => {
+            const loadedMessages: MessageType[] = snapshot.docs.map((docSnap) => {
                 const data = docSnap.data();
                 return {
                     id: docSnap.id,

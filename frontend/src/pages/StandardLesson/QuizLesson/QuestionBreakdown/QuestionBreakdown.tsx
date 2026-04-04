@@ -4,10 +4,11 @@ import type { QuestionAttemptType } from '../../../../types/Standard/QuizQuestio
 import green_check from '../../../../assets/icons/quiz/green-checkplus-icon.svg';
 import red_x from '../../../../assets/icons/quiz/red-x-circle-icon.svg';
 import chevron_down from '../../../../assets/icons/black-down-chevron.svg';
+import ai_icon from '../../../../assets/icons/simulations/black-ai-icon.svg';
 
 export default function QuestionBreakdown({ idx, questionAttempt }: { idx: number, questionAttempt: QuestionAttemptType}) {
     const [expanded, setExpanded] = useState(false);
-    const { question, answer } = questionAttempt;
+    const { question, answer, aiEvaluation } = questionAttempt;
     const questionType = question.type;
     const correct = (() => {
         switch (question.type) {
@@ -27,7 +28,7 @@ export default function QuestionBreakdown({ idx, questionAttempt }: { idx: numbe
             return answer === question.correctAnswer;
 
             case "open ended":
-            return true;
+            return (aiEvaluation?.score ?? 0) >= 7;;
 
             default:
             return false;
@@ -75,7 +76,7 @@ export default function QuestionBreakdown({ idx, questionAttempt }: { idx: numbe
             <div className="question-breakdown-item-top">
                 <div className="question-breakdown-item-top-right">
                     <span>
-                        <img src={correct ? green_check : red_x} />
+                        <div className={`${correct ? "strengths-check" : "wrong-x"} quiz`}>{correct ? "✓" : "✗"}</div>
                     </span>
                     Question { idx }
                 </div>
@@ -91,12 +92,23 @@ export default function QuestionBreakdown({ idx, questionAttempt }: { idx: numbe
                                 {renderCorrectChoice()}
                             </div>
                         </div>    
-                        {(!correct) &&
+                        {(!correct && questionType !== "open ended") &&
                             <div className="answers-wrapper">
                                 <p>Your Answer:</p>
                                 {renderIncorrectChoice()}
                             </div>
                         }
+                        {questionType === "open ended" && aiEvaluation && (
+                            <div className="ai-feedback">
+                                <strong>
+                                    <span>
+                                        <img src={ai_icon} />
+                                    </span>
+                                    AI Feedback
+                                </strong> 
+                                <p>{aiEvaluation.feedback}</p>
+                            </div>
+                        )}
                     </div>
                 </div>
             }

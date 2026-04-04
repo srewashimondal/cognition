@@ -6,7 +6,7 @@ export type StoredQuestionAnswer = {
   answer: number | boolean | string;
 };
 
-export function isAnswerCorrect(question: QuizQuestionType, answer: number | boolean | string): boolean {
+export function isAnswerCorrect(question: QuizQuestionType, answer: number | boolean | string, aiEvaluation: { score: number }): boolean {
   switch (question.type) {
     case 'mcq':
       if (question.allowMultiple) {
@@ -20,7 +20,7 @@ export function isAnswerCorrect(question: QuizQuestionType, answer: number | boo
       return answer === question.correctAnswer;
 
     case 'open ended':
-      return true;
+      return (aiEvaluation?.score ?? 0) >= 7;
 
     default:
       return false;
@@ -36,7 +36,7 @@ export function computeQuizScore(
   if (totalCount === 0) {
     return { score: 0, passed: false, correctCount: 0, totalCount: 0 };
   }
-  const correctCount = questionAnswers.filter((a) => isAnswerCorrect(a.question, a.answer)).length;
+  const correctCount = questionAnswers.filter((a) => isAnswerCorrect(a.question, a.answer, a.aiEvaluation)).length;
   const score = Math.round((correctCount / totalCount) * 100);
   const passed = score >= passingScorePercent;
   return { score, passed, correctCount, totalCount };

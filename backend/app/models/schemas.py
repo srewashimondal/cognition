@@ -140,3 +140,9 @@ class ProductSearchRequest(BaseModel):
 class ElevenLabsTTSRequest(BaseModel):
     voice_id: str
     text: str
+
+class GradeRequest(BaseModel):
+    lesson_attempt_id: str
+    question: str
+    user_answer: str
+    question_id: int 

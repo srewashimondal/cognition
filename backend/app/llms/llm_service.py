@@ -12,6 +12,9 @@ class LLMService:
     def __init__(self):
         self.client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
+    def _format_transcript(self, segments: List[dict]) -> str:
+        return "\n".join([seg.get("text", "") for seg in segments])
+
     def download_video_from_storage(self, video_path: str) -> str:
         """
         Download video from Firebase Storage to a temporary file
@@ -1305,3 +1308,69 @@ class LLMService:
 
         parsed = json.loads(response.choices[0].message.content)
         return parsed
+    
+    def generate_quiz_evaluation(self, question: str, user_answer: str, transcript_segments: List[dict]):
+
+        prompt = f"""
+            You are evaluating a trainee’s answer based on training material.
+
+            QUESTION:
+            {question}
+
+            TRAINEE ANSWER:
+            {user_answer}
+
+            TRAINING MATERIAL (REFERENCE):
+            {self._format_transcript(transcript_segments)}
+
+            ---
+
+            TASK:
+            Grade the trainee’s answer out of 10.
+
+            Guidelines:
+            - Focus on how well the answer aligns with the training material.
+            - Do NOT be overly harsh — this is for training, not school.
+            - Give partial credit for partially correct ideas.
+            - Reward answers that:
+                - clearly reflect the material
+                - include relevant details
+                - go slightly beyond the material in a thoughtful way
+            - Penalize only if:
+                - the answer is incorrect
+                - completely off-topic
+                - missing key ideas
+
+
+            GRADING RUBRIC: 
+            0-3: incorrect or irrelevant  
+            4-6: partially correct  
+            7-8: mostly correct  
+            9-10: strong and well-supported
+
+            ---
+
+            OUTPUT FORMAT (STRICT):
+            Return ONLY valid JSON:
+
+            {{
+                "score": <number between 0 and 10>,
+                "feedback": "<1-2 sentence explanation>"
+            }}
+        """
+
+        response = self.client.chat.completions.create(
+            model="gpt-4o-mini",
+            messages=[{"role": "user", "content": prompt}],
+            temperature=0.3 
+        )
+
+        content = response.choices[0].message.content
+
+        try:
+            return json.loads(content)
+        except:
+            return {
+                "score": 5,
+                "feedback": "Could not properly evaluate response."
+            }

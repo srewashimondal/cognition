@@ -24,4 +24,5 @@ export type QuizQuestionType = MCQType | TrueFalseQuestionType | OpenEndedQuesti
 export type QuestionAttemptType = {
     question: QuizQuestionType;
     answer: number | boolean | string;
+    aiEvaluation?: any;
 };

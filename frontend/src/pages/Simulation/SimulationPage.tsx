@@ -14,7 +14,6 @@ import type { ResourceItem } from '../EmployerDashBoard/Resources/Resources';
 import type { LessonAttemptType } from '../../types/Modules/Lessons/LessonAttemptType';
 import type { ModuleType } from '../../types/Modules/ModuleType';
 // dummy data
-import { moduleAttempts } from '../../dummy_data/modulesAttempt_data';
 import black_lines_icon from '../../assets/icons/simulations/black-lines-icon.svg';
 import black_ai_icon from '../../assets/icons/simulations/black-ai-icon.svg';
 import grey_lines_icon from '../../assets/icons/simulations/grey-lines-icon.svg';
@@ -325,7 +324,7 @@ export default function SimulationPage({ role, workspaceID }: { role: "employee"
     const navigate = useNavigate();
     const handleBack = async () => {
         if (role === "employee") {
-            
+
             const simDocRef = doc(
                 db,
                 "simulationLessonAttempts",

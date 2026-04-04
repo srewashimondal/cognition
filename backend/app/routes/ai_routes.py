@@ -1372,3 +1372,81 @@ async def search_products(request: ProductSearchRequest):
     except Exception as e:
         print("Product search failed: ", e)
         raise HTTPException(status_code=500, detail="Product search failed")
+    
+
+@router.post("/grade-open-ended")
+async def grade_open_ended(req: GradeRequest):
+    try:
+        print("[1] Getting lesson attempt from Firebase")
+        lesson_attempt_ref = db.collection("standardLessonAttempts").document(req.lesson_attempt_id)
+        lesson_attempt_doc = lesson_attempt_ref.get()
+
+        if not lesson_attempt_doc.exists:
+            return {"error": "Lesson attempt not found"}
+
+        lesson_attempt_data = lesson_attempt_doc.to_dict()
+
+        lesson_ref = lesson_attempt_data["lessonInfo"]   # reference
+        module_ref = lesson_attempt_data["moduleRef"]    # reference
+
+        print("[2] Get Quiz Lesson info")
+        lesson_doc = lesson_ref.get()
+        lesson_data = lesson_doc.to_dict()
+
+        quiz_order = lesson_data.get("orderNumber")
+
+        print("[3] Get Module Lessons")
+        module_doc = module_ref.get()
+        module_data = module_doc.to_dict()
+
+        lesson_refs = module_data.get("lessonRefs", [])
+
+        transcript_segments = []
+
+        print("[4] Looping through lessons")
+        for ref in lesson_refs:
+            lesson = ref.get()
+            if not lesson.exists:
+                continue
+
+            data = lesson.to_dict()
+
+            if data.get("type") != "video":
+                continue
+
+            if data.get("orderNumber", 999) >= quiz_order:
+                continue
+
+            transcript = data.get("transcript", [])
+            transcript_segments.extend(transcript)
+
+        print("[6] Call grading")
+        result = llm.generate_quiz_evaluation(
+            question=req.question,
+            user_answer=req.user_answer,
+            transcript_segments=transcript_segments
+        )
+
+        print("[7] Save grade in Firebase")
+        question_answers = lesson_attempt_data.get("questionAnswers", [])
+        updated = False
+
+        for qa in question_answers:
+            if qa.get("questionId") == req.question_id:
+                qa["aiEvaluation"] = {
+                    "score": result.get("score"),
+                    "feedback": result.get("feedback")
+                }
+                updated = True
+                break
+
+        if not updated:
+            return {"error": "Question not found in attempt"}
+
+        lesson_attempt_ref.update({
+            "questionAnswers": question_answers
+        })
+
+    except Exception as e:
+        print("ERROR:", e)
+        return {"error": "Failed to grade response"}
