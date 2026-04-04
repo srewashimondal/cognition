@@ -1,7 +1,8 @@
 .video-lesson-page {
     display: flex;
     width: 100%;
-    height: 95vh;
+    height: calc(100vh - 64px);
+    overflow: hidden;
 }
 
 .back-to-lessons.video {
@@ -14,6 +15,8 @@
     background-color: #ffffff;
     border-right: 1px solid #eee;
     padding: 18px;
+    overflow-y: auto;
+    height: 100%;
 }
 
 .video-lesson-header {
@@ -119,26 +122,23 @@
 .ai-transcript-wrapper {
     display: flex;
     justify-content: center;
-    padding: 12px;
     flex-direction: column;
-    height: 35vh;
 }
 
 .section-summaries {
     display: flex;
     align-items: stretch;
     flex-direction: column;
-    padding: 10px;
-    padding-top: 10px;
+    padding-top: 0;
     width: 30%;
-    height: 95vh;
     /*position: fixed;*/
-    top: 64px;
     right: 0;
     /*height: calc(100vh - 64px);*/
-    overflow-y: auto;
-    overflow-x: hidden;
-    padding-left: 30px;
+    overflow: hidden;
+    background-color: #ffffff;
+    position: relative;
+    height: calc(100vh - 64px);
+    position: relative;
 }
 
 .section-summaries h3 {
@@ -150,42 +150,78 @@
 .summary-tab {
     display: flex;
     flex-direction: row;
-    justify-content: space-between;
     align-items: center;
     width: 100%;
-    padding: 10px;
+    padding: 13px;
     font-weight: 500;
     cursor: pointer;
-    border-radius: 5px;
+    border-top: 1px solid #eee;
+    justify-content: space-between;
 }
 
 .summary-tab:hover {
-    background-color: #ffece7;
+    background-color: #eee;
+}
+
+
+
+.summary-left-wrapper {
+    display: flex;
+
 }
 
 .summary-left {
     display: flex;
-    flex-direction: row;
     justify-content: flex-start;
-    align-items: center;
+    height: 100%;
 }
 
 .summary-number {
-    font-size: 20px;
+    font-size: 10px;
     padding: 10px;
-    width: 30px;
-    height: 30px;
+    width: 20px;
+    height: 20px;
     display: flex;
     justify-content: center;
     align-items: center;
     border-radius: 50%;
-    background-color: #FFC4AC;
+    background-color: #FAD9CC;
+    color: #E85D2F;
 }
 
 .summary-title {
     font-size: 12px;
     margin-left: 20px;
     text-align: left;
+    font-weight: 500;
+    height: 100%;
+}
+
+.summary-title h4, .summary-title p {
+    margin: 0;
+}
+
+.summary-title h4 {
+    font-size: 12px;
+    font-weight: 500;
+}
+
+.summary-title p {
+    font-weight: 400;
+    font-size: 10px;
+    font-family: monospace;
+    color: #888;
+}
+
+.summary-right {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    height: 100%;
+}
+
+.summary-right img {
+    width: 22px;
 }
 
 
@@ -194,8 +230,9 @@
     display: flex;
     flex-direction: column;
     width: 100%;
-    justify-content: space-between;
+    justify-content: flex-start;
     height: 100%;
+    overflow: hidden;
 }
 
 .selected-summary-chat .summary-title {
@@ -211,9 +248,10 @@
 }
 
 .selected-summary-chat .ai-panel-chat-space {
-    height: 70%;
+    flex: 1;
     overflow-y: auto;     
     min-height: 0;
+    background-color: #fafafa;
 }
 
 .view-transcript-btn-wrapper {
@@ -242,8 +280,9 @@
     justify-content: space-between;
     align-items: center;
     font-size: 15px;
-    margin-top: 10px;
-    font-weight: 600;
+    margin: 10px;
+    font-weight: 500;
+    color: #999;
 }
 
 .ai-side-title.smaller {
@@ -255,4 +294,73 @@
     width: 40%;
     padding: 3px 0px;
     font-size: 11px;
+}
+
+.back-to-sections {
+    color: #FF4B00;
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    font-size: 13px;
+    font-weight: 600;
+    padding: 5px;
+    gap: 5px;
+    padding-left: 7px;
+}
+
+.back-to-sections img {
+    width: 14px;
+}
+
+.back-to-sections:hover {
+    text-decoration: underline;
+    cursor: pointer;
+}
+
+.summary-title-wrapper {
+    padding: 10px;
+    padding-top: 0;
+    border-bottom: 1px solid #eee;
+}
+
+.transcript-icon {
+    display: flex;
+    width: 30px;
+    height: 30px;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid #eee;
+    border-radius: 5px;
+    background-color: #fafafa;
+}
+
+.transcript-icon img {
+    width: 16px;
+}
+
+.summary-title.transcript h4 {
+    font-weight: 400;
+    color: #4b4b4b;
+}
+
+.summary-title.transcript p {
+    font-weight: 400;
+    font-family: 'Instrument Sans';
+    color: #888;
+}
+
+.summary-chatbar-wrapper {
+    display: flex;
+    background-color: white;
+    border-top: 1px solid #eee;
+    width: 100%;
+    flex-shrink: 0;
+    margin-bottom: 35px;
+}
+
+.selected-top {
+    background-color: white;
+    width: 100%;
+    flex-shrink: 0;
+    padding-top: 10px;
 }

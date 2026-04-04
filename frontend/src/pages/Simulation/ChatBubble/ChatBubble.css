@@ -100,7 +100,6 @@
 .chat-bubble.assistant {
     padding: 10px;
     width: 100%;
-    border-radius: 7px;
 }
 
 .reply-rating {
@@ -277,13 +276,17 @@
     gap: 6px;
     padding: 6px 10px;
     border-radius: 7px;
-    border: 1px solid #d7d7d7;
+    border: 1px solid #eee;
     background: white;
     color: #111;
     font-size: 12px;
     cursor: pointer;
     transition: 0.15s ease;
     margin-left: 14px;
+}
+
+.speak-btn.regenerate {
+    margin-left: 0;
 }
 
 .speak-btn img {

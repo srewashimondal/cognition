@@ -4,12 +4,16 @@ import { getStorage, ref, getDownloadURL } from "firebase/storage";
 import AITranscript from './AITranscript/AITranscript';
 import ChatBubble from '../../Simulation/ChatBubble/ChatBubble';
 import ChatBar from '../../../components/ChatBar/ChatBar';
+import { Tooltip } from "@radix-ui/themes";
+import send_icon from '../../../assets/icons/chatbar/send-icon.svg';
+import stop_icon from '../../../assets/icons/chatbar/black-stop-icon.svg';
 import type { StandardLessonAttempt } from '../../../types/Standard/StandardAttempt';
 import type { VideoLessonType } from '../../../types/Standard/StandardLessons';
 import type { MessageType } from '../../../types/Modules/Lessons/Simulations/MessageType';
 import left_arrow from '../../../assets/icons/orange-left-arrow.svg';
 import play_button from '../../../assets/icons/video-play-icon.svg';
 import right_chevron from '../../../assets/icons/chevron-right-icon.svg';
+import form_icon from '../../../assets/icons/form-icon.svg';
 import { getAuth } from "firebase/auth";
 const auth = getAuth();
 import { collection, query, orderBy, getDocs, deleteDoc, doc, updateDoc, serverTimestamp, getDoc } from "firebase/firestore";
@@ -53,6 +57,11 @@ export default function VideoLessonPage({ lessonAttempt, lesson, handleBack, mod
     useEffect(() => {
         const unsubscribe = auth.onAuthStateChanged((u) => setCurrentUser(u));
         return () => unsubscribe();
+    }, []);
+
+    useEffect(() => {
+        document.body.classList.add('no-scroll');
+        return () => document.body.classList.remove('no-scroll');
     }, []);
 
     const lessonAttemptRef = doc(
@@ -313,6 +322,11 @@ export default function VideoLessonPage({ lessonAttempt, lesson, handleBack, mod
         if (!el) return;
         el.scrollTop = el.scrollHeight;
     };
+
+    const handleStop = () => {
+        setStopTyping(true);      
+        setTypingMessageId(null);  
+    };
     
     return (
         <div className="video-lesson-page">
@@ -362,48 +376,89 @@ export default function VideoLessonPage({ lessonAttempt, lesson, handleBack, mod
             </div>
             { (lesson?.allowSummary || lesson?.allowTranscript) &&
             <div className="section-summaries">
-                {(selectedSummary) ? 
+                {(selectedSummary || showTranscript) ? 
                 <div className="selected-summary-chat">
-                    <div className="back-to-lessons" onClick={() => setSelectedSummaryIdx(null)}>
-                        <img src={left_arrow} />
-                    </div>
-                    <div className="summary-left">
-                        <div className="summary-number">{(selectedSummaryIdx ?? 0) + 1}</div>
-                        <div className="summary-title">
-                            {selectedSummary.title} ({formatTime(selectedSummary.start)}-{formatTime(selectedSummary.end)})
+                    <div className="selected-top">
+                        <div className="back-to-sections" onClick={() => {setSelectedSummaryIdx(null); setShowTranscript(false);}}>
+                            <img src={left_arrow} /> All Sections
+                        </div>
+                        <div className="summary-title-wrapper">
+                            <div className="summary-title">
+                                <h4>{selectedSummary && selectedSummary.title}</h4> 
+                                <h4>{showTranscript && "AI Transcript"}</h4> 
+                                <p>{selectedSummary && `${formatTime(selectedSummary.start)}-${formatTime(selectedSummary.end)}`}</p>
+                            </div>
                         </div>
                     </div>
-                    <div className="ai-panel-chat-space" ref={transcriptRef}>
-                        <ChatBubble key={selectedSummary.id} message={selectedSummary.canonicalSummary} 
-                        className={"first-message"}
-                        />
-                        {chatMessages.length === 0 && <div className="scroll-spacer" />}
-                        {chatMessages.map((m, i, arr) => {
-                            const isLast = i === arr.length - 1;
-                            const shouldType = m.role === "assistant" && m.id === typingMessageId;
-                            return (<ChatBubble key={m.id} message={m} shouldType={shouldType} stopTyping={stopTyping} onTypingComplete={() => {setTypingMessageId(null); setStopTyping(false);}}
-                            className={isLast ? "last-message" : i === 0 ? "first-message" : ""} shouldRegenerate={isLast && canRegenerate} handleRegenerate={handleRegenerate} onTypingUpdate={scrollToBottom}/>)}
-                        )}
+                    { (selectedSummary) &&
+                        <>
+                            <div className="ai-panel-chat-space" ref={transcriptRef}>
+                                <ChatBubble key={selectedSummary.id} message={selectedSummary.canonicalSummary} 
+                                className={"first-message"}
+                                />
+                                {chatMessages.length === 0 && <div className="scroll-spacer" />}
+                                {chatMessages.map((m, i, arr) => {
+                                    const isLast = i === arr.length - 1;
+                                    const shouldType = m.role === "assistant" && m.id === typingMessageId;
+                                    return (<ChatBubble key={m.id} message={m} shouldType={shouldType} stopTyping={stopTyping} onTypingComplete={() => {setTypingMessageId(null); setStopTyping(false);}}
+                                    className={isLast ? "last-message" : i === 0 ? "first-message" : ""} shouldRegenerate={isLast && canRegenerate} handleRegenerate={handleRegenerate} onTypingUpdate={scrollToBottom}/>)}
+                                )}
 
-                        {isLoading && (
-                            <div className="chat-bubble-wrapper assistant">
-                                <span className="role-text">Cognition</span>
-                                <div className="chat-bubble assistant loading-bubble">
-                                    <div className="spinner" />
-                                </div>
+                                {isLoading && (
+                                    <div className="chat-bubble-wrapper assistant">
+                                        <span className="role-text">Cognition</span>
+                                        <div className="chat-bubble assistant loading-bubble">
+                                            <div className="spinner" />
+                                        </div>
+                                    </div>
+                                )}
                             </div>
-                        )}
+                            <div className="summary-chatbar-wrapper">
+                                {/*<ChatBar context={"summary"} userInput={userInput} setUserInput={setUserInput} 
+                                handleSend={handleSend} typingMessageId={typingMessageId} handleStop={() => {setStopTyping(true); setTypingMessageId(null);}}/>*/}
+                                <div className="simulation-chatbar">
+                                    <textarea placeholder="Any questions?" value={userInput} 
+                                    onChange={(e) => setUserInput(e.target.value)}
+                                    onKeyDown={(e) => {
+                                    if (e.key === "Enter" && !e.shiftKey) {
+                                        e.preventDefault();
+                                        handleSend();
+                                    }}} />
+                                </div>
+                                <Tooltip content={typingMessageId !== null ? "Stop" : "Send"}>
+                                    <div className="simulation-chatbar-cta" 
+                                        onClick={() => {
+                                            if (typingMessageId !== null) {
+                                                handleStop();
+                                                return;
+                                            }
+                                        
+                                            handleSend();
+                                        }}
+                                    >
+                                        <img
+                                            src={
+                                                typingMessageId !== null
+                                                ? stop_icon
+                                                : send_icon
+                                            }
+                                        />
+                                    </div>
+                                </Tooltip>
+                            </div>
+                        </>}
+                        { showTranscript &&
+                            <div className="ai-transcript-wrapper">
+                                <AITranscript transcript={lesson.transcript ?? []} currentTime={currentTime} videoRef={videoRef} 
+                                isVisible={showTranscript}/> {/* isVisible={currentTab === "AI Transcript"} */}
+                            </div> 
+                        }
                     </div>
-                    <div className="builder-chat-wrapper">
-                        <ChatBar context={"summary"} userInput={userInput} setUserInput={setUserInput} 
-                        handleSend={handleSend} typingMessageId={typingMessageId} handleStop={() => {setStopTyping(true); setTypingMessageId(null);}}/>
-                    </div>
-                </div>
                 : 
                 <>
                 { lesson.allowSummary &&
                     <>
-                    <div className="ai-side-title">Section-based AI Summaries</div>
+                    <div className="ai-side-title">AI Summaries</div>
                         {lesson.summaries?.map((s, i) => 
                             <div className="summary-tab" 
                                 onClick={() => {
@@ -414,38 +469,46 @@ export default function VideoLessonPage({ lessonAttempt, lesson, handleBack, mod
                                         setIsPlaying(true);}
                                 }}
                             >
-                                <div className="summary-left">
-                                    <div className="summary-number">{i + 1}</div>
+                                
+                                <div className="summary-left-wrapper">
+                                    <div className="summary-left">
+                                        <div className="summary-number">{i + 1}</div>
+                                    </div>
+                                    
                                     <div className="summary-title">
-                                        {s.title} ({formatTime(s.start)}-{formatTime(s.end)})
+                                        <h4>{s.title}</h4>
+                                        <p>{formatTime(s.start)}-{formatTime(s.end)}</p>
                                     </div>
                                 </div>
-                                <div>
+                                <div className="summary-right">
                                     <img src={right_chevron} />
                                 </div>
+                              
                             </div>
                         )}
                     </>}
-                { (showTranscript) ?
-                    <>
-                        <div className="ai-side-title smaller">
-                            AI Transcript
-                            <button className="view-transcript-btn" type="button" onClick={() => setShowTranscript(false)}>
-                                Hide Transcript
-                            </button>
-                        </div>
-                        <div className="ai-transcript-wrapper">
-                            <AITranscript transcript={lesson.transcript ?? []} currentTime={currentTime} videoRef={videoRef} 
-                            isVisible={showTranscript}/> {/* isVisible={currentTab === "AI Transcript"} */}
+            
+                     {lesson.allowTranscript &&
+                        <div className="summary-tab transcript" 
+                        onClick={() => setShowTranscript(true)}
+                        >
+                            <div className="summary-left-wrapper">
+                                <div className="summary-left">
+                                    <div className="transcript-icon">
+                                        <img src={form_icon} />
+                                    </div>
+                                </div>
+                                <div className="summary-title transcript">
+                                    <h4>View transcript</h4>
+                                    <p>Full lesson text</p>
+                                </div>
+                            </div>
+                            <div className="summary-right">
+                                <img src={right_chevron} />
+                            </div>
                         </div> 
-                    </>:
-                    <div className="view-transcript-btn-wrapper">
-                        { lesson.allowTranscript &&
-                        <button className="view-transcript-btn" type="button" onClick={() => setShowTranscript(true)}>
-                            View Transcript
-                        </button>}
-                    </div> 
-                }
+                    }
+                  
                 </>
                 }
             </div> }

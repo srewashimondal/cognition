@@ -8,8 +8,7 @@ import type { MessageType } from '../../../types/Modules/Lessons/Simulations/Mes
 import type { LessonType } from '../../../types/Modules/Lessons/LessonType';
 import orange_wand from '../../../assets/icons/orange-wand-icon.svg';
 import white_wand from '../../../assets/icons/white-wand-icon.svg';
-import orange_refresh from '../../../assets/icons/orange-refresh-icon.svg';
-import white_refresh from '../../../assets/icons/white-refresh-icon.svg';
+import black_refresh from '../../../assets/icons/black-refresh-icon.svg';
 import speaker_icon from '../../../assets/icons/speaker.svg';
 
 type ChatBubbleProps = {
@@ -288,11 +287,8 @@ export default function ChatBubble({ message, className, handleClick, shouldType
                     </button>
                 }
                 {role === "assistant" && className === "last-message" && shouldRegenerate &&
-                <button className="regenerate-btn" onClick={() => handleRegenerate?.()}>
-                    <div className="wand-swap">
-                        <img className="wand-icon default" src={white_refresh} />
-                        <img className="wand-icon hover" src={orange_refresh} />
-                    </div>
+                <button className="speak-btn regenerate" onClick={() => handleRegenerate?.()}>
+                    <img src={black_refresh} />
                     Regenerate
                 </button>}
             </div>

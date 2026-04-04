@@ -32,6 +32,11 @@ body {
   line-height: var(--readability-line-height, 1.5);
 }
 
+body.no-scroll {
+  overflow: hidden;
+  height: 100%;
+}
+
 .dashboard .content,
 .dashboard .content p,
 .settings-page .section-subtitle,
