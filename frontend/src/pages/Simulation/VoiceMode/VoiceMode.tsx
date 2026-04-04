@@ -18,9 +18,13 @@ type VoiceModeProps = {
     handleSendMessage: (text: string) => void;
     characterName: string;
     voiceDescription?: string;
+    voiceId?: string;
+    isSpeaking?: boolean;
+    voiceLevel?: number;
+    onSpeak?: (text: string) => void;
 };
 
-export default function VoiceMode({ title, idx, lessonAttemptId, simIndex, messages, switchType, handleBack, handleClick, handleSendMessage, characterName, voiceDescription }: VoiceModeProps) {
+export default function VoiceMode({ title, idx, lessonAttemptId, simIndex, messages, switchType, handleBack, handleClick, handleSendMessage, characterName, voiceDescription, voiceId, isSpeaking, voiceLevel }: VoiceModeProps) {
     const transcriptRef = useRef<HTMLDivElement | null>(null);
     const [isRecording, setIsRecording] = useState(false);
     const [isProcessing, setIsProcessing] = useState(false);
@@ -108,7 +112,16 @@ export default function VoiceMode({ title, idx, lessonAttemptId, simIndex, messa
                 <h3>{title} ({idx} of 3)</h3>
             </div>
             <div className={`voice-receiver ${isRecording ? "recording" : ""}`} onClick={handleToggleRecording}>
-                <div className={`voice-circle ${isRecording ? "pulse" : ""} ${isProcessing ? "processing" : ""}`} />
+                <div className={`voice-circle 
+                    ${isRecording ? "pulse" : ""} 
+                    ${isProcessing ? "processing" : ""}`} 
+                    style={{
+                        transform: isSpeaking
+                          ? `scale(${1 + (voiceLevel ?? 0) * 0.8})`
+                          : "scale(1)",
+                        transition: "transform 0.1s linear"
+                    }}
+                />
                 {isProcessing
                     ? "Processing..."
                     : isRecording
@@ -135,9 +148,11 @@ export default function VoiceMode({ title, idx, lessonAttemptId, simIndex, messa
                             className={i === arr.length - 1 ? "last-message" : i === 0 ? "first-message": ""}
                             handleClick={() => handleClick(m.id)} 
                             voiceDescription={voiceDescription}
+                            voiceId={voiceId}
                             lessonAttemptId={lessonAttemptId} 
                             simIndex={simIndex} 
                             onShowHints={scrollToBottom} 
+                            speaking={isSpeaking}
                             productHints={(m.productHints && isLast && !isFirst) ? m.productHints : null}
                         />)
                         })}

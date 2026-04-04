@@ -23,9 +23,10 @@ type TypeModeProps = {
     typingMessageId: string | null;
     name: string;
     generalHints?: any;
+    voiceId?: string;
 };
 
-export default function TypeMode({ title, idx, lessonAttemptId, simIndex, voiceDescription, messages, switchType, handleBack, handleClick, handleSendMessage, onTypingComplete, typingMessageId, name }: TypeModeProps) {
+export default function TypeMode({ title, idx, lessonAttemptId, simIndex, voiceDescription, messages, switchType, handleBack, handleClick, handleSendMessage, onTypingComplete, typingMessageId, name, voiceId }: TypeModeProps) {
     const transcriptRef = useRef<HTMLDivElement | null>(null);
     const [userInput, setUserInput] = useState("");
     const [isLoading, setIsLoading] = useState(false);
@@ -92,6 +93,7 @@ export default function TypeMode({ title, idx, lessonAttemptId, simIndex, voiceD
                                 handleClick={() => handleClick(m.id)} 
                                 productHints={(m.productHints && isLast && !isFirst) ? m.productHints : null}         
                                 shouldType={shouldType} 
+                                voiceId={voiceId}
                                 onTypingComplete={onTypingComplete} 
                                 onShowHints={scrollToBottom} 
                                 voiceDescription={voiceDescription} 

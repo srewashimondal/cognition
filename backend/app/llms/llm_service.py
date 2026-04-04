@@ -1261,8 +1261,8 @@ class LLMService:
             }}
 
             STRENGTHS RULES:
-            - You MUST return 1 to 2 strengths only.
-            - Do NOT return more than 2.
+            - You MUST return 2 to 3 strengths only.
+            - Do NOT return more than 3.
             - Do NOT return 0.
             - Each strength must be specific to the employee’s latest message.
             - Avoid generic praise (e.g., "Good job", "Nice response").

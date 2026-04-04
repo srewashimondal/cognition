@@ -171,6 +171,88 @@ export default function SimulationPage({ role, workspaceID }: { role: "employee"
       
         ensureSimulationExists();
     }, [lessonID, simulationIndex, lessonAttempt]);
+
+
+    const audioRef = useRef<HTMLAudioElement | null>(null);
+    const [isSpeaking, setIsSpeaking] = useState(false);
+    const [voiceLevel, setVoiceLevel] = useState(0);
+    const speakAuto = async (rawText: any) => {
+        try {
+
+            if (audioRef.current) {
+                audioRef.current.pause();
+                audioRef.current = null;
+            }
+            
+            setIsSpeaking(true);
+
+            // const rawText = typeof message.content === "string" ? message.content : "";
+            const text = rawText
+                .replace(/\n{3,}/g, "\n\n")
+                .replace(/\*\*([^*]+)\*\*/g, "$1")
+                .replace(/\*([^*]+)\*/g, "$1")
+                .replace(/__([^_]+)__/g, "$1")
+                .replace(/_([^_]+)_/g, "$1")
+                .replace(/\[([^\]]+)\]\([^)]+\)/g, "$1")
+                .trim();
+
+            if (!text) return;
+
+            const resp = await fetch("http://127.0.0.1:8000/ai/tts-elevenlabs", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    voice_id: simData?.voice_id,
+                    text
+                })
+            });
+
+            if (!resp.ok) return;
+
+            const url = URL.createObjectURL(await resp.blob());
+            const audio = new Audio(url);
+            audioRef.current = audio;
+
+            const audioCtx = new AudioContext();
+            const source = audioCtx.createMediaElementSource(audio);
+            const analyser = audioCtx.createAnalyser();
+
+            source.connect(analyser);
+            analyser.connect(audioCtx.destination);
+
+            analyser.fftSize = 256;
+            const dataArray = new Uint8Array(analyser.frequencyBinCount);
+
+            const getVolume = () => {
+                analyser.getByteFrequencyData(dataArray);
+            
+                let sum = 0;
+                for (let i = 0; i < dataArray.length; i++) {
+                    sum += dataArray[i];
+                }
+            
+                const avg = sum / dataArray.length;
+                const normalized = avg / 255;
+            
+                setVoiceLevel(normalized);
+            
+                requestAnimationFrame(getVolume);
+            };
+
+            audio.onended = () => {
+                URL.revokeObjectURL(url);
+                audioRef.current = null;
+                setIsSpeaking(false);
+                setVoiceLevel(0);
+            };
+            
+            getVolume();
+            await audio.play();
+
+        } catch (e) {
+            console.error("Auto speak error:", e);
+        }
+    };
     
     const lastCharacterMessageRef = useRef<string | null>(null);
     useEffect(() => {
@@ -209,7 +291,7 @@ export default function SimulationPage({ role, workspaceID }: { role: "employee"
         );
     
         return () => unsub();
-    }, [lessonID, simulationIndex]);
+    }, [lessonID, simulationIndex, voiceMode, simData]);
 
     useEffect(() => {
         if (!lessonID) return;
@@ -246,8 +328,6 @@ export default function SimulationPage({ role, workspaceID }: { role: "employee"
         }
     };
 
-    const handleRead = () => {
-    };
 
     // const [productHints, setProductHints] = useState<any[]>([]);
     const handleUserSend = async (text: string) => {
@@ -276,8 +356,7 @@ export default function SimulationPage({ role, workspaceID }: { role: "employee"
             workspace_id: ${workspaceID}`
         );
   
-        // const response = 
-        await fetch("http://127.0.0.1:8000/ai/simulation-reply", {
+        const response = await fetch("http://127.0.0.1:8000/ai/simulation-reply", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
@@ -288,6 +367,11 @@ export default function SimulationPage({ role, workspaceID }: { role: "employee"
                 workspace_id: workspaceID
             })
         });
+
+        const data = await response.json();
+        if (voiceMode) {
+            speakAuto(data.characterReply);
+        }
 
         const lessonAttemptRef = doc(db, "simulationLessonAttempts", lessonID);
         const lessonSnap = await getDoc(lessonAttemptRef);
@@ -410,7 +494,6 @@ export default function SimulationPage({ role, workspaceID }: { role: "employee"
     }
 
     
-
     return (
         <div className="sim-page-wrapper">
             { openModal && 
@@ -476,6 +559,9 @@ export default function SimulationPage({ role, workspaceID }: { role: "employee"
                             handleSendMessage={handleUserSend} 
                             characterName={simData.characterName}
                             voiceDescription={simData?.voiceDescription} 
+                            voiceId={simData?.voice_id}
+                            isSpeaking={isSpeaking}
+                            voiceLevel={voiceLevel}
                         /> ) :
                         (<TypeMode 
                             key={`type-${simulationIndex}`} 
@@ -484,6 +570,7 @@ export default function SimulationPage({ role, workspaceID }: { role: "employee"
                             lessonAttemptId={lessonID} 
                             simIndex={simulationIndex} 
                             voiceDescription={simData?.voiceDescription}
+                            voiceId={simData?.voice_id}
                             typingMessageId={typingMessageId} 
                             messages={messages ?? []} 
                             switchType={() => setVoiceMode(true)} 

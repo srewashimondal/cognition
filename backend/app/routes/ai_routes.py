@@ -1,6 +1,7 @@
 from fastapi import APIRouter, HTTPException, UploadFile, File
 from fastapi.responses import StreamingResponse
 from app.llms.llm_service import LLMService
+from app.services.elevenlabs_service import ElevenLabsService
 import firebase_admin
 from firebase_admin import credentials, firestore
 from app.models.schemas import TranscriptRequest, SummaryRequest
@@ -22,6 +23,7 @@ from app.services.pinecone_service import PineconeService
 router = APIRouter()
 llm = LLMService()
 pinecone = PineconeService()
+elevenlabs = ElevenLabsService()
 
 if not firebase_admin._apps:
     cred = credentials.Certificate("firebase-key.json")
@@ -969,7 +971,7 @@ async def create_simulation(request: CreateSimulationRequest):
                     if summary:
                         reference_summaries.append({"type": "document", "data": summary})
 
-        print("[2.5] Getting store product context")
+        print("[2] Getting store product context")
         store_product_context = get_store_product_context(request.workspace_id)
 
         print("[3] Calling LLM... (first employee for this lesson – will become canonical)")
@@ -983,6 +985,8 @@ async def create_simulation(request: CreateSimulationRequest):
             store_product_context=store_product_context
         )
 
+        # Hume voice generation
+        '''
         voice_name = None
         hume_api_key = os.getenv("HUME_API_KEY")
         voice_description = (ai_response.get("voiceDescription")).strip()
@@ -1010,25 +1014,36 @@ async def create_simulation(request: CreateSimulationRequest):
         if voice_name:
             canonical_entry["humeVoiceName"] = voice_name
 
-        '''
         lesson_ref.update({
             "canonicalSimulations": {**canonical_map, key: canonical_entry}
         })
         '''
 
-        print("[4] Updating Firebase")
+        # ElevenLabs voice generation
+        print("[4] Generating Voice in ElevenLabs")
+        character_name = ai_response.get('characterName')
+        voice_description = (ai_response.get("voiceDescription")).strip()
+        voice_id = elevenlabs.create_voice(
+            character_name=character_name,
+            description=voice_description
+        )
+
+        print("[5] Updating Firebase")
         sim_ref.set({
-            "characterName": ai_response["characterName"],
+            "characterName": character_name,
             "premise": ai_response["premise"],
             "goals": ai_response["goals"],
+            "voice_id": voice_id,
             "voice_description": voice_description,
             "evaluationCriteria": ai_response.get("evaluationCriteria") or {},
             "generationStatus": "ready",
             "completionStatus": "not begun",
             "updatedAt": firestore.SERVER_TIMESTAMP
         }, merge=True)
+        '''
         if voice_name:
             sim_ref.set({"humeVoiceName": voice_name}, merge=True)
+        '''
 
         messages_ref = sim_ref.collection("messages")
         messages_ref.add({
@@ -1038,7 +1053,7 @@ async def create_simulation(request: CreateSimulationRequest):
             "timestamp": firestore.SERVER_TIMESTAMP
         })
 
-        print("[5] Generation complete.")
+        print("[6] Generation complete.")
         return {
             "success": True,
             "simulation": ai_response
@@ -1162,6 +1177,7 @@ async def simulation_reply(request: SimulationReplyRequest):
 
         return {
             "success": True,
+            "characterReply": character_reply,
             "generalHints": hints,
             "productHints": product_hints
         }
@@ -1279,6 +1295,24 @@ async def tts(request: TTSRequest):
         raise HTTPException(status_code=500, detail=f"Hume TTS failed: {detail}")
 
     return StreamingResponse(resp.iter_content(chunk_size=1024 * 64), media_type="audio/mpeg")
+
+@router.post("/tts-elevenlabs")
+async def tts_elevenlabs(request: ElevenLabsTTSRequest):
+
+    voice_id = request.voice_id
+    text = request.text
+
+    stream = elevenlabs.tts(voice_id, text)
+
+    def stream_generator(stream):
+        for chunk in stream:
+            if chunk:
+                yield chunk
+
+    return StreamingResponse(
+        stream_generator(stream),
+        media_type="audio/mpeg"
+    )
 
 
 @router.post("/stt")

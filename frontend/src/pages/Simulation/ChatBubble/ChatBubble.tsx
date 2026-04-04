@@ -30,9 +30,11 @@ type ChatBubbleProps = {
     productHints?: any;
     generalHints?: any;
     onShowHints?: () => void;
+    voiceId?: string;
+    speaking?: boolean;
 };
 
-export default function ChatBubble({ message, className, handleClick, shouldType, stopTyping, onTypingComplete, shouldRegenerate, handleRegenerate, onTypingUpdate, lessons, handleApply, voiceDescription, lessonAttemptId, simIndex, productHints, generalHints, onShowHints }: ChatBubbleProps) {
+export default function ChatBubble({ message, className, handleClick, shouldType, stopTyping, onTypingComplete, shouldRegenerate, handleRegenerate, onTypingUpdate, lessons, handleApply, voiceDescription, lessonAttemptId, simIndex, productHints, generalHints, onShowHints, voiceId, speaking }: ChatBubbleProps) {
     if (!message) return null; 
 
     const { role, name, content } = message;
@@ -44,7 +46,8 @@ export default function ChatBubble({ message, className, handleClick, shouldType
     const audioRef = useRef<HTMLAudioElement | null>(null);
     const [showHints, setShowHints] = useState(false);
 
-    const handleSpeak = async () => {
+
+    const handleSpeakOld = async () => {
         try {
             if (isSpeaking) {
                 audioRef.current?.pause();
@@ -108,9 +111,66 @@ export default function ChatBubble({ message, className, handleClick, shouldType
         } catch (e) {
             setIsSpeaking(false);
         }
-    };
+    }; 
 
-    console.log("From chatBubble product hints: ", productHints);
+    const handleSpeak = async () => {
+        try {
+            if (isSpeaking) {
+                audioRef.current?.pause();
+                audioRef.current = null;
+                setIsSpeaking(false);
+                return;
+            }
+    
+            const rawText = typeof message.content === "string" ? message.content : "";
+            const text = rawText
+                .replace(/\n{3,}/g, "\n\n")
+                .replace(/\*\*([^*]+)\*\*/g, "$1")
+                .replace(/\*([^*]+)\*/g, "$1")
+                .replace(/__([^_]+)__/g, "$1")
+                .replace(/_([^_]+)_/g, "$1")
+                .replace(/\[([^\]]+)\]\([^)]+\)/g, "$1")
+                .trim();
+    
+            if (!text) return;
+    
+            setIsSpeaking(true);
+    
+            const resp = await fetch("http://127.0.0.1:8000/ai/tts-elevenlabs", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    voice_id: voiceId, 
+                    text
+                })
+            });
+    
+            if (!resp.ok) {
+                setIsSpeaking(false);
+                return;
+            }
+    
+            const url = URL.createObjectURL(await resp.blob());
+            const audio = new Audio(url);
+            audioRef.current = audio;
+    
+            audio.onended = () => {
+                URL.revokeObjectURL(url);
+                audioRef.current = null;
+                setIsSpeaking(false);
+            };
+    
+            audio.onerror = () => {
+                URL.revokeObjectURL(url);
+                audioRef.current = null;
+                setIsSpeaking(false);
+            };
+    
+            await audio.play();
+        } catch (e) {
+            setIsSpeaking(false);
+        }
+    };
       
     return (
         <div className={`chat-bubble-wrapper ${role} ${className ?? ""} `}>
@@ -184,7 +244,7 @@ export default function ChatBubble({ message, className, handleClick, shouldType
                     
                 </div> }
             <div className="chat-bubble-actions">
-                {(role === "character") && (
+                {(role === "character" && !speaking) && (
                     <>
                         <button
                             className={`speak-btn ${isSpeaking ? "speaking" : ""}`}

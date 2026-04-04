@@ -136,3 +136,7 @@ class ProductSearchRequest(BaseModel):
     workspace_id: str
     query: str
     top_k: int = 3
+
+class ElevenLabsTTSRequest(BaseModel):
+    voice_id: str
+    text: str
