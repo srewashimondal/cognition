@@ -388,6 +388,7 @@ export default function VoiceMode({ title, idx, lessonAttemptId, simIndex, messa
                         { (status === "not begun") &&
                             <p className="voice-mode-text">{characterName} will speak first when you begin</p>
                         }
+                        { !isProcessing &&
                         <div className="voice-mode-actions">
                             <button
                                 className="voice-mode-cta"
@@ -434,7 +435,7 @@ export default function VoiceMode({ title, idx, lessonAttemptId, simIndex, messa
                                     <img src={pause_icon} />
                                 </button>
                             )}
-                        </div>
+                        </div>}
                         { (currentMessage !== null && status !== "not begun") &&
                         <div 
                             key={currentMessage.id + currentMessage.role}
