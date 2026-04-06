@@ -12,4 +12,5 @@ export type StandardModuleType = {
   createTime: string;
   kind: "standard";
   lastModified?: string;
+  thumbnailUrl?: string;
 };

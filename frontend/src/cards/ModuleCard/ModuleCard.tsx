@@ -11,6 +11,38 @@ import white_play from '../../assets/icons/white-hollow-play-icon.svg';
 import orange_play from '../../assets/icons/orange-hollow-play-icon.svg';
 import black_edit from '../../assets/icons/black-edit-icon.svg';
 import orange_edit from '../../assets/icons/orange-edit-icon.svg';
+import type { StandardLessonType } from '../../types/Standard/StandardLessons';
+
+const BANNER_VARIANTS = ["module1", "module2", "module3", "module4", "module5", "module6"] as const;
+
+function bannerClassFromModuleId(id: string): string {
+    let hash = 0;
+    for (let i = 0; i < id.length; i++) {
+        hash = ((hash << 5) - hash) + id.charCodeAt(i);
+        hash |= 0;
+    }
+    return BANNER_VARIANTS[Math.abs(hash) % BANNER_VARIANTS.length];
+}
+
+function resolveCardThumbnailUrl(
+    moduleInfo: ModuleType | StandardModuleType,
+    type: "simulation" | "standard"
+): string | undefined {
+    if (moduleInfo.thumbnailUrl) {
+        return moduleInfo.thumbnailUrl;
+    }
+    if (type !== "standard" || !("lessons" in moduleInfo) || !moduleInfo.lessons?.length) {
+        return undefined;
+    }
+    const sorted = [...moduleInfo.lessons].sort((a, b) => a.orderNumber - b.orderNumber);
+    for (const lesson of sorted) {
+        const sl = lesson as StandardLessonType;
+        if (sl.type === "video" && sl.thumbnailUrl) {
+            return sl.thumbnailUrl;
+        }
+    }
+    return undefined;
+}
 
 type ModuleProp = {
     moduleInfo: ModuleType | StandardModuleType;
@@ -24,7 +56,8 @@ type ModuleProp = {
 
 export default function ModuleCard({ moduleInfo, type, role, status, percent, style, attemptId }: ModuleProp) {
     const navigate = useNavigate();
-    const bannerColorByID = ["module1", "module2", "module3", "module4", "module5", "module6"];
+    const thumbnailUrl = resolveCardThumbnailUrl(moduleInfo, type);
+    const bannerGradientClass = thumbnailUrl ? "" : bannerClassFromModuleId(moduleInfo.id);
 
     const handleNavigateEmployee = () => {
       if (status === "completed") {
@@ -37,7 +70,10 @@ export default function ModuleCard({ moduleInfo, type, role, status, percent, st
     return (
         <div key={moduleInfo.id} className="module-card">
             <div className="card-top">
-              <div className={`banner`} >
+              <div className={`banner ${thumbnailUrl ? "has-thumbnail" : bannerGradientClass}`}>
+                {thumbnailUrl && (
+                  <img className="banner-thumbnail" src={thumbnailUrl} alt="" loading="lazy" />
+                )}
                 {(role === "employer") &&
                 <button className="edit-btn" onClick={() => navigate(`/employer/modules/${(type === "simulation") ? "builder" : "standard-builder"}/${moduleInfo.id}`)}>
                   <div className="edit-swap">
