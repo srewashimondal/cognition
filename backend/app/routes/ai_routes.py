@@ -690,6 +690,18 @@ async def deploy_simulation_module(request: DeploySimulationModuleRequest):
         raise HTTPException(status_code=500, detail=str(e))
 
 
+def _truncate_insight_text(text: str, max_len: int = 600) -> str:
+    """Trim long simulation feedback for API JSON without breaking mid-word."""
+    text = (text or "").strip()
+    if len(text) <= max_len:
+        return text
+    chunk = text[:max_len]
+    last_space = chunk.rfind(" ")
+    if last_space > max_len // 3:
+        chunk = chunk[:last_space]
+    return chunk.rstrip(".,;:") + "…"
+
+
 @router.post("/employee-insights")
 async def employee_insights(request: EmployeeInsightsRequest):
     """
@@ -818,7 +830,7 @@ async def employee_insights(request: EmployeeInsightsRequest):
         if all_strengths:
             strength_counts = Counter(all_strengths)
             top_strength = strength_counts.most_common(1)[0][0]
-            short = top_strength[:120] + "…" if len(top_strength) > 120 else top_strength
+            short = _truncate_insight_text(top_strength)
             insights.append({
                 "title": "💚 Strength",
                 "description": short,
@@ -828,7 +840,7 @@ async def employee_insights(request: EmployeeInsightsRequest):
         if all_areas:
             area_counts = Counter(all_areas)
             top_area = area_counts.most_common(1)[0][0]
-            short = top_area[:120] + "…" if len(top_area) > 120 else top_area
+            short = _truncate_insight_text(top_area)
             insights.append({
                 "title": "📚 Area to improve",
                 "description": f"Feedback often suggests: {short}",
