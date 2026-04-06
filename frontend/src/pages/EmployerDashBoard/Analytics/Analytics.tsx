@@ -22,7 +22,7 @@ import black_clock from '../../../assets/icons/simulations/black-clock-icon.svg'
 import bar_chart_icon from '../../../assets/icons/black-bar-chart-icon.svg';
 import black_prize from '../../../assets/icons/badges/black-medal-icon-1.svg';
 import type { EmployeeUserType } from '../../../types/User/UserType';
-import {collection, query, where, doc, onSnapshot, getDocs, type Firestore} from "firebase/firestore";
+import {collection, query, where, doc, onSnapshot, getDocs, getDoc,type Firestore} from "firebase/firestore";
 import { db } from "../../../firebase";
 import { useWorkspace } from "../../../context/WorkspaceProvider";
 
@@ -39,7 +39,59 @@ type EmployerInsightRow = {
   recommendedActions: string[];
 };
 
-function mapApiInsightToEmployerRow(i: ApiInsight): EmployerInsightRow {
+function employeeFirstName(fullName: string): string {
+  const p = fullName.trim().split(/\s+/);
+  return p[0] || fullName || "They";
+}
+
+function coachImpactForInsight(i: ApiInsight, fullName: string): string {
+  const fn = employeeFirstName(fullName);
+  const d = (i.description || "").trim();
+  const s = (i.suggestion || "").trim();
+  const t = i.title;
+
+  const join = (parts: string[]) => parts.filter(Boolean).join(" ");
+
+  if (t.includes("Get started")) {
+    return join([
+      `${fn} has not finished enough lessons yet for deep coaching signals here.`,
+      s || "Have them complete at least one simulation or standard lesson so strengths and gaps surface automatically.",
+    ]);
+  }
+  if (t.includes("Simulation performance")) {
+    return join([
+      `Use these numbers with ${fn} in your next check-in: ${d}`,
+      `Ask which moment in the scenario felt hardest so feedback targets behavior, not just the score.`,
+    ]);
+  }
+  if (t.includes("Strength")) {
+    return join([
+      `Specific strength for ${fn} from simulation feedback: ${d}`,
+      `Name it in your next 1:1 and tie it to one on-floor behavior you want others to copy.`,
+    ]);
+  }
+  if (t.includes("Area to improve") || t.includes("Review opportunity")) {
+    return join([
+      `Make this the single focus for ${fn} before assigning more content: ${d}`,
+      s,
+    ]);
+  }
+  if (t.includes("Standard modules")) {
+    return join([
+      `Shows how ${fn} is doing on structured lessons and checks: ${d}`,
+      s,
+    ]);
+  }
+  if (t.includes("criterion") || t.includes("Strongest criterion")) {
+    return join([
+      `You can delegate shadowing or peer tips in this area while ${fn} shores up weaker criteria: ${d}`,
+      s,
+    ]);
+  }
+  return join([d, s]);
+}
+
+function mapApiInsightToEmployerRow(i: ApiInsight, fullName: string): EmployerInsightRow {
   const t = i.title;
   let tag = "Coaching insight";
   let tagColor: EmployerInsightRow["tagColor"] = "blue";
@@ -67,8 +119,7 @@ function mapApiInsightToEmployerRow(i: ApiInsight): EmployerInsightRow {
     tag,
     tagColor,
     analysis: i.description,
-    impact:
-      "Grounded in this employee’s Firestore lesson attempts and simulation feedback—not a template persona.",
+    impact: coachImpactForInsight(i, fullName),
     recommendedActions: i.suggestion ? [i.suggestion] : ["Continue assigned training and revisit weak areas in 1:1s."],
   };
 }
@@ -346,6 +397,136 @@ async function fetchEmployeeAttemptScores(
   return points;
 }
 
+type ModulePerformanceRow = {
+  id: string;
+  kind: "simulation" | "standard";
+  title: string;
+  lessonsComplete: number;
+  lessonsTotal: number;
+  scorePercent: number | null;
+};
+
+async function fetchModulePerformanceRows(
+  firestore: Firestore,
+  userId: string,
+  workspaceId: string
+): Promise<ModulePerformanceRow[]> {
+  const userRef = doc(firestore, "users", userId);
+  const workspaceRef = doc(firestore, "workspaces", workspaceId);
+  const rows: ModulePerformanceRow[] = [];
+
+  const simModSnap = await getDocs(
+    query(
+      collection(firestore, "simulationModuleAttempts"),
+      where("user", "==", userRef),
+      where("workspaceRef", "==", workspaceRef)
+    )
+  );
+
+  for (const modDoc of simModSnap.docs) {
+    const data = modDoc.data();
+    const moduleInfoRef = data.moduleInfo;
+    let title = "Simulation module";
+    if (moduleInfoRef) {
+      const ms = await getDoc(moduleInfoRef);
+      if (ms.exists()) {
+        const md = ms.data() as { title?: string };
+        if (typeof md.title === "string" && md.title) title = md.title;
+      }
+    }
+    const lessonSnap = await getDocs(
+      query(
+        collection(firestore, "simulationLessonAttempts"),
+        where("moduleRef", "==", modDoc.ref)
+      )
+    );
+    const lessonsTotal = lessonSnap.size;
+    if (lessonsTotal === 0) continue;
+
+    let completed = 0;
+    const lessonScores: number[] = [];
+    for (const lessonDoc of lessonSnap.docs) {
+      const ld = lessonDoc.data();
+      if (ld.status === "completed") completed++;
+      const agg = await collectSimulationRatingsForLesson(firestore, lessonDoc.id);
+      if (agg) lessonScores.push(Math.min(100, Math.round(agg.avgRating * 10)));
+    }
+    const scorePercent =
+      lessonScores.length > 0
+        ? Math.round(lessonScores.reduce((a, b) => a + b, 0) / lessonScores.length)
+        : null;
+
+    rows.push({
+      id: `sim-${modDoc.id}`,
+      kind: "simulation",
+      title,
+      lessonsComplete: completed,
+      lessonsTotal,
+      scorePercent,
+    });
+  }
+
+  const stdModSnap = await getDocs(
+    query(
+      collection(firestore, "standardModuleAttempts"),
+      where("user", "==", userRef),
+      where("workspaceRef", "==", workspaceRef)
+    )
+  );
+
+  for (const modDoc of stdModSnap.docs) {
+    const data = modDoc.data();
+    const moduleInfoRef = data.moduleInfo;
+    let title = "Standard module";
+    if (moduleInfoRef) {
+      const ms = await getDoc(moduleInfoRef);
+      if (ms.exists()) {
+        const md = ms.data() as { title?: string };
+        if (typeof md.title === "string" && md.title) title = md.title;
+      }
+    }
+    const lessonSnap = await getDocs(
+      query(
+        collection(firestore, "standardLessonAttempts"),
+        where("moduleRef", "==", modDoc.ref)
+      )
+    );
+    const lessonsTotal = lessonSnap.size;
+    if (lessonsTotal === 0) continue;
+
+    let completed = 0;
+    const scores: number[] = [];
+    lessonSnap.docs.forEach((lessonDoc) => {
+      const ld = lessonDoc.data();
+      if (ld.status === "completed") completed++;
+      if (ld.status === "completed" && ld.score != null) {
+        const n = typeof ld.score === "number" ? ld.score : parseInt(String(ld.score), 10);
+        if (!Number.isNaN(n)) scores.push(Math.min(100, Math.max(0, n)));
+      }
+    });
+
+    const modScore = data.score;
+    let scorePercent: number | null = null;
+    if (typeof modScore === "number" && !Number.isNaN(modScore)) {
+      scorePercent = Math.round(modScore);
+    } else if (scores.length > 0) {
+      scorePercent = Math.round(scores.reduce((a, b) => a + b, 0) / scores.length);
+    }
+
+    rows.push({
+      id: `std-${modDoc.id}`,
+      kind: "standard",
+      title,
+      lessonsComplete: completed,
+      lessonsTotal,
+      scorePercent,
+    });
+  }
+
+  rows.sort((a, b) => a.title.localeCompare(b.title));
+  return rows;
+}
+
 function startOfDay(d: Date): Date {
   return new Date(d.getFullYear(), d.getMonth(), d.getDate());
 }
@@ -469,6 +650,7 @@ export default function Analytics() {
 
   const [attemptPoints, setAttemptPoints] = useState<AttemptScorePoint[]>([]);
   const [attemptPerfLoading, setAttemptPerfLoading] = useState(false);
+  const [modulePerformanceRows, setModulePerformanceRows] = useState<ModulePerformanceRow[]>([]);
   const [performanceGranularity, setPerformanceGranularity] =
     useState<PerformanceGranularity>("monthly");
 
@@ -552,7 +734,9 @@ export default function Analytics() {
       .then((data) => {
         if (cancelled || !Array.isArray(data?.insights)) return;
         setEmployerInsights(
-          (data.insights as ApiInsight[]).map(mapApiInsightToEmployerRow)
+          (data.insights as ApiInsight[]).map((ins) =>
+            mapApiInsightToEmployerRow(ins, selectedEmployee.fullName || "This employee")
+          )
         );
       })
       .catch(() => {
@@ -570,6 +754,7 @@ export default function Analytics() {
   }, [
     selectedEmployee?.uid,
     workspace?.id,
+    selectedEmployee?.fullName,
     selectedEmployee?.completedModules?.length,
     selectedEmployee?.averageScore,
   ]);
@@ -577,16 +762,26 @@ export default function Analytics() {
   useEffect(() => {
     if (!selectedEmployee?.uid || !workspace?.id) {
       setAttemptPoints([]);
+      setModulePerformanceRows([]);
       return;
     }
     let cancelled = false;
     setAttemptPerfLoading(true);
-    fetchEmployeeAttemptScores(db, selectedEmployee.uid, workspace.id)
-      .then((pts) => {
-        if (!cancelled) setAttemptPoints(pts);
+    Promise.all([
+      fetchEmployeeAttemptScores(db, selectedEmployee.uid, workspace.id),
+      fetchModulePerformanceRows(db, selectedEmployee.uid, workspace.id),
+    ])
+      .then(([pts, modRows]) => {
+        if (!cancelled) {
+          setAttemptPoints(pts);
+          setModulePerformanceRows(modRows);
+        }
       })
       .catch(() => {
-        if (!cancelled) setAttemptPoints([]);
+        if (!cancelled) {
+          setAttemptPoints([]);
+          setModulePerformanceRows([]);
+        }
       })
       .finally(() => {
         if (!cancelled) setAttemptPerfLoading(false);
@@ -627,6 +822,20 @@ export default function Analytics() {
     () => bucketAttemptScores(attemptPoints, performanceGranularity),
     [attemptPoints, performanceGranularity]
   );
+
+  const moduleRowsForDisplay = useMemo((): ModulePerformanceRow[] => {
+    if (modulePerformanceRows.length > 0) return modulePerformanceRows;
+    const legacy = selectedEmployee?.completedModules ?? [];
+    return legacy.map((m, idx) => ({
+      id: `profile-${(m.moduleInfo as { id?: string })?.id ?? idx}`,
+      kind:
+        (m.moduleInfo as { kind?: string }).kind === "standard" ? "standard" : "simulation",
+      title: m.moduleInfo?.title ?? "Module",
+      lessonsComplete: m.lessons?.length ?? 0,
+      lessonsTotal: m.moduleInfo?.lessons?.length ?? 0,
+      scorePercent: typeof m.score === "number" ? m.score : null,
+    }));
+  }, [modulePerformanceRows, selectedEmployee?.completedModules]);
   const maxBucketScore = Math.max(100, ...performanceBuckets.map((b) => b.avgScore), 1);
 
   const blendedFromAttempts = blendedAverageScore(attemptPoints);
@@ -1180,25 +1389,44 @@ export default function Analytics() {
         <h2 className="section-title margin">Module Performance</h2>
         <p className="analytics-label">How {selectedEmployee.fullName} is performing across modules</p>
         <div className="employee-breakdown employer-view">
-          { selectedEmployee?.completedModules?.map((m) => (
-            <div className="employee-module-item" key={m.moduleInfo.id}>
-              <div className="employee-module-item-left">
-                <h4>{m.moduleInfo.title}</h4>
-                <p>{m.lessons?.length} of {m.moduleInfo.lessons?.length} complete</p>
-              </div>
-              <div className="employee-module-item-right">
-                <div className="employee-module-item-score">
-                  <h2>{m.score}%</h2>
-                  <p>Module Score</p>
-                </div>
-                <Tooltip content="See details">
-                  <div className="arrow-cta">
-                    <img src={right_arrow} />
-                  </div>
-                </Tooltip>
-              </div>
+          {attemptPerfLoading && (
+            <p className="module-performance-status">Loading modules from assigned attempts…</p>
+          )}
+          {!attemptPerfLoading && moduleRowsForDisplay.length === 0 && (
+            <div className="module-performance-empty">
+              <p>No module attempts found for this employee yet.</p>
+              <span>
+                This list reads from simulation and standard module attempts in Firestore. If they are
+                enrolled but have not started, nothing appears here until they begin a module.
+              </span>
             </div>
-          ))}
+          )}
+          {!attemptPerfLoading &&
+            moduleRowsForDisplay.map((row) => (
+              <div className="employee-module-item" key={row.id}>
+                <div className="employee-module-item-left">
+                  <h4>{row.title}</h4>
+                  <p>
+                    {row.lessonsComplete} of {row.lessonsTotal} lessons complete
+                    <span className="module-performance-kind">
+                      {" "}
+                      · {row.kind === "simulation" ? "Simulation" : "Standard"}
+                    </span>
+                  </p>
+                </div>
+                <div className="employee-module-item-right">
+                  <div className="employee-module-item-score">
+                    <h2>{row.scorePercent != null ? `${row.scorePercent}%` : "—"}</h2>
+                    <p>{row.scorePercent != null ? "Score (attempts)" : "No score yet"}</p>
+                  </div>
+                  <Tooltip content="Scores from lesson attempts; profile totals may differ">
+                    <div className="arrow-cta">
+                      <img src={right_arrow} alt="" />
+                    </div>
+                  </Tooltip>
+                </div>
+              </div>
+            ))}
         </div>
       </div>
 

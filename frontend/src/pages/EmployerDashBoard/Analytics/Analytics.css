@@ -313,6 +313,41 @@
     margin-top: 20px;
 }
 
+.module-performance-status {
+  font-size: 14px;
+  color: #6b7280;
+  margin: 12px 0;
+}
+
+.module-performance-empty {
+  padding: 24px 20px;
+  border: 1px dashed #e5e7eb;
+  border-radius: 12px;
+  background: #fafafa;
+  text-align: center;
+}
+
+.module-performance-empty p {
+  margin: 0 0 8px;
+  font-weight: 600;
+  color: #374151;
+  font-size: 15px;
+}
+
+.module-performance-empty span {
+  font-size: 13px;
+  color: #6b7280;
+  line-height: 1.45;
+  display: block;
+  max-width: 36rem;
+  margin: 0 auto;
+}
+
+.module-performance-kind {
+  color: #9ca3af;
+  font-weight: 500;
+}
+
 .ai-powered-insights.employer-view {
     margin-top: 30px;
     margin-bottom: 30px;
