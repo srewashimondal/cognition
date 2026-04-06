@@ -61,7 +61,8 @@
     justify-content: space-evenly;
     align-items: center;
     width: 95%;
-    background-color: #E8E8E8;
+    background-color: #f8fbfd;
+    border: 1px solid #eee;
     font-size: 13px;
     border-radius: 20px;
     font-weight: 500;
@@ -77,6 +78,7 @@
 .selector {
     position: absolute;
     background-color: white;
+    border: 1px solid #eee;
     height: 30px;
     border-radius: 20px;
     width: 50%;
