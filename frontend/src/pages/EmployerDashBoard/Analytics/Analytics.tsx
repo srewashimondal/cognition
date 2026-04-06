@@ -969,101 +969,8 @@ export default function Analytics() {
                 </div>
             </div>
         </div>
-     </div>
 
-      <div className="dashboard-row-wide">
-        {/* Recent Course */}
-
-        {/*<div className="card">
-          <h3 className="card-title">Recent enrolled course</h3>
-
-          <div className="course-card">
-            <div className="course-icon">✏️</div>
-            <div className="course-info">
-              <p className="course-name">Customer Experience & Sales</p>
-              <div className="progress-bar">
-                <div className="progress-fill" />
-              </div>
-              <span className="progress-text">14/30 classes</span>
-            </div>
-          </div>
-        </div>*/}
-
-        
-        {/*<div className="card">
-          <h3 className="card-title">Your Resources</h3>
-
-          <ul className="resource-list">
-            <li><span>📄 auto-layout.pdf</span><span className="resource-size">2.5 MB</span></li>
-            <li><span>📄 onboarding.ppt</span><span className="resource-size">1.2 MB</span></li>
-            <li><span>🖼️ basics_ui.png</span><span className="resource-size">1.8 MB</span></li>
-          </ul>
-
-          <button className="see-more">see more</button>
-        </div>*/}
-
-        
-        {/*<div className="card calendar-card">
-          <FullCalendar
-            plugins={[dayGridPlugin]}
-            initialView="dayGridMonth"
-            headerToolbar={{
-              left: 'prev',
-              center: 'title',
-              right: 'next',
-            }}
-            height="auto"
-            fixedWeekCount={false}
-            showNonCurrentDates={false}
-            events={[]}
-          />
-        </div>*/}
-      </div>
-      
-      <div className="dashboard-row">
-
-        {/* Hours Spent */}
-        <div className="card hours-card">
-          <div className="card-title">
-            <span>
-              <img src={black_clock} />
-            </span>
-            Hours Breakdown
-          </div>
-
-          <div className="hours-legend">
-            <span><span className="dot study" /> Simulations</span>
-            <span><span className="dot test" /> Standard modules</span>
-          </div>
-
-          <div className="hours-chart-wrapper">
-            <div className="y-axis">
-              {hoursYAxisLabels.map((label, idx) => (
-                <span key={`${idx}-${label}`}>{label}</span>
-              ))}
-            </div>
-            <div className="hours-chart">
-              {hoursChartData.map((item, i) => {
-                const maxH = hoursBarScaleMax;
-                return (
-                  <div className="bar-group" key={i}>
-                    <div
-                      className="bar-stack"
-                      data-tooltip={`Simulations: ${item.simulation.toFixed(1)} Hr\nStandard: ${item.standard.toFixed(1)} Hr`}
-                    >
-                      <div className="bar study" style={{ height: `${(item.simulation / maxH) * 100}px` }} />
-                      <div className="bar test" style={{ height: `${(item.standard / maxH) * 100}px` }} />
-                    </div>
-                    <span className="bar-label">{item.month}</span>
-                  </div>
-                );
-              })}
-            </div>
-          </div>
-        </div>
-
-
-        {/* Performance */}
+      <div className="dashboard-row analytics-charts-row">
         <div className="card performance-card">
           <div className="card-title">
             <span>
@@ -1205,6 +1112,46 @@ export default function Analytics() {
           </div>
         </div>
 
+        <div className="analytics-charts-stack">
+          <div className="card hours-card">
+            <div className="card-title">
+              <span>
+                <img src={black_clock} />
+              </span>
+              Hours Breakdown
+            </div>
+
+            <div className="hours-legend">
+              <span><span className="dot study" /> Simulations</span>
+              <span><span className="dot test" /> Standard modules</span>
+            </div>
+
+            <div className="hours-chart-wrapper">
+              <div className="y-axis">
+                {hoursYAxisLabels.map((label, idx) => (
+                  <span key={`${idx}-${label}`}>{label}</span>
+                ))}
+              </div>
+              <div className="hours-chart">
+                {hoursChartData.map((item, i) => {
+                  const maxH = hoursBarScaleMax;
+                  return (
+                    <div className="bar-group" key={i}>
+                      <div
+                        className="bar-stack"
+                        data-tooltip={`Simulations: ${item.simulation.toFixed(1)} Hr\nStandard: ${item.standard.toFixed(1)} Hr`}
+                      >
+                        <div className="bar study" style={{ height: `${(item.simulation / maxH) * 100}px` }} />
+                        <div className="bar test" style={{ height: `${(item.standard / maxH) * 100}px` }} />
+                      </div>
+                      <span className="bar-label">{item.month}</span>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          </div>
+
         {/* To-Do List */}
         {/*<div className="card todo-card">
           <h3 className="card-title">To-Do List</h3>
@@ -1262,74 +1209,10 @@ export default function Analytics() {
             </div>
           )}
         </div>
-
-      </div> 
-
-
-      {/* 3RD ROW */}
-      <div className="dashboard-row-modules">
-
-        {/* Recent Enrolled Training Modules */}
-        {/*<div className="card modules-card">
-          <div className="modules-header">
-            <h3 className="card-title">Recent enrolled training modules</h3>
-            <span className="view-all">All</span>
-            <button className="search-btn">🔍︎</button>
-          </div>
-
-          <div className="module-item active">
-            <div className="module-icon">✉</div>
-            <div className="module-info">
-              <p className="module-title">Workplace Policies</p>
-              <div className="module-meta">
-                <span>⏱ 5:30hrs</span>
-                <span>📄 05 Lessons</span>
-                <span>📝 Assignments</span>
-              </div>
-            </div>
-          </div>
-
-          <div className="module-item">
-            <div className="module-icon">💬</div>
-            <div className="module-info">
-              <p className="module-title">Greeting & Engagement Techniques</p>
-              <div className="module-meta">
-                <span>⏱ 4:00hrs</span>
-                <span>📄 03 Lessons</span>
-                <span>📝 Assignments</span>
-              </div>
-            </div>
-          </div>
-        </div> */}
-
-        {/* Upcoming Module */}
-        {/*<div className="card upcoming-card">
-          <h3 className="card-title">Upcoming Module</h3>
-
-          <div className="upcoming-item">
-            <div className="upcoming-left">
-              <span className="upcoming-icon">🎓</span>
-              <div>
-                <p className="upcoming-title">Inventory Awareness</p>
-                <span className="upcoming-time">5:30pm</span>
-              </div>
-            </div>
-            <button className="join-btn">Join</button>
-          </div>
-
-          <div className="upcoming-item">
-            <div className="upcoming-left">
-              <span className="upcoming-icon">📋</span>
-              <div>
-                <p className="upcoming-title">Stockroom Best Practices</p>
-                <span className="upcoming-time">9:00pm</span>
-              </div>
-            </div>
-            <button className="join-btn light">Join</button>
-          </div> 
-        </div> */}
+        </div>
 
       </div>
+     </div>
 
       <div className="ai-powered-insights employer-view">
         <div className="ai-powered-insights-top">

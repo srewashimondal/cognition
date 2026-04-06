@@ -1,3 +1,47 @@
+.employer-analytics-page .section .dashboard-row.analytics-charts-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1.65fr) minmax(260px, 1fr);
+  gap: 18px;
+  align-items: stretch;
+  margin-top: 0;
+  margin-bottom: 28px;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+.employer-analytics-page .section .dashboard-row.analytics-charts-row .performance-card,
+.employer-analytics-page .section .dashboard-row.analytics-charts-row .analytics-charts-stack {
+  min-width: 0;
+}
+
+.employer-analytics-page .analytics-charts-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  align-self: stretch;
+}
+
+.employer-analytics-page .analytics-charts-stack .hours-card {
+  flex: 1 1 0;
+  min-height: 0;
+}
+
+.employer-analytics-page .analytics-charts-stack .badges-card {
+  flex: 0 0 auto;
+}
+
+.employer-analytics-page .analytics-charts-stack .hours-chart-wrapper {
+  flex: 1;
+  min-height: 160px;
+  height: auto;
+}
+
+@media (max-width: 960px) {
+  .employer-analytics-page .section .dashboard-row.analytics-charts-row {
+    grid-template-columns: 1fr;
+  }
+}
 
 .employer-analytics-page .performance-inner--analytics {
   display: flex;
