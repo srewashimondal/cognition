@@ -460,3 +460,7 @@
 .badge-item-name p {
   font-size: 12px;
 }
+
+.employee-logout {
+  margin-bottom: 30px;
+}

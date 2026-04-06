@@ -292,7 +292,7 @@ export default function ProfilePage({ open, onClose, user, viewer, tempPfp }: Pr
 
         {/* Actions */}
         { isOwnProfile && 
-        <section className="profile-actions">
+        <section className={`profile-actions ${user.role === "employee" ? "employee-logout": ""}`}>
             <button className="drawer-btn danger" onClick={handleLogout}>
               Log out
               <span>
