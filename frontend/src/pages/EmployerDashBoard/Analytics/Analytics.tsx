@@ -1,11 +1,13 @@
 import './Analytics.css';
+import '../EmployerHome/EmployerHome.css';
 /*import FullCalendar from '@fullcalendar/react';
 import dayGridPlugin from '@fullcalendar/daygrid';*/
-import { useEffect, useState } from "react";
+import { useEffect, useId, useMemo, useState } from "react";
 import search_icon from '../../../assets/icons/lesson-edit/grey-search.svg';
 import { Tooltip } from "@radix-ui/themes";
 
 import trending_up from '../../../assets/icons/green-trending-up-icon.svg';
+import trending_down from '../../../assets/icons/red-trending-down-icon.svg';
 import chart_icon from '../../../assets/icons/white-line-chart-icon.svg';
 import prize_icon from '../../../assets/icons/badges/white-medal-icon.svg';
 import clock_icon from '../../../assets/icons/white-clock-icon.svg';
@@ -20,8 +22,56 @@ import black_clock from '../../../assets/icons/simulations/black-clock-icon.svg'
 import bar_chart_icon from '../../../assets/icons/black-bar-chart-icon.svg';
 import black_prize from '../../../assets/icons/badges/black-medal-icon-1.svg';
 import type { EmployeeUserType } from '../../../types/User/UserType';
-import { collection, getDocs, doc, onSnapshot } from "firebase/firestore";
+import {collection, query, where, doc, onSnapshot, getDocs, type Firestore} from "firebase/firestore";
 import { db } from "../../../firebase";
+import { useWorkspace } from "../../../context/WorkspaceProvider";
+
+const API_BASE = "http://127.0.0.1:8000";
+
+type ApiInsight = { title: string; description: string; suggestion: string };
+
+type EmployerInsightRow = {
+  title: string;
+  tag: string;
+  tagColor: "yellow" | "blue" | "green" | "red";
+  analysis: string;
+  impact: string;
+  recommendedActions: string[];
+};
+
+function mapApiInsightToEmployerRow(i: ApiInsight): EmployerInsightRow {
+  const t = i.title;
+  let tag = "Coaching insight";
+  let tagColor: EmployerInsightRow["tagColor"] = "blue";
+  if (t.includes("Strength")) {
+    tag = "Strength";
+    tagColor = "green";
+  } else if (t.includes("Area to improve") || t.includes("Review opportunity")) {
+    tag = "Development focus";
+    tagColor = "yellow";
+  } else if (t.includes("Simulation")) {
+    tag = "Simulations";
+    tagColor = "blue";
+  } else if (t.includes("Standard")) {
+    tag = "Standard training";
+    tagColor = "blue";
+  } else if (t.includes("criterion")) {
+    tag = "Criteria";
+    tagColor = "blue";
+  } else if (t.includes("Get started")) {
+    tag = "Next step";
+    tagColor = "yellow";
+  }
+  return {
+    title: i.title,
+    tag,
+    tagColor,
+    analysis: i.description,
+    impact:
+      "Grounded in this employee’s Firestore lesson attempts and simulation feedback—not a template persona.",
+    recommendedActions: i.suggestion ? [i.suggestion] : ["Continue assigned training and revisit weak areas in 1:1s."],
+  };
+}
 
 //To Do
   /*const initialTodos = [
@@ -67,69 +117,6 @@ function getMonthKey(dateStr: string | undefined): string | null {
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
 }
 
-function getLastMonthLabels(count: number): string[] {
-  const now = new Date();
-  const labels: string[] = [];
-  const shortMonths = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
-  for (let i = count - 1; i >= 0; i--) {
-    const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
-    labels.push(shortMonths[d.getMonth()]);
-  }
-  return labels;
-}
-
-const aiInsights = [
-  {
-    title: "💙 Exceptional Customer Empathy",
-    tag: "Leadership opportunity",
-    tagColor: "yellow",
-    analysis: "Jane consistently scores 96% in customer service simulations, ranking in the top 2% company-wide. AI analysis shows she excels at reading emotional cues and adapting her communication style.",
-    impact: "Her empathy skills directly correlate with high customer satisfaction scores and are a model for the team.",
-    recommendedActions: [
-      "Feature Jane in next team training session to share techniques",
-      "Record her best simulation for use as training material",
-      "Consider promoting to Senior Sales Associate or Team Lead role"
-    ]
-  },
-  {
-    title: "⚡ Rapid Skill Development",
-    tag: "Talent development",
-    tagColor: "blue",
-    analysis: "Jane has improved her conflict resolution score by 8% in just 3 weeks, demonstrating strong learning agility. She actively seeks out challenging scenarios.",
-    impact: "This growth mindset makes her ideal for advanced training programs and mentorship roles.",
-    recommendedActions: [
-      "Offer enrollment in 'Advanced Customer Relations' program",
-      "Pair with new hires as peer mentor (has shown teaching aptitude)",
-      "Provide access to manager-level training modules early"
-    ]
-  },
-  {
-    title: "🔥 High Engagement & Consistency",
-    tag: "Retention & recognition",
-    tagColor: "green",
-    analysis: "Jane completes 6-8 simulations per week, 2x the team average, with consistent timing (usually during breaks). Her last activity was 30 minutes ago.",
-    impact: "High engagement indicates strong motivation and commitment to professional development.",
-    recommendedActions: [
-      "Acknowledge and reward this initiative in 1-on-1",
-      "Ask what motivates her - insights could improve team engagement",
-      "Consider gamification: Create leaderboard to inspire others"
-    ]
-  },
-  {
-    title: "🧠 Ready for Complex Scenarios",
-    tag: "Challenge & growth",
-    tagColor: "blue",
-    analysis: "Jane has mastered standard simulations (93% avg). AI detects she may be ready for advanced, multi-step scenarios that require strategic thinking.",
-    impact: "Providing harder challenges will maintain engagement and prepare her for senior roles.",
-    recommendedActions: [
-      "Unlock 'Expert-Level Sales Negotiations' module",
-      "Create custom scenarios based on real difficult situations",
-      "Challenge her to coach others struggling in areas she excels"
-    ]
-  },
-];
-
-/** Get ISO date string from Firestore completionDate (string or Timestamp) */
 function getCompletionDateStr(m: { completionDate?: string | { toDate?: () => Date } }): string | undefined {
   const c = m.completionDate;
   if (!c) return undefined;
@@ -155,8 +142,312 @@ function getLastMonths(count: number): { key: string; label: string }[] {
   return out;
 }
 
+function completionsInRange(
+  modules: EmployeeUserType["completedModules"] | undefined,
+  start: Date,
+  end: Date
+) {
+  if (!modules?.length) return [];
+  const t0 = start.getTime();
+  const t1 = end.getTime();
+  return modules.filter((m) => {
+    const s = getCompletionDateStr(m);
+    if (!s) return false;
+    const t = new Date(s).getTime();
+    return !Number.isNaN(t) && t >= t0 && t < t1;
+  });
+}
+
+function formatWeekTrend(prev: number, curr: number): { text: string; tone: "up" | "down" | "flat" | "muted" } {
+  if (prev === 0 && curr === 0) return { text: "No completions this week", tone: "muted" };
+  if (prev === 0 && curr > 0) return { text: `+${curr} vs last week`, tone: "up" };
+  const delta = curr - prev;
+  const pct = Math.round((delta / prev) * 100);
+  if (delta === 0) return { text: "Same as last week", tone: "flat" };
+  const sign = delta > 0 ? "+" : "";
+  return {
+    text: `${sign}${pct}% vs last week`,
+    tone: delta > 0 ? "up" : "down",
+  };
+}
+
+function scoreTrendFromCompletions(
+  modules: EmployeeUserType["completedModules"] | undefined
+): { text: string; tone: "up" | "down" | "flat" | "muted" } {
+  const now = new Date();
+  const weekMs = 7 * 24 * 60 * 60 * 1000;
+  const thisWeek = completionsInRange(modules, new Date(now.getTime() - weekMs), now);
+  const prevWeek = completionsInRange(modules, new Date(now.getTime() - 2 * weekMs), new Date(now.getTime() - weekMs));
+  const avg = (list: typeof thisWeek) => {
+    const scores = list.map((m) => m.score).filter((s): s is number => typeof s === "number" && !Number.isNaN(s));
+    if (!scores.length) return null;
+    return scores.reduce((a, b) => a + b, 0) / scores.length;
+  };
+  const a0 = avg(prevWeek);
+  const a1 = avg(thisWeek);
+  if (a0 == null && a1 == null) return { text: "Not enough recent data", tone: "muted" };
+  if (a0 == null && a1 != null) return { text: `Avg ${Math.round(a1)}% on recent work`, tone: "up" };
+  if (a0 != null && a1 == null) return { text: "No scores this week", tone: "muted" };
+  const diff = a1! - a0!;
+  if (Math.abs(diff) < 1) return { text: "Score steady vs last week", tone: "flat" };
+  const sign = diff > 0 ? "+" : "";
+  return { text: `${sign}${Math.round(diff)}% vs last week`, tone: diff > 0 ? "up" : "down" };
+}
+
+function trendPillClass(tone: "up" | "down" | "flat" | "muted"): string {
+  if (tone === "up") return "analytics-change-pill green";
+  if (tone === "down") return "analytics-change-pill red";
+  return "analytics-change-pill neutral";
+}
+
+
+type AttemptScorePoint = {
+  at: Date;
+  score: number;
+  kind: "simulation" | "standard";
+};
+
+type PerformanceGranularity = "yearly" | "monthly" | "daily";
+
+type PerformanceBucket = {
+  label: string;
+  key: string;
+  avgScore: number;
+  count: number;
+};
+
+function coerceAttemptDate(v: unknown): Date | null {
+  if (v == null) return null;
+  if (v instanceof Date) return Number.isNaN(v.getTime()) ? null : v;
+  if (typeof v === "object" && v !== null && typeof (v as { toDate?: () => Date }).toDate === "function") {
+    const d = (v as { toDate: () => Date }).toDate();
+    return Number.isNaN(d.getTime()) ? null : d;
+  }
+  if (typeof v === "string") {
+    const d = new Date(v);
+    return Number.isNaN(d.getTime()) ? null : d;
+  }
+  return null;
+}
+
+async function collectSimulationRatingsForLesson(
+  firestore: Firestore,
+  lessonAttemptId: string
+): Promise<{ avgRating: number; at: Date } | null> {
+  const ratings: number[] = [];
+  let latest: Date | null = null;
+
+  for (let simIdx = 1; simIdx <= 3; simIdx++) {
+    const messagesRef = collection(
+      firestore,
+      "simulationLessonAttempts",
+      lessonAttemptId,
+      "simulations",
+      `sim_${simIdx}`,
+      "messages"
+    );
+    const snap = await getDocs(query(messagesRef, where("role", "==", "assistant")));
+    snap.forEach((m) => {
+      const d = m.data();
+      const r = d.rating;
+      if (r != null) {
+        const n = typeof r === "number" ? r : parseInt(String(r), 10);
+        if (!Number.isNaN(n)) ratings.push(n);
+      }
+      const ts = coerceAttemptDate(d.timestamp);
+      if (ts && (!latest || ts > latest)) latest = ts;
+    });
+  }
+
+  if (!ratings.length || !latest) return null;
+  const avg = ratings.reduce((a, b) => a + b, 0) / ratings.length;
+  return { avgRating: avg, at: latest };
+}
+
+async function fetchEmployeeAttemptScores(
+  firestore: Firestore,
+  userId: string,
+  workspaceId: string
+): Promise<AttemptScorePoint[]> {
+  const userRef = doc(firestore, "users", userId);
+  const workspaceRef = doc(firestore, "workspaces", workspaceId);
+  const points: AttemptScorePoint[] = [];
+
+  const [simModSnap, stdModSnap] = await Promise.all([
+    getDocs(
+      query(
+        collection(firestore, "simulationModuleAttempts"),
+        where("user", "==", userRef),
+        where("workspaceRef", "==", workspaceRef)
+      )
+    ),
+    getDocs(
+      query(
+        collection(firestore, "standardModuleAttempts"),
+        where("user", "==", userRef),
+        where("workspaceRef", "==", workspaceRef)
+      )
+    ),
+  ]);
+
+  const simLessonSnaps = await Promise.all(
+    simModSnap.docs.map((modDoc) =>
+      getDocs(
+        query(
+          collection(firestore, "simulationLessonAttempts"),
+          where("moduleRef", "==", modDoc.ref)
+        )
+      )
+    )
+  );
+
+  for (const snap of simLessonSnaps) {
+    for (const lessonDoc of snap.docs) {
+      const agg = await collectSimulationRatingsForLesson(firestore, lessonDoc.id);
+      if (!agg) continue;
+      points.push({
+        at: agg.at,
+        score: Math.min(100, Math.round(agg.avgRating * 10)),
+        kind: "simulation",
+      });
+    }
+  }
+
+  const stdLessonSnaps = await Promise.all(
+    stdModSnap.docs.map((modDoc) =>
+      getDocs(
+        query(
+          collection(firestore, "standardLessonAttempts"),
+          where("moduleRef", "==", modDoc.ref)
+        )
+      )
+    )
+  );
+
+  for (const snap of stdLessonSnaps) {
+    for (const lessonDoc of snap.docs) {
+      const data = lessonDoc.data();
+      if (data.status !== "completed") continue;
+      const score = data.score;
+      if (score == null) continue;
+      const n = typeof score === "number" ? score : parseInt(String(score), 10);
+      if (Number.isNaN(n)) continue;
+      const at = coerceAttemptDate(data.completedAt) ?? coerceAttemptDate(data.updatedAt);
+      if (!at) continue;
+      points.push({
+        at,
+        score: Math.min(100, Math.max(0, n)),
+        kind: "standard",
+      });
+    }
+  }
+
+  points.sort((a, b) => a.at.getTime() - b.at.getTime());
+  return points;
+}
+
+function startOfDay(d: Date): Date {
+  return new Date(d.getFullYear(), d.getMonth(), d.getDate());
+}
+
+function addDays(d: Date, n: number): Date {
+  const x = new Date(d);
+  x.setDate(x.getDate() + n);
+  return x;
+}
+
+function bucketAttemptScores(
+  points: AttemptScorePoint[],
+  granularity: PerformanceGranularity,
+  now = new Date()
+): PerformanceBucket[] {
+  if (granularity === "daily") {
+    const buckets: PerformanceBucket[] = [];
+    const today = startOfDay(now);
+    for (let i = 29; i >= 0; i--) {
+      const day = addDays(today, -i);
+      const key = `${day.getFullYear()}-${String(day.getMonth() + 1).padStart(2, "0")}-${String(day.getDate()).padStart(2, "0")}`;
+      const next = addDays(day, 1);
+      const inBucket = points.filter((p) => p.at >= day && p.at < next);
+      const avgScore =
+        inBucket.length === 0
+          ? 0
+          : Math.round(inBucket.reduce((s, p) => s + p.score, 0) / inBucket.length);
+      const dayIndex = 29 - i;
+      const showLabel = dayIndex % 7 === 0;
+      buckets.push({
+        key,
+        label: showLabel ? `${SHORT_MONTHS[day.getMonth()]} ${day.getDate()}` : "",
+        avgScore,
+        count: inBucket.length,
+      });
+    }
+    return buckets;
+  }
+
+  if (granularity === "monthly") {
+    const buckets: PerformanceBucket[] = [];
+    for (let i = 11; i >= 0; i--) {
+      const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+      const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
+      const start = new Date(d.getFullYear(), d.getMonth(), 1);
+      const end = new Date(d.getFullYear(), d.getMonth() + 1, 1);
+      const inBucket = points.filter((p) => p.at >= start && p.at < end);
+      const avgScore =
+        inBucket.length === 0
+          ? 0
+          : Math.round(inBucket.reduce((s, p) => s + p.score, 0) / inBucket.length);
+      buckets.push({
+        key,
+        label: SHORT_MONTHS[d.getMonth()],
+        avgScore,
+        count: inBucket.length,
+      });
+    }
+    return buckets;
+  }
+
+  const buckets: PerformanceBucket[] = [];
+  const y0 = now.getFullYear();
+  for (let y = y0 - 4; y <= y0; y++) {
+    const start = new Date(y, 0, 1);
+    const end = new Date(y + 1, 0, 1);
+    const inBucket = points.filter((p) => p.at >= start && p.at < end);
+    const avgScore =
+      inBucket.length === 0
+        ? 0
+        : Math.round(inBucket.reduce((s, p) => s + p.score, 0) / inBucket.length);
+    buckets.push({
+      key: String(y),
+      label: String(y),
+      avgScore,
+      count: inBucket.length,
+    });
+  }
+  return buckets;
+}
+
+function blendedAverageScore(points: AttemptScorePoint[]): number | null {
+  if (!points.length) return null;
+  return Math.round(points.reduce((s, p) => s + p.score, 0) / points.length);
+}
+
+function formatHoursTick(value: number): string {
+  if (value <= 0) return "0 Hr";
+  if (value < 1) return `${Math.round(value * 100) / 100} Hr`;
+  if (value < 10) return `${Math.round(value * 10) / 10} Hr`;
+  return `${Math.round(value)} Hr`;
+}
+
+function hoursChartYAxisLabels(rawMaxHours: number): string[] {
+  const displayMax = rawMaxHours <= 0 ? 1 : Math.max(rawMaxHours, 0.25);
+  return [1, 0.75, 0.5, 0.25, 0].map((frac) => formatHoursTick(displayMax * frac));
+}
 
 export default function Analytics() {
+  const gaugeGradId = useId().replace(/:/g, "");
+  const { workspace } = useWorkspace();
+
   useEffect(() => {
     window.scrollTo({ top: 0, left: 0, behavior: "instant" });
   }, []);
@@ -172,23 +463,43 @@ export default function Analytics() {
   const [selectedEmployee, setSelectedEmployee] = useState<EmployeeUserType | null>(null);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 
+  const [employerInsights, setEmployerInsights] = useState<EmployerInsightRow[]>([]);
+  const [insightsLoading, setInsightsLoading] = useState(false);
+  const [insightsError, setInsightsError] = useState<string | null>(null);
+
+  const [attemptPoints, setAttemptPoints] = useState<AttemptScorePoint[]>([]);
+  const [attemptPerfLoading, setAttemptPerfLoading] = useState(false);
+  const [performanceGranularity, setPerformanceGranularity] =
+    useState<PerformanceGranularity>("monthly");
+
   useEffect(() => {
-    const fetchEmployees = async () => {
-      const snap = await getDocs(collection(db, "users"));
-      const list: EmployeeUserType[] = [];
+    if (!workspace?.id) return;
 
-      snap.forEach((doc) => {
-        const data = doc.data();
-        if (data.role === "employee") {
-          list.push({ uid: doc.id, ...data } as EmployeeUserType);
-        }
-      });
+    const workspaceRef = doc(db, "workspaces", workspace.id);
+    const q = query(
+      collection(db, "users"),
+      where("workspaceID", "==", workspaceRef),
+      where("role", "==", "employee")
+    );
 
+    const unsubscribe = onSnapshot(q, (snapshot) => {
+      const list = snapshot.docs.map((d) => ({
+        uid: d.id,
+        ...d.data(),
+      })) as EmployeeUserType[];
       setEmployees(list);
-    };
+    });
 
-    fetchEmployees();
-  }, []);
+    return () => unsubscribe();
+  }, [workspace?.id]);
+
+  useEffect(() => {
+    if (!selectedEmployee) return;
+    if (!employees.some((e) => e.uid === selectedEmployee.uid)) {
+      setSelectedEmployee(null);
+      setSearch("");
+    }
+  }, [employees, selectedEmployee]);
 
   const filteredEmployees = employees.filter((emp) => {
     if (!search.trim()) return true;
@@ -219,6 +530,75 @@ export default function Analytics() {
     return () => unsub();
   }, [selectedEmployee?.uid]);
 
+  useEffect(() => {
+    if (!selectedEmployee?.uid || !workspace?.id) {
+      setEmployerInsights([]);
+      setInsightsError(null);
+      setInsightsLoading(false);
+      return;
+    }
+    let cancelled = false;
+    setInsightsLoading(true);
+    setInsightsError(null);
+    fetch(`${API_BASE}/ai/employee-insights`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        user_id: selectedEmployee.uid,
+        workspace_id: workspace.id,
+      }),
+    })
+      .then((res) => (res.ok ? res.json() : Promise.reject(new Error("Insights request failed"))))
+      .then((data) => {
+        if (cancelled || !Array.isArray(data?.insights)) return;
+        setEmployerInsights(
+          (data.insights as ApiInsight[]).map(mapApiInsightToEmployerRow)
+        );
+      })
+      .catch(() => {
+        if (!cancelled) {
+          setInsightsError("Could not load insights. Is the API running?");
+          setEmployerInsights([]);
+        }
+      })
+      .finally(() => {
+        if (!cancelled) setInsightsLoading(false);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [
+    selectedEmployee?.uid,
+    workspace?.id,
+    selectedEmployee?.completedModules?.length,
+    selectedEmployee?.averageScore,
+  ]);
+
+  useEffect(() => {
+    if (!selectedEmployee?.uid || !workspace?.id) {
+      setAttemptPoints([]);
+      return;
+    }
+    let cancelled = false;
+    setAttemptPerfLoading(true);
+    fetchEmployeeAttemptScores(db, selectedEmployee.uid, workspace.id)
+      .then((pts) => {
+        if (!cancelled) setAttemptPoints(pts);
+      })
+      .catch(() => {
+        if (!cancelled) setAttemptPoints([]);
+      })
+      .finally(() => {
+        if (!cancelled) setAttemptPerfLoading(false);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [
+    selectedEmployee?.uid,
+    workspace?.id,
+    selectedEmployee?.completedModules?.length,
+  ]);
 
   const last6Months = getLastMonths(6);
   const hoursChartData = (() => {
@@ -239,14 +619,45 @@ export default function Analytics() {
     }));
   })();
 
-  const maxChartHours = Math.max(1, ...hoursChartData.map((d) => d.simulation + d.standard));
+  const rawHoursMax = Math.max(0, ...hoursChartData.map((d) => d.simulation + d.standard));
+  const hoursYAxisLabels = hoursChartYAxisLabels(rawHoursMax);
+  const hoursBarScaleMax = rawHoursMax > 0 ? rawHoursMax : 1;
 
-  // Performance grade 0–10 from averageScore (0–100)
-  const performanceGrade = selectedEmployee?.averageScore != null ? selectedEmployee.averageScore / 10 : 0;
+  const performanceBuckets = useMemo(
+    () => bucketAttemptScores(attemptPoints, performanceGranularity),
+    [attemptPoints, performanceGranularity]
+  );
+  const maxBucketScore = Math.max(100, ...performanceBuckets.map((b) => b.avgScore), 1);
+
+  const blendedFromAttempts = blendedAverageScore(attemptPoints);
+  const perfScore100 =
+    blendedFromAttempts ??
+    (selectedEmployee?.averageScore != null ? selectedEmployee.averageScore : 0);
+  const performanceGrade = perfScore100 / 10;
   const gaugeRotation = -90 + (performanceGrade / 10) * 180;
 
+  const weekMs = 7 * 24 * 60 * 60 * 1000;
+  const now = new Date();
+  const modulesWeekTrend = selectedEmployee
+    ? formatWeekTrend(
+        completionsInRange(
+          selectedEmployee.completedModules,
+          new Date(now.getTime() - 2 * weekMs),
+          new Date(now.getTime() - weekMs)
+        ).length,
+        completionsInRange(
+          selectedEmployee.completedModules,
+          new Date(now.getTime() - weekMs),
+          now
+        ).length
+      )
+    : { text: "", tone: "muted" as const };
+  const scoreWeekTrend = selectedEmployee
+    ? scoreTrendFromCompletions(selectedEmployee.completedModules)
+    : { text: "", tone: "muted" as const };
+
   return (
-  <>
+  <div className="employer-analytics-page">
 
         <div className="search-wrapper">
           <span className="analytics-search-icon">
@@ -292,11 +703,13 @@ export default function Analytics() {
         <div className="analytics-grid">
             <div className="analytics-card">
                 <div className="analytics-left">
-                    <div className="analytics-change-pill green">
+                    <div className={trendPillClass(scoreWeekTrend.tone)}>
+                    {(scoreWeekTrend.tone === "up" || scoreWeekTrend.tone === "down") && (
                     <span>
-                        <img src={trending_up} />
+                        <img src={scoreWeekTrend.tone === "down" ? trending_down : trending_up} alt="" />
                     </span>
-                    +12% this week
+                    )}
+                    {scoreWeekTrend.text}
                     </div>
                     <h3 className="analytics-value"> {selectedEmployee?.averageScore ?? 0}% </h3>
                     <span className="analytics-change">Average score</span>
@@ -308,11 +721,13 @@ export default function Analytics() {
             </div>
             <div className="analytics-card">
             <div className="analytics-left">
-                <div className="analytics-change-pill green">
+                <div className={trendPillClass(modulesWeekTrend.tone)}>
+                {(modulesWeekTrend.tone === "up" || modulesWeekTrend.tone === "down") && (
                 <span>
-                    <img src={trending_up} />
+                    <img src={modulesWeekTrend.tone === "down" ? trending_down : trending_up} alt="" />
                 </span>
-                +8% this week
+                )}
+                {modulesWeekTrend.text}
                 </div>
                 <h3 className="analytics-value"> {selectedEmployee?.completedModules?.length ?? 0}</h3>
                 <span className="analytics-change">Modules completed</span>
@@ -414,15 +829,13 @@ export default function Analytics() {
 
           <div className="hours-chart-wrapper">
             <div className="y-axis">
-              <span>{Math.ceil(maxChartHours)} Hr</span>
-              <span>{Math.ceil(maxChartHours * 0.75)} Hr</span>
-              <span>{Math.ceil(maxChartHours * 0.5)} Hr</span>
-              <span>{Math.ceil(maxChartHours * 0.25)} Hr</span>
-              <span>0 Hr</span>
+              {hoursYAxisLabels.map((label, idx) => (
+                <span key={`${idx}-${label}`}>{label}</span>
+              ))}
             </div>
             <div className="hours-chart">
               {hoursChartData.map((item, i) => {
-                const maxH = Math.max(maxChartHours, 1);
+                const maxH = hoursBarScaleMax;
                 return (
                   <div className="bar-group" key={i}>
                     <div
@@ -450,21 +863,27 @@ export default function Analytics() {
             Performance
           </div>
 
-          <div className="performance-inner">
-            <div className="performance-header">
-              <div className="legend">
+          <div className="performance-inner performance-inner--analytics">
+            <div className="performance-header performance-header--analytics">
+              <div className="legend legend--analytics">
                 <span className="legend-dot" />
-                <span>Cognition AI’s Questions Performance</span>
+                <span>Lesson attempts (standard % · simulation ratings ×10)</span>
               </div>
 
-              <select className="dropdown">
-                <option>Yearly</option>
-                <option>Monthly</option>
-                <option>Daily</option>
+              <select
+                className="dropdown dropdown--analytics"
+                value={performanceGranularity}
+                onChange={(e) =>
+                  setPerformanceGranularity(e.target.value as PerformanceGranularity)
+                }
+              >
+                <option value="yearly">Yearly</option>
+                <option value="monthly">Monthly</option>
+                <option value="daily">Daily</option>
               </select>
             </div>
 
-            <div className="gauge-wrapper">
+            <div className="gauge-wrapper gauge-wrapper--analytics">
               <svg width="200" height="120" viewBox="0 0 200 120">
                 <path
                   d="M20 100 A80 80 0 0 1 180 100"
@@ -476,13 +895,13 @@ export default function Analytics() {
                 <path
                   d="M20 100 A80 80 0 0 1 180 100"
                   fill="none"
-                  stroke="url(#gaugeGrad)"
+                  stroke={`url(#gaugeGrad-${gaugeGradId})`}
                   strokeWidth="14"
                   strokeLinecap="round"
                   strokeDasharray={`${(performanceGrade / 10) * 251.2} 251.2`}
                 />
                 <defs>
-                  <linearGradient id="gaugeGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+                  <linearGradient id={`gaugeGrad-${gaugeGradId}`} x1="0%" y1="0%" x2="100%" y2="0%">
                     <stop offset="0%" stopColor="#ef4444" />
                     <stop offset="50%" stopColor="#f59e0b" />
                     <stop offset="100%" stopColor="#22c55e" />
@@ -511,8 +930,67 @@ export default function Analytics() {
               </svg>
             </div>
 
-            <div className="score">
-              <p>Grade: <span>{performanceGrade.toFixed(1)} / 10</span></p>
+            <div className="performance-score-summary">
+              <p className="performance-score-line">
+                <span className="performance-score-main">
+                  Grade: <strong>{performanceGrade.toFixed(1)} / 10</strong>
+                </span>
+                {blendedFromAttempts != null && (
+                  <span className="performance-score-sub">
+                    {blendedFromAttempts}% blended across {attemptPoints.length} scored attempt
+                    {attemptPoints.length === 1 ? "" : "s"} (standard % and simulation ×10).
+                  </span>
+                )}
+              </p>
+            </div>
+
+            <div
+              className={`performance-attempt-timeline performance-attempt-timeline--${performanceGranularity}`}
+            >
+              {attemptPerfLoading ? (
+                <p className="performance-timeline-status">Loading scores from lesson attempts…</p>
+              ) : attemptPoints.length === 0 ? (
+                <p className="performance-timeline-status">
+                  No scored attempts in Firestore yet. The gauge uses the profile average until they
+                  complete standard or simulation lessons.
+                </p>
+              ) : (
+                <div className="performance-bars-wrap">
+                  <div className="performance-bars">
+                    {performanceBuckets.map((b) => (
+                      <div className="performance-bar-group" key={b.key}>
+                        <div
+                          className="performance-bar-track"
+                          title={
+                            b.count
+                              ? `${b.avgScore}% avg · ${b.count} attempt${b.count === 1 ? "" : "s"}`
+                              : "No activity in this period"
+                          }
+                        >
+                          <div
+                            className="performance-bar-fill"
+                            style={{
+                              height: `${(b.avgScore / maxBucketScore) * 72}px`,
+                            }}
+                          />
+                        </div>
+                        <span
+                          className={
+                            b.label
+                              ? "performance-bar-label"
+                              : "performance-bar-label performance-bar-label--placeholder"
+                          }
+                        >
+                          {b.label || "·"}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+
+            <div className="performance-see-modules">
               <a href="#module-performance">See module breakdown below</a>
             </div>
           </div>
@@ -655,31 +1133,46 @@ export default function Analytics() {
             </div>
         </div>
         <div className="ai-feedback-list">
-          { aiInsights.map((a) => 
-            <div className="ai-feedback-item">
+          {insightsLoading && (
+            <p className="insights-status">Loading insights from their attempts…</p>
+          )}
+          {insightsError && !insightsLoading && (
+            <p className="insights-status insights-status-error">{insightsError}</p>
+          )}
+          {!insightsLoading &&
+            !insightsError &&
+            employerInsights.length === 0 && (
+            <p className="insights-status">No insights returned for this employee yet.</p>
+          )}
+          {!insightsLoading &&
+            !insightsError &&
+            employerInsights.map((a, idx) => (
+            <div className="ai-feedback-item" key={`${a.title}-${idx}`}>
               <div className="ai-feedback-item-title">
                 <h4>{a.title}</h4>
                 <div className={`ai-feedback-item-tag-pill ${a.tagColor}`}>{a.tag}</div>
               </div>
               <div className="ai-feedback-item-info">
-                <p className="bold">📊 AI Analysis:</p>
+                <p className="bold">📊 Analysis:</p>
                 <p>{a.analysis}</p>
               </div>
               <div className="ai-feedback-item-info">
-                <p className="bold">💡 Impact:</p>
+                <p className="bold">💡 For managers:</p>
                 <p>{a.impact}</p>
               </div>
               <div className="improved-msg ai">
                   <div className="blue-thing ai employer-view" />
                   <div className="improved-msg-content ai employer-view">
-                      <p className="title">Recommended Actions:</p>
+                      <p className="title">Recommended actions:</p>
                       <ul>
-                        {a.recommendedActions.map(r => <li>{r}</li>)}
+                        {a.recommendedActions.map((r) => (
+                          <li key={r}>{r}</li>
+                        ))}
                       </ul>
                   </div>
               </div>
             </div>
-          )}
+          ))}
         </div>
       </div>
 
@@ -711,6 +1204,6 @@ export default function Analytics() {
 
      </>
     )}
-  </>
+  </div>
   );
 }

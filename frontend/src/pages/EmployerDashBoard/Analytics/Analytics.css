@@ -1,3 +1,178 @@
+
+.employer-analytics-page .performance-inner--analytics {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.employer-analytics-page .performance-header--analytics {
+  margin-bottom: 12px;
+  align-items: flex-start;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.employer-analytics-page .performance-header--analytics .legend--analytics {
+  margin-top: 0;
+  flex: 1 1 160px;
+  line-height: 1.35;
+}
+
+.employer-analytics-page .performance-header--analytics .dropdown--analytics {
+  margin-top: 0;
+  flex-shrink: 0;
+}
+
+.employer-analytics-page .gauge-wrapper--analytics {
+  margin-top: 4px;
+  margin-bottom: 8px;
+}
+
+.employer-analytics-page .performance-score-summary {
+  text-align: center;
+  padding: 12px 8px 16px;
+  border-bottom: 1px solid #f3f4f6;
+  margin-bottom: 12px;
+}
+
+.employer-analytics-page .performance-score-line {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  margin: 0;
+  font-size: 15px;
+  color: #111827;
+}
+
+.employer-analytics-page .performance-score-main strong {
+  font-weight: 700;
+  color: #111827;
+}
+
+.employer-analytics-page .performance-score-sub {
+  display: block;
+  max-width: 28rem;
+  font-size: 12px;
+  font-weight: 500;
+  color: #6b7280;
+  line-height: 1.45;
+}
+
+.employer-analytics-page .performance-attempt-timeline {
+  margin-top: 0;
+  width: 100%;
+  flex: 1;
+  min-height: 110px;
+}
+
+.employer-analytics-page .performance-see-modules {
+  text-align: center;
+  margin-top: 14px;
+  padding-top: 4px;
+}
+
+.employer-analytics-page .performance-see-modules a {
+  font-size: 13px;
+  color: #6b7280;
+}
+
+.employer-analytics-page .performance-see-modules a:hover {
+  text-decoration: underline;
+}
+
+.performance-timeline-status,
+.insights-status {
+  font-size: 13px;
+  color: #6b7280;
+  margin: 8px 0 0;
+}
+
+.insights-status-error {
+  color: #b91c1c;
+}
+
+.performance-bars-wrap {
+  overflow-x: auto;
+  padding-bottom: 8px;
+  -webkit-overflow-scrolling: touch;
+}
+
+.performance-bars {
+  display: flex;
+  align-items: flex-end;
+  justify-content: flex-start;
+  gap: 8px;
+  min-height: 92px;
+  padding-top: 8px;
+}
+
+.performance-attempt-timeline--daily .performance-bars {
+  gap: 3px;
+  min-width: min-content;
+  padding-left: 2px;
+  padding-right: 2px;
+}
+
+.performance-attempt-timeline--daily .performance-bar-group {
+  flex: 0 0 12px;
+  min-width: 12px;
+}
+
+.performance-attempt-timeline--daily .performance-bar-track {
+  max-width: 12px;
+}
+
+.performance-bar-group {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  flex: 1;
+  min-width: 0;
+}
+
+.performance-bar-track {
+  width: 100%;
+  max-width: 28px;
+  height: 72px;
+  background: #f3f4f6;
+  border-radius: 6px 6px 2px 2px;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  margin: 0 auto;
+}
+
+.performance-bar-fill {
+  width: 100%;
+  min-height: 0;
+  background: linear-gradient(180deg, #fb923c 0%, #ea580c 100%);
+  border-radius: 6px 6px 2px 2px;
+  transition: height 0.2s ease;
+}
+
+.performance-bar-label {
+  font-size: 10px;
+  color: #6b7280;
+  margin-top: 8px;
+  text-align: center;
+  line-height: 1.15;
+  min-height: 2.4em;
+  max-width: 100%;
+}
+
+.performance-bar-label--placeholder {
+  color: #d1d5db;
+  font-size: 14px;
+  line-height: 1;
+}
+
+/* Pills (paired with EmployerHome.css analytics grid) */
+.analytics-change-pill.neutral {
+  color: #6b7280;
+  background-color: #f3f4f6;
+}
+
 .analytics-search-icon {
     width: 20px;
     height: 20px;
