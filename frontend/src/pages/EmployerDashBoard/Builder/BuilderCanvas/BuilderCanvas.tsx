@@ -284,18 +284,19 @@ export default function BuilderCanvas({ id, workspace }: BuilderCanvasProps) {
                 lastModified: updatedLastModified, 
             });
 
-            const lessonUpdatePromises = lessons.map(lesson => {
+            const lessonUpdatePromises = lessons.map(async (lesson) => {
                 const lessonRef = doc(db, "simulationLessons", lesson.id);
     
-                return updateDoc(lessonRef, {
-                    skills: lesson.skills,
-                    allowUnlimitedAttempts: lesson.allowUnlimitedAttempts,
+                await updateDoc(lessonRef, {
+                    skills: lesson.skills ?? [],
+                    allowUnlimitedAttempts: lesson.allowUnlimitedAttempts ?? null,
                     numAttempts: lesson.numAttempts ?? null,
                     criteria: lesson.criteria ?? [],
                     dueDate: lesson.dueDate ?? null,
                     customerMood: lesson.customerMood ?? 33,
                     lessonAbstractInfo: lesson.lessonAbstractInfo ?? null
                 });
+
             });
     
             await Promise.all(lessonUpdatePromises);
@@ -308,7 +309,7 @@ export default function BuilderCanvas({ id, workspace }: BuilderCanvasProps) {
         } finally {
             setSaving(false);
         }
-    };
+    }; 
       
     const [aiLoading, setAiLoading] = useState(false);
     const handleSend = async () => {
@@ -810,6 +811,7 @@ export default function BuilderCanvas({ id, workspace }: BuilderCanvasProps) {
                         <div className="lessons-list">
                             {lessons?.map((l) => 
                                 (<LessonCard 
+                                    key={l.id}
                                     lessonInfo={l} 
                                     role={"employer"} 
                                     moduleID={id}

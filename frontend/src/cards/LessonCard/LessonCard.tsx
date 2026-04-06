@@ -62,9 +62,7 @@ export default function LessonCard({ lessonInfo, role, status, evaluation, navig
     );
     
     useEffect(() => {
-        if (lessonInfo.dueDate) {
-            setSelectedDate(parseDateString(lessonInfo.dueDate));
-        }
+        setSelectedDate(parseDateString(lessonInfo.dueDate));
     }, [lessonInfo.dueDate]);
 
     const handleDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
