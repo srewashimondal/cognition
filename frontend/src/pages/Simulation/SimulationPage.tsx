@@ -406,6 +406,26 @@ export default function SimulationPage({ role, workspaceID }: { role: "employee"
                 });
             }
         }
+
+        const simRef = doc(
+            db,
+            "simulationLessonAttempts",
+            lessonID,
+            "simulations",
+            `sim_${simulationIndex}`,
+        );
+        const simSnap = await getDoc(simRef);
+
+        if (simSnap.exists()) {
+            const data = simSnap.data();
+
+            if (data.completionStatus === "not begun") {
+                await updateDoc(simRef, {
+                    completionStatus: "started"
+                });
+            }
+        }
+
     };
 
     useEffect(() => {
@@ -512,7 +532,6 @@ export default function SimulationPage({ role, workspaceID }: { role: "employee"
     
                     await updateDoc(simDocRef, {
                         briefingCompleted: true,
-                        completionStatus: "started"
                     });
     
                     setPhase("simulation");

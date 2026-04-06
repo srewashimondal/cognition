@@ -19,6 +19,7 @@ const auth = getAuth();
 import { collection, query, orderBy, getDocs, deleteDoc, doc, updateDoc, serverTimestamp, getDoc } from "firebase/firestore";
 import { db } from '../../../firebase';
 import { updateModuleStatus } from '../../../utils/Utils';
+import VideoPlayer from './VideoPlayer/VideoPlayer';
 
 type VideoLessonPageProps = {
     lessonAttempt: StandardLessonAttempt;
@@ -53,6 +54,7 @@ export default function VideoLessonPage({ lessonAttempt, lesson, handleBack, mod
     const [stopTyping, setStopTyping] = useState(false);
     const [hasCompleted, setHasCompleted] = useState(lessonAttempt.status === "completed");
     const [hasStarted, setHasStarted] = useState(lessonAttempt.status !== "not begun");
+    const [showSidebar, setShowSidebar] = useState(true);
 
     useEffect(() => {
         const unsubscribe = auth.onAuthStateChanged((u) => setCurrentUser(u));
@@ -330,28 +332,30 @@ export default function VideoLessonPage({ lessonAttempt, lesson, handleBack, mod
     
     return (
         <div className="video-lesson-page">
-            <div className="video-portion">
+            <div className={`video-portion ${showSidebar ? "part-screen" : ""}`}>
                 <div className="video-lesson-header">
                     <div className="back-to-lessons" onClick={handleBack}>
                         <img src={left_arrow} />
                     </div>
                     <div className="builder-page-title">
-                        Standard Modules / {moduleTitle} / Video Lesson
+                        Standard Modules / {moduleTitle}  
+                        <span className="bold-txt vid-title"> / {lesson?.title}</span>
                     </div>
                 </div>
                 <div className="video-title">
-                        <h1>{lesson?.title}</h1>
-                    </div>
+                    <h1>{/*lesson?.title*/}</h1>
+                </div>
                 <div className="video-wrapper">
-
-                    <video ref={videoRef} src={videoURL ?? ""} controls={isPlaying} preload="metadata" 
-                    onPause={() => setIsPlaying(false)} onEnded={() => setIsPlaying(false)} 
-                    onTimeUpdate={handleTimeUpdate} />
-
-                    {!isPlaying && (
-                        <img className="play-button for-video" src={play_button} onClick={handlePlay} />
-                    )}
-
+                    <VideoPlayer
+                        src={videoURL ?? ""}
+                        videoRef={videoRef}
+                        isPlaying={isPlaying}
+                        setIsPlaying={setIsPlaying}
+                        onPlay={handlePlay}
+                        onPause={() => setIsPlaying(false)}
+                        onEnded={() => setIsPlaying(false)}
+                        onTimeUpdate={handleTimeUpdate}
+                    />
                 </div>
                 {/*<div className="video-under">
                     <div className="video-under-tabs">
@@ -374,7 +378,8 @@ export default function VideoLessonPage({ lessonAttempt, lesson, handleBack, mod
                     </div>
                 </div> */}
             </div>
-            { (lesson?.allowSummary || lesson?.allowTranscript) &&
+
+            { (showSidebar && (lesson?.allowSummary || lesson?.allowTranscript)) &&
             <div className="section-summaries">
                 {(selectedSummary || showTranscript) ? 
                 <div className="selected-summary-chat">
