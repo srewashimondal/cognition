@@ -7,6 +7,7 @@ import os
 import secrets
 from app.models.schemas import POSConnectRequest
 from app.services.pinecone_service import PineconeService
+from app.utils.utils import verify_shopify_webhook
 
 router = APIRouter()
 pinecone = PineconeService()
@@ -19,6 +20,8 @@ if not firebase_admin._apps:
 
 db = firestore.client()
 
+
+# LIGHTSPEED ENDPOINTS
 @router.post('/lightspeed/connect')
 def connect_lightspeed(req: POSConnectRequest):
     client_id = os.getenv("LIGHTSPEED_CLIENT_ID")
@@ -104,6 +107,20 @@ def lightspeed_callback(code: str | None = None, domain_prefix: str | None = Non
 
     token = token_data["access_token"]
     domain = token_data["domain_prefix"]
+
+    # update posProvider in firebase
+    workspace_ref.set({
+        "posProvider": "Lightspeed"
+    }, merge=True)
+
+    # delete pre-existing products
+    products_ref = workspace_ref.collection("products")
+
+    docs = products_ref.stream()
+    for doc in docs:
+        doc.reference.delete()
+
+    pinecone.delete_workspace_products(workspace_id)
     
     # create webhook
     webhook_url = os.getenv("LIGHTSPEED_WEBHOOK_URL")
@@ -194,3 +211,259 @@ async def lightspeed_webhook(request: Request):
     print("LIGHTSPEED WEBHOOK:", payload)
 
     return {"status": "received"}
+
+
+
+# SHOPIFY POS ENDPOINTS
+@router.post("/shopify/connect")
+def connect_shopify(req: POSConnectRequest):
+    client_id = os.getenv("SHOPIFY_POS_CLIENT_ID")
+    redirect_uri = os.getenv("SHOPIFY_POS_REDIRECT_URI")
+
+    workspace_id = req.workspace_id
+    shop = req.shop
+
+    state = f"{workspace_id}:{secrets.token_urlsafe(16)}"
+
+    scopes = "read_products,read_inventory"
+
+    auth_url = (
+        f"https://{shop}/admin/oauth/authorize"
+        f"?client_id={client_id}"
+        f"&scope={scopes}"
+        f"&redirect_uri={redirect_uri}"
+        f"&state={state}"
+        f"&response_type=code"
+    )
+
+    return {"auth_url": auth_url}
+
+@router.get("/shopify/callback")
+def shopify_callback(code: str = None, shop: str = None, state: str = None):
+
+    if not code or not shop or not state:
+        raise HTTPException(status_code=400, detail="Missing params")
+
+    workspace_id = state.split(":")[0]
+
+    token_url = f"https://{shop}/admin/oauth/access_token"
+
+    response = requests.post(
+        token_url,
+        headers={
+            "Content-Type": "application/x-www-form-urlencoded"
+        },
+        data={
+            "client_id": os.getenv("SHOPIFY_POS_CLIENT_ID"),
+            "client_secret": os.getenv("SHOPIFY_POS_CLIENT_SECRET"),
+            "code": code,
+        }
+    )
+
+    data = response.json()
+    access_token = data.get("access_token")
+
+    if not access_token:
+        raise HTTPException(status_code=400, detail="Token exchange failed")
+
+    workspace_ref = db.collection("workspaces").document(workspace_id)
+
+    workspace_ref.collection("integrations").document("shopify").set({
+        "access_token": access_token,
+        "shop": shop,
+        "connected_at": firestore.SERVER_TIMESTAMP
+    })
+
+    # update pos provider in firebase
+    workspace_ref.set({
+        "posProvider": "Shopify POS"
+    }, merge=True)
+
+    # delete pre-existing products
+    products_ref = workspace_ref.collection("products")
+
+    docs = products_ref.stream()
+    for doc in docs:
+        doc.reference.delete()
+
+    pinecone.delete_workspace_products(workspace_id)
+
+    # create webhook
+
+    webhook_url = os.getenv("SHOPIFY_POS_WEBHOOK_URL")
+
+    webhook_response = requests.post(
+        f"https://{shop}/admin/api/2024-01/webhooks.json",
+        headers={
+            "X-Shopify-Access-Token": access_token,
+            "Content-Type": "application/json"
+        },
+        json={
+            "webhook": {
+                "topic": "products/update",
+                "address": webhook_url,
+                "format": "json"
+            }
+        }
+    )
+
+    print("WEBHOOK STATUS:", webhook_response.status_code)
+    print("WEBHOOK BODY:", webhook_response.text)
+
+    # sync products
+    query = """
+        query ($cursor: String) {
+        products(first: 50, after: $cursor) {
+            edges {
+            cursor
+            node {
+                id
+                title
+                description
+                variants(first: 5) {
+                edges {
+                    node {
+                    id
+                    price
+                    inventoryQuantity
+                    }
+                }
+                }
+            }
+            }
+            pageInfo {
+            hasNextPage
+            }
+        }
+        }
+    """
+
+    url = f"https://{shop}/admin/api/2024-01/graphql.json"
+
+    cursor = None
+    has_next_page = True
+
+    while has_next_page:
+        response = requests.post(
+            url,
+            json={
+                "query": query,
+                "variables": {"cursor": cursor}
+            },
+            headers={
+                "X-Shopify-Access-Token": access_token,
+                "Content-Type": "application/json"
+            }
+        )
+
+        data = response.json()
+
+        products = data["data"]["products"]["edges"]
+
+        for edge in products:
+            product = edge["node"]
+            product_id = product["id"]
+
+            raw_id = product["id"]
+            product_id = raw_id.split("/")[-1]
+
+            workspace_ref.collection("products").document(product_id).set({
+                "name": product.get("title"),
+                "description": product.get("description"),
+                "source": "shopify",
+                "external_id": raw_id, 
+                "last_synced": firestore.SERVER_TIMESTAMP
+            }, merge=True)
+
+            pinecone.upsert_product(workspace_id, product)
+
+            for v in product.get("variants", {}).get("edges", []):
+                variant = v["node"]
+
+                raw_variant_id = variant["id"]
+                variant_id = raw_variant_id.split("/")[-1]
+
+                workspace_ref.collection("products") \
+                    .document(product_id) \
+                    .collection("variants") \
+                    .document(variant_id).set({
+                        "price": variant.get("price"),
+                        "inventory": variant.get("inventoryQuantity"),
+                        "external_id": raw_variant_id
+                    }, merge=True)
+
+        if products:
+            cursor = products[-1]["cursor"]
+
+        has_next_page = data["data"]["products"]["pageInfo"]["hasNextPage"]
+
+    return HTMLResponse("""
+        <html>
+        <body>
+            <script>
+            if (window.opener) {
+                window.opener.postMessage({ type: "shopify_connected" }, "*");
+            }
+            window.close();
+            </script>
+            <p>Shopify connected and products synced successfully.</p>
+        </body>
+        </html>
+    """)
+
+@router.post("/shopify/webhook")
+async def shopify_webhook(request: Request):
+    body_bytes = await request.body()
+
+    if not verify_shopify_webhook(request, body_bytes):
+        raise HTTPException(status_code=401, detail="Invalid webhook")
+
+    body = await request.json()
+
+    print("VERIFIED WEBHOOK:", body)
+
+    shop = request.headers.get("X-Shopify-Shop-Domain")
+
+    if not shop:
+        return {"status": "no shop"}
+
+    query = db.collection_group("integrations") \
+        .where("shop", "==", shop) \
+        .stream()
+
+    workspace_id = None
+    for doc in query:
+        workspace_id = doc.reference.parent.parent.id
+
+    if not workspace_id:
+        return {"status": "workspace not found"}
+
+    workspace_ref = db.collection("workspaces").document(workspace_id)
+
+    raw_id = body.get("id")
+    if not raw_id:
+        return {"status": "no product id"}
+
+    product_id = str(raw_id) 
+
+    workspace_ref.collection("products").document(product_id).set({
+        "name": body.get("title"),
+        "description": body.get("body_html"),
+        "source": "shopify",
+        "external_id": raw_id,
+        "last_synced": firestore.SERVER_TIMESTAMP
+    }, merge=True)
+
+    pinecone.upsert_product(workspace_id, {
+        "id": f"gid://shopify/Product/{raw_id}", 
+        "title": body.get("title"),
+        "description": body.get("body_html"),
+        "product_category": "",
+        "brand": "",
+        "supplier": "",
+        "price_excluding_tax": 0
+    })
+
+    print("Webhook processed for product:", product_id)
+
+    return {"status": "ok"}

@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import "./Settings.css";
 import Question from "../Onboarding/Question/Question";
+import ErrorMessage from "../../../components/ErrorMessage/ErrorMessage";
 import eye_on from '../../../assets/icons/eye_on.svg';
 import eye_off from '../../../assets/icons/eye_off.svg';
 import default_icon from '../../../assets/icons/default-icon.svg';
@@ -8,6 +9,7 @@ import icon_stroke from '../../../assets/icons/icon-stroke.svg';
 import add_cta from '../../../assets/icons/add-cta.svg';
 import lightspeed_logo from '../../../assets/illustrations/lightspeed_logo.svg';
 import zoho_logo from '../../../assets/illustrations/zoho_logo.png';
+import shopify_logo from '../../../assets/illustrations/shopifypos_logo.png';
 import { Tooltip, Select } from "@radix-ui/themes";
 import { doc, updateDoc, getDoc } from "firebase/firestore";
 import { db } from "../../../firebase";
@@ -16,6 +18,7 @@ import type { WorkspaceType } from "../../../types/User/WorkspaceType";
 import { getInterfacePrefs, saveInterfacePrefs, applyInterfacePrefs } from "../../../utils/interfacePrefs";
 import { toast } from "react-hot-toast";
 import green_check from '../../../assets/icons/green_pos_check.svg';
+import info_icon from '../../../assets/icons/black-info-icon.svg';
 
 type Tab = "account" | "notifications" | "interface" | "payments" | "workspace";
 
@@ -593,6 +596,8 @@ function WorkspaceSettings({ workspace }: { workspace: WorkspaceType | null }) {
   const [selectedSettings, setSelectedSettings] = useState<string[]>(["Sync Inventory", "Sync Products"]);
   const [workspaceId, setWorkspaceId] = useState(workspace?.id ?? "");
   const [updateProvider, setUpdateProvider] = useState(false);
+  const [shopURL, setShopURL] = useState("");
+  const [error, setError] = useState("");
 
   useEffect(() => {
     if (!workspace) return;
@@ -683,7 +688,53 @@ function WorkspaceSettings({ workspace }: { workspace: WorkspaceType | null }) {
       const data = await res.json();
       window.open(data.auth_url, "_blank");
     }
+
+    if (posProvider === "Shopify POS") {
+      if (!shopURL) {
+        alert("Please enter your Shopify store name");
+        setError("Please enter your Shopify store name");
+        return;
+      }
+
+      const fullShop = `${shopURL}.myshopify.com`;
+
+      const res = await fetch(
+        "http://127.0.0.1:8000/integrations/shopify/connect",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({
+            workspace_id: workspaceId,
+            settings: selectedSettings,
+            shop: fullShop
+          })
+        }
+      );
+
+      const data = await res.json();
+
+      if (!data.auth_url) {
+        console.error(data);
+        alert("Failed to connect to Shopify");
+        return;
+      }
+
+      window.open(data.auth_url, "_blank");
+      
+    }
   }
+
+  const refreshPOS = async () => {
+    const ref = doc(db, "workspaces", workspaceId);
+    const snap = await getDoc(ref);
+  
+    if (snap.exists()) {
+      const data = snap.data();
+      setConnectedPOS(data.posProvider || null);
+    }
+  };
 
   useEffect(() => {
     const handleMessage = (event: MessageEvent) => {
@@ -691,6 +742,12 @@ function WorkspaceSettings({ workspace }: { workspace: WorkspaceType | null }) {
   
       if (event.data?.type === "lightspeed_connected") {
         toast.success("Lightspeed connected!");
+        refreshPOS();
+      }
+
+      if (event.data?.type === "shopify_connected") {
+        toast.success("Shopify connected!");
+        refreshPOS();
       }
 
       setUpdateProvider(false);
@@ -704,18 +761,12 @@ function WorkspaceSettings({ workspace }: { workspace: WorkspaceType | null }) {
   const [connectedPOS, setConnectedPOS] = useState<string | null>(null);
   useEffect(() => {
     const checkPOS = async () => {
-      const ref = doc(
-        db,
-        "workspaces",
-        workspaceId,
-        "integrations",
-        "lightspeed"
-      );
-  
+      const ref = doc(db, "workspaces", workspaceId);
       const snap = await getDoc(ref);
   
       if (snap.exists()) {
-        setConnectedPOS("Lightspeed");
+        const data = snap.data();
+        setConnectedPOS(data.posProvider || null);
       }
     };
   
@@ -833,8 +884,27 @@ function WorkspaceSettings({ workspace }: { workspace: WorkspaceType | null }) {
           <div className="ai-studio-section ai-studio-pos-integration">
               <Question question={"Select your Point of Scale System Provider"} input_type={"image-buttons"} 
               value={posProvider} onChange={(newProvider) => {setPOSProvider(newProvider);}} 
-              options={["Lightspeed", "Zoho"]} fileOptions={[lightspeed_logo, zoho_logo]}
+              options={["Lightspeed", "Shopify POS"]} fileOptions={[lightspeed_logo, shopify_logo]}
               direction={"Select an option."} />
+
+              { (posProvider === "Shopify POS") &&
+                <div className="shopify-shop-connect">
+                  <label>Enter your Shopify Shop URL</label>
+                  <div className="shopify-shop-connect-input">
+                    <div className="choice-text-wrapper">
+                      <input type="text" placeholder="E.g. 'my-shop-1'" value={shopURL} onChange={(e) => {setShopURL(e.target.value); setError("")}} />
+                    </div>
+                    <p>.myshopify.com</p>
+                    <Tooltip content="Enter the part before .myshopify.com from your Shopify admin URL. For example, if your store is my-shop-1.myshopify.com, enter 'my-shop-1'.">
+                      <img src={info_icon} />
+                    </Tooltip>
+                  </div>
+                </div>
+              }
+
+              {error && 
+                <ErrorMessage message={error} />
+              }
 
               <div className="connect-div ai-studio">
                   <button onClick={handlePOSConnect}>Connect</button>

@@ -668,3 +668,33 @@ button.secondary:hover {
   color: #296d0c;
   font-weight: 600;
 }
+
+.shopify-shop-connect {
+  padding: 5px;
+}
+
+.shopify-shop-connect label {
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.shopify-shop-connect .choice-text-wrapper {
+  width: 40%;
+}
+
+.shopify-shop-connect-input {
+  display: flex;
+}
+
+.shopify-shop-connect-input p {
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.choice-text-wrapper + p {
+  align-self: flex-end;
+}
+
+.shopify-shop-connect-input img {
+  margin-left: 10px;
+}

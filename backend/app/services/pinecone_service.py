@@ -35,7 +35,7 @@ class PineconeService:
     def upsert_product(self, workspace_id: str, product: dict):
         
         product_id = product.get("id")
-        name = product.get("name") or ""
+        name = product.get("title") or product.get("name") or ""
         description = product.get("description") or ""
         product_category = product.get("product_category") or {}
         category = product_category.get("name", "") if isinstance(product_category, dict) else str(product_category)
@@ -92,3 +92,9 @@ class PineconeService:
 
         return [m["metadata"] for m in results["matches"]]
     
+    def delete_workspace_products(self, workspace_id: str):
+        print(f"Deleting Pinecone vectors for workspace {workspace_id}")
+
+        self.index.delete(
+            filter={"workspace_id": str(workspace_id)}
+        )

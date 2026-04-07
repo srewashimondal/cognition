@@ -131,6 +131,7 @@ class TTSRequest(BaseModel):
 class POSConnectRequest(BaseModel):
     workspace_id: str
     settings: list[str] = []
+    shop: Optional[str] = None
 
 class ProductSearchRequest(BaseModel):
     workspace_id: str
