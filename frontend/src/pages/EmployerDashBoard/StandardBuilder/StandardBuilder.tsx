@@ -17,6 +17,16 @@ import { Tooltip } from "@radix-ui/themes";
 import { formatTimestampString } from '../../../utils/Utils';
 // import { standardModule } from '../../../dummy_data/standard_data';
 import orange_left_arrow from '../../../assets/icons/orange-left-arrow.svg';
+
+function firstVideoThumbnailForModuleCard(lessons: StandardLessonType[]): string | null {
+    const sorted = [...lessons].sort((a, b) => a.orderNumber - b.orderNumber);
+    for (const lesson of sorted) {
+        if (lesson.type === "video" && lesson.thumbnailUrl) {
+            return lesson.thumbnailUrl;
+        }
+    }
+    return null;
+}
 import edit_icon from '../../../assets/icons/simulations/grey-edit-icon.svg';
 import check_icon from '../../../assets/icons/simulations/grey-check-icon.svg';
 import file_icon from '../../../assets/icons/simulations/grey-file-icon.svg';
@@ -80,6 +90,9 @@ export default function StandardBuilder({ workspace }: { workspace: WorkspaceTyp
                                         allowSummary: lessonData.allowSummary ?? true,
                                         dueDate: lessonData.dueDate,
                                         duration: lessonData.duration,
+                                        thumbnailUrl: lessonData.thumbnailUrl,
+                                        filename: lessonData.filename,
+                                        durationSeconds: lessonData.durationSeconds,
                                     } as VideoLessonType;
                                 } else if (lessonData.type === "quiz") {
                                     return {
@@ -479,6 +492,7 @@ export default function StandardBuilder({ workspace }: { workspace: WorkspaceTyp
                 numLessons: lessons.length,
                 lastModified: new Date().toISOString(),
                 workspaceRef: doc(db, "workspaces", workspace.id),
+                thumbnailUrl: firstVideoThumbnailForModuleCard(lessons),
             };
 
             if (isNewDraft) {

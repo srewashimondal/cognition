@@ -10,9 +10,10 @@ export type ModuleType = {
     deployed?: boolean;
     createTime: string;
     difficulty: string;
-    references: DocumentReference[]; // change to File later
+    references: DocumentReference[]; 
     kind: "simulation";
     lastModified?: string;
     orderNumber: number;
     workspaceRef: DocumentReference;
+    thumbnailUrl?: string;
 };
