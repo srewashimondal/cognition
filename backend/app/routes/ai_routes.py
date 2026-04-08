@@ -1007,7 +1007,26 @@ async def create_simulation(request: CreateSimulationRequest):
         print("[2] Getting store product context")
         store_product_context = get_store_product_context(request.workspace_id)
 
-        print("[3] Calling LLM... (first employee for this lesson – will become canonical)")
+        existing_sibling_scenarios = []
+        for idx in (1, 2, 3):
+            if idx == request.sim_index:
+                continue
+            sib_ref = lesson_attempt_ref.collection("simulations").document(f"sim_{idx}")
+            sib_snap = sib_ref.get()
+            if not sib_snap.exists:
+                continue
+            sib_data = sib_snap.to_dict() or {}
+            if sib_data.get("generationStatus") != "ready":
+                continue
+            existing_sibling_scenarios.append(
+                {
+                    "partIndex": idx,
+                    "characterName": sib_data.get("characterName"),
+                    "premise": sib_data.get("premise"),
+                }
+            )
+
+        print(f"[3] Calling LLM for sim_{request.sim_index} (distinct from {len(existing_sibling_scenarios)} sibling(s))")
         ai_response = llm.generate_simulation(
             store_info=request.store_info,
             lesson_title=request.lesson_title,
@@ -1015,7 +1034,9 @@ async def create_simulation(request: CreateSimulationRequest):
             lesson_difficulty=request.lesson_difficulty,
             lesson_abstract=request.lesson_abstract,
             reference_summaries=reference_summaries,
-            store_product_context=store_product_context
+            store_product_context=store_product_context,
+            sim_index=request.sim_index,
+            existing_sibling_scenarios=existing_sibling_scenarios or None,
         )
 
         # Hume voice generation

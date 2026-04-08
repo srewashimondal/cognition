@@ -927,14 +927,36 @@ class LLMService:
         lesson_difficulty: str, 
         lesson_abstract: dict, 
         reference_summaries: Optional[List[dict]] = None,
-        store_product_context: Optional[dict] = None
+        store_product_context: Optional[dict] = None,
+        sim_index: int = 1,
+        existing_sibling_scenarios: Optional[List[dict]] = None,
     ):
+
+        part_label = max(1, min(3, int(sim_index)))
+        sibling_block = ""
+        if existing_sibling_scenarios:
+            lines = []
+            for s in existing_sibling_scenarios:
+                ch = (s.get("characterName") or "").strip()
+                pr = (s.get("premise") or "").strip()
+                pi = s.get("partIndex")
+                if ch or pr:
+                    lines.append(
+                        f"- Part {pi} — Customer name used: {ch or '(unknown)'}. Premise summary: {pr[:500]}{'…' if len(pr) > 500 else ''}"
+                    )
+            if lines:
+                sibling_block = (
+                    "\n        OTHER PARTS IN THIS SAME LESSON (already generated — you MUST NOT reuse these customers, core conflicts, or near-duplicate situations):\n        "
+                    + "\n        ".join(lines)
+                    + "\n"
+                )
 
         prompt = f"""
         You are an AI system generating a structured retail employee training simulation.
 
         The goal is to create a realistic, skill-focused scenario that helps the employee practice applying the lesson concepts in a live customer interaction.
 
+        SIMULATION PART: This is part {part_label} of 3 for this lesson. Each part must feel like a **distinct** practice scenario: use a **different** customer first name, a **different** primary need or problem, and **different** situational details than the other parts. Escalate or vary emotional pressure appropriately for part {part_label} (part 1 = setup, part 2 = added complexity or tension, part 3 = most challenging or nuanced within the lesson difficulty).{sibling_block}
         STORE INFORMATION:
         {store_info}
 
@@ -1000,7 +1022,7 @@ class LLMService:
             - The employee must make decisions (not just answer a question)
             - The scenario must reference realistic products or services that align with the provided store product context.
             - Do not invent unrelated product categories.
-            - Make sure the scenario is randomized. 
+            - Vary details so this part is not a near-copy of the other two parts in the lesson.
 
         3. Generate EXACTLY 3 goals clear and actionable goals for the employee to accomplish during the simulation.
         The goals should:
@@ -1090,7 +1112,7 @@ class LLMService:
         response = self.client.chat.completions.create(
             model="gpt-4o-mini",
             messages=[{"role": "user", "content": prompt}],
-            temperature=0.4,
+            temperature=0.55,
             response_format={"type": "json_object"}
         )
 

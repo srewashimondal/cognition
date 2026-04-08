@@ -100,10 +100,21 @@ export default function ModuleCard({ moduleInfo, type, role, status, percent, st
     const thumbnailUrl = resolveCardThumbnailUrl(moduleInfo, type);
     const bannerArtStyle = thumbnailUrl ? undefined : bannerStyleFromModuleId(moduleInfo.id);
 
+    const employeeModuleComplete =
+      role === "employee" &&
+      (status === "completed" ||
+        (typeof percent === "number" && percent >= 100));
+
     const handleNavigateEmployee = () => {
-      if (status === "completed") {
-        navigate(`/employee/simulations/${moduleInfo.id}/performance`);
-        return;
+      if (employeeModuleComplete) {
+        if (type === "simulation" && attemptId) {
+          navigate(`/employee/simulations/${attemptId}/performance`);
+          return;
+        }
+        if (type === "standard" && attemptId) {
+          navigate(`/employee/standard-modules/${attemptId}`);
+          return;
+        }
       }
       navigate(`/employee/${type === "simulation" ? "simulations" : "standard-modules"}/${attemptId}`);
     };
@@ -160,8 +171,8 @@ export default function ModuleCard({ moduleInfo, type, role, status, percent, st
                     <span>Deploy</span>
                   </span>) : ("Deployed")}
                 </button> ) : (
-                <button className={`module-card-btn ${(status == "completed") ? "completed" : ""}`} onClick={handleNavigateEmployee}>
-                  {(status !== "completed") ? (<span className="module-card-btn-label-div">
+                <button className={`module-card-btn ${employeeModuleComplete ? "completed" : ""}`} onClick={handleNavigateEmployee}>
+                  {!employeeModuleComplete ? (<span className="module-card-btn-label-div">
                     <div className="module-action-swap">
                       <img className="module-action-icon default" src={white_play}/>
                       <img className="module-action-icon hover" src={orange_play}/>
@@ -170,7 +181,7 @@ export default function ModuleCard({ moduleInfo, type, role, status, percent, st
                   </span>) : ("View Module Performance")}
                 </button>
               )}
-              {(role === "employee" && status === "started" && percent) && (<ProgressBar percent={percent} style={style} />)}
+              {(role === "employee" && !employeeModuleComplete && status === "started" && percent) && (<ProgressBar percent={percent} style={style} />)}
               </div>
         </div>
     );

@@ -9,10 +9,14 @@ import type { ModuleType } from '../../../../types/Modules/ModuleType';
 import type { ModuleAttemptType } from '../../../../types/Modules/ModuleAttemptType';
 import type { LessonType } from '../../../../types/Modules/Lessons/LessonType';
 import type { LessonAttemptType } from '../../../../types/Modules/Lessons/LessonAttemptType';
-import { collection, doc, getDoc, getDocs, query, where } from "firebase/firestore";
+import { collection, doc, getDoc, getDocs, query, updateDoc, where } from "firebase/firestore";
 import { db } from '../../../../firebase';
-// dummy data
-import { moduleAttempts } from '../../../../dummy_data/modulesAttempt_data';
+import {
+    collectLessonSimulationFeedback,
+    evaluationHasUserFacingContent,
+    lessonEvaluationFromAggregatedFeedback,
+    storedPartialIsUseful,
+} from "../../../../utils/simulationFeedback";
 import orange_left_arrow from '../../../../assets/icons/orange-left-arrow.svg';
 import clock_icon from '../../../../assets/icons/simulations/black-clock-icon.svg';
 import notebook_icon from '../../../../assets/icons/simulations/black-notebook-icon.svg';
@@ -102,18 +106,60 @@ export default function SimulationLessons() {
                     };
                     
                 });
+
+                const withFeedback = await Promise.all(
+                    enriched.map(async (lesson: any) => {
+                        if (lesson.status !== "completed") {
+                            return lesson;
+                        }
+                        const fb = await collectLessonSimulationFeedback(
+                            db,
+                            lesson.id
+                        );
+                        const evaluation = lessonEvaluationFromAggregatedFeedback(
+                            fb,
+                            storedPartialIsUseful(lesson.evaluation)
+                                ? lesson.evaluation
+                                : undefined,
+                            { lessonMarkedComplete: true }
+                        );
+                        if (evaluationHasUserFacingContent(evaluation)) {
+                            try {
+                                await updateDoc(
+                                    doc(db, "simulationLessonAttempts", lesson.id),
+                                    { evaluation }
+                                );
+                            } catch (err) {
+                                console.warn("Persist lesson evaluation failed:", err);
+                            }
+                        }
+                        return {
+                            ...lesson,
+                            evaluation,
+                        };
+                    })
+                );
+
+                const totalLessons = withFeedback.length;
+                const completedCount = withFeedback.filter(
+                    (l) => l.status === "completed"
+                ).length;
+                const computedPercent =
+                    totalLessons === 0
+                        ? 0
+                        : Math.round((completedCount / totalLessons) * 100);
     
                 setModuleAttempt({
                     id: moduleAttemptSnap.id,
                     moduleInfo: builtModuleInfo,
                     moduleRef: moduleAttemptRef,
                     status: moduleAttemptData.status,
-                    percent: moduleAttemptData.percent,
-                    lessons: enriched
+                    percent: computedPercent,
+                    lessons: withFeedback
                 });
     
                 setModuleInfo(builtModuleInfo);
-                setLessonAttempts(enriched);
+                setLessonAttempts(withFeedback);
     
             } catch (err) {
                 console.error("Error fetching simulation module attempt:", err);
@@ -146,7 +192,9 @@ export default function SimulationLessons() {
                     const bNum = Number(b.id.split("_")[1]);
                     return aNum - bNum;
                 }); 
-            const nextIndex = sims.findIndex((s: any) => s.status !== "completed");
+            const nextIndex = sims.findIndex(
+                (s: any) => (s.completionStatus ?? s.status) !== "completed"
+            );
             const simIndex = nextIndex === -1 ? sims.length - 1 : nextIndex;
       
             navigate(`/employee/simulations/${moduleID}/${lessonAttemptID}/${simIndex + 1}`);

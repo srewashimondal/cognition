@@ -5,7 +5,7 @@ import ModuleCard from '../../../cards/ModuleCard/ModuleCard';
 import type { EmployeeUserType } from '../../../types/User/UserType';
 import type { ModuleType } from '../../../types/Modules/ModuleType';
 import type { ModuleAttemptType } from '../../../types/Modules/ModuleAttemptType';
-import { collection, doc, getDoc, getDocs, query, where } from "firebase/firestore";
+import { collection, doc, getDoc, getDocs, query, updateDoc, where } from "firebase/firestore";
 import { db } from '../../../firebase';
 
 /*
@@ -124,6 +124,33 @@ export default function SimulationModules({ user }: { user: EmployeeUserType }) 
                             totalLessons === 0
                                 ? 0
                                 : Math.round((completedCount / totalLessons) * 100);
+
+                        const stored = data.status as
+                            | ModuleAttemptType["status"]
+                            | undefined;
+                        const status: ModuleAttemptType["status"] =
+                            totalLessons > 0 && completedCount === totalLessons
+                                ? "completed"
+                                : completedCount > 0
+                                  ? "started"
+                                  : stored === "completed"
+                                    ? "completed"
+                                    : stored ?? "not begun";
+
+                        if (
+                            totalLessons > 0 &&
+                            completedCount === totalLessons &&
+                            stored !== "completed"
+                        ) {
+                            try {
+                                await updateDoc(docSnap.ref, {
+                                    status: "completed",
+                                    percent,
+                                });
+                            } catch (err) {
+                                console.warn("Could not sync module attempt status:", err);
+                            }
+                        }
     
                         const moduleRef = data.moduleInfo; 
                         const moduleSnap = await getDoc(moduleRef);
@@ -134,7 +161,7 @@ export default function SimulationModules({ user }: { user: EmployeeUserType }) 
     
                         return {
                             id: docSnap.id,
-                            status: data.status,
+                            status,
                             percent,
                             moduleInfo,
                             moduleRef

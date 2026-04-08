@@ -6,7 +6,7 @@ import TypeMode from './TypeMode/TypeMode';
 import ProgressBar from '../../components/ProgressBar/ProgressBar';
 import ActionButton from '../../components/ActionButton/ActionButton';
 import SkillItem from '../../cards/LessonCard/SkillItem/SkillItem';
-import { collection, doc, query,  getDoc, setDoc, onSnapshot, orderBy, addDoc, serverTimestamp, updateDoc } from "firebase/firestore";
+import { collection, doc, query, getDoc, getDocs, setDoc, onSnapshot, orderBy, addDoc, serverTimestamp, updateDoc, where } from "firebase/firestore";
 import { db, storage } from "../../firebase";
 import { getDownloadURL, ref } from "firebase/storage";
 import type { DocumentReference } from 'firebase/firestore';
@@ -30,6 +30,7 @@ import type { LessonType } from '../../types/Modules/Lessons/LessonType';
 import type { MessageType } from '../../types/Modules/Lessons/Simulations/MessageType';
 import GenerationLoadingPage from '../LoadingPages/GenerationLoading/GenerationLoadingPage';
 import LoadingPage from '../LoadingPages/LoadingPage/LoadingPage';
+import { persistSimulationLessonEvaluation } from '../../utils/simulationFeedback';
 
 export default function SimulationPage({ role, workspaceID }: { role: "employee" | "employer", workspaceID: string }) {
     const { moduleID, lessonID, simIdx } = useParams();
@@ -53,6 +54,106 @@ export default function SimulationPage({ role, workspaceID }: { role: "employee"
     useEffect(() => {
         simDataRef.current = simData;
     }, [simData]);
+
+    const [allThreeSimsComplete, setAllThreeSimsComplete] = useState(false);
+    const simPartStatusRef = useRef<Partial<Record<1 | 2 | 3, string>>>({});
+
+    useEffect(() => {
+        simPartStatusRef.current = {};
+        setAllThreeSimsComplete(false);
+    }, [lessonID]);
+
+    useEffect(() => {
+        if (!lessonID || role !== "employee") return;
+        const parts = [1, 2, 3] as const;
+        const unsubs = parts.map((n) => {
+            const simDocRef = doc(
+                db,
+                "simulationLessonAttempts",
+                lessonID,
+                "simulations",
+                `sim_${n}`
+            );
+            return onSnapshot(simDocRef, (snap) => {
+                simPartStatusRef.current[n] = snap.exists()
+                    ? String((snap.data() as { completionStatus?: string }).completionStatus ?? "")
+                    : "";
+                const ready = parts.every((p) => simPartStatusRef.current[p] === "completed");
+                setAllThreeSimsComplete(ready);
+            });
+        });
+        return () => unsubs.forEach((u) => u());
+    }, [lessonID, role]);
+
+    type NextLessonRow = { id: string; title: string; status: string };
+    const [nextLessonNav, setNextLessonNav] = useState<NextLessonRow | null>(null);
+
+    useEffect(() => {
+        if (!lessonID || role !== "employee" || !allThreeSimsComplete) return;
+        const lessonRef = doc(db, "simulationLessonAttempts", lessonID);
+        getDoc(lessonRef).then((snap) => {
+            if (!snap.exists()) return;
+            if (snap.data().status === "completed") return;
+            updateDoc(lessonRef, { status: "completed" });
+        });
+    }, [lessonID, role, allThreeSimsComplete]);
+
+    useEffect(() => {
+        if (!allThreeSimsComplete || !lessonID || !lessonAttempt?.moduleRef) {
+            setNextLessonNav(null);
+            return;
+        }
+        let cancelled = false;
+        (async () => {
+            try {
+                const snap = await getDocs(
+                    query(
+                        collection(db, "simulationLessonAttempts"),
+                        where("moduleRef", "==", lessonAttempt.moduleRef)
+                    )
+                );
+                const rows: { id: string; order: number; title: string; status: string }[] = [];
+                for (const d of snap.docs) {
+                    const data = d.data();
+                    const liRef = data.lessonInfo;
+                    if (!liRef) continue;
+                    const liSnap = await getDoc(liRef);
+                    if (!liSnap.exists()) continue;
+                    const ld = liSnap.data() as { orderNumber?: number; title?: string };
+                    rows.push({
+                        id: d.id,
+                        order: ld.orderNumber ?? 999,
+                        title: typeof ld.title === "string" && ld.title ? ld.title : "Lesson",
+                        status: typeof data.status === "string" ? data.status : "not begun",
+                    });
+                }
+                rows.sort((a, b) => a.order - b.order);
+                const idx = rows.findIndex((r) => r.id === lessonID);
+                const next = idx >= 0 && idx < rows.length - 1 ? rows[idx + 1] : null;
+                if (!cancelled) {
+                    setNextLessonNav(
+                        next ? { id: next.id, title: next.title, status: next.status } : null
+                    );
+                }
+            } catch (e) {
+                console.error("Next lesson lookup failed:", e);
+                if (!cancelled) setNextLessonNav(null);
+            }
+        })();
+        return () => {
+            cancelled = true;
+        };
+    }, [allThreeSimsComplete, lessonID, lessonAttempt?.moduleRef]);
+
+    useEffect(() => {
+        if (!lessonID || role !== "employee") return;
+        const t = window.setTimeout(() => {
+            persistSimulationLessonEvaluation(db, lessonID).catch((err) =>
+                console.warn("Sync lesson evaluation failed:", err)
+            );
+        }, 1000);
+        return () => clearTimeout(t);
+    }, [lessonID, role, messages.length, allThreeSimsComplete]);
 
     const authLoading = !lessonAttempt;
     const simulationLoading = !simData || simData.generationStatus !== "ready";
@@ -280,7 +381,6 @@ export default function SimulationPage({ role, workspaceID }: { role: "employee"
                 };
                 getVolume();
             } catch {
-                /* visualizer optional; audio still plays via element */
             }
 
             audio.onended = () => {
@@ -408,8 +508,41 @@ export default function SimulationPage({ role, workspaceID }: { role: "employee"
         }
     };
 
+    const simDocCompletionDone = (s: { completionStatus?: string; status?: string }) =>
+        (s.completionStatus ?? s.status) === "completed";
 
-    // const [productHints, setProductHints] = useState<any[]>([]);
+    const handleNextLesson = async () => {
+        if (role !== "employee" || !moduleID) return;
+        if (!nextLessonNav) {
+            navigate(`/employee/simulations/${moduleID}`);
+            return;
+        }
+        const { id: nextId, status: nextStatus } = nextLessonNav;
+        if (nextStatus === "not begun") {
+            navigate(`/employee/simulations/${moduleID}/${nextId}/1`);
+            return;
+        }
+        try {
+            const simsSnap = await getDocs(
+                collection(db, "simulationLessonAttempts", nextId, "simulations")
+            );
+            const sims = simsSnap.docs
+                .map((d) => ({ id: d.id, ...(d.data() as Record<string, unknown>) }))
+                .sort(
+                    (a, b) =>
+                        Number(String(a.id).split("_")[1]) -
+                        Number(String(b.id).split("_")[1])
+                );
+            const nextIdx = sims.findIndex((s) => !simDocCompletionDone(s as { completionStatus?: string; status?: string }));
+            const simIndex = nextIdx === -1 ? Math.max(0, sims.length - 1) : nextIdx;
+            navigate(`/employee/simulations/${moduleID}/${nextId}/${simIndex + 1}`);
+        } catch (err) {
+            console.error("Navigate to next lesson failed:", err);
+            navigate(`/employee/simulations/${moduleID}/${nextId}/1`);
+        }
+    };
+
+
     const handleUserSend = async (text: string) => {
         if (!lessonID) return;
         if (simData?.completionStatus === "completed") return;
@@ -795,7 +928,19 @@ export default function SimulationPage({ role, workspaceID }: { role: "employee"
                         <div className="sim-action-panel">
                             <ActionButton text={"View Reference Materials"} buttonType={"read"} onClick={() => setOpenModal(true)} />
                             <div className={`action-wrap-sim ${role === "employer" ? "employer" : ""}`}>
-                                {(simulationIndex < 2) && <ActionButton text={"Next Part"} buttonType={"play"} onClick={handleNext} />}
+                                {(role === "employee" && simulationIndex < 3) && (
+                                    <ActionButton text={"Next Part"} buttonType={"play"} onClick={handleNext} />
+                                )}
+                                {(role === "employee" &&
+                                    simulationIndex === 3 &&
+                                    simData?.completionStatus === "completed" &&
+                                    allThreeSimsComplete) && (
+                                    <ActionButton
+                                        text={nextLessonNav ? "Next lesson" : "Back to module"}
+                                        buttonType={"go"}
+                                        onClick={handleNextLesson}
+                                    />
+                                )}
                             </div>
                         </div>
                     </div>          
