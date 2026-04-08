@@ -22,9 +22,11 @@ import map_icon from '../../../assets/icons/badges/map-icon.svg';
 import medal1_icon from '../../../assets/icons/badges/black-medal-icon-1.svg';
 import medal2_icon from '../../../assets/icons/badges/black-medal-icon-2.svg';
 import medal_white_icon from '../../../assets/icons/badges/white-medal-icon.svg';
-import { signOut } from "firebase/auth";
+import { signOut, updateProfile } from "firebase/auth";
 import { useNavigate } from "react-router-dom";
-import { auth } from "../../../firebase";
+import { auth, db, storage } from "../../../firebase";
+import { doc, updateDoc } from "firebase/firestore";
+import { getDownloadURL, ref, uploadBytes } from "firebase/storage";
 
 interface ProfilePageProps {
   open: boolean;
@@ -41,13 +43,14 @@ export default function ProfilePage({ open, onClose, user, viewer, tempPfp }: Pr
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const DEFAULT_PFP = "https://upload.wikimedia.org/wikipedia/commons/a/ac/Default_pfp.jpg";
   const [uploadedPFP, setUploadedPFP] = useState<string | File>(
-    tempPfp ?? user.profilePicture ?? DEFAULT_PFP
+    tempPfp ?? (user.profilePicture?.trim() ? user.profilePicture : DEFAULT_PFP)
   );
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [editMode, setEditMode] = useState(false);
   const [currentTab, setCurrentTab] = useState<Tab>("Progress");
   const [displayName, setDisplayName] = useState(user.fullName ?? "");
   const [error, setError] = useState<string | null>(null);
+  const [saving, setSaving] = useState(false);
   const navigate = useNavigate();
 
   const handleLogout = async () => {
@@ -60,6 +63,16 @@ export default function ProfilePage({ open, onClose, user, viewer, tempPfp }: Pr
     setDisplayName(user.fullName ?? "");
   }, [user.fullName]);
 
+  useEffect(() => {
+    if (!open) return;
+    const pictureSource =
+      tempPfp ??
+      (user.profilePicture?.trim() ? user.profilePicture : DEFAULT_PFP);
+    setUploadedPFP(pictureSource);
+    setDisplayName(user.fullName ?? "");
+    setEditMode(false);
+    setError(null);
+  }, [open, user.uid, user.profilePicture, user.fullName, tempPfp]);
 
   useEffect(() => {
       if (typeof uploadedPFP === "string") {
@@ -91,7 +104,7 @@ export default function ProfilePage({ open, onClose, user, viewer, tempPfp }: Pr
 
   if (!open) return null;
 
-  const handleSave = () => {
+  const handleSave = async () => {
     if (editMode === false) {
       setEditMode(true);
       return;
@@ -102,8 +115,57 @@ export default function ProfilePage({ open, onClose, user, viewer, tempPfp }: Pr
       return;
     }
 
-    setEditMode(false);
+    if (!isOwnProfile) {
+      setEditMode(false);
+      setError(null);
+      return;
+    }
+
     setError(null);
+    setSaving(true);
+    try {
+      let profilePictureUrl: string | undefined;
+      if (uploadedPFP instanceof File) {
+        const ext =
+          uploadedPFP.name.split(".").pop()?.toLowerCase() || "jpg";
+        const safeExt = ["jpg", "jpeg", "png", "gif", "webp"].includes(ext)
+          ? ext
+          : "jpg";
+        const storageRef = ref(
+          storage,
+          `profilePictures/${user.uid}.${safeExt}`
+        );
+        await uploadBytes(storageRef, uploadedPFP, {
+          contentType: uploadedPFP.type || `image/${safeExt}`,
+        });
+        profilePictureUrl = await getDownloadURL(storageRef);
+      }
+
+      const userRef = doc(db, "users", user.uid);
+      const payload: { fullName: string; profilePicture?: string } = {
+        fullName: displayName.trim(),
+      };
+      if (profilePictureUrl) payload.profilePicture = profilePictureUrl;
+
+      await updateDoc(userRef, payload);
+
+      const firebaseUser = auth.currentUser;
+      if (firebaseUser && firebaseUser.uid === user.uid) {
+        await updateProfile(firebaseUser, {
+          displayName: displayName.trim(),
+          ...(profilePictureUrl ? { photoURL: profilePictureUrl } : {}),
+        });
+      }
+
+      if (profilePictureUrl) setUploadedPFP(profilePictureUrl);
+      setEditMode(false);
+    } catch (e: unknown) {
+      const message =
+        e instanceof Error ? e.message : "Could not save profile";
+      setError(message);
+    } finally {
+      setSaving(false);
+    }
   };
 
   const colorByScore = (score: number) => {
@@ -158,9 +220,15 @@ export default function ProfilePage({ open, onClose, user, viewer, tempPfp }: Pr
 
           <header className="drawer-header">
             {isOwnProfile ? 
-              <Tooltip content={editMode ? "Save edits" : "Edit profile"}>
-                <div className="builder-action close-btn" onClick={handleSave}>
-                  <img src={editMode ? check_icon : edit_icon} />
+              <Tooltip content={editMode ? (saving ? "Saving…" : "Save edits") : "Edit profile"}>
+                <div
+                  className="builder-action close-btn"
+                  onClick={() => {
+                    if (!saving) void handleSave();
+                  }}
+                  style={saving ? { opacity: 0.6, pointerEvents: "none" } : undefined}
+                >
+                  <img src={editMode ? check_icon : edit_icon} alt="" />
                 </div>
               </Tooltip>
               : <div /> }
