@@ -1,4 +1,5 @@
 import './ModuleCard.css'
+import type { CSSProperties } from 'react';
 import { useNavigate } from 'react-router-dom';
 import type { ModuleType } from '../../types/Modules/ModuleType';
 import type { StandardModuleType } from '../../types/Standard/StandardModule';
@@ -13,21 +14,61 @@ import black_edit from '../../assets/icons/black-edit-icon.svg';
 import orange_edit from '../../assets/icons/orange-edit-icon.svg';
 import type { StandardLessonType } from '../../types/Standard/StandardLessons';
 
-const BANNER_VARIANTS = ["module1", "module2", "module3", "module4", "module5", "module6"] as const;
-
-function bannerClassFromModuleId(id: string): string {
+function hashModuleId(id: string): number {
     let hash = 0;
     for (let i = 0; i < id.length; i++) {
         hash = ((hash << 5) - hash) + id.charCodeAt(i);
         hash |= 0;
     }
-    return BANNER_VARIANTS[Math.abs(hash) % BANNER_VARIANTS.length];
+    return Math.abs(hash);
+}
+
+function hashWithSalt(id: string, salt: string): number {
+    return hashModuleId(`${salt}:${id}`);
+}
+
+function bannerStyleFromModuleId(id: string): CSSProperties {
+    const n = hashModuleId(id);
+    const n2 = hashWithSalt(id, 'h2');
+    const n3 = hashWithSalt(id, 'pos');
+    const n4 = hashWithSalt(id, 'ang');
+
+    const hue1 = n % 360;
+    const hue2 = n2 % 360;
+    const sat = 50 + (n % 30);
+    const lightA = 88 + (n2 % 9);
+    const lightB = 64 + (n3 % 18);
+    const angle = 88 + (n4 % 95);
+
+    const rx1 = 10 + (n % 28);
+    const ry1 = 15 + (n2 % 45);
+    const rx2 = 65 + (n3 % 30);
+    const ry2 = 55 + (n4 % 40);
+
+    const stripeSkew = 18 + (n % 35);
+
+    return {
+        '--banner-h1': hue1,
+        '--banner-h2': hue2,
+        '--banner-s': `${sat}%`,
+        '--banner-la': `${lightA}%`,
+        '--banner-lb': `${lightB}%`,
+        '--banner-angle': `${angle}deg`,
+        '--banner-stripe': `${stripeSkew}deg`,
+        '--banner-rx1': `${rx1}%`,
+        '--banner-ry1': `${ry1}%`,
+        '--banner-rx2': `${rx2}%`,
+        '--banner-ry2': `${ry2}%`,
+    } as CSSProperties;
 }
 
 function resolveCardThumbnailUrl(
     moduleInfo: ModuleType | StandardModuleType,
     type: "simulation" | "standard"
 ): string | undefined {
+    if (moduleInfo.headerImageUrl) {
+        return moduleInfo.headerImageUrl;
+    }
     if (moduleInfo.thumbnailUrl) {
         return moduleInfo.thumbnailUrl;
     }
@@ -57,7 +98,7 @@ type ModuleProp = {
 export default function ModuleCard({ moduleInfo, type, role, status, percent, style, attemptId }: ModuleProp) {
     const navigate = useNavigate();
     const thumbnailUrl = resolveCardThumbnailUrl(moduleInfo, type);
-    const bannerGradientClass = thumbnailUrl ? "" : bannerClassFromModuleId(moduleInfo.id);
+    const bannerArtStyle = thumbnailUrl ? undefined : bannerStyleFromModuleId(moduleInfo.id);
 
     const handleNavigateEmployee = () => {
       if (status === "completed") {
@@ -70,7 +111,10 @@ export default function ModuleCard({ moduleInfo, type, role, status, percent, st
     return (
         <div key={moduleInfo.id} className="module-card">
             <div className="card-top">
-              <div className={`banner ${thumbnailUrl ? "has-thumbnail" : bannerGradientClass}`}>
+              <div
+                className={`banner ${thumbnailUrl ? "has-thumbnail" : "banner-hash"}`}
+                style={bannerArtStyle}
+              >
                 {thumbnailUrl && (
                   <img className="banner-thumbnail" src={thumbnailUrl} alt="" loading="lazy" />
                 )}

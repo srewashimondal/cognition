@@ -1,5 +1,5 @@
 import './BuilderCanvas.css';
-import { useEffect, useState, useRef } from 'react';
+import { useEffect, useState, useRef, type ChangeEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Tooltip, Spinner } from "@radix-ui/themes";
 import ActionButton from '../../../../components/ActionButton/ActionButton';
@@ -7,7 +7,8 @@ import LessonCard from '../../../../cards/LessonCard/LessonCard';
 import ChatBar from '../../../../components/ChatBar/ChatBar';
 import ChatBubble from '../../../Simulation/ChatBubble/ChatBubble';
 import { doc, getDoc, updateDoc, collection, getDocs, where, query, onSnapshot, DocumentReference } from 'firebase/firestore';
-import { db } from '../../../../firebase';
+import { db, storage } from '../../../../firebase';
+import { ref, uploadBytes, deleteObject, getDownloadURL } from 'firebase/storage';
 import { formatTimestampString } from '../../../../utils/Utils';
 import type { MessageType } from '../../../../types/Modules/Lessons/Simulations/MessageType';
 import type { ModuleType } from '../../../../types/Modules/ModuleType';
@@ -28,6 +29,16 @@ import folder_icon from '../../../../assets/icons/simulations/grey-folder-icon.s
 import white_ai_icon from '../../../../assets/icons/simulations/white-ai-icon.svg';
 import orange_ai_icon from '../../../../assets/icons/simulations/orange-ai-icon.svg';
 import undo_icon from '../../../../assets/icons/grey-undo-icon.svg';
+import upload_icon from '../../../../assets/icons/file-upload-icon.svg';
+
+const MODULE_HEADER_IMAGE_TYPES = ["image/jpeg", "image/png", "image/webp", "image/gif"] as const;
+
+function extFromImageFile(file: File): string {
+    if (file.type === "image/png") return "png";
+    if (file.type === "image/webp") return "webp";
+    if (file.type === "image/gif") return "gif";
+    return "jpg";
+}
 
 type BuilderCanvasProps = {
     id: string;
@@ -102,6 +113,14 @@ export default function BuilderCanvas({ id, workspace }: BuilderCanvasProps) {
 
                 setModule(moduleData);
                 setLastModified(moduleData.lastModified || "");
+                setHeaderImageUrl(moduleData.headerImageUrl);
+                setHeaderImageStoragePath(moduleData.headerImageStoragePath);
+                setRemoveCustomHeader(false);
+                setPendingHeaderFile(null);
+                setHeaderObjectUrl((prev) => {
+                    if (prev) URL.revokeObjectURL(prev);
+                    return null;
+                });
 
                 const lessonSnap = await getDocs(
                     query(
@@ -267,6 +286,12 @@ export default function BuilderCanvas({ id, workspace }: BuilderCanvasProps) {
         }
     };
 
+    const [headerImageUrl, setHeaderImageUrl] = useState<string | undefined>(undefined);
+    const [headerImageStoragePath, setHeaderImageStoragePath] = useState<string | undefined>(undefined);
+    const [pendingHeaderFile, setPendingHeaderFile] = useState<File | null>(null);
+    const [headerObjectUrl, setHeaderObjectUrl] = useState<string | null>(null);
+    const [removeCustomHeader, setRemoveCustomHeader] = useState(false);
+
     const [saving, setSaving] = useState(false);
     const handleSave = async () => {
         if (!title || title.trim() === "") {
@@ -279,9 +304,48 @@ export default function BuilderCanvas({ id, workspace }: BuilderCanvasProps) {
             const moduleRef = doc(db, "simulationModules", id);
             const updatedLastModified = new Date().toISOString();
 
+            let resolvedHeaderUrl = headerImageUrl;
+            let resolvedHeaderPath = headerImageStoragePath;
+
+            if (removeCustomHeader && headerImageStoragePath) {
+                try {
+                    await deleteObject(ref(storage, headerImageStoragePath));
+                } catch (e) {
+                    console.warn("Could not delete previous module header:", e);
+                }
+                resolvedHeaderUrl = undefined;
+                resolvedHeaderPath = undefined;
+                setHeaderImageUrl(undefined);
+                setHeaderImageStoragePath(undefined);
+                setRemoveCustomHeader(false);
+            } else if (pendingHeaderFile) {
+                if (headerImageStoragePath) {
+                    try {
+                        await deleteObject(ref(storage, headerImageStoragePath));
+                    } catch (e) {
+                        console.warn("Could not delete replaced module header:", e);
+                    }
+                }
+                const ext = extFromImageFile(pendingHeaderFile);
+                const storagePath = `moduleHeaders/${workspace.id}/${id}/${Date.now()}-${Math.random().toString(36).slice(2, 10)}.${ext}`;
+                const sref = ref(storage, storagePath);
+                await uploadBytes(sref, pendingHeaderFile);
+                resolvedHeaderUrl = await getDownloadURL(sref);
+                resolvedHeaderPath = storagePath;
+                setHeaderImageUrl(resolvedHeaderUrl);
+                setHeaderImageStoragePath(resolvedHeaderPath);
+                setPendingHeaderFile(null);
+                setHeaderObjectUrl((prev) => {
+                    if (prev) URL.revokeObjectURL(prev);
+                    return null;
+                });
+            }
+
             await updateDoc(moduleRef, {
                 title: title,
-                lastModified: updatedLastModified, 
+                lastModified: updatedLastModified,
+                headerImageUrl: resolvedHeaderUrl ?? null,
+                headerImageStoragePath: resolvedHeaderPath ?? null,
             });
 
             const lessonUpdatePromises = lessons.map(async (lesson) => {
@@ -618,6 +682,39 @@ export default function BuilderCanvas({ id, workspace }: BuilderCanvasProps) {
         lessons: LessonType[];
     } | null>(null);
 
+    const onModuleHeaderFileChange = (e: ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+        if (!MODULE_HEADER_IMAGE_TYPES.includes(file.type as (typeof MODULE_HEADER_IMAGE_TYPES)[number])) {
+            return;
+        }
+        setRemoveCustomHeader(false);
+        setPendingHeaderFile(file);
+        setHeaderObjectUrl((prev) => {
+            if (prev) URL.revokeObjectURL(prev);
+            return URL.createObjectURL(file);
+        });
+        e.target.value = "";
+    };
+
+    const clearModuleHeader = () => {
+        setRemoveCustomHeader(true);
+        setPendingHeaderFile(null);
+        setHeaderObjectUrl((prev) => {
+            if (prev) URL.revokeObjectURL(prev);
+            return null;
+        });
+    };
+
+    useEffect(() => {
+        return () => {
+            if (headerObjectUrl) URL.revokeObjectURL(headerObjectUrl);
+        };
+    }, [headerObjectUrl]);
+
+    const moduleHeaderPreviewSrc =
+        removeCustomHeader ? undefined : (headerObjectUrl ?? headerImageUrl);
+
     return (
         <div className="builder-canvas-page">
             {(openModal) && <div className="attach-overlay">
@@ -774,6 +871,42 @@ export default function BuilderCanvas({ id, workspace }: BuilderCanvasProps) {
                                 <p className="module-info-value">{lessons?.length} lessons</p> 
                             </div>
                             <div className="builder-filler-space" />
+                        </div>
+
+                        <div className="module-header-builder-section">
+                            <div className="module-info-line module-header-label-row">
+                                <span className="module-info-label">MODULE CARD HEADER</span>
+                                <p className="module-header-hint">
+                                    Optional image for module cards (PNG, JPG, WebP, or GIF). Save to apply.
+                                </p>
+                            </div>
+                            <div className="module-header-builder-inner">
+                                <div
+                                    className={`module-header-preview ${moduleHeaderPreviewSrc ? "has-image" : ""}`}
+                                    style={
+                                        moduleHeaderPreviewSrc
+                                            ? { backgroundImage: `url(${moduleHeaderPreviewSrc})` }
+                                            : undefined
+                                    }
+                                />
+                                <div className="module-header-actions">
+                                    <label className="module-header-upload-btn">
+                                        <img src={upload_icon} alt="" />
+                                        <span>{moduleHeaderPreviewSrc ? "Replace image" : "Upload image"}</span>
+                                        <input
+                                            type="file"
+                                            accept={MODULE_HEADER_IMAGE_TYPES.join(",")}
+                                            hidden
+                                            onChange={onModuleHeaderFileChange}
+                                        />
+                                    </label>
+                                    {(moduleHeaderPreviewSrc || headerImageStoragePath) && (
+                                        <button type="button" className="module-header-remove-btn" onClick={clearModuleHeader}>
+                                            Remove
+                                        </button>
+                                    )}
+                                </div>
+                            </div>
                         </div>
                     </div>
                     {/*<div className="module-info-line lesson">

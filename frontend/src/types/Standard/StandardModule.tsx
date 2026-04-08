@@ -13,4 +13,6 @@ export type StandardModuleType = {
   kind: "standard";
   lastModified?: string;
   thumbnailUrl?: string;
+  headerImageUrl?: string;
+  headerImageStoragePath?: string;
 };

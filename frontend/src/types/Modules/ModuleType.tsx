@@ -16,4 +16,6 @@ export type ModuleType = {
     orderNumber: number;
     workspaceRef: DocumentReference;
     thumbnailUrl?: string;
+    headerImageUrl?: string;
+    headerImageStoragePath?: string;
 };

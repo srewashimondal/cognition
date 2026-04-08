@@ -2,12 +2,13 @@ import './StandardBuilder.css';
 import { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { doc, getDoc, updateDoc, collection, addDoc, deleteDoc, arrayUnion } from 'firebase/firestore';
-import { ref, uploadBytes, deleteObject } from 'firebase/storage';
+import { ref, uploadBytes, deleteObject, getDownloadURL } from 'firebase/storage';
 import { db, storage } from '../../../firebase';
 import type { DocumentReference } from 'firebase/firestore';
 import ActionButton from '../../../components/ActionButton/ActionButton';
 import EmployerCard from '../../../cards/StandardLesson/EmployerCard/EmployerCard';
 import type { StandardModuleType } from '../../../types/Standard/StandardModule';
+import type { ChangeEvent } from 'react';
 import type { StandardLessonType, VideoLessonType, QuizLessonType } from '../../../types/Standard/StandardLessons';
 import type { WorkspaceType } from '../../../types/User/WorkspaceType';
 import { DndContext, closestCenter } from "@dnd-kit/core";
@@ -33,6 +34,16 @@ import file_icon from '../../../assets/icons/simulations/grey-file-icon.svg';
 import cap_icon from '../../../assets/icons/simulations/black-cap-icon.svg';
 import white_plus_icon from '../../../assets/icons/simulations/white-plus-icon.svg';
 import blue_plus_icon from '../../../assets/icons/simulations/blue-plus-icon.svg';
+import upload_icon from '../../../assets/icons/file-upload-icon.svg';
+
+const MODULE_HEADER_IMAGE_TYPES = ["image/jpeg", "image/png", "image/webp", "image/gif"] as const;
+
+function extFromImageFile(file: File): string {
+    if (file.type === "image/png") return "png";
+    if (file.type === "image/webp") return "webp";
+    if (file.type === "image/gif") return "gif";
+    return "jpg";
+}
 
 export default function StandardBuilder({ workspace }: { workspace: WorkspaceType }) {
     const navigate = useNavigate();
@@ -57,6 +68,12 @@ export default function StandardBuilder({ workspace }: { workspace: WorkspaceTyp
     const [unDeployModal, setUnDeployModal] = useState(false);
     const [anotherDeployModal, setAnotherDeployModal] = useState(false);
     const [isDeployed, setIsDeployed] = useState(module?.deployed);
+
+    const [headerImageUrl, setHeaderImageUrl] = useState<string | undefined>(undefined);
+    const [headerImageStoragePath, setHeaderImageStoragePath] = useState<string | undefined>(undefined);
+    const [pendingHeaderFile, setPendingHeaderFile] = useState<File | null>(null);
+    const [headerObjectUrl, setHeaderObjectUrl] = useState<string | null>(null);
+    const [removeCustomHeader, setRemoveCustomHeader] = useState(false);
 
     useEffect(() => {
         async function fetchModule() {
@@ -126,6 +143,14 @@ export default function StandardBuilder({ workspace }: { workspace: WorkspaceTyp
                     setLessons(lessonsData);
                     setCreatedTime(moduleData.createTime || "Unknown");
                     setLastModified(moduleData.lastModified || "Unknown");
+                    setHeaderImageUrl(moduleData.headerImageUrl);
+                    setHeaderImageStoragePath(moduleData.headerImageStoragePath);
+                    setRemoveCustomHeader(false);
+                    setPendingHeaderFile(null);
+                    setHeaderObjectUrl((prev) => {
+                        if (prev) URL.revokeObjectURL(prev);
+                        return null;
+                    });
                 } else {
                     console.error("Module not found");
                 }
@@ -482,6 +507,43 @@ export default function StandardBuilder({ workspace }: { workspace: WorkspaceTyp
                 }
             }
 
+            let resolvedHeaderUrl = headerImageUrl;
+            let resolvedHeaderPath = headerImageStoragePath;
+
+            if (removeCustomHeader && headerImageStoragePath) {
+                try {
+                    await deleteObject(ref(storage, headerImageStoragePath));
+                } catch (e) {
+                    console.warn("Could not delete previous module header:", e);
+                }
+                resolvedHeaderUrl = undefined;
+                resolvedHeaderPath = undefined;
+                setHeaderImageUrl(undefined);
+                setHeaderImageStoragePath(undefined);
+                setRemoveCustomHeader(false);
+            } else if (pendingHeaderFile && moduleID) {
+                if (headerImageStoragePath) {
+                    try {
+                        await deleteObject(ref(storage, headerImageStoragePath));
+                    } catch (e) {
+                        console.warn("Could not delete replaced module header:", e);
+                    }
+                }
+                const ext = extFromImageFile(pendingHeaderFile);
+                const storagePath = `moduleHeaders/${workspace.id}/${moduleID}/${Date.now()}-${Math.random().toString(36).slice(2, 10)}.${ext}`;
+                const sref = ref(storage, storagePath);
+                await uploadBytes(sref, pendingHeaderFile);
+                resolvedHeaderUrl = await getDownloadURL(sref);
+                resolvedHeaderPath = storagePath;
+                setHeaderImageUrl(resolvedHeaderUrl);
+                setHeaderImageStoragePath(resolvedHeaderPath);
+                setPendingHeaderFile(null);
+                setHeaderObjectUrl((prev) => {
+                    if (prev) URL.revokeObjectURL(prev);
+                    return null;
+                });
+            }
+
             const moduleData = {
                 title,
                 kind: "standard",
@@ -493,11 +555,35 @@ export default function StandardBuilder({ workspace }: { workspace: WorkspaceTyp
                 lastModified: new Date().toISOString(),
                 workspaceRef: doc(db, "workspaces", workspace.id),
                 thumbnailUrl: firstVideoThumbnailForModuleCard(lessons),
+                ...(!isNewDraft
+                    ? {
+                          headerImageUrl: resolvedHeaderUrl ?? null,
+                          headerImageStoragePath: resolvedHeaderPath ?? null,
+                      }
+                    : {}),
             };
 
             if (isNewDraft) {
                 const modulesRef = collection(db, "standardModules");
                 const newModuleRef = await addDoc(modulesRef, moduleData);
+                if (pendingHeaderFile) {
+                    const ext = extFromImageFile(pendingHeaderFile);
+                    const storagePath = `moduleHeaders/${workspace.id}/${newModuleRef.id}/${Date.now()}-${Math.random().toString(36).slice(2, 10)}.${ext}`;
+                    const sref = ref(storage, storagePath);
+                    await uploadBytes(sref, pendingHeaderFile);
+                    const url = await getDownloadURL(sref);
+                    await updateDoc(newModuleRef, {
+                        headerImageUrl: url,
+                        headerImageStoragePath: storagePath,
+                    });
+                    setHeaderImageUrl(url);
+                    setHeaderImageStoragePath(storagePath);
+                    setPendingHeaderFile(null);
+                    setHeaderObjectUrl((prev) => {
+                        if (prev) URL.revokeObjectURL(prev);
+                        return null;
+                    });
+                }
                 navigate(`/employer/modules/standard-builder/${newModuleRef.id}`);
             } else {
                 const moduleRef = doc(db, "standardModules", moduleID!);
@@ -753,7 +839,39 @@ export default function StandardBuilder({ workspace }: { workspace: WorkspaceTyp
             )
         );
     };
-    
+
+    const onModuleHeaderFileChange = (e: ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+        if (!MODULE_HEADER_IMAGE_TYPES.includes(file.type as (typeof MODULE_HEADER_IMAGE_TYPES)[number])) {
+            return;
+        }
+        setRemoveCustomHeader(false);
+        setPendingHeaderFile(file);
+        setHeaderObjectUrl((prev) => {
+            if (prev) URL.revokeObjectURL(prev);
+            return URL.createObjectURL(file);
+        });
+        e.target.value = "";
+    };
+
+    const clearModuleHeader = () => {
+        setRemoveCustomHeader(true);
+        setPendingHeaderFile(null);
+        setHeaderObjectUrl((prev) => {
+            if (prev) URL.revokeObjectURL(prev);
+            return null;
+        });
+    };
+
+    useEffect(() => {
+        return () => {
+            if (headerObjectUrl) URL.revokeObjectURL(headerObjectUrl);
+        };
+    }, [headerObjectUrl]);
+
+    const moduleHeaderPreviewSrc =
+        removeCustomHeader ? undefined : (headerObjectUrl ?? headerImageUrl);
 
     return (
         <div className="standard-builder-canvas-page">
@@ -866,6 +984,42 @@ export default function StandardBuilder({ workspace }: { workspace: WorkspaceTyp
                             <p className="module-info-value">{lessons?.length} lesson{lessons?.length !== 1 && "s"}</p> 
                         </div>
                         <div className="builder-filler-space" />
+                    </div>
+
+                    <div className="module-header-builder-section">
+                        <div className="module-info-line module-header-label-row">
+                            <span className="module-info-label">MODULE CARD HEADER</span>
+                            <p className="module-header-hint">
+                                Optional image for module cards (PNG, JPG, WebP, or GIF). Save to apply.
+                            </p>
+                        </div>
+                        <div className="module-header-builder-inner">
+                            <div
+                                className={`module-header-preview ${moduleHeaderPreviewSrc ? "has-image" : ""}`}
+                                style={
+                                    moduleHeaderPreviewSrc
+                                        ? { backgroundImage: `url(${moduleHeaderPreviewSrc})` }
+                                        : undefined
+                                }
+                            />
+                            <div className="module-header-actions">
+                                <label className="module-header-upload-btn">
+                                    <img src={upload_icon} alt="" />
+                                    <span>{moduleHeaderPreviewSrc ? "Replace image" : "Upload image"}</span>
+                                    <input
+                                        type="file"
+                                        accept={MODULE_HEADER_IMAGE_TYPES.join(",")}
+                                        hidden
+                                        onChange={onModuleHeaderFileChange}
+                                    />
+                                </label>
+                                {(moduleHeaderPreviewSrc || headerImageStoragePath) && (
+                                    <button type="button" className="module-header-remove-btn" onClick={clearModuleHeader}>
+                                        Remove
+                                    </button>
+                                )}
+                            </div>
+                        </div>
                     </div>
                 </div>
                 <div className="standard-canvas-bottom">
