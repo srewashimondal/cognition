@@ -11,7 +11,7 @@ import NavBar from '../../../components/NavBar/NavBar.tsx';
 import ErrorMessage from '../../../components/ErrorMessage/ErrorMessage.tsx';
 import { createUserWithEmailAndPassword } from "firebase/auth";
 import { auth, db } from "../../../firebase";
-import { doc, setDoc, serverTimestamp } from "firebase/firestore";
+import { doc, setDoc, getDoc, serverTimestamp } from "firebase/firestore";
 import { useNavigate } from "react-router-dom";
 
 
@@ -57,7 +57,6 @@ export default function Signup({ role="employee" }: SignupProps) {
                 fullName,
                 role,
 
-                // shared defaults
                 profilePicture: "",
                 notifPreference: "In-App",
                 workspaceID: "workspace-1",
@@ -66,7 +65,6 @@ export default function Signup({ role="employee" }: SignupProps) {
                     year: "numeric",
                 }),
 
-                // role-based 
                 ...(role === "employee"
                     ? {
                         employeeID: user.uid,
@@ -86,11 +84,15 @@ export default function Signup({ role="employee" }: SignupProps) {
                 createdAt: serverTimestamp(),
                 });
 
+            const userSnap = await getDoc(doc(db, "users", user.uid));
+            if (userSnap.exists()) {
+                sessionStorage.setItem("currentUser", JSON.stringify(userSnap.data()));
+            }
 
             if (role === "employer") {
-                navigate("/employer");
+                navigate("/employer-onboarding");
             } else {
-                navigate("/employee");
+                navigate("/employee-onboarding");
             }
 
 

@@ -133,12 +133,15 @@ export default function SimulationPerformance() {
         const titleLesson =
           lessonMeta?.title ?? `Lesson ${enriched.length + 1}`;
         const feedback = await collectLessonSimulationFeedback(db, d.id);
+        const rawDuration = lessonMeta?.duration;
+        const durationMin =
+          typeof rawDuration === "number" && rawDuration > 0 ? rawDuration : 30;
         enriched.push({
           lessonAttemptId: d.id,
           order: lessonMeta?.orderNumber ?? 0,
           title: titleLesson,
           status: attemptData.status ?? "not begun",
-          durationMin: lessonMeta?.duration ?? 0,
+          durationMin,
           feedback,
         });
       }
