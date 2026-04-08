@@ -267,8 +267,8 @@ export default function EmployeeDashBoard() {
             <Route path="simulations" element={<SimulationModules user={user} />} />
             <Route path="simulations/:moduleID" element={<SimulationLessons />} />
             <Route path="simulations/:moduleID/:lessonID/:simIdx" element={<SimulationPage role={"employee"} workspaceID={workspace.id ?? ""} />} /> 
-            {/*<Route path="simulations/:moduleId/performance" element={<SimulationPerformance />}/>
-            <Route path="schedule" element={<Schedule />} />*/}
+            {/*<Route path="simulations/:moduleId/performance" element={<SimulationPerformance />}/>*/}
+            <Route path="schedule" element={<Schedule />} />
             <Route path="standard-modules" element={<StandardModules user={user} />} />
             <Route path="standard-modules/:moduleID" element={<StandardLessons />} />
             <Route path="standard-modules/:moduleID/:lessonID" element={<StandardLessonPage />} />

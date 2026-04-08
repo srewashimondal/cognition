@@ -1,6 +1,19 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import "./Schedule.css";
 import ActionButton from "../../../components/ActionButton/ActionButton";
+import {
+  collection,
+  deleteDoc,
+  doc,
+  onSnapshot,
+  serverTimestamp,
+  setDoc,
+  updateDoc,
+  writeBatch,
+  type DocumentData,
+} from "firebase/firestore";
+import { db } from "../../../firebase";
+import { useAuth } from "../../../context/AuthProvider";
 import edit_icon from '../../../assets/icons/simulations/grey-edit-icon.svg';
 import check_icon from '../../../assets/icons/simulations/grey-check-icon.svg';
 import trash_icon from '../../../assets/icons/simulations/grey-trash-icon.svg';
@@ -63,12 +76,55 @@ function buildMonthGrid(currentMonth: Date) {
 
 const STORAGE_KEY = "cognition_schedule_events_v1";
 
+function docToEvent(id: string, data: DocumentData): CalendarEvent {
+  return {
+    id,
+    title: String(data.title ?? ""),
+    date: String(data.date ?? ""),
+    start: data.start != null && data.start !== "" ? String(data.start) : undefined,
+    end: data.end != null && data.end !== "" ? String(data.end) : undefined,
+    color: (data.color as CalendarEvent["color"]) ?? "red",
+    description: data.description != null ? String(data.description) : undefined,
+    completed: Boolean(data.completed),
+  };
+}
+
+function firestorePayloadFromEvent(ev: CalendarEvent): Record<string, unknown> {
+  return {
+    title: ev.title,
+    date: ev.date,
+    start: ev.start ?? null,
+    end: ev.end ?? null,
+    color: ev.color ?? "red",
+    description: ev.description ?? null,
+    completed: ev.completed ?? false,
+    updatedAt: serverTimestamp(),
+  };
+}
+
+function cleanFirestoreUpdate(updates: Partial<CalendarEvent>): Record<string, unknown> {
+  const out: Record<string, unknown> = {};
+  if (updates.title !== undefined) out.title = updates.title;
+  if (updates.date !== undefined) out.date = updates.date;
+  if (updates.start !== undefined) out.start = updates.start || null;
+  if (updates.end !== undefined) out.end = updates.end || null;
+  if (updates.color !== undefined) out.color = updates.color;
+  if (updates.description !== undefined) out.description = updates.description || null;
+  if (updates.completed !== undefined) out.completed = updates.completed;
+  return out;
+}
+
 export default function Schedule() {
+  const { user } = useAuth();
+  const migrationLock = useRef(false);
+
   const [view, setView] = useState<View>("monthly");
   const [currentMonth, setCurrentMonth] = useState(() => startOfMonth(new Date()));
   const [selectedDate, setSelectedDate] = useState<string>(() => toYMD(new Date()));
 
   const [events, setEvents] = useState<CalendarEvent[]>([]);
+  const [scheduleLoading, setScheduleLoading] = useState(true);
+  const [scheduleError, setScheduleError] = useState<string | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   const [draft, setDraft] = useState<Omit<CalendarEvent, "id">>({
@@ -80,19 +136,55 @@ export default function Schedule() {
   });
 
   useEffect(() => {
-    const raw = localStorage.getItem(STORAGE_KEY);
-    if (!raw) return;
-    try {
-      const parsed = JSON.parse(raw) as CalendarEvent[];
-      setEvents(parsed);
-    } catch {
-
+    if (!user?.uid) {
+      setEvents([]);
+      setScheduleLoading(false);
+      return;
     }
-  }, []);
 
-  useEffect(() => {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(events));
-  }, [events]);
+    setScheduleLoading(true);
+    setScheduleError(null);
+
+    const eventsRef = collection(db, "users", user.uid, "scheduleEvents");
+    const unsubscribe = onSnapshot(
+      eventsRef,
+      (snap) => {
+        const list: CalendarEvent[] = [];
+        snap.forEach((d) => list.push(docToEvent(d.id, d.data())));
+        setEvents(list);
+        setScheduleLoading(false);
+
+        if (!migrationLock.current && snap.empty) {
+          const raw = localStorage.getItem(STORAGE_KEY);
+          if (!raw) return;
+          try {
+            const parsed = JSON.parse(raw) as CalendarEvent[];
+            if (parsed.length === 0) return;
+            migrationLock.current = true;
+            const batch = writeBatch(db);
+            for (const ev of parsed) {
+              const ref = doc(db, "users", user.uid, "scheduleEvents", ev.id);
+              batch.set(ref, firestorePayloadFromEvent(ev));
+            }
+            void batch
+              .commit()
+              .then(() => localStorage.removeItem(STORAGE_KEY))
+              .catch(() => {
+                migrationLock.current = false;
+              });
+          } catch {
+            migrationLock.current = false;
+          }
+        }
+      },
+      (err) => {
+        setScheduleError(err.message);
+        setScheduleLoading(false);
+      }
+    );
+
+    return () => unsubscribe();
+  }, [user?.uid]);
 
   const weeks = useMemo(() => buildMonthGrid(currentMonth), [currentMonth]);
 
@@ -117,23 +209,23 @@ export default function Schedule() {
     setIsModalOpen(true);
   }
 
-  function addEvent() {
-    if (!draft.title.trim()) return;
-    setEvents((prev) => [
-      ...prev,
-      {
-        id: crypto.randomUUID(),
-        ...draft,
-        title: draft.title.trim(),
-        completed: false,
-      },
-    ]);
+  async function addEvent() {
+    if (!draft.title.trim() || !user?.uid) return;
+    const id = crypto.randomUUID();
+    const newEvent: CalendarEvent = {
+      id,
+      ...draft,
+      title: draft.title.trim(),
+      completed: false,
+    };
+    await setDoc(doc(db, "users", user.uid, "scheduleEvents", id), firestorePayloadFromEvent(newEvent));
     setIsModalOpen(false);
     setDraft((prev) => ({ ...prev, title: "" }));
   }
 
-  function deleteEvent(id: string) {
-    setEvents((prev) => prev.filter((e) => e.id !== id));
+  async function deleteEvent(id: string) {
+    if (!user?.uid) return;
+    await deleteDoc(doc(db, "users", user.uid, "scheduleEvents", id));
   }
 
   const monthLabel = currentMonth.toLocaleString(undefined, {
@@ -149,6 +241,14 @@ export default function Schedule() {
 
   const [selectedEvent, setSelectedEvent] = useState<CalendarEvent | null>(null);
   const [eventEditMode, setEventEditMode] = useState(false);
+
+  useEffect(() => {
+    setSelectedEvent((prev) => {
+      if (!prev) return prev;
+      const next = events.find((e) => e.id === prev.id);
+      return next ?? null;
+    });
+  }, [events]);
 
   function formatDateLong(dateStr: string): string {
     const date = new Date(dateStr + "T00:00:00"); // prevents timezone bugs
@@ -170,21 +270,24 @@ export default function Schedule() {
     return `${hour}:${minute} ${ampm}`;
   }
 
-  function handleEventUpdate(
-    eventId: string,
-    updates: Partial<CalendarEvent>
-  ) {
-    setEvents(prevEvents =>
-      prevEvents.map(event =>
-        event.id === eventId
-          ? { ...event, ...updates }
-          : event
-      )
-    );
+  async function handleEventUpdate(eventId: string, updates: Partial<CalendarEvent>) {
+    if (!user?.uid) return;
+    const payload = cleanFirestoreUpdate(updates);
+    if (Object.keys(payload).length === 0) return;
+    await updateDoc(doc(db, "users", user.uid, "scheduleEvents", eventId), {
+      ...payload,
+      updatedAt: serverTimestamp(),
+    });
   }
 
   return (
     <div className="schedule-page">
+      {scheduleError && (
+        <div className="schedule-error" role="alert">
+          Could not sync schedule: {scheduleError}
+        </div>
+      )}
+
       {/* Top bar */}
       <div className="schedule-top">
         <div className="schedule-title">Schedule</div>
@@ -226,7 +329,11 @@ export default function Schedule() {
       </div>
 
       {/* Calendar grid (monthly) */}
-      {view === "monthly" && (
+      {scheduleLoading && (
+        <div className="schedule-loading">Loading schedule…</div>
+      )}
+
+      {view === "monthly" && !scheduleLoading && (
         <div className="calendar">
           <div className="calendar-head">
             {weekdays.map((d) => (
