@@ -28,9 +28,10 @@ type VoiceModeProps = {
     voiceLevel?: number;
     onSpeak?: (text: string) => void;
     onStop?: () => void;
+    simulationComplete?: boolean;
 };
 
-export default function VoiceMode({ title, idx, lessonAttemptId, simIndex, messages, switchType, handleBack, handleClick, handleSendMessage, characterName, voiceDescription, voiceId, isSpeaking, voiceLevel, onSpeak, onStop }: VoiceModeProps) {
+export default function VoiceMode({ title, idx, lessonAttemptId, simIndex, messages, switchType, handleBack, handleClick, handleSendMessage, characterName, voiceDescription, voiceId, isSpeaking, voiceLevel, onSpeak, onStop, simulationComplete }: VoiceModeProps) {
     const transcriptRef = useRef<HTMLDivElement | null>(null);
     const [isRecording, setIsRecording] = useState(false);
     const [isProcessing, setIsProcessing] = useState(false);
@@ -41,8 +42,11 @@ export default function VoiceMode({ title, idx, lessonAttemptId, simIndex, messa
     const audioChunksRef = useRef<BlobPart[]>([]);
 
     const displayMessages = (messages ?? []).filter(m => m.role !== "assistant");
+    const conversationEnded =
+        simulationComplete === true || status === "completed";
     const isUserTurn =
         status === "started" &&
+        !conversationEnded &&
         !isSpeaking &&
         !isStopped;
 
@@ -132,6 +136,7 @@ export default function VoiceMode({ title, idx, lessonAttemptId, simIndex, messa
     }; */
     const shouldProcessRef = useRef(true);
     const startRecording = async () => {
+        if (conversationEnded) return;
         try {
             const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
             const recorder = new MediaRecorder(stream);
@@ -219,6 +224,7 @@ export default function VoiceMode({ title, idx, lessonAttemptId, simIndex, messa
     useEffect(() => {
         const shouldRecord =
             status === "started" &&
+            !conversationEnded &&
             !isSpeaking &&
             !isStopped &&
             !isProcessing;
@@ -227,10 +233,10 @@ export default function VoiceMode({ title, idx, lessonAttemptId, simIndex, messa
             startRecording();
         }
     
-        if ((isSpeaking || isProcessing) && isRecording) {
+        if ((isSpeaking || isProcessing || conversationEnded) && isRecording) {
             stopRecording();
         }
-    }, [isSpeaking, isStopped, isProcessing, status]);
+    }, [isSpeaking, isStopped, isProcessing, status, conversationEnded]);
 
     const handlePlay = async () => {
 
@@ -338,15 +344,22 @@ export default function VoiceMode({ title, idx, lessonAttemptId, simIndex, messa
                             transition: "transform 0.1s linear"
                         }}
                     />
-                    {isProcessing
+                    {conversationEnded
+                        ? "Simulation complete"
+                        : isProcessing
                         ? getRandomFiller()
                         : isRecording
                         ? "Your turn"
                         : characterName}
                 </div>
             
-                { (isStopped && status === "started") ?
+                { ((isStopped && status === "started") || conversationEnded) ?
                     (<div className="scroll-wrapper">
+                        {conversationEnded ? (
+                            <p className="voice-mode-complete-notice" style={{ textAlign: "center", margin: "0 12px 12px", fontSize: "0.9rem", color: "#444" }}>
+                                The customer has ended the interaction. Review the transcript or switch to typing to read feedback.
+                            </p>
+                        ) : (
                         <div className="resume-btn-wrapper">
                             <button className="voice-mode-cta"
                                 onClick={handlePlay}>
@@ -354,6 +367,7 @@ export default function VoiceMode({ title, idx, lessonAttemptId, simIndex, messa
                                 Resume
                             </button>
                         </div>
+                        )}
                         <div className="scroll-top">
                             <div className="transcript-label">Transcript</div>
                             <Tooltip content="Switch to typing">
@@ -388,11 +402,12 @@ export default function VoiceMode({ title, idx, lessonAttemptId, simIndex, messa
                         { (status === "not begun") &&
                             <p className="voice-mode-text">{characterName} will speak first when you begin</p>
                         }
-                        { !isProcessing &&
+                        { !isProcessing && !conversationEnded &&
                         <div className="voice-mode-actions">
                             <button
                                 className="voice-mode-cta"
                                 onClick={() =>{
+                                    if (conversationEnded) return;
                                     if (status === "not begun") {
                                         handlePlay();
                                     } else if (isRecording) {
@@ -445,6 +460,10 @@ export default function VoiceMode({ title, idx, lessonAttemptId, simIndex, messa
                                 key={currentMessage.id} 
                                 message={currentMessage}
                                 voiceMode={true}
+                                voiceId={voiceId}
+                                voiceDescription={voiceDescription}
+                                lessonAttemptId={lessonAttemptId}
+                                simIndex={simIndex}
                                 productHints={(currentMessage.productHints) ? currentMessage.productHints : null}
                                 generalHints={(currentMessage.hints) ? currentMessage.hints : null}
                             />

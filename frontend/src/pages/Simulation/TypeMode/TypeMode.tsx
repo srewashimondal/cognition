@@ -24,9 +24,10 @@ type TypeModeProps = {
     name: string;
     generalHints?: any;
     voiceId?: string;
+    simulationComplete?: boolean;
 };
 
-export default function TypeMode({ title, idx, lessonAttemptId, simIndex, voiceDescription, messages, switchType, handleBack, handleClick, handleSendMessage, onTypingComplete, typingMessageId, name, voiceId }: TypeModeProps) {
+export default function TypeMode({ title, idx, lessonAttemptId, simIndex, voiceDescription, messages, switchType, handleBack, handleClick, handleSendMessage, onTypingComplete, typingMessageId, name, voiceId, simulationComplete }: TypeModeProps) {
     const transcriptRef = useRef<HTMLDivElement | null>(null);
     const [userInput, setUserInput] = useState("");
     const [isLoading, setIsLoading] = useState(false);
@@ -47,7 +48,7 @@ export default function TypeMode({ title, idx, lessonAttemptId, simIndex, voiceD
 
     const handleSend = async () => {
         const text = userInput.trim();
-        if (!text) return;
+        if (!text || simulationComplete) return;
 
         setUserInput("");
         setIsLoading(true);
@@ -130,20 +131,29 @@ export default function TypeMode({ title, idx, lessonAttemptId, simIndex, voiceD
                     </div>
                 </div>*/}
                 <div className="chatbar-wrapper chat-input">
+                    {simulationComplete && (
+                        <p className="simulation-complete-notice" style={{ margin: "0 0 8px", fontSize: "0.9rem", color: "#444" }}>
+                            This simulation is complete. You can review feedback on your messages or use Next Part when available.
+                        </p>
+                    )}
                     {/*<ChatBar context="simulation" userInput={userInput} setUserInput={setUserInput} handleSend={handleSend} handleVoiceMode={switchType} 
                     typingMessageId={typingMessageId} handleStop={onTypingComplete} />*/}
                     <div className="simulation-chatbar">
-                        <textarea placeholder="Enter your response" value={userInput} 
+                        <textarea placeholder={simulationComplete ? "Conversation ended" : "Enter your response"} value={userInput} 
                         onChange={(e) => setUserInput(e.target.value)}
+                        disabled={simulationComplete}
                         onKeyDown={(e) => {
                           if (e.key === "Enter" && !e.shiftKey) {
                             e.preventDefault();
                             handleSend();
                         }}} />
                     </div>
-                    <Tooltip content={typingMessageId !== null ? "Stop" : inputEmpty ? "Switch to speaking" : "Send"}>
-                        <div className="simulation-chatbar-cta" 
+                    <Tooltip content={simulationComplete ? "Simulation complete" : typingMessageId !== null ? "Stop" : inputEmpty ? "Switch to speaking" : "Send"}>
+                        <div
+                            className="simulation-chatbar-cta"
+                            style={simulationComplete ? { opacity: 0.5, pointerEvents: "none" } : undefined}
                             onClick={() => {
+                                if (simulationComplete) return;
                                 if (typingMessageId !== null) {
                                     onTypingComplete();
                                     return;

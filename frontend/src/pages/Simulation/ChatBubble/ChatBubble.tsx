@@ -132,9 +132,14 @@ export default function ChatBubble({ message, className, handleClick, shouldType
                 .trim();
     
             if (!text) return;
-    
+
+            if (!voiceId) {
+                console.warn("Speak: missing voiceId for this simulation");
+                return;
+            }
+
             setIsSpeaking(true);
-    
+
             const resp = await fetch("http://127.0.0.1:8000/ai/tts-elevenlabs", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
@@ -143,14 +148,16 @@ export default function ChatBubble({ message, className, handleClick, shouldType
                     text
                 })
             });
-    
+
             if (!resp.ok) {
                 setIsSpeaking(false);
                 return;
             }
-    
+
             const url = URL.createObjectURL(await resp.blob());
-            const audio = new Audio(url);
+            const audio = new Audio();
+            (audio as HTMLAudioElement & { playsInline?: boolean }).playsInline = true;
+            audio.src = url;
             audioRef.current = audio;
     
             audio.onended = () => {
@@ -245,7 +252,6 @@ export default function ChatBubble({ message, className, handleClick, shouldType
             <div className="chat-bubble-actions">
                 {(role === "character") && (
                     <>
-                        {(!voiceMode) &&
                         <button
                             className={`speak-btn ${isSpeaking ? "speaking" : ""}`}
                             type="button"
@@ -255,7 +261,7 @@ export default function ChatBubble({ message, className, handleClick, shouldType
                         >
                             <img src={speaker_icon} alt="" />
                             {isSpeaking ? "Stop" : "Speak"}
-                        </button>}
+                        </button>
                         {productHints !== null &&
                         <button
                             className="speak-btn"

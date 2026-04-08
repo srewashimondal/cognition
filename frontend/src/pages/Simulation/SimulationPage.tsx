@@ -49,6 +49,11 @@ export default function SimulationPage({ role, workspaceID }: { role: "employee"
     const [selectedRef, setSelectedRef] = useState<ResourceItem | null>(null);
     const [moduleTitle, setModuleTitle] = useState<string>("");
 
+    const simDataRef = useRef<Record<string, unknown> | null>(null);
+    useEffect(() => {
+        simDataRef.current = simData;
+    }, [simData]);
+
     const authLoading = !lessonAttempt;
     const simulationLoading = !simData || simData.generationStatus !== "ready";
 
@@ -108,10 +113,10 @@ export default function SimulationPage({ role, workspaceID }: { role: "employee"
             console.log("Simulation exists?", snap.exists());
             console.log("Generation status:", data?.generationStatus);
         
-            if (snap.exists() && data?.generationStatus === "ready") {
+            if (snap.exists() && data?.generationStatus === "ready" && data?.voice_id) {
                 return;
             }
-        
+
             if (!snap.exists()) {
                 await setDoc(simDocRef, {
                 generationStatus: "generating",
@@ -176,17 +181,26 @@ export default function SimulationPage({ role, workspaceID }: { role: "employee"
     const [isSpeaking, setIsSpeaking] = useState(false);
     const [voiceLevel, setVoiceLevel] = useState(0);
     const speakAuto = async (rawText: any) => {
-        try {
+        let objectUrl: string | null = null;
+        let rafId: number | null = null;
 
+        const stopVisualization = () => {
+            if (rafId != null) {
+                cancelAnimationFrame(rafId);
+                rafId = null;
+            }
+            setVoiceLevel(0);
+        };
+
+        try {
             if (audioRef.current) {
                 audioRef.current.pause();
                 audioRef.current = null;
             }
-            
+
             setIsSpeaking(true);
 
-            // const rawText = typeof message.content === "string" ? message.content : "";
-            const text = rawText
+            const text = String(rawText ?? "")
                 .replace(/\n{3,}/g, "\n\n")
                 .replace(/\*\*([^*]+)\*\*/g, "$1")
                 .replace(/\*([^*]+)\*/g, "$1")
@@ -195,61 +209,100 @@ export default function SimulationPage({ role, workspaceID }: { role: "employee"
                 .replace(/\[([^\]]+)\]\([^)]+\)/g, "$1")
                 .trim();
 
-            if (!text) return;
+            if (!text) {
+                setIsSpeaking(false);
+                return;
+            }
+
+            let voiceId = (simDataRef.current as { voice_id?: string } | null)?.voice_id;
+            if (!voiceId && lessonID) {
+                const simDocRef = doc(
+                    db,
+                    "simulationLessonAttempts",
+                    lessonID,
+                    "simulations",
+                    `sim_${simulationIndex}`,
+                );
+                const fresh = await getDoc(simDocRef);
+                voiceId = (fresh.data() as { voice_id?: string } | undefined)?.voice_id;
+                if (voiceId) {
+                    simDataRef.current = { ...((simDataRef.current as object) ?? {}), voice_id: voiceId };
+                }
+            }
+            if (!voiceId) {
+                console.warn(
+                    "TTS skipped: no voice_id on simulation doc. Open this module again or ensure ElevenLabs created the voice.",
+                );
+                setIsSpeaking(false);
+                return;
+            }
 
             const resp = await fetch("http://127.0.0.1:8000/ai/tts-elevenlabs", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
-                    voice_id: simData?.voice_id,
+                    voice_id: voiceId,
                     text
                 })
             });
 
-            if (!resp.ok) return;
+            if (!resp.ok) {
+                const detail = await resp.text().catch(() => "");
+                console.warn("TTS request failed:", resp.status, detail);
+                setIsSpeaking(false);
+                return;
+            }
 
-            const url = URL.createObjectURL(await resp.blob());
-            const audio = new Audio(url);
+            objectUrl = URL.createObjectURL(await resp.blob());
+            const audio = new Audio();
+            (audio as HTMLAudioElement & { playsInline?: boolean }).playsInline = true;
+            audio.src = objectUrl;
             audioRef.current = audio;
 
-            const audioCtx = new AudioContext();
-            const source = audioCtx.createMediaElementSource(audio);
-            const analyser = audioCtx.createAnalyser();
-
-            source.connect(analyser);
-            analyser.connect(audioCtx.destination);
-
-            analyser.fftSize = 256;
-            const dataArray = new Uint8Array(analyser.frequencyBinCount);
-
-            const getVolume = () => {
-                analyser.getByteFrequencyData(dataArray);
-            
-                let sum = 0;
-                for (let i = 0; i < dataArray.length; i++) {
-                    sum += dataArray[i];
-                }
-            
-                const avg = sum / dataArray.length;
-                const normalized = avg / 255;
-            
-                setVoiceLevel(normalized);
-            
-                requestAnimationFrame(getVolume);
-            };
+            try {
+                const audioCtx = new AudioContext();
+                await audioCtx.resume();
+                const source = audioCtx.createMediaElementSource(audio);
+                const analyser = audioCtx.createAnalyser();
+                source.connect(analyser);
+                analyser.connect(audioCtx.destination);
+                analyser.fftSize = 256;
+                const dataArray = new Uint8Array(analyser.frequencyBinCount);
+                const getVolume = () => {
+                    analyser.getByteFrequencyData(dataArray);
+                    let sum = 0;
+                    for (let i = 0; i < dataArray.length; i++) {
+                        sum += dataArray[i];
+                    }
+                    const normalized = sum / dataArray.length / 255;
+                    setVoiceLevel(normalized);
+                    rafId = requestAnimationFrame(getVolume);
+                };
+                getVolume();
+            } catch {
+                /* visualizer optional; audio still plays via element */
+            }
 
             audio.onended = () => {
-                URL.revokeObjectURL(url);
+                stopVisualization();
+                if (objectUrl) URL.revokeObjectURL(objectUrl);
                 audioRef.current = null;
                 setIsSpeaking(false);
-                setVoiceLevel(0);
             };
-            
-            getVolume();
-            await audio.play();
 
+            await audio.play().catch((err) => {
+                console.warn(
+                    "Auto-play was blocked or failed (tap Speak on the message to play).",
+                    err
+                );
+                stopVisualization();
+                setIsSpeaking(false);
+            });
         } catch (e) {
             console.error("Auto speak error:", e);
+            stopVisualization();
+            setIsSpeaking(false);
+            if (objectUrl) URL.revokeObjectURL(objectUrl);
         }
     };
 
@@ -314,8 +367,14 @@ export default function SimulationPage({ role, workspaceID }: { role: "employee"
     
         const unsub = onSnapshot(simDocRef, (snap) => {
             if (!snap.exists()) return;
-    
-            setSimData(snap.data()); 
+
+            const raw = snap.data() as Record<string, unknown>;
+            setSimData({
+                ...raw,
+                voiceDescription:
+                    (raw.voiceDescription as string | undefined) ??
+                    (raw.voice_description as string | undefined),
+            });
         });
     
         return () => unsub();
@@ -353,7 +412,8 @@ export default function SimulationPage({ role, workspaceID }: { role: "employee"
     // const [productHints, setProductHints] = useState<any[]>([]);
     const handleUserSend = async (text: string) => {
         if (!lessonID) return;
-    
+        if (simData?.completionStatus === "completed") return;
+
         const messagesRef = collection(
             db,
             "simulationLessonAttempts",
@@ -390,7 +450,11 @@ export default function SimulationPage({ role, workspaceID }: { role: "employee"
         });
 
         const data = await response.json();
-        if (voiceMode) {
+        if (!response.ok) {
+            console.warn("simulation-reply error", data);
+            return;
+        }
+        if (voiceMode && data.characterReply) {
             speakAuto(data.characterReply);
         }
 
@@ -610,6 +674,7 @@ export default function SimulationPage({ role, workspaceID }: { role: "employee"
                             voiceLevel={voiceLevel}
                             onSpeak={(text) => speakAuto(text)}
                             onStop={stopAudio}
+                            simulationComplete={simData?.completionStatus === "completed"}
                         /> ) :
                         (<TypeMode 
                             key={`type-${simulationIndex}`} 
@@ -624,7 +689,9 @@ export default function SimulationPage({ role, workspaceID }: { role: "employee"
                             switchType={() => setVoiceMode(true)} 
                             handleSendMessage={handleUserSend} 
                             onTypingComplete={() => setTypingMessageId(null)}
-                            handleBack={handleBack} handleClick={(messageID: string) => {setSelectedMessage(messageID); setSelectOption("feedback");}} name={simData.characterName} />)
+                            handleBack={handleBack} handleClick={(messageID: string) => {setSelectedMessage(messageID); setSelectOption("feedback");}} name={simData.characterName}
+                            simulationComplete={simData?.completionStatus === "completed"}
+ />)
                         }
                     </div>
 
@@ -813,8 +880,8 @@ function BriefingPage({ simIdx, simData, lessonAttempt, moduleTitle, onStart, ha
                 </div>
                 <div className="briefing-section briefing-goals">
                     <p className="briefing-content-label">Your Goals</p>
-                    {simData.goals.map((g: any) => 
-                        <div className="briefing-goal">
+                    {(Array.isArray(simData.goals) ? simData.goals : []).map((g: string, i: number) => 
+                        <div key={i} className="briefing-goal">
                             <div className="goals-check">
                                 ✓
                             </div>

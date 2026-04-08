@@ -911,7 +911,28 @@ async def create_simulation(request: CreateSimulationRequest):
         if existing_sim.exists:
             existing_data = existing_sim.to_dict()
             if existing_data.get("generationStatus") == "ready":
-                return { "success": True, "simulation": existing_data }
+                if not existing_data.get("voice_id"):
+                    char = existing_data.get("characterName")
+                    desc = (
+                        (existing_data.get("voice_description") or existing_data.get("voiceDescription") or "")
+                    ).strip()
+                    if char and desc:
+                        try:
+                            vid = elevenlabs.create_voice(
+                                character_name=char,
+                                description=desc,
+                            )
+                            sim_ref.set(
+                                {
+                                    "voice_id": vid,
+                                    "updatedAt": SERVER_TIMESTAMP,
+                                },
+                                merge=True,
+                            )
+                            existing_data = {**existing_data, "voice_id": vid}
+                        except Exception as voice_err:
+                            print("[create-simulation] Voice backfill failed:", voice_err)
+                return {"success": True, "simulation": existing_data}
 
         lesson_attempt_ref = db.collection("simulationLessonAttempts").document(request.lesson_attempt_id)
         lesson_attempt_doc = lesson_attempt_ref.get()
@@ -1100,9 +1121,16 @@ async def simulation_reply(request: SimulationReplyRequest):
 
         sim_data = sim_snap.to_dict()
 
+        if sim_data.get("completionStatus") == "completed":
+            raise HTTPException(
+                status_code=400,
+                detail="Simulation is already complete",
+            )
+
         character_name = sim_data.get("characterName")
         premise = sim_data.get("premise")
         evaluation_criteria = sim_data.get("evaluationCriteria")
+        goals = sim_data.get("goals")
 
         if not all([character_name, premise, evaluation_criteria]):
             raise HTTPException(
@@ -1144,12 +1172,14 @@ async def simulation_reply(request: SimulationReplyRequest):
             evaluation_criteria=evaluation_criteria,
             conversation_history=conversation_history,
             previous_hints=last_character_hints,
-            previous_product_hints=last_product_hints   
+            previous_product_hints=last_product_hints,
+            goals=goals if isinstance(goals, list) else None,
         )
 
         character_reply = ai_response["characterReply"]
-        hints = ai_response["hints"]
+        hints = ai_response.get("hints") or []
         evaluation = ai_response["evaluation"]
+        simulation_complete = bool(ai_response.get("simulationComplete"))
 
         product_hints = pinecone.search(
             workspace_id=request.workspace_id,
@@ -1166,14 +1196,17 @@ async def simulation_reply(request: SimulationReplyRequest):
             top_k=3
         )
 
-        messages_ref.add({
+        char_payload = {
             "role": "character",
             "name": character_name,
             "content": character_reply,
             "productHints": product_hints,
             "hints": hints,
-            "timestamp": firestore.SERVER_TIMESTAMP
-        })
+            "timestamp": firestore.SERVER_TIMESTAMP,
+        }
+        if simulation_complete:
+            char_payload["simulationComplete"] = True
+        messages_ref.add(char_payload)
 
         messages_ref.add({
             "role": "assistant",
@@ -1187,11 +1220,18 @@ async def simulation_reply(request: SimulationReplyRequest):
             "timestamp": firestore.SERVER_TIMESTAMP
         })
 
+        if simulation_complete:
+            sim_ref.update({
+                "completionStatus": "completed",
+                "updatedAt": SERVER_TIMESTAMP,
+            })
+
         return {
             "success": True,
             "characterReply": character_reply,
             "generalHints": hints,
-            "productHints": product_hints
+            "productHints": product_hints,
+            "simulationComplete": simulation_complete,
         }
 
     except Exception as e:

@@ -1007,7 +1007,7 @@ class LLMService:
             - Be specific to the scenario
             - Reflect real-world retail behavior
             - Encourage good communication, problem-solving, or sales skills
-            - Be achievable within a short conversation
+            - Be achievable within a short conversation (the live simulation should be able to end naturally once these goals are met and the customer is satisfied or the issue is resolved)
 
         4. Generate the first in-character opening message from the customer:
             - 2-4 sentences
@@ -1105,6 +1105,7 @@ class LLMService:
         conversation_history: List[dict],
         previous_hints: List[dict] = None,
         previous_product_hints: List[dict] = None,
+        goals: Optional[List[str]] = None,
     ):
         
         last_user_message = None
@@ -1130,6 +1131,13 @@ class LLMService:
                     "role": "user",
                     "content": msg["content"]
                 })
+
+        employee_turn_count = sum(
+            1 for msg in conversation_history if msg.get("role") == "user"
+        )
+        character_turn_count = sum(
+            1 for msg in conversation_history if msg.get("role") == "character"
+        )
 
         system_message = """
             You are operating inside a structured AI-powered retail training simulation.
@@ -1167,6 +1175,12 @@ class LLMService:
             - No extra explanation.
         """
 
+        goals_block = (
+            json.dumps(goals, ensure_ascii=False, indent=2)
+            if goals
+            else "[] (infer success from premise and dialogue)"
+        )
+
         context_message = f"""
             SIMULATION CONTEXT
 
@@ -1175,6 +1189,16 @@ class LLMService:
 
             Scenario Premise:
             {premise}
+
+            Employee goals (when these are reasonably met and the customer’s issue is resolved, the simulation should end):
+            {goals_block}
+
+            PACING (keep simulations short; retail conversations resolve quickly):
+            - Employee replies so far this session: {employee_turn_count}. Customer lines so far (including opening): {character_turn_count}.
+            - Prefer wrapping up: at **3+** employee replies, set simulationComplete=true if their latest answer is reasonably helpful unless the customer’s core need is **still** unmet.
+            - **At most one** skeptical or clarifying question from the customer after the employee’s first helpful answer. If you already asked a clarifying question earlier in this thread and the employee just answered it, **do not** ask another (no nested nitpicks like “what do you mean by…”, “can you clarify…”, or new doubts about phrasing). Accept, thank them, and end or move to closure.
+            - If the employee gave specific product guidance, features, or reassurance that reasonably addresses the premise, let the customer be **satisfied**—do not invent endless follow-ups to “test” them.
+            - Do not reopen resolved topics or add new problems in the same visit once the main ask is handled.
 
             Evaluation Criteria:
             {json.dumps(evaluation_criteria, ensure_ascii=False, indent=2)}
@@ -1198,14 +1222,24 @@ class LLMService:
 
             INSTRUCTIONS:
 
+            WHEN TO END THE SIMULATION (simulationComplete = true):
+            - Set simulationComplete=true if **any** of these apply (perfection not required):
+              (1) Premise + goals: the customer’s main need is **adequately** addressed and closure is natural; OR
+              (2) **employee_turn_count is 3 or higher** and the employee’s latest line is **good-faith, on-topic help**—wrap up even if more trivia could be asked; OR
+              (3) The employee already answered a prior clarifying question—do not chain more; close satisfied.
+            - Do NOT end on the **first** employee reply unless they fully resolved everything in that one turn.
+            - When simulationComplete is true: characterReply is **closure only** (thanks, deciding to buy/leave happy, plain farewell). **Do not** ask the employee another question (no trailing “can you clarify…”, “what about…”, or similar).
+            - Do not open new problems or extend the visit once the core ask is handled.
+
             STEP 1 — CHARACTER RESPONSE
             Generate the next reply from the customer.
-            - 2–5 sentences.
+            - If simulationComplete will be false: **Prefer 1–3 short sentences**; only use more if the employee was vague or non-committal. Lean toward acceptance over skepticism.
+            - If simulationComplete will be true: 1–3 sentences, closure only; no new requests.
             - Maintain realism.
             - You MUST respond directly to what the employee just said; do not ignore their message or repeat your previous line.
-            - Do NOT repeat or rephrase your earlier messages. Move the conversation forward based on the employee's latest response.
+            - Do NOT repeat or rephrase your earlier messages unless briefly acknowledging resolution.
             - Reflect the emotional state described in the premise.
-            - If difficulty requires pressure or constraints, introduce them naturally.
+            - If difficulty requires pressure or constraints, introduce them naturally (only if not ending).
             - Do NOT evaluate inside this reply.
             - Remember that this is a simulation inside a web application. The user does not have any physical objects which they can
             physically show you. Keep your responses realistic within the practical limits of the simulation. 
@@ -1215,14 +1249,15 @@ class LLMService:
             Generate actionable hints to help the employee respond to the customer’s latest reply.
 
             - These hints are for the NEXT message the employee will send.
-            - Base them on:
+            - If simulationComplete is true: return an empty array [] for hints (no next turn).
+            - If simulationComplete is false: Base them on:
             - The character’s latest reply
             - The mistakes identified in the evaluation
             - The evaluation criteria
 
-            HINT RULES:
+            HINT RULES (only when simulationComplete is false):
             - You MUST return 2 to 3 hints.
-            - Do NOT return 0.
+            - Do NOT return 0 hints unless simulationComplete is true.
             - Do NOT return more than 3.
             - Each hint must be actionable (tell the employee what to do, not just what was wrong).
             - Each hint must directly help improve the NEXT response.
@@ -1245,13 +1280,14 @@ class LLMService:
             Return the following JSON structure EXACTLY:
 
             {{
+                "simulationComplete": false,
                 "characterReply": "Customer reply here.",
                 "hints": [
                     {{
                         "title": "Short actionable hint (3-6 words)",
                         "description": "Reference what the customer said or wants, then explain what the employee should do next."
                     }}
-                ]
+                ],
                 "evaluation": {{
                     "overallScore": integer,
                     "criteriaBreakdown": {{
@@ -1268,7 +1304,7 @@ class LLMService:
                         }}
                     ],
                     "areasForImprovement": ["List of specific weaknesses."],
-                    "summary": "Provide a 3-4 sentence overall evaluation of the employee's response, highlighting the strengths and weaknesses."
+                    "summary": "Provide a 3-4 sentence overall evaluation of the employee's response, highlighting the strengths and weaknesses.",
                     "improvedResponse": "A rewritten version of the employee's last message that would score 10/10."
                 }}
             }}
@@ -1307,6 +1343,10 @@ class LLMService:
         )
 
         parsed = json.loads(response.choices[0].message.content)
+        if not isinstance(parsed.get("simulationComplete"), bool):
+            parsed["simulationComplete"] = False
+        if parsed.get("simulationComplete") and not isinstance(parsed.get("hints"), list):
+            parsed["hints"] = []
         return parsed
     
     def generate_quiz_evaluation(self, question: str, user_answer: str, transcript_segments: List[dict]):
