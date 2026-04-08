@@ -12,6 +12,7 @@ import { doc, updateDoc, serverTimestamp, getDoc } from 'firebase/firestore';
 import { db } from '../../../firebase';
 import { useAuth } from '../../../context/AuthProvider';
 import { updateLearningStreakForUser } from '../../../utils/streaks';
+import { syncEmployeeAchievements } from '../../../utils/streaks';
 import { updateModuleStatus } from '../../../utils/Utils';
 import ProgressBar from '../../../components/ProgressBar/ProgressBar';
 import QuestionItem from './QuestionItem/QuestionItem';
@@ -297,8 +298,9 @@ function QuizPage({
                 if (user?.role === "employee") {
                     try {
                         await updateLearningStreakForUser(user.uid);
+                        await syncEmployeeAchievements(user.uid);
                     } catch (err) {
-                        console.error("Error updating learning streak:", err);
+                        console.error("Error updating learning streak or achievements:", err);
                     }
                 }
 

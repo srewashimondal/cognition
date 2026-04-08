@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from "react";
 import "./ProfilePage.css";
 import { Tooltip } from "@radix-ui/themes";
 import type { EmployeeUserType, EmployerUserType } from "../../../types/User/UserType";
+import { isBadgeMap } from "../../../utils/streaks";
 import ErrorMessage from "../../../components/ErrorMessage/ErrorMessage";
 import default_icon from '../../../assets/icons/default-icon.svg';
 import icon_stroke from '../../../assets/icons/icon-stroke.svg';
@@ -18,6 +19,9 @@ import notebook_icon from '../../../assets/icons/form-icon.svg';
 import star_icon from '../../../assets/icons/badges/star-icon.svg';
 import bolt_icon from '../../../assets/icons/badges/bolt-icon.svg';
 import map_icon from '../../../assets/icons/badges/map-icon.svg';
+import medal1_icon from '../../../assets/icons/badges/black-medal-icon-1.svg';
+import medal2_icon from '../../../assets/icons/badges/black-medal-icon-2.svg';
+import medal_white_icon from '../../../assets/icons/badges/white-medal-icon.svg';
 import { signOut } from "firebase/auth";
 import { useNavigate } from "react-router-dom";
 import { auth } from "../../../firebase";
@@ -120,10 +124,16 @@ export default function ProfilePage({ open, onClose, user, viewer, tempPfp }: Pr
     }
   };
 
-  const iconByBadge = {
-    "star": star_icon,
-    "bolt": bolt_icon,
-    "map": map_icon
+  const iconByBadge: Record<string, string> = {
+    star: star_icon,
+    bolt: bolt_icon,
+    map: map_icon,
+    medal1: medal1_icon,
+    medal2: medal2_icon,
+    medalWhite: medal_white_icon,
+    sunrise: star_icon,
+    target: bolt_icon,
+    layers: map_icon,
   };
 
   return (
@@ -271,12 +281,12 @@ export default function ProfilePage({ open, onClose, user, viewer, tempPfp }: Pr
                 <h4>Achievements</h4>
               </div>
               <div className="progress-list">
-                {user.achievements.map((a) => 
-                  <div className="badge-item">
-                    <img src={iconByBadge[a.icon]} />
+                {user.achievements.map((a, idx) => 
+                  <div className="badge-item" key={isBadgeMap(a) ? a.id : `ref-${idx}`}>
+                    <img src={isBadgeMap(a) ? (iconByBadge[a.icon] ?? star_icon) : trophy_icon} alt="" />
                     <div className="badge-item-name">
-                      <h4>{a.name}</h4>
-                      <p>{a.description}</p>
+                      <h4>{isBadgeMap(a) ? a.name : "Achievement"}</h4>
+                      <p>{isBadgeMap(a) ? a.description : "Linked from your workspace"}</p>
                     </div>
                   </div>
                 )}

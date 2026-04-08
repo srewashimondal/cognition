@@ -15,13 +15,17 @@ import lessons_completed from '../../../assets/icons/white-lessons-completed-ico
 import star_icon from '../../../assets/icons/badges/star-icon.svg';
 import bolt_icon from '../../../assets/icons/badges/bolt-icon.svg';
 import map_icon from '../../../assets/icons/badges/map-icon.svg';
+import medal1_icon from '../../../assets/icons/badges/black-medal-icon-1.svg';
+import medal2_icon from '../../../assets/icons/badges/black-medal-icon-2.svg';
+import medal_white_icon from '../../../assets/icons/badges/white-medal-icon.svg';
 import right_arrow from '../../../assets/icons/white-right-arrow.svg';
 import ai_icon from '../../../assets/icons/simulations/white-ai-icon.svg';
 
 import black_clock from '../../../assets/icons/simulations/black-clock-icon.svg';
 import bar_chart_icon from '../../../assets/icons/black-bar-chart-icon.svg';
 import black_prize from '../../../assets/icons/badges/black-medal-icon-1.svg';
-import type { EmployeeUserType } from '../../../types/User/UserType';
+import type { BadgeIconKey, EmployeeUserType } from '../../../types/User/UserType';
+import { isBadgeMap } from '../../../utils/streaks';
 import {collection, query, where, doc, onSnapshot, getDocs, getDoc,type Firestore} from "firebase/firestore";
 import { db } from "../../../firebase";
 import { useWorkspace } from "../../../context/WorkspaceProvider";
@@ -153,7 +157,7 @@ function mapApiInsightToEmployerRow(i: ApiInsight, fullName: string): EmployerIn
   ];*/
 
 
-type BadgeIcon = "star" | "bolt" | "map";
+type BadgeIcon = BadgeIconKey;
 
 function parseHours(hoursStr: string): number {
   if (!hoursStr || typeof hoursStr !== "string") return 0;
@@ -633,10 +637,16 @@ export default function Analytics() {
     window.scrollTo({ top: 0, left: 0, behavior: "instant" });
   }, []);
 
-  const iconByBadge: Record<BadgeIcon, string> = {
+  const iconByBadge: Partial<Record<BadgeIcon, string>> = {
     star: star_icon,
     bolt: bolt_icon,
     map: map_icon,
+    medal1: medal1_icon,
+    medal2: medal2_icon,
+    medalWhite: medal_white_icon,
+    sunrise: star_icon,
+    target: bolt_icon,
+    layers: map_icon,
   };
 
   const [employees, setEmployees] = useState<EmployeeUserType[]>([]);
@@ -1187,17 +1197,17 @@ export default function Analytics() {
           </div>
           {selectedEmployee?.achievements?.length ? (
             <div className="analytics-badges-grid">
-              {selectedEmployee.achievements.map((a) => (
-                <div className="analytics-badge-card" key={a.id ?? a.name}>
+              {selectedEmployee.achievements.map((a, idx) => (
+                <div className="analytics-badge-card" key={isBadgeMap(a) ? a.id : `ref-${idx}`}>
                   <div className="analytics-badge-icon">
-                    {iconByBadge[a.icon as BadgeIcon] ? (
+                    {isBadgeMap(a) && iconByBadge[a.icon as BadgeIcon] ? (
                       <img src={iconByBadge[a.icon as BadgeIcon]} alt="" />
                     ) : (
                       <span className="badge-emoji">🏅</span>
                     )}
                   </div>
-                  <h4 className="analytics-badge-name">{a.name}</h4>
-                  <p className="analytics-badge-desc">{a.description}</p>
+                  <h4 className="analytics-badge-name">{isBadgeMap(a) ? a.name : "Achievement"}</h4>
+                  <p className="analytics-badge-desc">{isBadgeMap(a) ? a.description : "Linked from your workspace"}</p>
                 </div>
               ))}
             </div>

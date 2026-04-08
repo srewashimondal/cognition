@@ -20,6 +20,9 @@ import { collection, query, orderBy, getDocs, deleteDoc, doc, updateDoc, serverT
 import { db } from '../../../firebase';
 import { updateModuleStatus } from '../../../utils/Utils';
 import VideoPlayer from './VideoPlayer/VideoPlayer';
+import { useAuth } from '../../../context/AuthProvider';
+import { updateLearningStreakForUser } from '../../../utils/streaks';
+import { syncEmployeeAchievements } from '../../../utils/streaks';
 
 type VideoLessonPageProps = {
     lessonAttempt: StandardLessonAttempt;
@@ -37,6 +40,7 @@ function formatTime(seconds: number) {
 }
 
 export default function VideoLessonPage({ lessonAttempt, lesson, handleBack, moduleTitle }: VideoLessonPageProps) {
+    const { user } = useAuth();
     const [videoURL, setVideoURL] = useState<string | null>(null);
     const videoRef = useRef<HTMLVideoElement | null>(null);
     const [isPlaying, setIsPlaying] = useState(false);
@@ -177,6 +181,15 @@ export default function VideoLessonPage({ lessonAttempt, lesson, handleBack, mod
 
                 if (moduleAttemptRef) {
                     await updateModuleStatus(moduleAttemptRef);
+                }
+
+                if (user?.role === "employee") {
+                    try {
+                        await updateLearningStreakForUser(user.uid);
+                        await syncEmployeeAchievements(user.uid);
+                    } catch (syncErr) {
+                        console.error("Error updating streak or achievements:", syncErr);
+                    }
                 }
 
             } catch (err) {
