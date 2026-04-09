@@ -412,7 +412,7 @@ export default function StandardBuilder({ workspace }: { workspace: WorkspaceTyp
                                     "Content-Type": "application/json",
                                 },
                                 body: JSON.stringify({
-                                    lesson_id: lesson.id,
+                                    lesson_id: newLessonRef.id,
                                     video_path: videoFilePath,
                                 }),
                             });
@@ -433,6 +433,7 @@ export default function StandardBuilder({ workspace }: { workspace: WorkspaceTyp
                         )
                     );
                     lessonRefs.push(newLessonRef);
+                    continue;
                     
                 } else {
                     const lessonRef = doc(db, "standardLessons", lesson.id);
