@@ -50,7 +50,7 @@ export default function Modules({ workspace }: { workspace: WorkspaceType}) {
         const modules: StandardModuleType[] = snapshot.docs.map(docSnap => ({
           id: docSnap.id,
           ...(docSnap.data() as Omit<StandardModuleType, "id">)
-        })); 
+        })).filter(module => !module.isDeleted);
 
         setStandardModules(modules);
       } catch (error) {

@@ -15,4 +15,5 @@ export type StandardModuleType = {
   thumbnailUrl?: string;
   headerImageUrl?: string;
   headerImageStoragePath?: string;
+  isDeleted?: boolean;
 };

@@ -32,10 +32,18 @@ export default function StandardModules({ user }: { user: EmployeeUserType }) {
                         console.log("data:", data);
                         console.log("moduleRef:", data.moduleInfo);
                         const moduleSnap = await getDoc(data.moduleInfo);
+                        if (!moduleSnap.exists()) return null;
+
+                        const moduleData = moduleSnap.data() as Omit<StandardModuleType, "id">;
+
+                        // skip deleted modules
+                        if (moduleData.isDeleted) return null;
+
+
                         const moduleInfo = moduleSnap.exists() ? 
                             {
                                 id: moduleSnap.id,
-                                ...(moduleSnap.data() as Omit<StandardModuleType, "id">),
+                                ...moduleData,
                             } : null;
                         const moduleAttemptRef = docSnap.ref;
                         const lessonSnap = await getDocs(
@@ -66,7 +74,9 @@ export default function StandardModules({ user }: { user: EmployeeUserType }) {
                     })
                 );
       
-                setModuleAttempts(attempts);
+                setModuleAttempts(
+                    attempts.filter((a): a is StandardModuleAttempt => a !== null)
+                );
                 console.log("Received module attempts")
             } catch (error) {
                     console.error("Error fetching module attempts:", error);
