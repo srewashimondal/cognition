@@ -905,8 +905,25 @@ export default function StandardBuilder({ workspace }: { workspace: WorkspaceTyp
     const moduleHeaderPreviewSrc =
         removeCustomHeader ? undefined : (headerObjectUrl ?? headerImageUrl);
 
+  
     return (
         <div className="standard-builder-canvas-page">
+            {(saving) && <div className="delete-modal-overlay">
+                <div className="delete-modal saving">
+                    <h3>{ isGeneratingSummaries ?
+                        "Summarizing your videos..."
+                        : isGeneratingTranscript ?
+                        "Transcribing your videos..." 
+                        : "Saving..." 
+                    }</h3>
+                    <div className="saving-bar-track">
+                        <div className="saving-bar-streak" />
+                    </div>
+                    <p>Hang on tight! Your changes are being saved.</p>
+                </div>
+            </div>
+            }
+
             {(lessonToDelete) && <div className="delete-modal-overlay">
             <div className="delete-modal">
                 <h3>Are you sure you want to delete this lesson? This action cannot be undone.</h3>
@@ -1034,10 +1051,7 @@ export default function StandardBuilder({ workspace }: { workspace: WorkspaceTyp
                                     <span>
                                         <img src={file_icon} />
                                     </span>
-                                    {saving ? 
-                                        isGeneratingSummaries ? "Generating summaries..." 
-                                        : isGeneratingTranscript ? "Generating transcripts..." : "Saving..."
-                                        : "Save as Draft"}
+                                    Save as Draft
                                 </div>
                                 </>
                                 }

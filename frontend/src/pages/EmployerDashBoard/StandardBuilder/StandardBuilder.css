@@ -127,3 +127,34 @@
 .module-header-remove-btn:hover {
     color: #FF4B00;
 }
+
+.delete-modal.saving {
+    width: 800px;
+    height: 200px;
+    justify-content: center;
+    align-items: center;
+}
+
+.saving-bar-track {
+    width: 90%;
+    height: 6px;
+    background: #dff7ff;
+    border-radius: 99px;
+    overflow: hidden;
+    position: relative;
+}
+ 
+.saving-bar-streak {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: 35%;
+    background: linear-gradient(90deg, transparent, #A9E1FF, transparent);
+    animation: shimmer 1.4s ease-in-out infinite;
+}
+  
+@keyframes shimmer {
+    0% { transform: translateX(-100%); }
+    100% { transform: translateX(400%); }
+}

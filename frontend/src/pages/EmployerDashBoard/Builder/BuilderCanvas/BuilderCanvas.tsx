@@ -784,6 +784,17 @@ export default function BuilderCanvas({ id, workspace }: BuilderCanvasProps) {
                     </div>
                 </div>}
             
+                {(saving) && <div className="delete-modal-overlay">
+                    <div className="delete-modal saving">
+                        <h3>Saving...</h3>
+                        <div className="saving-bar-track">
+                            <div className="saving-bar-streak" />
+                        </div>
+                        <p>Hang on tight! Your changes are being saved.</p>
+                    </div>
+                </div>
+                }
+            
             {(unDeployModal) && <div className="delete-modal-overlay">
             <div className="delete-modal">
                 <h3>Undeploy this module?</h3>
@@ -909,7 +920,7 @@ export default function BuilderCanvas({ id, workspace }: BuilderCanvasProps) {
                                         <span>
                                             <img src={file_icon} />
                                         </span>
-                                        {saving ? "Saving..." : "Save as Draft"}
+                                        Save as Draft
                                     </button>
                                 }
                                 { !isDeployed ?
