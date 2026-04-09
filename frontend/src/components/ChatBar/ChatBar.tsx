@@ -222,15 +222,9 @@ export default function ChatBar({ context, userInput, setUserInput, handleSend, 
                             </span>
                             Add Context
                         </div>
-                        <div className="chat-action-divider" />
                     </>
                     }
-                    <div className="chat-action" onClick={handleVoiceMessage}>
-                        <span className="chat-action-icon">
-                            <img src={isRecording ? stop_icon : voice_icon} />
-                        </span>
-                        {isRecording ? "Stop Recording" : "Voice Message"}
-                    </div>
+             
                 </div>
             </div>
         </div>

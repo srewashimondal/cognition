@@ -48,7 +48,8 @@ export default function POSIntegration({ data, updateData, registerFormId, onNex
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
-              workspace_id: data.workspaceId,
+              workspace_id: data.workspaceId, // note that this isnt defined yet...
+              settings: data.selectedSettings,
               shop: fullShop
             })
           });

@@ -105,7 +105,15 @@ export default function ModuleCard({ moduleInfo, type, role, status, percent, st
       (status === "completed" ||
         (typeof percent === "number" && percent >= 100));
 
+    const isActive = moduleInfo.deployed === true;
+    const isBlocked = !isActive && role === "employee" && status === "not begun";
+
     const handleNavigateEmployee = () => {
+
+      if (isBlocked) {
+        return;
+      }
+
       if (employeeModuleComplete) {
         if (type === "simulation" && attemptId) {
           navigate(`/employee/simulations/${attemptId}/performance`);
@@ -171,8 +179,10 @@ export default function ModuleCard({ moduleInfo, type, role, status, percent, st
                     <span>Deploy</span>
                   </span>) : ("Deployed")}
                 </button> ) : (
-                <button className={`module-card-btn ${employeeModuleComplete ? "completed" : ""}`} onClick={handleNavigateEmployee}>
-                  {!employeeModuleComplete ? (<span className="module-card-btn-label-div">
+                <button className={`module-card-btn ${(employeeModuleComplete || isBlocked) ? "completed" : ""}`} onClick={handleNavigateEmployee} disabled={isBlocked}>
+                  { isBlocked ?
+                    "No Longer Available" :
+                    !employeeModuleComplete ? (<span className="module-card-btn-label-div">
                     <div className="module-action-swap">
                       <img className="module-action-icon default" src={white_play}/>
                       <img className="module-action-icon hover" src={orange_play}/>

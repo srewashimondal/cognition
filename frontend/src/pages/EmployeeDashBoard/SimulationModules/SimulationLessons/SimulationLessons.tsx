@@ -29,6 +29,8 @@ export default function SimulationLessons() {
     const [moduleAttempt, setModuleAttempt] = useState<ModuleAttemptType | null>(null);
     const [moduleInfo, setModuleInfo] = useState<ModuleType | null>(null);
     const [lessonAttempts, setLessonAttempts] = useState<any[]>([]);
+
+    const isActive = moduleInfo?.deployed === true;
     // const bannerColorByID = ["module1", "module2", "module3", "module4", "module5", "module6"];
 
     useEffect(() => {
@@ -217,6 +219,17 @@ export default function SimulationLessons() {
                     </div>
                 </Tooltip>
                 {/*<div className={`lesson-banner ${bannerColorByID[(moduleInfo?.id ?? 1) - 1]}`} />*/}
+
+                {!isActive &&
+                <div className="inactive-banner">
+                    <div className="inactive-streak" />
+                    <div className="hint-circle">!</div>
+                    <div className="inactive-banner-content">
+                        This module is no longer active. You can no longer begin new lessons, however you can continue lessons that are still in progress. 
+                        {" "}
+                        <span>Learn More</span>
+                    </div>
+                </div>}
         
                 <div className="modules-header lesson-pg employee">
                     <div className="modules-header-left">
@@ -260,7 +273,7 @@ export default function SimulationLessons() {
                     {lessonAttempts?.map((l) => (<LessonCard lessonInfo={l.lessonInfo} 
                     role={"employee"} status={l.status} evaluation={l.evaluation} 
                     navigateToSim={() => handleSimNavigate(moduleID ?? "", l.id, l.status)} 
-                    isLocked={l.isLocked} />))}
+                    isLocked={l.isLocked} disableButtons={!isActive && l.status === "not begun"} />))}
                 </div>
 
                 <div className="employee-action-panel module">

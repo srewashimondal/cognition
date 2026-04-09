@@ -155,9 +155,17 @@ export default function SimulationModules({ user }: { user: EmployeeUserType }) 
                         const moduleRef = data.moduleInfo; 
                         const moduleSnap = await getDoc(moduleRef);
     
-                        const moduleInfo = moduleSnap.exists()
-                            ? { id: moduleSnap.id, ...moduleSnap.data() as Omit<ModuleType, "id">}
-                            : null;
+                        if (!moduleSnap.exists()) return null;
+
+                        const moduleData = moduleSnap.data() as Omit<ModuleType, "id">;
+
+                        // skip deleted modules
+                        if (moduleData.isDeleted) return null;
+
+                        const moduleInfo = {
+                            id: moduleSnap.id,
+                            ...moduleData
+                        };
     
                         return {
                             id: docSnap.id,
@@ -169,7 +177,9 @@ export default function SimulationModules({ user }: { user: EmployeeUserType }) 
                     })
                 );
     
-                setModuleAttempts(attempts.filter(Boolean));
+                setModuleAttempts(
+                    attempts.filter((a): a is ModuleAttemptType => a !== null)
+                );
     
             } catch (error) {
                 console.error("Error fetching module attempts:", error);

@@ -498,3 +498,88 @@
 .module-header-remove-btn:hover {
     color: #FF4B00;
 }
+
+.builder-danger-zone {
+    border: 1px solid rgb(203, 159, 159);
+    border-radius: 10px;
+    margin-left: 7px;
+    margin-top: 100px;
+    overflow: hidden;
+    width: 94%;
+}
+
+.danger-zone-top {
+    padding: 20px;
+    background-color: #fce9e9;
+    border-bottom: 1px solid rgb(203, 159, 159);
+    font-size: 15px;
+    font-weight: 600;
+    color: rgb(162, 90, 90);
+}
+
+.danger-zone-item {
+    display: flex;
+    justify-content: space-between;
+    padding: 20px;
+    background-color: white;
+}
+
+.danger-zone-item.undeploy {
+    border-bottom: 1px solid #eee;
+}
+
+.danger-zone-item h4, .danger-zone-item p {
+    margin: 0;
+}
+
+.danger-zone-item h4 {
+    font-size: 14px;
+}
+
+.danger-zone-item p {
+    font-size: 12px;
+}
+
+.danger-zone-btn {
+    color: rgb(162, 90, 90);
+    background-color: white;
+    border: 1px solid rgb(203, 159, 159);
+    transition: 0.2s ease;
+    font-size: 13px;
+}
+
+.danger-zone-btn:hover {
+    border: 1px solid rgb(203, 159, 159);
+    background-color: #fce9e9;
+}
+
+.danger-zone-btn.delete {
+    color: white;
+    background-color: rgb(228, 85, 85);
+    border: 1px solid rgb(228, 85, 85);
+}
+
+.danger-zone-btn.delete:hover {
+    border: 1px solid rgb(228, 85, 85);
+    color: rgb(228, 85, 85);
+    background-color: white;
+}
+
+.delete-text-input {
+    border: 1px solid #c0c0c0;
+    border-radius: 5px;
+    padding: 7px 5px;
+}
+
+.delete-btn:disabled, .delete-btn.danger:disabled {
+    background-color: #e0d2bc;
+    cursor: not-allowed;
+}
+
+.delete-btn:disabled:hover, .delete-btn.danger:disabled:hover {
+    background-color: #e0d2bc;
+}
+
+.delete-btn.danger {
+    background-color: rgb(228, 85, 85);
+}

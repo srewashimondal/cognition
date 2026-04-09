@@ -18,4 +18,5 @@ export type ModuleType = {
     thumbnailUrl?: string;
     headerImageUrl?: string;
     headerImageStoragePath?: string;
+    isDeleted?: boolean;
 };

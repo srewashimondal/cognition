@@ -1,12 +1,13 @@
 import "./Modules.css";
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { Tooltip } from "@radix-ui/themes";
 import type { WorkspaceType } from "../../../types/User/WorkspaceType.tsx";
 import type { StandardModuleType } from "../../../types/Standard/StandardModule.tsx";
 import type { ModuleType } from "../../../types/Modules/ModuleType.tsx";
 import ModuleCard from '../../../cards/ModuleCard/ModuleCard.tsx';
 import add_cta from '../../../assets/icons/add-cta.svg';
+import toast from "react-hot-toast";
 
 import { getDoc, collection, query, where, getDocs, DocumentReference, doc } from "firebase/firestore";
 import { db } from "../../../firebase";
@@ -22,6 +23,14 @@ export default function Modules({ workspace }: { workspace: WorkspaceType}) {
   const [standardModules, setStandardModules] = useState<StandardModuleType[]>([]);
   const [simulationModules, setSimulationModules] = useState<ModuleType[]>([]);
   const [loading, setLoading] = useState(false);
+
+  const location = useLocation();
+
+  useEffect(() => {
+    if (location.state?.moduleDeleted) {
+      toast.success("Module deleted successfully");
+    }
+  }, [location.state]);
 
   useEffect(() => {
     async function fetchStandardModules() {
@@ -54,8 +63,6 @@ export default function Modules({ workspace }: { workspace: WorkspaceType}) {
     fetchStandardModules();
   }, [workspace.standardModules]);
 
-
-
   useEffect(() => {
     async function fetchSimulationModules() {
       if (!workspace.simulationModules || workspace.simulationModules.length === 0) {
@@ -74,7 +81,7 @@ export default function Modules({ workspace }: { workspace: WorkspaceType}) {
         const modules: ModuleType[] = snapshot.docs.map(docSnap => ({
           id: docSnap.id,
           ...(docSnap.data() as Omit<ModuleType, "id">)
-        })); 
+        })).filter(module => !module.isDeleted);
 
         setSimulationModules(modules);
       } catch (error) {

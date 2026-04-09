@@ -57,3 +57,41 @@
 .simulation-lessons-bottom {
     padding: 18px;
 }
+
+.inactive-banner {
+    background-color: #fff1f1;
+    border-radius: 5px;
+    font-size: 11px;
+    color: rgb(162, 90, 90);
+    font-weight: 500;
+    margin-top: 10px;
+    display: flex;
+    position: relative;
+    overflow: hidden;
+    width: 70%;
+}
+
+.inactive-streak {
+    height: 100%;
+    width: 2px;
+    background-color: rgb(228, 85, 85);
+    position: absolute;
+    z-index: 5;
+}
+
+.inactive-banner-content {
+    padding: 7px;
+}
+
+.inactive-banner span {
+    text-decoration: underline;
+    cursor: pointer;
+    font-weight: 600;
+    color: rgb(228, 85, 85);;
+}
+
+.inactive-banner .hint-circle {
+    margin: 7px;
+    margin-right: 0;
+    margin-left: 15px;
+}

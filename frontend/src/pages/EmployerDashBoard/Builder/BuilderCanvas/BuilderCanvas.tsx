@@ -161,6 +161,8 @@ export default function BuilderCanvas({ id, workspace }: BuilderCanvasProps) {
     const [sections, setSections] = useState<ResourceSection[]>(resourceSections);
     const [typingMessageId, setTypingMessageId] = useState<string | null>(null);
     const [stopTyping, setStopTyping] = useState(false);
+    const [deleteModalInput, setDeleteModalInput] = useState("");
+    const [deleteModal, setDeleteModal] = useState(false);
 
     useEffect(() => {
         if (module) {
@@ -252,6 +254,13 @@ export default function BuilderCanvas({ id, workspace }: BuilderCanvasProps) {
     const [isDeployed, setIsDeployed] = useState(module?.deployed);
     const [openDeployModal, setDeployModal] = useState(false);
     const [unDeployModal, setUnDeployModal] = useState(false);
+
+    useEffect(() => {
+        if (module?.deployed !== undefined) {
+          setIsDeployed(module.deployed);
+        }
+    }, [module]);
+
     const handleDeploy = async () => {
         try {
             await handleSave();
@@ -259,20 +268,12 @@ export default function BuilderCanvas({ id, workspace }: BuilderCanvasProps) {
             await updateDoc(moduleRef, {
                 deployed: true,
             });
-            const res = await fetch("http://127.0.0.1:8000/ai/deploy-simulation-module", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ module_id: id }),
-            });
-            if (!res.ok) {
-                const err = await res.json().catch(() => ({}));
-                throw new Error((err as { detail?: string }).detail || "Failed to enroll employees");
-            }
             setIsDeployed(true);
         } catch (error) {
             console.error("Error deploying module:", error);
         }
     };
+
 
     const handleRollBack = async () => {
         try {
@@ -285,6 +286,25 @@ export default function BuilderCanvas({ id, workspace }: BuilderCanvasProps) {
             console.error("Error rolling back module:", error);
         }
     };
+
+    const [isDeleting, setIsDeleting] = useState(false);
+    const handleDeleteModule = async () => {
+
+        if (isDeleting) return;
+        setIsDeleting(true);
+        try {
+            const moduleRef = doc(db, "simulationModules", id!);
+            await updateDoc(moduleRef, {
+                deployed: false,
+                isDeleted: true,
+            });
+            navigate(`/employer/modules`, {
+                state: { moduleDeleted: true }
+            });
+        } catch (error) {
+            console.error("Error deleting module:", error);
+        }
+    }
 
     const [headerImageUrl, setHeaderImageUrl] = useState<string | undefined>(undefined);
     const [headerImageStoragePath, setHeaderImageStoragePath] = useState<string | undefined>(undefined);
@@ -766,16 +786,26 @@ export default function BuilderCanvas({ id, workspace }: BuilderCanvasProps) {
             
             {(unDeployModal) && <div className="delete-modal-overlay">
             <div className="delete-modal">
-                <h3>Unpublish this module?</h3>
+                <h3>Undeploy this module?</h3>
                 <p>This module will no longer be accessible to employees. Progress data will be preserved.</p>
-                    <div className="delete-modal-actions">
-                        <button className="cancel-btn" onClick={() => setUnDeployModal(false)}>
-                            Cancel
-                        </button>
-                        <button className="delete-btn" onClick={() => {handleRollBack(); setUnDeployModal(false);}}>
-                            Unpublish
-                        </button>
-                    </div>
+                
+                <div className="delete-input">
+                    <label>Type 
+                        <span className="bold-txt"> UNDEPLOY </span>
+                        to confirm.
+                    </label>
+                    <input type="text" className="delete-text-input" placeholder="UNDEPLOY"
+                    value={deleteModalInput} onChange={(e) => setDeleteModalInput(e.target.value)} />
+                </div>
+
+                <div className="delete-modal-actions">
+                    <button className="cancel-btn" onClick={() => setUnDeployModal(false)}>
+                        Cancel
+                    </button>
+                    <button className="delete-btn" onClick={() => {handleRollBack(); setUnDeployModal(false);}} disabled={deleteModalInput !== "UNDEPLOY"}>
+                        Undeploy 
+                    </button>
+                </div>
                 </div>
             </div>}
 
@@ -791,6 +821,31 @@ export default function BuilderCanvas({ id, workspace }: BuilderCanvasProps) {
                             Deploy
                         </button>
                     </div>
+                </div>
+            </div>}
+
+            {(deleteModal) && <div className="delete-modal-overlay">
+            <div className="delete-modal">
+                <h3>Delete this module?</h3>
+                <p>This module and all its lessons will be permanently deleted. Employee progress and simulation data will be preserved. This action cannot be undone.</p>
+                
+                <div className="delete-input">
+                    <label>Type 
+                        <span className="bold-txt"> DELETE </span>
+                        to confirm.
+                    </label>
+                    <input type="text" className="delete-text-input" placeholder="DELETE"
+                    value={deleteModalInput} onChange={(e) => setDeleteModalInput(e.target.value)} />
+                </div>
+
+                <div className="delete-modal-actions">
+                    <button className="cancel-btn" onClick={() => setDeleteModal(false)}>
+                        Cancel
+                    </button>
+                    <button className="delete-btn danger" onClick={() => {handleDeleteModule(); setDeleteModal(false);}} disabled={deleteModalInput !== "DELETE"}>
+                        Delete for everyone in my workspace
+                    </button>
+                </div>
                 </div>
             </div>}
 
@@ -846,13 +901,22 @@ export default function BuilderCanvas({ id, workspace }: BuilderCanvasProps) {
                                     </span>
                                     View References {/* In the backend I'll make it so the attached files show "attached" */}
                                 </div>
-                                <div className="builder-action-pill" onClick={handleSave}>
-                                    <span>
-                                        <img src={file_icon} />
-                                    </span>
-                                    {saving ? "Saving..." : "Save as Draft"}
-                                </div>
-                                <ActionButton text={"Deploy"} buttonType={"deploy"} onClick={() => {if (!isDeployed) {setDeployModal(true);} else {setUnDeployModal(true);}}} disabled={isDeployed} />
+                                { !isDeployed &&
+                                    <button className="builder-action-pill" onClick={handleSave} disabled={saving || isDeployed}>
+                                        <span>
+                                            <img src={file_icon} />
+                                        </span>
+                                        {saving ? "Saving..." : "Save as Draft"}
+                                    </button>
+                                }
+                                { !isDeployed ?
+                                    <ActionButton text={"Deploy"} buttonType={"deploy"} onClick={() => {if (!isDeployed) {setDeployModal(true);}}} disabled={isDeployed} />
+                                    : <Tooltip content="This module has been deployed. If you wish to make edits, please un-deploy this module. ">
+                                        <div className={`module-card-btn ${(isDeployed) ? "deployed" : ""}`}>
+                                            Deployed
+                                        </div>
+                                    </Tooltip>
+                                }
                             </div>
                         </div>
                         <div className="module-info-builder">
@@ -958,7 +1022,32 @@ export default function BuilderCanvas({ id, workspace }: BuilderCanvasProps) {
                             <ActionButton text={"Save as Draft"} buttonType={"save"} onClick={handleSave} reversed={true} />
                             <ActionButton text={"Deploy"} buttonType={"deploy"} onClick={handleDeploy} disabled={module?.deployed} />
                         </div>*/}
-                        <div className="filler-space" />
+                        <div className="builder-danger-zone">
+                            <div className="danger-zone-top">
+                                ⚠ Danger Zone
+                            </div>
+                            {isDeployed &&
+                                <div className="danger-zone-item undeploy">
+                                    <div className="danger-zone-content">
+                                        <h4 className="bold-txt">Undeploy this module</h4>
+                                        <p>This module will be taken offline. Learners will lose access until it is redeployed.</p>
+                                    </div>
+                                    <button className="danger-zone-btn" type="button" onClick={() => setUnDeployModal(true)}>
+                                        Undeploy module
+                                    </button>
+                                </div>
+                            }
+                            <div className="danger-zone-item">
+                                <div className="danger-zone-content">
+                                    <h4 className="bold-txt">Delete Module</h4>
+                                    <p>Remove this module from your workspace. Employee progress and simulation data will be preserved.</p>
+                                </div>
+                                <button className="danger-zone-btn delete" type="button" onClick={() => setDeleteModal(true)}>
+                                    Delete module
+                                </button>
+                            </div>
+                        </div>
+                        {/*<div className="filler-space" />*/}
                     </div>
                     { !openAIPanel &&
                     <Tooltip content="AI assistant">

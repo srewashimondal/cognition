@@ -501,3 +501,7 @@
     gap: 5px;
     align-items: center;
 }
+
+.lesson-action-btn:disabled {
+    cursor: not-allowed;
+}

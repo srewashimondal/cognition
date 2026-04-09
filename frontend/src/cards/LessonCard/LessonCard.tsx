@@ -30,9 +30,10 @@ type LessonProp = {
     onDueDateChange?: (date: string | null) => void;
     isUpdating?: boolean;
     isLocked?: boolean;
+    disableButtons?: boolean;
 };
 
-export default function LessonCard({ lessonInfo, role, status, evaluation, navigateToSim, moduleID, onSkillsChange, onSettingsChange, onDueDateChange, isUpdating, isLocked }: LessonProp) {
+export default function LessonCard({ lessonInfo, role, status, evaluation, navigateToSim, moduleID, onSkillsChange, onSettingsChange, onDueDateChange, isUpdating, isLocked, disableButtons }: LessonProp) {
     const navigate = useNavigate();
 
     const id = lessonInfo.id;
@@ -226,7 +227,7 @@ export default function LessonCard({ lessonInfo, role, status, evaluation, navig
                             </div>
                         </Tooltip>
                     </div>) :
-                    (<button className={`lesson-action-btn ${buttonLabelsByStatus[status ?? "not begun"]} ${isLocked ? "Locked": ""}`} onClick={handleNavigateEmployee}>
+                    (<button className={`lesson-action-btn ${buttonLabelsByStatus[status ?? "not begun"]} ${isLocked ? "Locked": ""}`} onClick={handleNavigateEmployee} disabled={disableButtons}>
                         {(isLocked) ? 
                         <span>
                             <img src={lock_icon} />

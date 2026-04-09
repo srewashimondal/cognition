@@ -8,12 +8,8 @@
  */
 
 import {setGlobalOptions} from "firebase-functions";
-import {onRequest} from "firebase-functions/https";
-import * as logger from "firebase-functions/logger";
-import * as functions from "firebase-functions";
-import { onDocumentUpdated } from "firebase-functions/v2/firestore";
+import {onDocumentUpdated} from "firebase-functions/v2/firestore";
 import * as admin from "firebase-admin";
-import axios from "axios";
 
 // Start writing functions
 // https://firebase.google.com/docs/functions/typescript
@@ -28,7 +24,7 @@ import axios from "axios";
 // functions should each use functions.runWith({ maxInstances: 10 }) instead.
 // In the v1 API, each function can only serve one request per container, so
 // this will be the maximum concurrent request count.
-setGlobalOptions({ maxInstances: 10 });
+setGlobalOptions({maxInstances: 10});
 
 // export const helloWorld = onRequest((request, response) => {
 //   logger.info("Hello logs!", {structuredData: true});
@@ -38,35 +34,113 @@ setGlobalOptions({ maxInstances: 10 });
 admin.initializeApp();
 const db = admin.firestore();
 
-export const onVideoLessonUpdated = onDocumentUpdated("standardLessons/{lessonId}",
-    async (event) => {
-  
-      const before = event.data?.before.data();
-      const after = event.data?.after.data();
-      const lessonId = event.params.lessonId;
-  
-        if (!before || !after) return;
-  
-        if (!before.videoFilePath && after.videoFilePath) {
-            console.log(`Video detected for lesson ${lessonId}`);
-            try {
-                await db.collection("standardLessons")
-                .doc(lessonId)
-                .update({ aiStatus: "processing" });
 
-                await axios.post(
-                "https://YOUR_BACKEND_URL/ai/generate-video-summary",
-                {
-                    lesson_id: lessonId,
-                    video_path: after.videoFilePath,
-                });
+export const onSimulationModuleDeployed = onDocumentUpdated(
+  "simulationModules/{moduleId}",
+  async (event) => {
+    const before = event.data?.before.data();
+    const after = event.data?.after.data();
 
-                await db.collection("standardLessons").doc(lessonId).update({ aiStatus: "complete" });
+    if (!before || !after) return;
 
-            } catch (error) {
-                console.error("AI generation failed:", error);
-                await db.collection("standardLessons").doc(lessonId).update({ aiStatus: "failed" });
-            }
+    if (before.deployed || !after.deployed) return;
+
+    const moduleId = event.params.moduleId;
+    const moduleRef = db.collection("simulationModules").doc(moduleId);
+    const workspaceRef = after.workspaceRef;
+
+    console.log("Simulation module deployed:", moduleId);
+
+    try {
+      const usersSnap = await db
+        .collection("users")
+        .where("workspaceID", "==", workspaceRef)
+        .get();
+
+      console.log(`Users found: ${usersSnap.size}`);
+
+      const lessonsSnap = await db
+        .collection("simulationLessons")
+        .where("moduleRef", "==", moduleRef)
+        .get();
+
+      const lessons = lessonsSnap.docs;
+      console.log(`Lessons found: ${lessons.length}`);
+
+      let batch = db.batch();
+      let opCount = 0;
+      const MAX_BATCH = 400;
+      const commits: Promise<any>[] = [];
+
+      const commitIfNeeded = async () => {
+        if (opCount >= MAX_BATCH) {
+          commits.push(batch.commit());
+          batch = db.batch();
+          opCount = 0;
         }
+      };
+
+
+      // iterate thru users
+      for (const userDoc of usersSnap.docs) {
+        const userRef = userDoc.ref;
+
+        const existing = await db
+          .collection("simulationModuleAttempts")
+          .where("user", "==", userRef)
+          .where("moduleInfo", "==", moduleRef)
+          .limit(1)
+          .get();
+
+        if (!existing.empty) {
+          console.log("Skipping existing attempt for user:", userRef.id);
+          continue;
+        }
+
+        const moduleAttemptRef = db
+          .collection("simulationModuleAttempts")
+          .doc();
+
+        batch.set(moduleAttemptRef, {
+          workspaceRef,
+          user: userRef,
+          moduleInfo: moduleRef,
+          status: "not begun",
+          createdAt: admin.firestore.FieldValue.serverTimestamp(),
+          percent: 0,
+        });
+
+        opCount++;
+
+        await commitIfNeeded();
+
+        // iterate thru lessons
+        for (const lessonDoc of lessons) {
+          const lessonAttemptRef = db
+            .collection("simulationLessonAttempts")
+            .doc();
+
+          batch.set(lessonAttemptRef, {
+            user: userRef,
+            moduleRef: moduleAttemptRef,
+            lessonInfo: lessonDoc.ref,
+            status: "not begun",
+            createdAt: admin.firestore.FieldValue.serverTimestamp(),
+          });
+
+          opCount++;
+
+          await commitIfNeeded();
+        }
+      }
+
+      if (opCount > 0) commits.push(batch.commit());
+
+      await Promise.all(commits);
+
+      console.log("Simulation attempts created successfully");
+    } catch (err) {
+      console.error("Error creating simulation attempts:", err);
     }
+  }
 );
