@@ -131,6 +131,8 @@ export default function StandardLessons() {
       
         fetchModuleAttempt();
     }, [moduleID]); 
+
+    const isActive = moduleInfo?.deployed === true;
       
     const handleNavigate = (moduleId: string | undefined, lessonId: string) => {
         navigate(`/employee/standard-modules/${moduleId}/${lessonId}`);
@@ -153,6 +155,17 @@ export default function StandardLessons() {
                 </Tooltip>
 
                 {/*<div className={`lesson-banner ${bannerColorByID[(moduleInfo?.id ?? 1) - 1]}`} />*/}
+
+                {!isActive &&
+                <div className="inactive-banner">
+                    <div className="inactive-streak" />
+                    <div className="hint-circle">!</div>
+                    <div className="inactive-banner-content">
+                        This module is no longer active. You can no longer begin new lessons, however you can continue lessons that are still in progress. 
+                        {" "}
+                        <span>Learn More</span>
+                    </div>
+                </div>}
         
                 <div className="modules-header lesson-pg employee">
                     <div className="modules-header-left">

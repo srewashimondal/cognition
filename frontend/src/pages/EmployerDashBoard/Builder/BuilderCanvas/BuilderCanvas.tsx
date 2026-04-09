@@ -799,7 +799,7 @@ export default function BuilderCanvas({ id, workspace }: BuilderCanvasProps) {
                 </div>
 
                 <div className="delete-modal-actions">
-                    <button className="cancel-btn" onClick={() => setUnDeployModal(false)}>
+                    <button className="cancel-btn" onClick={() => {setUnDeployModal(false); setDeleteModalInput("");}}>
                         Cancel
                     </button>
                     <button className="delete-btn" onClick={() => {handleRollBack(); setUnDeployModal(false);}} disabled={deleteModalInput !== "UNDEPLOY"}>
@@ -839,7 +839,7 @@ export default function BuilderCanvas({ id, workspace }: BuilderCanvasProps) {
                 </div>
 
                 <div className="delete-modal-actions">
-                    <button className="cancel-btn" onClick={() => setDeleteModal(false)}>
+                    <button className="cancel-btn" onClick={() => {setDeleteModal(false); setDeleteModalInput("");}}>
                         Cancel
                     </button>
                     <button className="delete-btn danger" onClick={() => {handleDeleteModule(); setDeleteModal(false);}} disabled={deleteModalInput !== "DELETE"}>
@@ -879,22 +879,25 @@ export default function BuilderCanvas({ id, workspace }: BuilderCanvasProps) {
                                 : <h1>{title}</h1>}
                             </div>
                             <div className="global-action-panel">
-                                <Tooltip content={editMode ? "Save edits" : "Edit title"}>
-                                    <div className="builder-action" onClick={() => setEditMode(prev => !prev)}>
-                                        <img src={editMode ? check_icon : edit_icon} />
-                                    </div>
-                                </Tooltip>
-                                {applied && 
-                                <Tooltip content="Restore previous">
-                                    <div className="builder-action" onClick={handleRestorePrevious}>
-                                        <img src={undo_icon} />
-                                    </div>
-                                </Tooltip>}
-                                <Tooltip content="Restore original">
-                                    <div className="builder-action" onClick={handleRestoreOriginal}>
-                                        <img src={refresh_icon} />
-                                    </div>
-                                </Tooltip>
+                                {   !isDeployed &&
+                                    <>
+                                    <Tooltip content={editMode ? "Apply edits" : "Edit title"}>
+                                        <div className="builder-action" onClick={() => setEditMode(prev => !prev)}>
+                                            <img src={editMode ? check_icon : edit_icon} />
+                                        </div>
+                                    </Tooltip>
+                                    {applied && 
+                                    <Tooltip content="Restore previous">
+                                            <div className="builder-action" onClick={handleRestorePrevious}>
+                                            <img src={undo_icon} />
+                                        </div>
+                                    </Tooltip>}
+                                    <Tooltip content="Restore original">
+                                        <div className="builder-action" onClick={handleRestoreOriginal}>
+                                            <img src={refresh_icon} />
+                                        </div>
+                                    </Tooltip>
+                                    </>}
                                 <div className="builder-action-pill" onClick={() => setOpenModal(true)}>
                                     <span>
                                         <img src={folder_icon} />
@@ -910,8 +913,8 @@ export default function BuilderCanvas({ id, workspace }: BuilderCanvasProps) {
                                     </button>
                                 }
                                 { !isDeployed ?
-                                    <ActionButton text={"Deploy"} buttonType={"deploy"} onClick={() => {if (!isDeployed) {setDeployModal(true);}}} disabled={isDeployed} />
-                                    : <Tooltip content="This module has been deployed. If you wish to make edits, please un-deploy this module. ">
+                                    <ActionButton text={"Deploy"} buttonType={"deploy"} onClick={() => setDeployModal(true)} disabled={isDeployed} />
+                                    : <Tooltip content="This module has been deployed. If you wish to make edits, please undeploy this module. ">
                                         <div className={`module-card-btn ${(isDeployed) ? "deployed" : ""}`}>
                                             Deployed
                                         </div>

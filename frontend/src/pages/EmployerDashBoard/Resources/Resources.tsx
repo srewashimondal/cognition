@@ -467,6 +467,7 @@ export default function Resources({ workspace }: { workspace: WorkspaceType }) {
                 <button
                   className="close-btn"
                   onClick={() => setOpenUploadModal(false)}
+                  disabled={isGeneratingSummary}
                 >
                   ✕
                 </button>

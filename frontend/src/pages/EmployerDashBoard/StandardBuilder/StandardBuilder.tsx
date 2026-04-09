@@ -74,6 +74,8 @@ export default function StandardBuilder({ workspace }: { workspace: WorkspaceTyp
     const [pendingHeaderFile, setPendingHeaderFile] = useState<File | null>(null);
     const [headerObjectUrl, setHeaderObjectUrl] = useState<string | null>(null);
     const [removeCustomHeader, setRemoveCustomHeader] = useState(false);
+    const [deleteModalInput, setDeleteModalInput] = useState("");
+    const [deleteModal, setDeleteModal] = useState(false);
 
     useEffect(() => {
         async function fetchModule() {
@@ -168,21 +170,32 @@ export default function StandardBuilder({ workspace }: { workspace: WorkspaceTyp
         window.scrollTo({ top: 0, left: 0, behavior: "instant" });
     }, []);
 
+    useEffect(() => {
+        if (module?.deployed !== undefined) {
+            setIsDeployed(module.deployed);
+        }
+    }, [module]);
+
+    const [invalidError, setInvalidError] = useState("");
     const validateLessonsForDeploy = (): boolean => {
         for (const lesson of lessons) {
             if (!lesson.title || lesson.title.trim() === "" || lesson.title === "New Lesson Title" || lesson.title === "New Quiz Title") {
+                setInvalidError("Please check for incomplete titles");
                 return false;
             }
             if (!lesson.dueDate) {
+                setInvalidError("Please check for missing due dates.");
                 return false;
             }
             if (lesson.type === "video") {
                 if (!lesson.videoFilePath && !lesson.pendingVideoFile) {
+                    setInvalidError("Please check for missing video files.");
                     return false;
                 }
             }
                 if (lesson.type === "quiz") {
                 if (!lesson.questions || lesson.questions.length === 0) {
+                    setInvalidError("Please check for incomplete quizzes.");
                     return false;
                 }
             }
@@ -600,6 +613,25 @@ export default function StandardBuilder({ workspace }: { workspace: WorkspaceTyp
         }
     };
 
+    const [isDeleting, setIsDeleting] = useState(false);
+    const handleDeleteModule = async () => {
+
+        if (isDeleting) return;
+        setIsDeleting(true);
+        try {
+            const moduleRef = doc(db, "standardModules", moduleID!);
+            await updateDoc(moduleRef, {
+                deployed: false,
+                isDeleted: true,
+            });
+            navigate(`/employer/modules`, {
+                state: { moduleDeleted: true }
+            });
+        } catch (error) {
+            console.error("Error deleting module:", error);
+        }
+    }
+
     const handleAddVideo = () => {
         setLessons(prev => {
             const newOrder = lessons.length + 1; 
@@ -891,6 +923,7 @@ export default function StandardBuilder({ workspace }: { workspace: WorkspaceTyp
             {(openDeployModal) && <div className="delete-modal-overlay">
             <div className="delete-modal">
                 <h3>Module Not Ready for Deployment</h3>
+                <p>{invalidError}</p>
                 <p>Some lessons are incomplete. Please ensure every lesson has a title, due date, and required content before deploying.</p>
                     <div className="delete-modal-actions">
                         <button className="delete-btn" onClick={() => setDeployModal(false)}>
@@ -918,16 +951,51 @@ export default function StandardBuilder({ workspace }: { workspace: WorkspaceTyp
 
             {(unDeployModal) && <div className="delete-modal-overlay">
             <div className="delete-modal">
-                <h3>Unpublish this module?</h3>
+                <h3>Undeploy this module?</h3>
                 <p>This module will no longer be accessible to employees. Progress data will be preserved.</p>
+
+                    <div className="delete-input">
+                        <label>Type 
+                            <span className="bold-txt"> UNDEPLOY </span>
+                            to confirm.
+                        </label>
+                        <input type="text" className="delete-text-input" placeholder="UNDEPLOY"
+                        value={deleteModalInput} onChange={(e) => setDeleteModalInput(e.target.value)} />
+                    </div>
+
                     <div className="delete-modal-actions">
-                        <button className="cancel-btn" onClick={() => setUnDeployModal(false)}>
+                        <button className="cancel-btn" onClick={() => {setUnDeployModal(false); setDeleteModalInput("");}}>
                             Cancel
                         </button>
-                        <button className="delete-btn" onClick={() => {handleRollBack(); setUnDeployModal(false);}}>
-                            Unpublish
+                        <button className="delete-btn" onClick={() => {handleRollBack(); setUnDeployModal(false);}} disabled={deleteModalInput !== "UNDEPLOY"}>
+                            Undeploy
                         </button>
                     </div>
+                </div>
+            </div>}
+
+            {(deleteModal) && <div className="delete-modal-overlay">
+            <div className="delete-modal">
+                <h3>Delete this module?</h3>
+                <p>This module and all its lessons will be permanently deleted. Employee progress and simulation data will be preserved. This action cannot be undone.</p>
+                
+                <div className="delete-input">
+                    <label>Type 
+                        <span className="bold-txt"> DELETE </span>
+                        to confirm.
+                    </label>
+                    <input type="text" className="delete-text-input" placeholder="DELETE"
+                    value={deleteModalInput} onChange={(e) => setDeleteModalInput(e.target.value)} />
+                </div>
+
+                <div className="delete-modal-actions">
+                    <button className="cancel-btn" onClick={() => {setDeleteModal(false); setDeleteModalInput("");}}>
+                        Cancel
+                    </button>
+                    <button className="delete-btn danger" onClick={() => {handleDeleteModule(); setDeleteModal(false);}} disabled={deleteModalInput !== "DELETE"}>
+                        Delete for everyone in my workspace
+                    </button>
+                </div>
                 </div>
             </div>}
             
@@ -955,21 +1023,32 @@ export default function StandardBuilder({ workspace }: { workspace: WorkspaceTyp
                             : <h1>{title}</h1>}
                         </div>
                         <div className="global-action-panel">
-                            <Tooltip content={editMode ? "Save edits" : "Edit title"}>
-                                <div className="builder-action" onClick={() => setEditMode(prev => !prev)}>
-                                    <img src={editMode ? check_icon : edit_icon} />
+                            {   !isDeployed &&
+                                <>
+                                <Tooltip content={editMode ? "Apply edits" : "Edit title"}>
+                                    <div className="builder-action" onClick={() => setEditMode(prev => !prev)}>
+                                        <img src={editMode ? check_icon : edit_icon} />
+                                    </div>
+                                </Tooltip>
+                                <div className="builder-action-pill" onClick={handleSave}>
+                                    <span>
+                                        <img src={file_icon} />
+                                    </span>
+                                    {saving ? 
+                                        isGeneratingSummaries ? "Generating summaries..." 
+                                        : isGeneratingTranscript ? "Generating transcripts..." : "Saving..."
+                                        : "Save as Draft"}
                                 </div>
-                            </Tooltip>
-                            <div className="builder-action-pill" onClick={handleSave}>
-                                <span>
-                                    <img src={file_icon} />
-                                </span>
-                                {saving ? 
-                                    isGeneratingSummaries ? "Generating summaries..." 
-                                    : isGeneratingTranscript ? "Generating transcripts..." : "Saving..."
-                                    : "Save as Draft"}
-                            </div>
-                            <ActionButton text={"Deploy"} buttonType={"deploy"} onClick={() => {if (!isDeployed) {setAnotherDeployModal(true);} else {setUnDeployModal(true);}}} disabled={isDeployed} />
+                                </>
+                                }
+                            { !isDeployed ?
+                                <ActionButton text={"Deploy"} buttonType={"deploy"} onClick={() => setAnotherDeployModal(true)} disabled={isDeployed} />
+                                : <Tooltip content="This module has been deployed. If you wish to make edits, please undeploy this module. ">
+                                    <div className={`module-card-btn ${(isDeployed) ? "deployed" : ""}`}>
+                                        Deployed
+                                    </div>
+                                </Tooltip>
+                            }
                         </div>
                     </div>
 
@@ -1083,7 +1162,32 @@ export default function StandardBuilder({ workspace }: { workspace: WorkspaceTyp
                             </>
                         }
                         </div>
-                    <div className="filler-space" /> 
+                    {/*<div className="filler-space" /> */}
+                    <div className="builder-danger-zone">
+                        <div className="danger-zone-top">
+                            ⚠ Danger Zone
+                        </div>
+                        {isDeployed &&
+                            <div className="danger-zone-item undeploy">
+                                <div className="danger-zone-content">
+                                    <h4 className="bold-txt">Undeploy this module</h4>
+                                    <p>This module will be taken offline. Learners will lose access until it is redeployed.</p>
+                                </div>
+                                <button className="danger-zone-btn" type="button" onClick={() => setUnDeployModal(true)}>
+                                    Undeploy module
+                                </button>
+                            </div>
+                        }
+                        <div className="danger-zone-item">
+                            <div className="danger-zone-content">
+                                <h4 className="bold-txt">Delete Module</h4>
+                                <p>Remove this module from your workspace. Employee progress and simulation data will be preserved.</p>
+                            </div>
+                            <button className="danger-zone-btn delete" type="button" onClick={() => setDeleteModal(true)}>
+                                Delete module
+                            </button>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>

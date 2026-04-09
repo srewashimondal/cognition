@@ -191,7 +191,7 @@ export default function ModuleCard({ moduleInfo, type, role, status, percent, st
                   </span>) : ("View Module Performance")}
                 </button>
               )}
-              {(role === "employee" && !employeeModuleComplete && status === "started" && percent) && (<ProgressBar percent={percent} style={style} />)}
+              {/*(role === "employee" && !employeeModuleComplete && status === "started" && percent) && (<ProgressBar percent={percent} style={style} />)*/}
               </div>
         </div>
     );

@@ -144,3 +144,107 @@ export const onSimulationModuleDeployed = onDocumentUpdated(
     }
   }
 );
+
+export const onStandardModuleDeployed = onDocumentUpdated(
+  "standardModules/{moduleId}",
+  async (event) => {
+    const before = event.data?.before.data();
+    const after = event.data?.after.data();
+
+    if (!before || !after) return;
+
+    // only trigger when deployed flips to true
+    if (before.deployed || !after.deployed) return;
+
+    const moduleId = event.params.moduleId;
+    const moduleRef = db.collection("standardModules").doc(moduleId);
+    const workspaceRef = after.workspaceRef;
+
+    console.log("Standard module deployed:", moduleId);
+
+    try {
+      const usersSnap = await db
+        .collection("users")
+        .where("workspaceID", "==", workspaceRef)
+        .get();
+
+      console.log(`Users found: ${usersSnap.size}`);
+
+      const lessons: FirebaseFirestore.DocumentReference[] =
+                after.lessonRefs || [];
+
+
+      let batch = db.batch();
+      let opCount = 0;
+      const MAX_BATCH = 400;
+      const commits: Promise<any>[] = [];
+
+      const commitIfNeeded = async () => {
+        if (opCount >= MAX_BATCH) {
+          commits.push(batch.commit());
+          batch = db.batch();
+          opCount = 0;
+        }
+      };
+
+      // iterate thru users
+      for (const userDoc of usersSnap.docs) {
+        const userRef = userDoc.ref;
+
+        const existing = await db
+          .collection("standardModuleAttempts")
+          .where("user", "==", userRef)
+          .where("moduleInfo", "==", moduleRef)
+          .limit(1)
+          .get();
+
+        if (!existing.empty) {
+          console.log("Skipping existing attempt for user:", userRef.id);
+          continue;
+        }
+
+        const moduleAttemptRef = db
+          .collection("standardModuleAttempts")
+          .doc();
+
+        batch.set(moduleAttemptRef, {
+          workspaceRef,
+          user: userRef,
+          moduleInfo: moduleRef,
+          status: "not begun",
+          createdAt: admin.firestore.FieldValue.serverTimestamp(),
+          percent: 0,
+        });
+
+        opCount++;
+        await commitIfNeeded();
+
+        // iterate thru lessons
+        for (const lessonRef of lessons) {
+          const lessonAttemptRef = db
+            .collection("standardLessonAttempts")
+            .doc();
+
+          batch.set(lessonAttemptRef, {
+            user: userRef,
+            moduleRef: moduleAttemptRef,
+            lessonInfo: lessonRef,
+            status: "not begun",
+            createdAt: admin.firestore.FieldValue.serverTimestamp(),
+          });
+
+          opCount++;
+          await commitIfNeeded();
+        }
+      }
+
+      if (opCount > 0) commits.push(batch.commit());
+
+      await Promise.all(commits);
+
+      console.log("Standard attempts created successfully");
+    } catch (err) {
+      console.error("Error creating standard attempts:", err);
+    }
+  }
+);

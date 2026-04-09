@@ -15,7 +15,7 @@ export default function AttachmentItem({ fileName, onClick, isStatic=false }: At
                 <img src={pdf_icon} />
             </span>
             <span>
-                {fileName.replace(/\s+/g, "")}.pdf
+                {fileName}
             </span>
             {!isStatic &&
             <span className="x-icon" onClick={onClick}>

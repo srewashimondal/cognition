@@ -29,8 +29,6 @@ export default function SimulationLessons() {
     const [moduleAttempt, setModuleAttempt] = useState<ModuleAttemptType | null>(null);
     const [moduleInfo, setModuleInfo] = useState<ModuleType | null>(null);
     const [lessonAttempts, setLessonAttempts] = useState<any[]>([]);
-
-    const isActive = moduleInfo?.deployed === true;
     // const bannerColorByID = ["module1", "module2", "module3", "module4", "module5", "module6"];
 
     useEffect(() => {
@@ -172,6 +170,8 @@ export default function SimulationLessons() {
     
         fetchModuleAttempt();
     }, [moduleID]);
+
+    const isActive = moduleInfo?.deployed === true;
 
     const handleSimNavigate = async (moduleID: string, lessonAttemptID: string, status: string) => {
         if (status === "not begun") {
