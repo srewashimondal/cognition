@@ -3,6 +3,9 @@ import type { CSSProperties } from 'react';
 import { useNavigate } from 'react-router-dom';
 import type { ModuleType } from '../../types/Modules/ModuleType';
 import type { StandardModuleType } from '../../types/Standard/StandardModule';
+import { db } from '../../firebase';
+import { updateDoc, doc } from 'firebase/firestore';
+import { useState } from 'react';
 import ProgressBar from '../../components/ProgressBar/ProgressBar';
 import clock_icon from '../../assets/icons/clock-icon.svg';
 import form_icon from '../../assets/icons/form-icon.svg';
@@ -127,6 +130,16 @@ export default function ModuleCard({ moduleInfo, type, role, status, percent, st
       navigate(`/employee/${type === "simulation" ? "simulations" : "standard-modules"}/${attemptId}`);
     };
 
+    const [isDeployed, setIsDeployed] = useState(moduleInfo.deployed);
+    const handleDeploy = async () => {
+      const coll = type === "simulation" ? "simulationModules" : "standardModules";
+      const moduleRef = doc(db, coll, moduleInfo.id!);
+        await updateDoc(moduleRef, {
+          deployed: true,
+      });
+      setIsDeployed(true);
+    }
+
     return (
         <div key={moduleInfo.id} className="module-card">
             <div className="card-top">
@@ -169,8 +182,8 @@ export default function ModuleCard({ moduleInfo, type, role, status, percent, st
         </div>
             <div className="module-card-bottom">
                 { (role === "employer") ? (
-                <button className={`module-card-btn ${(moduleInfo.deployed) ? "deployed" : ""}`}>
-                  {(!moduleInfo.deployed) ? (
+                <button className={`module-card-btn ${(isDeployed) ? "deployed" : ""}`} onClick={handleDeploy}>
+                  {(!isDeployed) ? (
                     <span className="module-card-btn-label-div">
                     <div className="module-action-swap">
                       <img className="module-action-icon default" src={white_rocket}/>
