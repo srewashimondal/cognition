@@ -25,10 +25,6 @@ export default function PersonalInfo({ data, updateData, registerFormId, onNext 
                 direction={"This will be the primary name used for communications."}
                 required={true}/>
 
-                <Question question={"Work Email*"} input_type={"email"} 
-                value={data.workEmail} onChange={(v) => updateData({ workEmail: v})} 
-                direction={"Enter your work email."} required={true} />
-
                 <Question question={"Job Title*"} input_type={"text"} 
                 value={data.jobTitle} onChange={(v) => updateData({ jobTitle: v})} 
                 direction={"Enter your position as a supervisor."} required={true} />

@@ -1,5 +1,6 @@
 import { collection, query, getDocs, updateDoc, where } from "firebase/firestore";
-import { db } from '../firebase';
+import { db, storage } from '../firebase';
+import { ref, uploadBytes, getDownloadURL } from 'firebase/storage'; 
 
 export function formatTimestamp(timestamp: string) {
     if (!timestamp) return 'Unknown';
@@ -68,3 +69,21 @@ export async function updateModuleStatus(moduleAttemptRef: any) {
         percent: total === 0 ? 0 : Math.round((completedCount / total) * 100),
     });
 }
+
+export function generateJoinCode(length = 6) {
+    const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+    let code = "";
+  
+    for (let i = 0; i < length; i++) {
+        code += chars[Math.floor(Math.random() * chars.length)];
+    }
+  
+    return code;
+}
+
+export const uploadImage = async (file: File, path: string): Promise<string> => {
+    const storageRef = ref(storage, path);
+    await uploadBytes(storageRef, file);
+    const url = await getDownloadURL(storageRef);
+    return url;
+};

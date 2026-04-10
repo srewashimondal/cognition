@@ -1,5 +1,5 @@
 .ob-pg {
-    background-color: #FFFFFF;
+    background-color: #F5F4F1;
     min-height: 100vh;
     display: flex;
     justify-content: center;
@@ -18,8 +18,16 @@
     max-height: 80vh;
     border-radius: 20px;
     overflow: hidden;
-    border: 1px solid #F5F5F5;
+    border: 1px solid #eee;
     position: absolute;
+    transform: translateX(50%);
+    opacity: 0;
+    transition: transform 0.3s ease, opacity 0.3s ease;
+}
+
+.ob-modal.show {
+    transform: translateX(0);
+    opacity: 1;
 }
 
 ob-main {
@@ -33,7 +41,7 @@ ob-main {
 .ob-sidebar {
     background-color: #F5F5F5;
     background-color: rgb(251, 251, 251);
-    border: 1px solid #F5F5F5;
+    border: 1px solid #eee;
     flex: 0 0 220px;
     border-radius: 10px;
     display: flex;
@@ -142,4 +150,10 @@ ob-main {
     margin-right: 15px;
     margin-left: 15px;
     max-width: 600px;
+}
+
+
+.ob-modal.saving {
+    justify-content: center;
+    align-items: center;
 }

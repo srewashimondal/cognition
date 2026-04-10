@@ -78,7 +78,7 @@ export default function EmployeeOnboarding() {
                 <div className="ob-sidebar">
                     <h3 className="ob-sidebar-title">Onboarding Wizard</h3>
                     <div className="ob-progress-bar">
-                        <ProgressBar percent={percent} />
+                        <ProgressBar percent={percent} style={true} />
                     </div>
                     <div className="sidebar-steps">
                         <div className="sidebar-line" />

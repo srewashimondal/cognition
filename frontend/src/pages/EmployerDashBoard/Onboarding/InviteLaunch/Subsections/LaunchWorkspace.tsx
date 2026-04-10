@@ -2,7 +2,7 @@ import { useEffect } from 'react';
 import rocket_icon from '../../../../../assets/icons/rocket-icon.svg';
 
 
-export default function LaunchWorkspace({ registerFormId }: { registerFormId: (id: string) => void }) {
+export default function LaunchWorkspace({ option, registerFormId, setComplete }: { option: "create" | "join" | null, registerFormId: (id: string) => void, setComplete: () => void }) {
     const formId = "launch-workspace";
 
     useEffect(() => {
@@ -12,15 +12,25 @@ export default function LaunchWorkspace({ registerFormId }: { registerFormId: (i
 
     function handleLaunch (e: React.MouseEvent<HTMLButtonElement>) {
         e.preventDefault();
-        /* Backend Logic Later */
+        setComplete();
     }
 
     return (
         <div className="lw-div">
             <img src={rocket_icon}/>
-            <h3>Your Workspace is Almost Done!</h3>
-            <p>Whenever you are ready, you can launch your workspace to activate Cognition AI training.</p>
-            <button type="button" onClick={handleLaunch}>Launch Workspace</button>
+            <h3>
+                { option === "create" ?
+                "Your Workspace is Almost Done!" 
+                : "You are almost there!"
+                }
+            </h3>
+            <p>
+                { option === "create" ?
+                "Whenever you are ready, you can launch your workspace and get started with Cognition."
+                : "Whenever you are ready, you can get started with Cognition."
+                }
+            </p>
+            <button className="jw-continue" type="button" onClick={handleLaunch}>{option === "create" ? "Launch Workspace" : "Open Dashboard"}</button>
         </div>
     );
 }

@@ -17,6 +17,7 @@ export type BaseUserType = {
     notifPreference: "In-App" | "E-mail";
     workspaceID: DocumentReference;
     joinDate: string;
+    displayName?: string;
 }
 
 export type BadgeIconKey =

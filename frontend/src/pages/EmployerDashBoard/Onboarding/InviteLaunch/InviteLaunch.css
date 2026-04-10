@@ -1,5 +1,8 @@
 .it-div {
     margin-top: 20px;
+    display: flex;
+    align-items: center;
+    flex-direction: column;
 }
 .iv-wrapper {
     display: flex;
@@ -170,7 +173,7 @@
    color: #9C9C9C;
 }
 
-.lw-div button {
+/*.lw-div button {
     margin-top: 30px;
     width: 80%;
     border: 1px solid #FF9E76;
@@ -183,4 +186,26 @@
     border: 1px solid #FF9E76;
     color: white;
     background-color: #FF9E76;
+}*/
+
+.it-div p {
+    font-size: 13px;
+    text-align: center;
+    color: grey;
+    margin: 0;
+}
+
+.it-div .jw-continue {
+    margin-left: 20px;
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+}
+
+.jw-continue img {
+    width: 16px;
+}
+
+.lw-div .jw-continue {
+    margin-top: 40px;
 }

@@ -19,4 +19,5 @@ export type WorkspaceType = {
     standardModules: DocumentReference[]; // was StandardModuleType[]
     store: StoreType;
     storeID: DocumentReference;
+    posProvider?: string;
 }

@@ -8,6 +8,7 @@ import orange_right_arrow from '../../../../assets/icons/orange-right-arrow.svg'
 import orange_left_arrow from '../../../../assets/icons/orange-left-arrow.svg';
 
 type OBMainProps = {
+    user: any;
     data: Record<string, any>;
     updateData: (updates: Partial<OnboardingData>) => void;
     activeFormId: string | null;
@@ -17,9 +18,11 @@ type OBMainProps = {
     subStep: number;
     onNext: () => void;
     onBack: () => void;
+    option: "create" | "join" | null;
+    setComplete: () => void;
   };
 
-export default function OBMain({ data, updateData, activeFormId, setActiveFormId, stepTitle, substeps, subStep, onNext, onBack }:OBMainProps) {
+export default function OBMain({ user, data, updateData, activeFormId, setActiveFormId, stepTitle, substeps, subStep, onNext, onBack, option, setComplete }:OBMainProps) {
 
     return(
         <div className="ob-main-div">
@@ -37,21 +40,51 @@ export default function OBMain({ data, updateData, activeFormId, setActiveFormId
         </div>
 
         <div className="step-contents">
-            {stepTitle === "Profile Setup" && (
-            <ProfileSetup substep={subStep} data={data} updateData={updateData} registerFormId={setActiveFormId} onNext={onNext}/>
-            )}
+            <div key={`${stepTitle}-${subStep}`} className="step-contents-inner">
+                {stepTitle === "Profile Setup" && (
+                    <ProfileSetup 
+                        substep={subStep} 
+                        data={data} 
+                        updateData={updateData} 
+                        registerFormId={setActiveFormId} 
+                        onNext={onNext}
+                    />
+                )}
 
-            {stepTitle === "Create Workspace" && (
-            <CreateWorkspace substep={subStep} data={data} updateData={updateData} registerFormId={setActiveFormId} onNext={onNext} />
-            )}
+                {stepTitle === "Workspace Setup" && option === "create" && (
+                    <CreateWorkspace 
+                        substep={subStep} 
+                        data={data} 
+                        updateData={updateData} 
+                        registerFormId={setActiveFormId} 
+                        onNext={onNext} 
+                    />
+                )}
 
-            {stepTitle === "Tailor Cognition AI" && (
-            <TailorCognitionAI substep={subStep} data={data} updateData={updateData} registerFormId={setActiveFormId} onNext={onNext} />
-            )}
+                {stepTitle === "Tailor Cognition AI" && (
+                    <TailorCognitionAI 
+                        user={user} 
+                        substep={subStep} 
+                        data={data} 
+                        updateData={updateData} 
+                        registerFormId={setActiveFormId} 
+                        onNext={onNext} 
+                    />
+                )}
 
-            {stepTitle === "Invite & Launch" && (
-            <InviteLaunch substep={subStep} data={data} updateData={updateData} registerFormId={setActiveFormId} onNext={onNext} />
-            )}
+                {stepTitle === "Invite & Launch" && (
+                    <InviteLaunch 
+                        user={user} 
+                        option={option} 
+                        substep={subStep} 
+                        data={data} 
+                        updateData={updateData} 
+                        registerFormId={setActiveFormId} 
+                        onNext={onNext} 
+                        setComplete={setComplete}
+                    />
+                )}
+            </div>
 
             <div className="next-section-div">
                 {((stepTitle !== "Profile Setup" ) || (subStep > 0)) && (

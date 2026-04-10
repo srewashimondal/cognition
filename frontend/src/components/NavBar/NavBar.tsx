@@ -22,8 +22,8 @@ export default function NavBar({ login=true, isAuthenticated=false, role }: NavB
             <p>Pricing</p>*/}
             <Link className="hyper-link" to="/employer"><p>Employer DashBoard</p></Link>
             <Link className="hyper-link" to="/employee"><p>Employee DashBoard</p></Link>
-            <Link className="hyper-link" to="/employer-onboarding"><p>Employer Onboarding</p></Link>
-            <Link className="hyper-link" to="/employee-onboarding"><p>Employee Onboarding</p></Link>
+            <Link className="hyper-link" to="/join/employer"><p>Employer Onboarding</p></Link>
+            <Link className="hyper-link" to="/join/employee"><p>Employee Onboarding</p></Link>
         </div>
         <div className="login-div">
             {

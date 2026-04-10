@@ -5,7 +5,7 @@
     justify-content: center;
 }
 
-.connect-div button {
+/*.connect-div button {
     width: 300px;
     color: #FF4B00;
     background-color: white;
@@ -17,4 +17,14 @@
     background-color: #FF4B00;
     color: white;
     border: 1px solid #FF4B00;
+}*/
+
+.small-text {
+    font-size: 11px;
+    color: grey;
+    margin-top: 5px;
+}
+
+.posi-div .view-pos-provider {
+    margin-top: 30px;
 }

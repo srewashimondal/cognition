@@ -28,8 +28,8 @@ function App() {
         <Route path='/signup/*' element={<Signup role="employee"/>}/>
         <Route path='/signup/employee' element={<Signup role="employee"/>}/>
         <Route path='/signup/employer' element={<Signup role="employer"/>}/>
-        <Route path='/employer-onboarding' element={<EmployerOnboarding />} />
-        <Route path='/employee-onboarding' element={<EmployeeOnboarding />} />
+        <Route path='/join/employer' element={<EmployerOnboarding />} />
+        <Route path='/join/employee' element={<EmployeeOnboarding />} />
       </Routes>
     </>
   )

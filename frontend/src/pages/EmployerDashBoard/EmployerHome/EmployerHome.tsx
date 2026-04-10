@@ -718,7 +718,7 @@ export default function EmployerHome({ viewer, workspace }: { viewer: EmployerUs
         />
       )}
       { openModal &&
-        <div className="modal-overlay" onClick={() => setOpenModal(false)}>
+        <div className="modal-overlay">
           <div className="modal">
             <div className="x-icon-wrapper-modal">
               <div className="x-icon" onClick={() => setOpenModal(false)}>
@@ -726,7 +726,7 @@ export default function EmployerHome({ viewer, workspace }: { viewer: EmployerUs
               </div>
             </div>
             <div className="invite-team-wrapper">
-              <InviteTeam />
+              <InviteTeam user={viewer} />
             </div>
           </div>
         </div>

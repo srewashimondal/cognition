@@ -22,45 +22,39 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const unsubscribeAuth = onAuthStateChanged(auth, async (firebaseUser: FirebaseUser | null) => {
+    let unsubscribeUser: (() => void) | null = null;
+  
+    const unsubscribeAuth = onAuthStateChanged(auth, (firebaseUser) => {
       if (!firebaseUser) {
         setUser(null);
         setLoading(false);
         return;
       }
-
+  
       const userRef = doc(db, "users", firebaseUser.uid);
-
-      const userSnap = await getDoc(userRef);
-      if (userSnap.exists()) {
-        const data = userSnap.data();
-        setUser({
-          uid: firebaseUser.uid,
-          ...data,
-        } as AppUser);
-      } else {
-        setUser(null);
-        setLoading(false);
-        return;
-      }
-
-      const unsubscribeUser = onSnapshot(userRef, (snap) => {
-        if (!snap.exists()) return;
+  
+      unsubscribeUser = onSnapshot(userRef, (snap) => {
+        if (!snap.exists()) {
+          setUser(null);
+          setLoading(false);
+          return;
+        }
+  
         const data = snap.data();
+  
         setUser({
           uid: firebaseUser.uid,
           ...data,
         } as AppUser);
+  
+        setLoading(false);
       });
-
-      setLoading(false);
-
-      return () => {
-        unsubscribeUser();
-      };
     });
-
-    return () => unsubscribeAuth();
+  
+    return () => {
+      unsubscribeAuth();
+      if (unsubscribeUser) unsubscribeUser();
+    };
   }, []);
 
   return (

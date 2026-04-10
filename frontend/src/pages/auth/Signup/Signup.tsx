@@ -90,9 +90,9 @@ export default function Signup({ role="employee" }: SignupProps) {
             }
 
             if (role === "employer") {
-                navigate("/employer-onboarding");
+                navigate("/join/employer");
             } else {
-                navigate("/employee-onboarding");
+                navigate("/join/employee");
             }
 
 
@@ -134,7 +134,7 @@ export default function Signup({ role="employee" }: SignupProps) {
                         </div>
                     </div>
                     <form onSubmit={handleSubmit}>
-                        <div className="input-wrapper">
+                        {/*<div className="input-wrapper">
                         <input
                             type="text"
                             required
@@ -142,7 +142,7 @@ export default function Signup({ role="employee" }: SignupProps) {
                             value={fullName}
                             onChange={(e) => setFullName(e.target.value)}
                         />
-                        </div>
+                        </div>*/}
                         <div className="input-wrapper">
                             <span className="input-icon">
                                 <img src={mail} alt="mail icon"/>

@@ -52,6 +52,21 @@
     min-height: 0; 
 }
 
+.step-contents-inner {
+    animation: slideIn 0.35s ease;
+}
+  
+@keyframes slideIn {
+    from {
+        transform: translateX(60px);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
 .next-section-div {
     display: flex;
     justify-content: space-between;

@@ -60,7 +60,7 @@ export default function ProfilePage({ open, onClose, user, viewer, tempPfp }: Pr
   };
   
   useEffect(() => {
-    setDisplayName(user.fullName ?? "");
+    setDisplayName(user.displayName ?? user.fullName ?? "");
   }, [user.fullName]);
 
   useEffect(() => {

@@ -150,7 +150,7 @@
     left: 0;
     height: 100%;
     width: 35%;
-    background: linear-gradient(90deg, transparent, #A9E1FF, transparent);
+    background: linear-gradient(90deg, transparent, #96D9ED, transparent);
     animation: shimmer 1.4s ease-in-out infinite;
 }
   
