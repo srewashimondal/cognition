@@ -5,6 +5,8 @@ import green_check from '../../../../assets/icons/quiz/green-checkplus-icon.svg'
 import red_x from '../../../../assets/icons/quiz/red-x-circle-icon.svg';
 import chevron_down from '../../../../assets/icons/black-down-chevron.svg';
 import ai_icon from '../../../../assets/icons/simulations/black-ai-icon.svg';
+import Check from '../../../../assets/icons/green-check.svg';
+import X from '../../../../assets/icons/red-x.svg';
 
 export default function QuestionBreakdown({ idx, questionAttempt }: { idx: number, questionAttempt: QuestionAttemptType}) {
     const [expanded, setExpanded] = useState(false);
@@ -76,7 +78,9 @@ export default function QuestionBreakdown({ idx, questionAttempt }: { idx: numbe
             <div className="question-breakdown-item-top">
                 <div className="question-breakdown-item-top-right">
                     <span>
-                        <div className={`${correct ? "strengths-check" : "wrong-x"} quiz`}>{correct ? "✓" : "✗"}</div>
+                        <div className={`${correct ? "strengths-check" : "wrong-x"} quiz`}>
+                            <img src={correct ? Check : X} />
+                        </div>
                     </span>
                     Question { idx }
                 </div>

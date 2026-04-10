@@ -205,6 +205,11 @@
     align-items: center;
 }
 
+.strengths-check img {
+    height: 20px;
+    width: 20px;
+}
+
 .strengths-card {
     display: flex;
     gap: 5px;

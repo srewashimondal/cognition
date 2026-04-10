@@ -6,12 +6,12 @@ import type { WorkspaceType } from "../../../types/User/WorkspaceType";
 import WorkspaceHero from "../../../components/WorkspaceHero/WorkspaceHero";
 import InviteTeam from "../Onboarding/InviteLaunch/Subsections/InviteTeam";
 import type { EmployeeUserType, EmployerUserType } from "../../../types/User/UserType";
-import users_icon from '../../../assets/icons/white-users-icon.svg';
+import users_icon from '../../../assets/icons/analytics/users-icon.svg';
 import trending_up from '../../../assets/icons/green-trending-up-icon.svg';
-import chart_icon from '../../../assets/icons/white-line-chart-icon.svg';
+import chart_icon from '../../../assets/icons/analytics/chart-icon.svg';
 import trending_down from '../../../assets/icons/red-trending-down-icon.svg';
-import prize_icon from '../../../assets/icons/white-prize-icon.svg';
-import clock_icon from '../../../assets/icons/white-clock-icon.svg';
+import prize_icon from '../../../assets/icons/analytics/ribbon-icon.svg';
+import clock_icon from '../../../assets/icons/analytics/clock-icon.svg';
 import leaderboard_icon from '../../../assets/icons/orange-leaderboard-icon.svg';
 import warning_icon from '../../../assets/icons/orange-warning-icon.svg';
 import x_icon from '../../../assets/icons/simulations/grey-x-icon.svg';
@@ -336,7 +336,7 @@ export default function EmployerHome({ viewer, workspace }: { viewer: EmployerUs
             <span className="analytics-change">Active this week</span>
             <p className="analytics-label">of {totalEmployees} total</p>
           </div>
-          <div className="analytics-icon orange">
+          <div className="analytics-icon teal">
             <img src={users_icon} />
           </div>
         </div>
@@ -353,7 +353,7 @@ export default function EmployerHome({ viewer, workspace }: { viewer: EmployerUs
             <span className="analytics-change">Average lesson score</span>
             <p className="analytics-label">across this week</p>
           </div>
-          <div className="analytics-icon orange">
+          <div className="analytics-icon blue">
             <img src={chart_icon} />
           </div>
         </div>
@@ -370,7 +370,7 @@ export default function EmployerHome({ viewer, workspace }: { viewer: EmployerUs
             <span className="analytics-change">Completion rate</span>
             <p className="analytics-label">modules finished</p>
           </div>
-          <div className="analytics-icon orange">
+          <div className="analytics-icon amber">
             <img src={prize_icon} />
           </div>
         </div>
@@ -381,7 +381,7 @@ export default function EmployerHome({ viewer, workspace }: { viewer: EmployerUs
             <span className="analytics-change">minutes on average</span>
             <p className="analytics-label">time per lesson</p>
           </div>
-          <div className="analytics-icon orange">
+          <div className="analytics-icon purple">
             <img src={clock_icon} />
           </div>
         </div>

@@ -19,45 +19,47 @@ type EmployeeCardProps = {
 export default function EmployeeCard({ lesson, status, isLocked, handleNavigate }: EmployeeCardProps) {
     return (
         <div className={`employee-card-item status-${status} ${isLocked ? "locked" : ""} lesson-${lesson.type}`} onClick={() => {if (!isLocked) {handleNavigate();}}}>
-            {(lesson.type === "video") &&
-            <div className="card-thumbnail-wrapper">
-                <div className="card-thumbnail">
-                    <img src={lesson.thumbnailUrl} />
-                </div>
-                <img className="play-button" src={play_button} onClick={handleNavigate} />
-            </div>}
-            <div className="card-content">
-                <div className="lesson-tag-wrapper">
-                    <span>
-                        <img src={lesson.type === "video" ? movie_icon : quiz_icon} />
-                    </span>
-                    <p className="lesson-tag employer">{lesson.orderNumber}. {lesson.type === "video" && "Video Lesson"} {lesson.type === "quiz" && "Quiz"}</p>
-                </div>
-                <div className="card-title">
-                    {lesson.title}
-                </div>
-                {(isLocked) && <div className="locked-instr">Complete previous lessons to unlock</div>}
-                <div className="card-meta">
-                    {(status === "completed") && <div className="card-meta-item complete">
-                        <span>
-                            <img src={green_check} />
-                        </span>
-                        Completed
-                    </div>}
-                    <div className="card-meta-item">
-                        <span>
-                            <img src={clock_icon} />
-                        </span>
-                        {lesson.duration} min
+            <div className="employee-card-contents">   
+                {(lesson.type === "video") &&
+                <div className="card-thumbnail-wrapper">
+                    <div className="card-thumbnail">
+                        <img src={lesson.thumbnailUrl} />
                     </div>
-                    {(status !== "completed") && <div className="card-meta-item">
+                    <img className="play-button" src={play_button} onClick={handleNavigate} />
+                </div>}
+                <div className="card-content">
+                    <div className="lesson-tag-wrapper">
                         <span>
-                            <img src={calendar_icon} />
+                            <img src={lesson.type === "video" ? movie_icon : quiz_icon} />
                         </span>
-                        Complete by {lesson.dueDate}
-                    </div>}
+                        <p className="lesson-tag employer">{lesson.orderNumber}. {lesson.type === "video" && "Video Lesson"} {lesson.type === "quiz" && "Quiz"}</p>
+                    </div>
+                    <div className="card-title">
+                        {lesson.title}
+                    </div>
+                    {(isLocked) && <div className="locked-instr">Complete previous lessons to unlock</div>}
+                    <div className="card-meta">
+                        {(status === "completed") && <div className="card-meta-item complete">
+                            <span>
+                                <img src={green_check} />
+                            </span>
+                            Completed
+                        </div>}
+                        <div className="card-meta-item">
+                            <span>
+                                <img src={clock_icon} />
+                            </span>
+                            {lesson.duration} min
+                        </div>
+                        {(status !== "completed") && <div className="card-meta-item">
+                            <span>
+                                <img src={calendar_icon} />
+                            </span>
+                            Complete by {lesson.dueDate}
+                        </div>}
+                    </div>
                 </div>
-            </div>
+            </div> 
             {(lesson.type === "quiz" && status !== "completed" && !isLocked) &&
             <div className="builder-action-pill quiz">
                 Begin Quiz

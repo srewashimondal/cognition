@@ -123,3 +123,8 @@
     color: 1px solid #b44141;
     border: 1px solid #b44141;
 }
+
+.wrong-x img {
+    height: 20px;
+    width: 20px;
+}

@@ -26,6 +26,7 @@ import left_arrow from '../../assets/icons/orange-left-arrow.svg';
 import clock_icon from '../../assets/icons/simulations/black-clock-icon.svg';
 import voice_msg_icon from '../../assets/icons/chatbar/voice-msg-icon.svg';
 import keyboard_icon from '../../assets/icons/grey-keyboard-icon.svg';
+import Check from '../../assets/icons/green-check.svg';
 import type { LessonType } from '../../types/Modules/Lessons/LessonType';
 import type { MessageType } from '../../types/Modules/Lessons/Simulations/MessageType';
 import GenerationLoadingPage from '../LoadingPages/GenerationLoading/GenerationLoadingPage';
@@ -918,7 +919,7 @@ export default function SimulationPage({ role, workspaceID }: { role: "employee"
                                                 {feedbackInfo?.strengths.map((s: any) => 
                                                     (<div className="strengths-card">
                                                         <div className="strengths-check">
-                                                            ✓
+                                                            <img src={Check} />
                                                         </div>
                                                         <div className="strength-content">
                                                             <p className="strength-title">

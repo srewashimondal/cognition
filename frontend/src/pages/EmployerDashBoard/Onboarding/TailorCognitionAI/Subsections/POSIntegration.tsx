@@ -9,11 +9,11 @@ import { Tooltip } from '@radix-ui/themes';
 import shopify_logo from '../../../../../assets/illustrations/shopifypos_logo.png';
 import type { OnboardingSubsection } from "../../../../../types/Onboarding/OnboardingSubsection";
 import type { WorkspaceType } from '../../../../../types/User/WorkspaceType';
+import Check from '../../../../../assets/icons/green-check.svg';
 
 export default function POSIntegration({ user, data, updateData, registerFormId, onNext }: OnboardingSubsection & { user: any}) {
     const formId = "pos-integration-form";
     const [shopURL, setShopURL] = useState("");
-    const [updateProvider, setUpdateProvider] = useState(false);
 
     useEffect(() => {
         registerFormId(formId);
@@ -96,9 +96,9 @@ export default function POSIntegration({ user, data, updateData, registerFormId,
                     <div className="pos-provider-info-wrapper">
                         <label>Current Provider</label>
                         <div className="pos-provider-info">
-                            <div className="strengths-check">
-                                ✓
-                            </div>
+                        <div className="strengths-check">
+                            <img src={Check} />
+                        </div>
                             <p>{connectedPOS}</p>
                             <div className="green-pill">
                                 Connected

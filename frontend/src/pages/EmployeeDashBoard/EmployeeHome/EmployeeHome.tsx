@@ -9,10 +9,10 @@ import type { LearningStreak } from '../../../types/User/UserType';
 import type { WorkspaceType } from '../../../types/User/WorkspaceType';
 
 import trending_up from '../../../assets/icons/green-trending-up-icon.svg';
-import chart_icon from '../../../assets/icons/white-line-chart-icon.svg';
-import prize_icon from '../../../assets/icons/badges/white-medal-icon.svg';
-import clock_icon from '../../../assets/icons/white-clock-icon.svg';
-import lessons_completed from '../../../assets/icons/white-lessons-completed-icon.svg';
+import chart_icon from '../../../assets/icons/analytics/chart-icon.svg';
+import prize_icon from '../../../assets/icons/analytics/medal-icon.svg';
+import clock_icon from '../../../assets/icons/analytics/clock-icon.svg';
+import lessons_completed from '../../../assets/icons/analytics/lesson-completed-icon.svg';
 import ai_icon from '../../../assets/icons/simulations/white-ai-icon.svg';
 
 export type InsightItem = {
@@ -157,7 +157,7 @@ export default function EmployeeHome({ user, workspace }: { user: EmployeeUserTy
                             <span className="analytics-change">Average score</span>
                             <p className="analytics-label">across all lessons</p>
                         </div>
-                        <div className="analytics-icon orange">
+                        <div className="analytics-icon blue">
                             <img src={chart_icon} />
                         </div>
                     </div>
@@ -177,7 +177,7 @@ export default function EmployeeHome({ user, workspace }: { user: EmployeeUserTy
                         <span className="analytics-change">Lessons completed this week</span>
                         <p className="analytics-label">of 22 total</p>
                     </div>
-                    <div className="analytics-icon orange">
+                    <div className="analytics-icon teal">
                         <img src={lessons_completed} />
                     </div>
                     </div>
@@ -192,7 +192,7 @@ export default function EmployeeHome({ user, workspace }: { user: EmployeeUserTy
                             <span className="analytics-change">Badges earned</span>
                             <p className="analytics-label">Keep it up!</p>
                         </div>
-                        <div className="analytics-icon orange">
+                        <div className="analytics-icon amber">
                             <img src={prize_icon} />
                         </div>
                     </div>
@@ -207,7 +207,7 @@ export default function EmployeeHome({ user, workspace }: { user: EmployeeUserTy
                             <span className="analytics-change">hours invested</span>
                             <p className="analytics-label">time across lessons</p>
                         </div>
-                        <div className="analytics-icon orange">
+                        <div className="analytics-icon purple">
                             <img src={clock_icon} />
                         </div>
                     </div>

@@ -8,7 +8,6 @@ import default_icon from '../../../assets/icons/default-icon.svg';
 import icon_stroke from '../../../assets/icons/icon-stroke.svg';
 import add_cta from '../../../assets/icons/add-cta.svg';
 import lightspeed_logo from '../../../assets/illustrations/lightspeed_logo.svg';
-import zoho_logo from '../../../assets/illustrations/zoho_logo.png';
 import shopify_logo from '../../../assets/illustrations/shopifypos_logo.png';
 import { Tooltip, Select } from "@radix-ui/themes";
 import { doc, updateDoc, getDoc } from "firebase/firestore";
@@ -17,8 +16,8 @@ import type { EmployerUserType } from "../../../types/User/UserType";
 import type { WorkspaceType } from "../../../types/User/WorkspaceType";
 import { getInterfacePrefs, saveInterfacePrefs, applyInterfacePrefs } from "../../../utils/interfacePrefs";
 import { toast } from "react-hot-toast";
-import green_check from '../../../assets/icons/green_pos_check.svg';
 import info_icon from '../../../assets/icons/black-info-icon.svg';
+import Check from '../../../assets/icons/green-check.svg';
 
 type Tab = "account" | "notifications" | "interface" | "payments" | "workspace";
 
@@ -868,9 +867,9 @@ function WorkspaceSettings({ workspace }: { workspace: WorkspaceType | null }) {
             <div className="pos-provider-info-wrapper">
               <label>Current Provider</label>
               <div className="pos-provider-info">
-                  <div className="strengths-check">
-                    ✓
-                  </div>
+              <div className="strengths-check">
+                <img src={Check} />
+              </div>
                   <p>{connectedPOS}</p>
                   <div className="green-pill">
                     Connected

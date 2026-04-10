@@ -8,10 +8,20 @@
     background-color: white;
     gap: 25px;
     align-items: center;
+    justify-content: space-between;
+}
+
+.employee-card-contents {
+    display: flex;
+    gap: 25px;
 }
 
 .employee-card-item.lesson-quiz {
     justify-content: space-between;
+    padding-right: 7%;
+}
+
+.employee-card-item.lesson-video {
     padding-right: 7%;
 }
 
