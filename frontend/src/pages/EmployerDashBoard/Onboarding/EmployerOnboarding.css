@@ -156,4 +156,14 @@ ob-main {
 .ob-modal.saving {
     justify-content: center;
     align-items: center;
+    flex-direction: column;
+    height: 300px;
+    min-width: 600px;
+}
+
+.ob-modal.saving p {
+    margin-top: 20px;
+    font-size: 14px;
+    color: grey;
+    font-weight: 500;
 }

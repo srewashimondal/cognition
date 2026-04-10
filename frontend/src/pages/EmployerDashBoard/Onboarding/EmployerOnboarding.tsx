@@ -296,11 +296,14 @@ export default function EmployerOnboarding() {
         <div className="ob-pg">
             { saving ?
                 <div className={`ob-modal saving ${show ? "show" : ""}`}>
+                    <div className="jw-icon blue big">
+                        ⏳
+                    </div>
                     <h3>Hang on tight!</h3>
                     <div className="saving-bar-track">
                         <div className="saving-bar-streak" />
                     </div>
-                    <p>You're almost ready. We're just getting you set up</p>
+                    <p>You're almost ready. We're just getting you set up.</p>
                 </div>
             : workspaceRef ?
             <div className={`ob-modal ${show ? "show" : ""}`}>

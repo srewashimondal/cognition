@@ -265,7 +265,10 @@ export default function ProfilePage({ open, onClose, user, viewer, tempPfp }: Pr
                   {error && <ErrorMessage message={error} />}
                 </div>
                 : <h3>{displayName}</h3>}
-              <p>{user.jobTitle}</p>
+              <p>{Array.isArray(user.jobTitle)
+                ? user.jobTitle.join(", ")
+                : user.jobTitle}
+              </p>
             </div>
           </div>
 

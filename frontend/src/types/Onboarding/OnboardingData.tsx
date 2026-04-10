@@ -24,7 +24,6 @@ export type OnboardingData = {
 
 export type EmployeeOnboardingData = {
     fullName: string;
-    workEmail: string;
     jobTitle: string[];
     displayName: string;
     profilePicture: File | null;

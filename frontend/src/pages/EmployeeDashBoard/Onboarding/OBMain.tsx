@@ -17,9 +17,10 @@ type OBMainProps = {
     subStep: number;
     onNext: () => void;
     onBack: () => void;
+    onSave: () => void;
 }
 
-export default function OBMain({ data, updateData, activeFormId, setActiveFormId, stepTitle, substeps, subStep, onNext, onBack }: OBMainProps) {
+export default function OBMain({ data, updateData, activeFormId, setActiveFormId, stepTitle, substeps, subStep, onNext, onBack, onSave }: OBMainProps) {
     return (
         <div className="ob-main-div">
             <div className="stepper">
@@ -36,15 +37,17 @@ export default function OBMain({ data, updateData, activeFormId, setActiveFormId
             </div>
 
             <div className="step-contents">
-                {stepTitle === "Profile Setup" && (
-                    <ProfileSetup substep={subStep} data={data} updateData={updateData} registerFormId={setActiveFormId} onNext={onNext}/>
-                )}
-                {stepTitle === "Learning Setup" && (
-                    <LearningSetup substep={subStep} data={data} updateData={updateData} registerFormId={setActiveFormId} onNext={onNext}/>
-                )}
-                {stepTitle === "Start Learning" && (
-                    <StartLearning registerFormId={setActiveFormId} />
-                )}
+                <div key={`${stepTitle}-${subStep}`} className="step-contents-inner">
+                    {stepTitle === "Profile Setup" && (
+                        <ProfileSetup substep={subStep} data={data} updateData={updateData} registerFormId={setActiveFormId} onNext={onNext}/>
+                    )}
+                    {stepTitle === "Learning Setup" && (
+                        <LearningSetup substep={subStep} data={data} updateData={updateData} registerFormId={setActiveFormId} onNext={onNext}/>
+                    )}
+                    {stepTitle === "Start Learning" && (
+                        <StartLearning registerFormId={setActiveFormId} onSave={onSave} />
+                    )}
+                </div>
             </div>
 
             <div className="next-section-div">
@@ -73,7 +76,7 @@ export default function OBMain({ data, updateData, activeFormId, setActiveFormId
     );
 }
 
-function StartLearning({ registerFormId }: { registerFormId: (id: string) => void}) {
+function StartLearning({ registerFormId, onSave }: { registerFormId: (id: string) => void, onSave: () => void;}) {
     const formId = "start-learning";
     useEffect(() => {
         registerFormId(formId);
@@ -86,7 +89,7 @@ function StartLearning({ registerFormId }: { registerFormId: (id: string) => voi
                 <img src={orange_ready_icon} />
                 <h3>You're all set!</h3>
                 <p>Ready to start learning?</p>
-                <button type="button">
+                <button type="button" onClick={onSave} className="jw-continue">
                     Open Dashboard
                 </button>
             </div>

@@ -1,3 +1,14 @@
 .il-div.employee {
     height: 100%;
 }
+
+.jw-continue {
+    display: flex;
+    justify-content: center;
+    gap: 7px;
+}
+
+.jw-continue:disabled {
+    cursor: not-allowed;
+    background-color: #eee;
+}
