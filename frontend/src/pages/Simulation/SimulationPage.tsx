@@ -88,15 +88,57 @@ export default function SimulationPage({ role, workspaceID }: { role: "employee"
     type NextLessonRow = { id: string; title: string; status: string };
     const [nextLessonNav, setNextLessonNav] = useState<NextLessonRow | null>(null);
 
+    const hasUserInteraction = async () => {
+        if (!lessonID) return;
+
+        const simsRef = collection(
+            db,
+            "simulationLessonAttempts",
+            lessonID,
+            "simulations"
+        );
+      
+        const simsSnap = await getDocs(simsRef);
+      
+        for (const simDoc of simsSnap.docs) {
+            const messagesSnap = await getDocs(
+                collection(simDoc.ref, "messages")
+            );
+      
+            if (!messagesSnap.empty) {
+                return true;
+            }
+        }
+      
+        return false;
+    };
+
+
     useEffect(() => {
         if (!lessonID || role !== "employee" || !allThreeSimsComplete) return;
-        const lessonRef = doc(db, "simulationLessonAttempts", lessonID);
-        getDoc(lessonRef).then((snap) => {
-            if (!snap.exists()) return;
-            if (snap.data().status === "completed") return;
-            updateDoc(lessonRef, { status: "completed" });
-        });
+      
+        const completeLessonIfValid = async () => {
+            try {
+                const lessonRef = doc(db, "simulationLessonAttempts", lessonID!);
+                const snap = await getDoc(lessonRef);
+
+                if (!snap.exists()) return;
+                if (snap.data().status === "completed") return;
+
+                const interacted = await hasUserInteraction();
+                if (!interacted) return;
+
+                await updateDoc(lessonRef, { status: "completed" });
+        
+            } catch (err) {
+                console.error("Lesson completion failed:", err);
+            }
+        };
+      
+        completeLessonIfValid();
     }, [lessonID, role, allThreeSimsComplete]);
+
+
 
     useEffect(() => {
         if (!allThreeSimsComplete || !lessonID || !lessonAttempt?.moduleRef) {
@@ -926,7 +968,7 @@ export default function SimulationPage({ role, workspaceID }: { role: "employee"
                                 }
                         </div>
                         <div className="sim-action-panel">
-                            <ActionButton text={"View Reference Materials"} buttonType={"read"} onClick={() => setOpenModal(true)} />
+                            {/*<ActionButton text={"View Reference Materials"} buttonType={"read"} onClick={() => setOpenModal(true)} />*/}
                             <div className={`action-wrap-sim ${role === "employer" ? "employer" : ""}`}>
                                 {(role === "employee" && simulationIndex < 3) && (
                                     <ActionButton text={"Next Part"} buttonType={"play"} onClick={handleNext} />
