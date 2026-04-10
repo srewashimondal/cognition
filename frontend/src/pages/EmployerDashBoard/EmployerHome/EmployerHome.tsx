@@ -575,7 +575,9 @@ export default function EmployerHome({ viewer, workspace }: { viewer: EmployerUs
                     </div>
                     <div className="leaderboard-name">
                       <h3>{e.fullName}</h3>
-                      <p>{e.jobTitle}</p>
+                      <p>{Array.isArray(e.jobTitle)
+                        ? e.jobTitle.join(", ")
+                        : e.jobTitle}</p>
                     </div>
                   </div>
                   <div className="leaderboard-stats">
