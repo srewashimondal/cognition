@@ -139,7 +139,7 @@ export default function EmployeeOnboarding() {
 
     return (
         <div className="ob-pg">
-
+           { saving ?
             <div className={`ob-modal saving ${saving ? "show" : ""}`} >
                 <div className="jw-icon blue big">
                     ⏳
@@ -207,7 +207,7 @@ export default function EmployeeOnboarding() {
                 user={user} 
                 setWorkspaceRef={setWorkspaceRef} 
                 onNext={setShow}
-            /> 
+            /> }
         </div>
     );
 }
