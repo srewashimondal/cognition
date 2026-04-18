@@ -13,5 +13,6 @@ export type LessonType = {
     orderNumber: number;
     criteria?: string[];
     customerMood?: number;
+    isNew?: boolean;
 };
   

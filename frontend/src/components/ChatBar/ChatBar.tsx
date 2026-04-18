@@ -14,6 +14,7 @@ import stop_icon from '../../assets/icons/chatbar/black-stop-icon.svg';
 
 type ChatBarProps = {
     context: "builder" | "module" | "simulation" | "summary";
+    addContext?: boolean;
     userInput: string;
     setUserInput: (userInput: string) => void;
     handleSend: () => void;
@@ -32,7 +33,7 @@ type ChatBarProps = {
     setCurrentScope?: (currentScope: string[]) => void;
 };
 
-export default function ChatBar({ context, userInput, setUserInput, handleSend, handleAttach, attachedFiles, showFileCond, handleRemoveFile, handleVoiceMode, pageContext, typingMessageId, handleStop, setCurrentScope }: ChatBarProps) {
+export default function ChatBar({ context, addContext, userInput, setUserInput, handleSend, handleAttach, attachedFiles, showFileCond, handleRemoveFile, handleVoiceMode, pageContext, typingMessageId, handleStop, setCurrentScope }: ChatBarProps) {
     const [showContext, setShowContext] = useState(false);
     const [pageContextState, setPageContextState] = useState<{ id: string; label: string; isModule?: boolean }[] | null>(pageContext ?? null);
     const [selectedContext, setSelectedContext] = useState<string[]>([]);
@@ -214,7 +215,7 @@ export default function ChatBar({ context, userInput, setUserInput, handleSend, 
                         <div className="chat-action-divider" />
                     </>
                     }
-                    {(context === "module") &&
+                    {(context === "module" && addContext) &&
                     <>
                         <div className={`chat-action ${showContext ? "selected": ""}`} onClick={() => setShowContext(true)}>
                             <span className="chat-action-icon">

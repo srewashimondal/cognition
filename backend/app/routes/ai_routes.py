@@ -19,6 +19,7 @@ import json
 import requests
 from collections import Counter
 from app.services.pinecone_service import PineconeService
+from datetime import datetime, timedelta, timezone
 
 router = APIRouter()
 llm = LLMService()
@@ -1526,3 +1527,137 @@ async def grade_open_ended(req: GradeRequest):
     except Exception as e:
         print("ERROR:", e)
         return {"error": "Failed to grade response"}
+    
+
+@router.post('/create-lesson')
+async def create_lesson(request: NewLessonRequest):
+
+    print("[0] Create new lesson request received.")
+    print("[1] Loading module")
+    module_ref = db.collection("simulationModules").document(request.module_id)
+    ai_messages_ref = module_ref.collection("aiMessages")
+
+    module_doc = module_ref.get()
+
+    if not module_doc.exists:
+        raise HTTPException(status_code=404, detail="Module not found")
+    
+    module_data = module_doc.to_dict()
+    module_data['id'] = request.module_id
+
+    print("[2] Fetching lessons for module")
+
+    lessons_ref = db.collection("simulationLessons") \
+        .where("moduleRef", "==", module_ref) \
+        .stream()
+    
+    lesson_list = []
+
+    for doc in lessons_ref:
+        lesson_data = doc.to_dict()
+        lesson_data["id"] = doc.id
+        lesson_data.pop("moduleRef", None)
+        lesson_list.append(lesson_data)
+
+    module_data["lessons"] = lesson_list
+    print(f"Loaded {len(lesson_list)} lessons")
+    
+    if "baseVersion" not in module_data:
+        print("[2.5] Creating baseVersion snapshot")
+        clean_module = copy.deepcopy(module_data)
+        clean_module.pop("deployed", None) 
+
+        original_snapshot = {
+            **clean_module,
+            "lessons": lesson_list
+        }
+
+        module_ref.update({
+            "baseVersion": original_snapshot
+        })
+        print("Base version saved")
+
+    
+    print("[3] Writing new messages")
+    new_messages = [
+        {
+            "role": "user",
+            "content": "Add a new lesson."
+        },
+        {
+            "role": "assistant",
+            "content": "How would you like this new lesson to be structured? (e.g., topic, difficulty, goals, format)"
+        },
+        {
+            "role": "user",
+            "content": request.user_message
+        }
+    ]
+    
+    base_time = datetime.now(timezone.utc)
+    batch = db.batch()
+    for i, msg in enumerate(new_messages):
+        doc_ref = ai_messages_ref.document()
+        batch.set(doc_ref, {
+            "message": msg,
+            "createdAt": base_time + timedelta(milliseconds=i)
+        })
+
+    batch.commit()
+    
+    
+    print("[4] Processing references")
+    reference_summaries = []
+    reference_refs = module_data.get("references", [])
+
+    for ref in reference_refs:
+        try:
+            ref_doc = ref.get()
+            if ref_doc.exists:
+                ref_data = ref_doc.to_dict()
+
+                if ref_data.get("section") == "Maps":
+                    reference_summaries.append({
+                        "type": "map",
+                        "data": ref_data
+                    })
+                else: 
+                    summary = ref_data.get("summary")
+                    if summary:
+                        reference_summaries.append({
+                            "type": "document",
+                            "data": summary
+                        })
+        
+        except Exception: 
+            continue
+    
+    print(f"Processed {len(reference_summaries)} references")
+
+    print("[5] Calling LLM...")
+    safe_module_data = make_json_safe(module_data)
+    ai_response = llm.generate_new_lesson(
+        module=safe_module_data,
+        user_message=request.user_message,
+        reference_summaries=reference_summaries
+    )
+
+    print("[6] Writing AI response to Firestore")
+    assistant_message = ai_response["message"]
+    assistant_message["id"] = str(uuid.uuid4())
+
+    new_lesson = ai_response["lesson"]
+    new_lesson["orderNumber"] = len(lesson_list) + 1
+
+    ai_messages_ref.add({
+        "message": assistant_message,
+        "newLesson": new_lesson,
+        "createdAt": SERVER_TIMESTAMP
+    })
+
+    return {
+        "message": assistant_message,
+        "newLesson": new_lesson,
+        "action": "create"
+    }
+

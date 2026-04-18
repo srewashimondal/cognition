@@ -1436,3 +1436,208 @@ class LLMService:
                 "score": 5,
                 "feedback": "Could not properly evaluate response."
             }
+    
+    def generate_new_lesson(
+        self,
+        module: dict,
+        user_message: str,
+        reference_summaries: Optional[List[dict]] = None
+    ):
+        
+        lessons = module.get("lessons", [])
+
+        ai_context = {
+            "module": {
+                "id": module.get("id"),
+                "title": module.get("title"),
+                "difficulty": module.get("difficulty"),
+                "description": module.get("description"),
+            },
+            "lessons": lessons,
+            "reference_documents": reference_summaries or []
+        }
+
+        prompt = f"""
+        You are Cognition's AI module editor.
+
+        The user wants to add a lesson to a pre-existing retail training simulation module.
+
+        A lesson represents a progressive training experience that builds specific retail competencies such as customer engagement, operational execution, policy compliance, and situational decision-making.
+
+        This new lesson should directly address the user's request, and should build upon the content of the previous lessons. It must stay relevant within the scope of the module. 
+        
+        THIS NEW LESSON MUST BE MEANINGFULLY DISTINCT FROM ALL EXISTING LESSONS.
+
+        To ensure this:
+        - Do NOT repeat the same scenario, customer type, or core task as previous lessons
+        - Introduce a new context, challenge, or environment (e.g., different store situation, customer personality, or operational constraint)
+        - Increase or vary complexity (e.g., add time pressure, conflicting goals, policy edge cases, or multi-step decision making)
+        - Target a different primary skill or combine multiple skills in a new way
+        - Avoid reusing similar phrasing, structure, or flow from prior lessons
+        - Simulate realistic store contexts (time pressure, customer moods, inventory issues, policy conflicts, etc.) 
+
+        The lesson should feel like a natural progression, not a variation of the same exercise.
+
+        Here, the module and the previous lessons are already provided for you. The user wants you to create an additional lesson that is an appropriate next lesson to follow, and directly addresses their request.
+
+        USER REQUEST:
+        {user_message}
+
+        CURRENT MODULE STATE:
+        {json.dumps(ai_context, indent=2)}
+
+        LIST OF ALL RETAIL SKILLS:
+        [
+            "Spatial Reasoning",
+            "Department Zones",
+            "Store Layout Awareness",
+            "Aisle Navigation",
+            "Shortest Path Routing",
+            "SKU Recognition",
+            "Brand Familiarity",
+            "Category Grouping",
+            "Product Substitution",
+            "Cross-Selling",
+            "Upselling",
+            "Greeting & Engagement",
+            "Active Listening",
+            "Clarifying Questions",
+            "Tone",
+            "Professional Communication",
+            "Confidence Under Pressure",
+            "Stock Awareness",
+            "Out-of-Stock Handling",
+            "Inventory Lookup",
+            "Backroom Coordination",
+            "Discontinued Item Handling",
+            "POS Navigation",
+            "Transaction Accuracy",
+            "Payment Processing",
+            "Returns & Exchanges",
+            "Discount Application",
+            "Hazard Identification",
+            "Emergency Response",
+            "Policy Compliance",
+            "Loss Prevention Awareness",
+            "Escalation Protocols",
+            "Task Prioritization",
+            "Multitasking",
+            "Time Management",
+            "Interrupt Handling",
+            "Workload Balancing",
+            "Decision Making",
+            "Situational Awareness",
+            "Critical Thinking",
+            "Adaptability",
+            "De-escalation",
+            "Empathy",
+            "Stress Management",
+            "Customer De-escalation",
+            "Handling Difficult Customers",
+            "Policy Explanation",
+            "Conflict Resolution",
+            "Accuracy vs Speed Tradeoff"
+        ]
+
+        In addition, this lesson must include a fully completed "lessonAbstractInfo" object.
+
+        simulationModel:
+        A detailed description of the scenario structure. This should explain:
+        - The setting (store environment, department, time of day)
+        - The customer profile and emotional state
+        - The operational conditions (inventory status, staffing, time pressure)
+        - The decision-making environment the employee is placed in
+        This should describe how the simulation unfolds, not just the topic.
+
+        targetBehaviors:
+        A clear explanation of the specific observable behaviors the employee is expected to demonstrate during the simulation.
+        These should reflect applied skills (e.g., active listening, policy explanation, escalation protocol usage).
+        Avoid vague traits like “be professional.” Describe measurable behaviors.
+
+        contextualConstraints:
+        Realistic limitations or pressures that make the scenario challenging.
+        Examples:
+        - Limited inventory
+        - Strict store policy
+        - High customer volume
+        - Time pressure
+        - Emotional customer
+        Constraints should force decision-making tradeoffs.
+
+        evaluationSignals:
+        Explain how performance would be assessed within the simulation.
+        Examples:
+        - Correct policy application
+        - Tone appropriateness
+        - De-escalation success
+        - Transaction accuracy
+        - Time efficiency
+        These should describe measurable signals, not vague judgments.
+
+        adaptionLogic:
+        Describe how the simulation responds to the employee’s choices.
+        Examples:
+        - Customer mood escalates or calms
+        - Manager intervention is triggered
+        - Inventory system updates
+        - Alternative solutions unlock
+        This defines how the simulation dynamically adjusts based on decisions.
+
+        CRITICAL REQUIREMENT:
+            - This new lesson must include:
+                - title
+                - relevant skills (from allowed list only)
+                - lessonAbstractInfo (all fields filled)
+            - Use reference documents as compliance guardrails.
+            - Do not invent policies.
+            - Skills must only come from the provided skill list.
+            - Select up to 3 highly relevant skills that directly map to the scenario and target behaviors
+            - Do not include unrelated or loosely connected skills
+        
+        Before generating the lesson:
+        - Identify 1-2 key aspects of prior lessons (e.g., scenario type, customer type, or skill focus)
+        - Explicitly ensure the new lesson differs along at least 2 of these dimensions
+
+        Return output in EXACT JSON format:
+
+        {{
+            "message": {{
+                "role": "assistant",
+                "content": Explain the structure of this new lesson and briefly justify why it is appropriate.
+            }},
+            "action": "create",
+            "lesson": {{
+                "title": "...",
+                "skills": ["...", "...", "..."],
+                "lessonAbstractInfo": {{
+                    "simulationModel": "...",
+                    "targetBehaviors": "...",
+                    "contextualConstraints": "...",
+                    "evaluationSignals": "...",
+                    "adaptionLogic": "..."
+                }}
+            }}      
+        }}
+
+        Rules:
+        - Output must be valid JSON.
+        - Only return one lesson.
+        - Do not include extra fields.
+        """
+
+        response = self.client.chat.completions.create(
+            model="gpt-4o-mini",
+            messages=[{"role": "user", "content": prompt}],
+            temperature=0.4,
+            response_format={"type": "json_object"}
+        )
+
+        parsed = json.loads(response.choices[0].message.content)
+
+        if "message" in parsed:
+            parsed["message"]["id"] = str(uuid.uuid4())
+
+        if "lesson" not in parsed:
+            raise ValueError("Lesson generation failed: Must output a lesson.")
+
+        return parsed

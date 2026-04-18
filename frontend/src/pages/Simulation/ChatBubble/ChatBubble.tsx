@@ -22,6 +22,7 @@ type ChatBubbleProps = {
     handleRegenerate?: () => void;
     onTypingUpdate?: () => void;
     lessons?: LessonType[];
+    shouldApply?: boolean;
     handleApply?: () => void;
     voiceDescription?: string;
     lessonAttemptId?: string;
@@ -33,7 +34,7 @@ type ChatBubbleProps = {
     voiceMode?: boolean;
 };
 
-export default function ChatBubble({ message, className, handleClick, shouldType, stopTyping, onTypingComplete, shouldRegenerate, handleRegenerate, onTypingUpdate, lessons, handleApply, voiceDescription, lessonAttemptId, simIndex, productHints, generalHints, onShowHints, voiceId, voiceMode }: ChatBubbleProps) {
+export default function ChatBubble({ message, className, handleClick, shouldType, stopTyping, onTypingComplete, shouldRegenerate, handleRegenerate, onTypingUpdate, lessons, shouldApply, handleApply, voiceDescription, lessonAttemptId, simIndex, productHints, generalHints, onShowHints, voiceId, voiceMode }: ChatBubbleProps) {
     if (!message) return null; 
 
     const { role, name, content } = message;
@@ -283,7 +284,7 @@ export default function ChatBubble({ message, className, handleClick, shouldType
                         </button>}
                     </>
                 )}
-                { role == "assistant" && handleApply &&
+                { role == "assistant" && shouldApply &&
                     <button className="apply-btn" type="button" onClick={handleApply}>
                         <div className="wand-swap">
                             <img className="wand-icon default" src={white_wand} />

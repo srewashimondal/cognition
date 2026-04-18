@@ -147,3 +147,7 @@ class GradeRequest(BaseModel):
     question: str
     user_answer: str
     question_id: int 
+
+class NewLessonRequest(BaseModel):
+    module_id: str
+    user_message: str

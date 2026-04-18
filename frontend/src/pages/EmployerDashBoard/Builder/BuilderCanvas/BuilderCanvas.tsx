@@ -6,7 +6,7 @@ import ActionButton from '../../../../components/ActionButton/ActionButton';
 import LessonCard from '../../../../cards/LessonCard/LessonCard';
 import ChatBar from '../../../../components/ChatBar/ChatBar';
 import ChatBubble from '../../../Simulation/ChatBubble/ChatBubble';
-import { doc, getDoc, updateDoc, collection, getDocs, where, query, onSnapshot, DocumentReference } from 'firebase/firestore';
+import { doc, getDoc, updateDoc, collection, getDocs, where, query, onSnapshot, DocumentReference, addDoc, orderBy } from 'firebase/firestore';
 import { db, storage } from '../../../../firebase';
 import { ref, uploadBytes, deleteObject, getDownloadURL } from 'firebase/storage';
 import { formatTimestampString } from '../../../../utils/Utils';
@@ -369,8 +369,28 @@ export default function BuilderCanvas({ id, workspace }: BuilderCanvasProps) {
             });
 
             const lessonUpdatePromises = lessons.map(async (lesson) => {
+                if (lesson.isNew) {
+                    const docRef = await addDoc(collection(db, "simulationLessons"), {
+                        title: lesson.title,
+                        skills: lesson.skills ?? [],
+                        allowUnlimitedAttempts: lesson.allowUnlimitedAttempts ?? null,
+                        numAttempts: lesson.numAttempts ?? null,
+                        criteria: lesson.criteria ?? [],
+                        dueDate: lesson.dueDate ?? null,
+                        customerMood: lesson.customerMood ?? 33,
+                        lessonAbstractInfo: lesson.lessonAbstractInfo ?? null,
+                        moduleRef: moduleRef, 
+                        orderNumber: lesson.orderNumber
+                    });
+            
+                    lesson.id = docRef.id;
+                    lesson.isNew = false;
+            
+                    return;
+                }
+            
                 const lessonRef = doc(db, "simulationLessons", lesson.id);
-    
+            
                 await updateDoc(lessonRef, {
                     skills: lesson.skills ?? [],
                     allowUnlimitedAttempts: lesson.allowUnlimitedAttempts ?? null,
@@ -378,9 +398,9 @@ export default function BuilderCanvas({ id, workspace }: BuilderCanvasProps) {
                     criteria: lesson.criteria ?? [],
                     dueDate: lesson.dueDate ?? null,
                     customerMood: lesson.customerMood ?? 33,
-                    lessonAbstractInfo: lesson.lessonAbstractInfo ?? null
+                    lessonAbstractInfo: lesson.lessonAbstractInfo ?? null,
+                    orderNumber: lesson.orderNumber
                 });
-
             });
     
             await Promise.all(lessonUpdatePromises);
@@ -402,6 +422,33 @@ export default function BuilderCanvas({ id, workspace }: BuilderCanvasProps) {
         const userMessageContent = userInput;
         setUserInput("");
         setAiLoading(true);
+
+        if (isAddingLesson) {
+            try {
+                setChatMessages((prev) => prev.slice(0, -2));
+
+                const res = await fetch("http://127.0.0.1:8000/ai/create-lesson", {
+                    method: "POST",
+                    body: JSON.stringify({
+                        module_id: id,
+                        user_message: userMessageContent,
+    
+                    }),
+                    headers: { "Content-Type": "application/json" }
+                });
+    
+                if (!res.ok) {
+                    throw new Error("AI request failed");
+                }
+            } catch(err) {
+                console.error(err);
+            } finally {
+                setAiLoading(false);
+            }
+
+            setIsAddingLesson(false);
+            return;
+        }   
 
         try {
             const res = await fetch("http://127.0.0.1:8000/ai/edit-module", {
@@ -429,7 +476,7 @@ export default function BuilderCanvas({ id, workspace }: BuilderCanvasProps) {
         
     };
 
-    const handleRegenerate = async (assistantMessage: MessageType) => {
+    const handleRegenerate = async (assistantMessage: any) => {
         if (aiLoading || typingMessageId !== null) return;
     
         const assistantIndex = chatMessages.findIndex(msg => msg.id === assistantMessage.id);
@@ -441,17 +488,29 @@ export default function BuilderCanvas({ id, workspace }: BuilderCanvasProps) {
         setAiLoading(true);
     
         try {
-            const res = await fetch("http://127.0.0.1:8000/ai/edit-module", {
+            const isNewLesson = !!assistantMessage.newLesson;
+
+            const endpoint = isNewLesson
+            ? "http://127.0.0.1:8000/ai/create-lesson"
+            : "http://127.0.0.1:8000/ai/edit-module";
+
+            const body = isNewLesson
+            ? {
+                  module_id: id,
+                  user_message: previousUserMessage.content
+              }
+            : {
+                  module_id: id,
+                  user_message: previousUserMessage.content,
+                  context_scope: previousUserMessage.scope ?? currentScope
+              };
+
+            const res = await fetch(endpoint, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
                 },
-                body: JSON.stringify({
-                    module_id: id,
-                    user_message: previousUserMessage.content,
-                    context_scope:
-                        previousUserMessage.scope ?? currentScope
-                })
+                body: JSON.stringify(body)
             });
     
             if (!res.ok) {
@@ -514,7 +573,7 @@ export default function BuilderCanvas({ id, workspace }: BuilderCanvasProps) {
     };
 
     // AI rendering
-    useEffect(() => {
+    /* useEffect(() => {
         if (!id) return;
 
         const refPath = collection(db, "simulationModules", id, "aiMessages");
@@ -535,10 +594,12 @@ export default function BuilderCanvas({ id, workspace }: BuilderCanvasProps) {
                 })
                 .filter(m => m.role && m.content)
                 .sort((a, b) => {
-                    const aTime = a.createdAt?.seconds || 0;
-                    const bTime = b.createdAt?.seconds || 0;
-                    return aTime - bTime;
-                });
+                    if (!a.createdAt && !b.createdAt) return 0;
+                    if (!a.createdAt) return 1;  
+                    if (!b.createdAt) return -1;
+
+                    return a.createdAt.seconds - b.createdAt.seconds;
+            });
     
             setChatMessages(messages as any);
 
@@ -561,7 +622,78 @@ export default function BuilderCanvas({ id, workspace }: BuilderCanvasProps) {
         });
     
         return () => unsubscribe();
-    }, [id]);
+    }, [id]); */
+
+    useEffect(() => {
+        if (!id) return;
+    
+        const q = query(
+            collection(db, "simulationModules", id, "aiMessages"),
+            orderBy("createdAt", "asc")
+        );
+    
+        const unsubscribe = onSnapshot(q, (snapshot) => {
+            const messages = snapshot.docs
+                .map((doc, index) => {
+                    const data = doc.data();
+    
+                    return {
+                        id: doc.id,
+                        role: data.message?.role,
+                        content: data.message?.content,
+                        scope: data.message?.scope ?? [],
+                        updates: data.updates ?? null,
+                        newLesson: data.newLesson ?? null,
+                        createdAt: data.createdAt ?? null,
+                        applied: data.applied ?? false,
+                        _index: index
+                    };
+                })
+                .filter(m => m.role && m.content)
+                .sort((a, b) => {
+                    const aTime = a.createdAt
+                        ? a.createdAt.seconds * 1e9 + (a.createdAt.nanoseconds || 0)
+                        : Infinity;
+    
+                    const bTime = b.createdAt
+                        ? b.createdAt.seconds * 1e9 + (b.createdAt.nanoseconds || 0)
+                        : Infinity;
+    
+                    if (aTime !== bTime) return aTime - bTime;
+    
+                    return a._index - b._index;
+                });
+    
+            setChatMessages(messages as any);
+    
+            const last = messages[messages.length - 1];
+    
+            if (
+                last?.role === "assistant" &&
+                last?.updates?.lessons &&
+                !last.applied
+            ) {
+                const updatedIds = last.updates.lessons
+                    .map((l: any) => l.id)
+                    .filter(Boolean);
+    
+                setUpdatingLessonIds(updatedIds);
+            } else {
+                setUpdatingLessonIds([]);
+            }
+    
+            if (
+                last?.role === "assistant" &&
+                typingMessageId === null &&
+                !last.applied
+            ) {
+                setTypingMessageId(last.id);
+                setStopTyping(false);
+            }
+        });
+    
+        return () => unsubscribe();
+    }, [id]); 
 
     const deepCleanNulls = (obj: any): any => {
         if (obj === null) return undefined;
@@ -627,17 +759,41 @@ export default function BuilderCanvas({ id, workspace }: BuilderCanvasProps) {
             if (!snap.exists()) return;
     
             const data = snap.data();
+            if (data.applied) return;
+
             const updates = data.updates;
-    
-            if (!updates) return;
+            const newLesson = data.newLesson;
 
             setPreviousSnapshot({
                 module: module ? { ...module } : null,
                 lessons: lessons.map(l => ({ ...l }))
             });
+
+            if (newLesson) {
+                const cleanedLesson = deepCleanNulls(newLesson);
+    
+                setLessons(prev => {
+                    let updated = [...prev];
+    
+                    const last = updated[updated.length - 1];
+                    if (last?.isNew) {
+                        updated.pop();
+                    }
+                    
+                    updated.push({
+                        ...cleanedLesson,
+                        id: `temp-${Date.now()}`,
+                        orderNumber: updated.length + 1,
+                        isNew: true
+                    });
+    
+                    return updated;
+                });
+            }
             
-            console.log("Applying updates:", updates);
-            applyAIUpdates(updates);
+            if (updates) {
+                applyAIUpdates(updates);
+            }
 
             await updateDoc(messageRef, {
                 applied: true
@@ -734,6 +890,29 @@ export default function BuilderCanvas({ id, workspace }: BuilderCanvasProps) {
 
     const moduleHeaderPreviewSrc =
         removeCustomHeader ? undefined : (headerObjectUrl ?? headerImageUrl);
+
+    
+    const [isAddingLesson, setIsAddingLesson] = useState(false);
+    const handleAddLesson = async () => {
+        setOpenAIPanel(true);
+        setIsAddingLesson(true);
+        const newId = String(Date.now());
+        setTypingMessageId(newId);
+
+        setChatMessages((prev: any) => [
+            ...prev,
+            {
+                role: "user",
+                content: "Add a new lesson."
+            }, 
+            {   
+                id: newId,
+                role: "assistant",
+                content: "How would you like this new lesson to be structured? (e.g., topic, difficulty, goals, format)"
+            }
+        ]);
+
+    }
 
     return (
         <div className="builder-canvas-page">
@@ -1011,7 +1190,7 @@ export default function BuilderCanvas({ id, workspace }: BuilderCanvasProps) {
                                 </span>
                                 <span className="module-info-label lesson">LESSONS</span>
                             </div>
-                            <button className="add-lesson-btn">
+                            <button className="add-lesson-btn" onClick={handleAddLesson}>
                                 <div className="add-icon-swap">
                                     <img className="add-icon default" src={white_plus_icon} />
                                     <img className="add-icon hover" src={blue_plus_icon} />
@@ -1079,7 +1258,16 @@ export default function BuilderCanvas({ id, workspace }: BuilderCanvasProps) {
                             </span>
                             Cognition AI
                         </div>
-                        <div className="x-icon" onClick={() => setOpenAIPanel(false)}>
+                        <div className="x-icon" 
+                            onClick={() => {
+                                setOpenAIPanel(false)
+                                if (isAddingLesson) {
+                                    setChatMessages((prev) => prev.slice(0, -2));
+                                    setIsAddingLesson(false);
+                                }
+                            }}
+                            
+                        >
                             <img src={x_icon} />
                         </div>
                     </div>
@@ -1090,15 +1278,18 @@ export default function BuilderCanvas({ id, workspace }: BuilderCanvasProps) {
                             const shouldType = m.role === "assistant" && m.id === typingMessageId;
                             const lastAssistant = [...arr].reverse().find(msg => msg.role === "assistant");
                             const isLastAssistant = lastAssistant?.id === m.id;
-                            const canRegenerate = isLastAssistant && typingMessageId === null && !aiLoading;
+                            const canRegenerate = isLastAssistant && typingMessageId === null && !aiLoading && !isAddingLesson;
+                            const shouldApply = !isAddingLesson;
                             return (<ChatBubble key={m.id} message={m} shouldType={shouldType} stopTyping={stopTyping} onTypingComplete={() => {setTypingMessageId(null); setStopTyping(false);}}
-                            className={isLast ? "last-message" : i === 0 ? "first-message" : ""} onTypingUpdate={scrollToBottom} lessons={lessons} handleApply={() => handleApply(m.id)} 
+                            className={isLast ? "last-message" : i === 0 ? "first-message" : ""} onTypingUpdate={scrollToBottom} lessons={lessons}  shouldApply={shouldApply} handleApply={() => handleApply(m.id)} 
                             shouldRegenerate={canRegenerate} handleRegenerate={() => handleRegenerate(m)}/>)})}
                             <div ref={bottomRef} />
                     </div>
                     <div className="builder-chat-wrapper">
                         {aiLoading && <div className="ai-loading-text">Cognition AI is applying changes...</div>}
-                        <ChatBar context={"module"} userInput={userInput} setUserInput={setUserInput} handleSend={handleSend} 
+                        <ChatBar context={"module"} 
+                        addContext={!isAddingLesson}
+                        userInput={userInput} setUserInput={setUserInput} handleSend={handleSend} 
                         pageContext={[
                             { id: id, label: "Module Base", isModule: true },
                             ...(lessons ?? []).map(l => ({
