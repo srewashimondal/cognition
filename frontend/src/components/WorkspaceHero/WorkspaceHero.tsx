@@ -2,7 +2,6 @@ import './WorkspaceHero.css';
 import type { WorkspaceType } from '../../types/User/WorkspaceType';
 // import beautyBanner from '../../assets/illustrations/banners/beauty-banner.jpeg';
 // import pharmacyBanner from '../../assets/illustrations/banners/pharmacy-banner.jpeg';
-import { useState, useEffect } from 'react';
 import store_icon from '../../assets/icons/white-store-icon.svg';
 import location_icon from '../../assets/icons/white-location-icon.svg';
 import share_icon from '../../assets/icons/white-share-icon.svg';
@@ -12,9 +11,23 @@ type WorkspaceHeroType = {
     role: "employer" | "employee";
     workspace: WorkspaceType;
     onClick?: () => void;
+    totalLearners?: number | null;
 };
 
-export default function WorkspaceHero({ role, workspace, onClick }: WorkspaceHeroType) {
+function courseCountFromWorkspace(workspace: WorkspaceType): number {
+    const standard = workspace.standardModules?.length ?? 0;
+    const simulation = workspace.simulationModules?.length ?? 0;
+    return standard + simulation;
+}
+
+export default function WorkspaceHero({ role, workspace, onClick, totalLearners }: WorkspaceHeroType) {
+    const courseCount = courseCountFromWorkspace(workspace);
+    const coursesLabel = `${courseCount} course${courseCount === 1 ? "" : "s"}`;
+    const includeLearners = totalLearners !== undefined;
+    const learnersText =
+        totalLearners === null
+            ? "…"
+            : `${totalLearners} total learner${totalLearners === 1 ? "" : "s"}`;
     return (
         <div className="workspace-hero">
             {/*<img className="workspace-banner" src={beautyBanner} alt="Workspace banner" />*/}
@@ -43,22 +56,17 @@ export default function WorkspaceHero({ role, workspace, onClick }: WorkspaceHer
                         </div>
                         <span>·</span>
                         <div className="workspace-meta-item">
-                            7 courses
+                            {coursesLabel}
                         </div>
-                        <span>·</span>
-                        <div className="workspace-meta-item">
-                            247 total learners
-                        </div>
+                        {includeLearners && (
+                            <>
+                                <span>·</span>
+                                <div className="workspace-meta-item">
+                                    {learnersText}
+                                </div>
+                            </>
+                        )}
                     </div>
-                    {/*<div className="workspace-meta">
-                        <div className="workspace-meta-item">
-                            7 courses
-                        </div>
-                        <span>·</span>
-                        <div className="workspace-meta-item">
-                            247 total learners
-                        </div>
-                    </div>*/}
                 </div>
             </div>
         </div>

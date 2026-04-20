@@ -1,6 +1,8 @@
 import './EmployeeHome.css';
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { collection, doc, onSnapshot, query, where } from 'firebase/firestore';
+import { db } from '../../../firebase';
 import ModuleCard from '../../../cards/ModuleCard/ModuleCard';
 import WorkspaceHero from '../../../components/WorkspaceHero/WorkspaceHero';
 import type { EmployeeUserType } from '../../../types/User/UserType';
@@ -25,6 +27,25 @@ export default function EmployeeHome({ user, workspace }: { user: EmployeeUserTy
     const navigate = useNavigate();
     const [insights, setInsights] = useState<InsightItem[]>([]);
     const [insightsLoading, setInsightsLoading] = useState(true);
+    const [workspaceLearnerCount, setWorkspaceLearnerCount] = useState<number | null>(null);
+
+    useEffect(() => {
+        if (!workspace?.id) {
+            setWorkspaceLearnerCount(null);
+            return;
+        }
+        setWorkspaceLearnerCount(null);
+        const workspaceRef = doc(db, "workspaces", workspace.id);
+        const q = query(
+            collection(db, "users"),
+            where("workspaceID", "==", workspaceRef),
+            where("role", "==", "employee")
+        );
+        const unsub = onSnapshot(q, (snapshot) => {
+            setWorkspaceLearnerCount(snapshot.size);
+        });
+        return () => unsub();
+    }, [workspace?.id]);
 
     useEffect(() => {
         window.scrollTo({ top: 0, left: 0, behavior: "instant" });
@@ -91,7 +112,7 @@ export default function EmployeeHome({ user, workspace }: { user: EmployeeUserTy
                 </div>
             </div> */}
             
-            <WorkspaceHero role={"employee"} workspace={workspace} />
+            <WorkspaceHero role={"employee"} workspace={workspace} totalLearners={workspaceLearnerCount} />
 
             {/*
             

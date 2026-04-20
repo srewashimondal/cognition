@@ -24,12 +24,14 @@ import type { StandardModuleAttempt } from "../../../types/Standard/StandardAtte
 export default function EmployerHome({ viewer, workspace }: { viewer: EmployerUserType, workspace: WorkspaceType }) {
   
   const [employees, setEmployees] = useState<EmployeeUserType[]>([]);
+  const [learnersHydrated, setLearnersHydrated] = useState(false);
   const [moduleAttempts, setModuleAttempts] = useState<StandardModuleAttempt[]>([]);
   const [modules, setModules] = useState<StandardModuleType[]>([]);
 
   useEffect(() => {
     if (!workspace?.id) return;
 
+    setLearnersHydrated(false);
     const workspaceRef = doc(db, "workspaces", workspace.id);
 
     const q = query(
@@ -45,6 +47,7 @@ export default function EmployerHome({ viewer, workspace }: { viewer: EmployerUs
       })) as EmployeeUserType[];
 
       setEmployees(employeeData);
+      setLearnersHydrated(true);
     });
 
     return () => unsubscribe();
@@ -315,7 +318,12 @@ export default function EmployerHome({ viewer, workspace }: { viewer: EmployerUs
         </div>
       </div> */}
 
-      <WorkspaceHero role={"employer"} workspace={workspace} onClick={() => setOpenModal(true)} />
+      <WorkspaceHero
+        role={"employer"}
+        workspace={workspace}
+        onClick={() => setOpenModal(true)}
+        totalLearners={learnersHydrated ? employees.length : null}
+      />
 
       <div className="analytics-header">
         <h3 className="section-title">
