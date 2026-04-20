@@ -4,8 +4,8 @@ import { useState, useEffect } from "react";
 import { useMatch } from "react-router-dom";
 import { Tooltip } from "@radix-ui/themes";
 import logo from '../../assets/branding/cognition-logo.png';
-import bell from '../../assets/icons/bell.svg';
 import sidebar_icon from '../../assets/icons/sidebar-icon.svg';
+import DashboardNotificationsPopover from '../../components/DashboardNotificationsPopover/DashboardNotificationsPopover';
 import ProfilePage from "../EmployerDashBoard/ProfilePage/ProfilePage";
 import defaultAvatar from '../../assets/icons/default-avatar.png';
 // import { workspace } from '../../dummy_data/workspace_data';
@@ -232,14 +232,7 @@ export default function EmployeeDashBoard() {
           </Tooltip>
 
           <div className="topbar-right">
-            <Tooltip content="View notifications">
-              <div className="notif">
-                <span className="bell">
-                  <img src={bell}/>
-                </span>
-                <span className="notif-dot" />
-              </div>
-            </Tooltip>
+            <DashboardNotificationsPopover user={user} workspace={workspace} />
 
             <Tooltip content="View profile">
               <div

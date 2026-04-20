@@ -12,7 +12,7 @@ import AIStudio from './AI Studio/AIStudio';
 import Settings from "./Settings/Settings";
 import SimulationPage from '../Simulation/SimulationPage.tsx';
 import logo from '../../assets/branding/cognition-logo.png';
-import bell from '../../assets/icons/bell.svg';
+import DashboardNotificationsPopover from '../../components/DashboardNotificationsPopover/DashboardNotificationsPopover';
 // import down_chevron from '../../assets/icons/black-down-chevron.svg';
 import sidebar_icon from '../../assets/icons/sidebar-icon.svg';
 // import { workspace } from '../../dummy_data/workspace_data.tsx'; // keep this in case
@@ -215,14 +215,7 @@ export default function EmployerDashBoard() {
 
             <div className="topbar-right">
 
-              <Tooltip content="View notifications">
-                <div className="notif">
-                    <span className="bell">
-                      <img src={bell}/>
-                    </span>
-                    <span className="notif-dot" />
-                </div>
-              </Tooltip>
+              <DashboardNotificationsPopover user={user} workspace={workspace} />
           
             <Tooltip content={profileOpen ? "Exit profile" : "View profile"}>
               <div
