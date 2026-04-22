@@ -46,73 +46,6 @@ export default function ChatBubble({ message, className, handleClick, shouldType
     const audioRef = useRef<HTMLAudioElement | null>(null);
     const [showHints, setShowHints] = useState(false);
 
-
-    const handleSpeakOld = async () => {
-        try {
-            if (isSpeaking) {
-                audioRef.current?.pause();
-                audioRef.current = null;
-                setIsSpeaking(false);
-                return;
-            }
-
-            const characterName = (role === "character" ? (name ?? "Character") : "Cognition");
-            // Speak only this bubble's message text – no other lines or transcript
-            const rawText = typeof message.content === "string" ? message.content : "";
-            const text = rawText
-                .replace(/\n{3,}/g, "\n\n")
-                .replace(/\*\*([^*]+)\*\*/g, "$1")
-                .replace(/\*([^*]+)\*/g, "$1")
-                .replace(/__([^_]+)__/g, "$1")
-                .replace(/_([^_]+)_/g, "$1")
-                .replace(/\[([^\]]+)\]\([^)]+\)/g, "$1")
-                .trim();
-            if (!text) return;
-
-            setIsSpeaking(true);
-
-            const body: Record<string, unknown> = {
-                character_name: characterName,
-                text,
-                description: voiceDescription
-            };
-            if (lessonAttemptId != null && simIndex != null) {
-                body.lesson_attempt_id = lessonAttemptId;
-                body.sim_index = simIndex;
-            }
-            const resp = await fetch("http://127.0.0.1:8000/ai/tts", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(body)
-            });
-
-            if (!resp.ok) {
-                setIsSpeaking(false);
-                return;
-            }
-
-            const blob = await resp.blob();
-            const url = URL.createObjectURL(blob);
-            const audio = new Audio(url);
-            audioRef.current = audio;
-
-            audio.onended = () => {
-                URL.revokeObjectURL(url);
-                audioRef.current = null;
-                setIsSpeaking(false);
-            };
-            audio.onerror = () => {
-                URL.revokeObjectURL(url);
-                audioRef.current = null;
-                setIsSpeaking(false);
-            };
-
-            await audio.play();
-        } catch (e) {
-            setIsSpeaking(false);
-        }
-    }; 
-
     const handleSpeak = async () => {
         try {
             if (isSpeaking) {
@@ -181,7 +114,7 @@ export default function ChatBubble({ message, className, handleClick, shouldType
       
     return (
         <div className={`chat-bubble-wrapper ${role} ${className ?? ""} `}>
-            <span className="role-text">{(role === "user") ? "You" : (role === "assistant") ? "Cognition" : name}</span>
+            <span className="role-text">{(role === "user") ? "You" : (role === "assistant") ? "Cadence" : name}</span>
             <div className={`chat-bubble ${role}`} onClick={() => {if (role === "user") {handleClick?.();}}}>
 
             {messageScope.length > 0 && role === "user" && lessons && (

@@ -278,12 +278,17 @@
 
 .ai-side-title {
     display: flex;
-    justify-content: space-between;
-    align-items: center;
+    align-items: flex-start;
     font-size: 15px;
     margin: 10px;
     font-weight: 500;
     color: #999;
+    flex-direction: column;
+}
+
+.ai-side-title label {
+    font-size: 11px;
+    margin: 0; 
 }
 
 .ai-side-title.smaller {

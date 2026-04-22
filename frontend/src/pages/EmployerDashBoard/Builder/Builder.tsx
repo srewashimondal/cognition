@@ -288,17 +288,17 @@ export default function Builder({ workspace }: { workspace: WorkspaceType }) {
                     < GenerationLoadingPage type={"module"} />
                     : <>
                         <h3>Welcome To</h3>
-                        <h3>Builder Studio</h3>
+                        <h3>Builder Canvas</h3>
                     </>}
 
                     <div className={`builder-desc ${aiLoading ? "generating-text" : ""}`}>
                         { aiLoading ? 
-                        <p> Cognition AI is structuring lessons, crafting scenarios, and aligning your references...</p>
+                        <p> Cadence is structuring lessons, crafting scenarios, and aligning your references...</p>
                         : <>
                             <span>
                                 <img src={ai_icon} />
                             </span>
-                            <p>Start by pitching a Simulation Idea to Cognition AI</p>
+                            <p>Start by pitching a Simulation Idea to Cadence, our AI Assistant</p>
                         </>}
                     </div>
                 </div>}
