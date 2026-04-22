@@ -90,7 +90,7 @@ export default function Login() {
                                 </span>
                             </Tooltip>
                         </div>
-                        <p className="cta">Forgot Password?</p>
+                        <Link to="/forgot-password" className="cta forgot-password-cta">Forgot Password?</Link>
                     </div>
 
                     {error && <ErrorMessage message={"Incorrect username or password. Please try again."} />}
