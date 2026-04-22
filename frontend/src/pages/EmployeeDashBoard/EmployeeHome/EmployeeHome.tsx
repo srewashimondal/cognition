@@ -1,7 +1,7 @@
 import './EmployeeHome.css';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { collection, doc, onSnapshot, query, where } from 'firebase/firestore';
+import { collection, doc, getDoc, getDocs, onSnapshot, query, where } from 'firebase/firestore';
 import { db } from '../../../firebase';
 import ModuleCard from '../../../cards/ModuleCard/ModuleCard';
 import WorkspaceHero from '../../../components/WorkspaceHero/WorkspaceHero';
@@ -22,6 +22,163 @@ export type InsightItem = {
     description: string;
     suggestion: string;
 };
+
+const URGENT_WITHIN_DAYS = 5;
+const MAX_UPCOMING_DEADLINES = 10;
+
+type UpcomingDeadlineRow = {
+    id: string;
+    moduleKind: "standard" | "simulation";
+    moduleTitle: string;
+    lessonTitle: string;
+    due: Date;
+    dayNum: string;
+    monthShort: string;
+    relativeLabel: string;
+    urgent: boolean;
+    href: string;
+};
+
+function parseDueForDeadline(raw: string | null | undefined): Date | null {
+    if (raw == null || raw === "") return null;
+    const d = new Date(raw);
+    return Number.isNaN(d.getTime()) ? null : d;
+}
+
+function startOfLocalDayTime(d: Date): number {
+    return new Date(d.getFullYear(), d.getMonth(), d.getDate()).getTime();
+}
+
+function buildRelativeDue(due: Date, now: Date): { relativeLabel: string; urgent: boolean } {
+    const dayDiff = Math.round((startOfLocalDayTime(due) - startOfLocalDayTime(now)) / 86_400_000);
+    if (dayDiff < 0) {
+        const n = Math.abs(dayDiff);
+        return { relativeLabel: `Overdue by ${n} day${n === 1 ? "" : "s"}`, urgent: true };
+    }
+    if (dayDiff === 0) {
+        return { relativeLabel: "Due today", urgent: true };
+    }
+    if (dayDiff < URGENT_WITHIN_DAYS) {
+        return { relativeLabel: `Due in ${dayDiff} day${dayDiff === 1 ? "" : "s"}`, urgent: true };
+    }
+    return { relativeLabel: `Due in ${dayDiff} day${dayDiff === 1 ? "" : "s"}`, urgent: false };
+}
+
+async function loadStandardDeadlinesForAttempt(
+    moduleAttemptId: string,
+    now: Date
+): Promise<UpcomingDeadlineRow[]> {
+    const moduleAttemptRef = doc(db, "standardModuleAttempts", moduleAttemptId);
+    const modSnap = await getDoc(moduleAttemptRef);
+    if (!modSnap.exists()) return [];
+    if (modSnap.data().status === "completed") return [];
+
+    const moduleInfoRef = modSnap.data().moduleInfo;
+    let moduleTitle = "Standard module";
+    if (moduleInfoRef) {
+        const moduleSnap = await getDoc(moduleInfoRef);
+        if (moduleSnap.exists()) {
+            const md = moduleSnap.data() as { title?: string };
+            if (typeof md.title === "string" && md.title.trim()) moduleTitle = md.title.trim();
+        }
+    }
+
+    const lessonSnap = await getDocs(
+        query(
+            collection(db, "standardLessonAttempts"),
+            where("moduleRef", "==", moduleAttemptRef)
+        )
+    );
+    const out: UpcomingDeadlineRow[] = [];
+    for (const d of lessonSnap.docs) {
+        const attemptData = d.data();
+        if (attemptData.status === "completed") continue;
+        const lessonInfoRef = attemptData.lessonInfo;
+        if (!lessonInfoRef) continue;
+        const lessonOriginalSnap = await getDoc(lessonInfoRef);
+        if (!lessonOriginalSnap.exists()) continue;
+        const raw = lessonOriginalSnap.data() as { title?: string; dueDate?: string | null };
+        const due = parseDueForDeadline(raw.dueDate);
+        if (!due) continue;
+        const lessonTitle = typeof raw.title === "string" && raw.title.trim() ? raw.title : "Lesson";
+        const { relativeLabel, urgent } = buildRelativeDue(due, now);
+        const dayNum = String(due.getDate()).padStart(2, "0");
+        const monthShort = due
+            .toLocaleDateString("en-US", { month: "short" })
+            .replace(".", "");
+        out.push({
+            id: `std-${moduleAttemptId}-${d.id}`,
+            moduleKind: "standard",
+            moduleTitle,
+            lessonTitle,
+            due,
+            dayNum,
+            monthShort,
+            relativeLabel,
+            urgent,
+            href: `/employee/standard-modules/${moduleAttemptId}/${d.id}`,
+        });
+    }
+    return out;
+}
+
+async function loadSimulationDeadlinesForAttempt(
+    moduleAttemptId: string,
+    now: Date
+): Promise<UpcomingDeadlineRow[]> {
+    const moduleAttemptRef = doc(db, "simulationModuleAttempts", moduleAttemptId);
+    const modSnap = await getDoc(moduleAttemptRef);
+    if (!modSnap.exists()) return [];
+    if (modSnap.data().status === "completed") return [];
+
+    const moduleInfoRef = modSnap.data().moduleInfo;
+    let moduleTitle = "Simulation module";
+    if (moduleInfoRef) {
+        const moduleSnap = await getDoc(moduleInfoRef);
+        if (moduleSnap.exists()) {
+            const md = moduleSnap.data() as { title?: string };
+            if (typeof md.title === "string" && md.title.trim()) moduleTitle = md.title.trim();
+        }
+    }
+
+    const lessonSnap = await getDocs(
+        query(
+            collection(db, "simulationLessonAttempts"),
+            where("moduleRef", "==", moduleAttemptRef)
+        )
+    );
+    const out: UpcomingDeadlineRow[] = [];
+    for (const d of lessonSnap.docs) {
+        const attemptData = d.data();
+        if (attemptData.status === "completed") continue;
+        const lessonInfoRef = attemptData.lessonInfo;
+        if (!lessonInfoRef) continue;
+        const lessonOriginalSnap = await getDoc(lessonInfoRef);
+        if (!lessonOriginalSnap.exists()) continue;
+        const raw = lessonOriginalSnap.data() as { title?: string; dueDate: string | null };
+        const due = parseDueForDeadline(raw.dueDate);
+        if (!due) continue;
+        const lessonTitle = typeof raw.title === "string" && raw.title.trim() ? raw.title : "Lesson";
+        const { relativeLabel, urgent } = buildRelativeDue(due, now);
+        const dayNum = String(due.getDate()).padStart(2, "0");
+        const monthShort = due
+            .toLocaleDateString("en-US", { month: "short" })
+            .replace(".", "");
+        out.push({
+            id: `sim-${moduleAttemptId}-${d.id}`,
+            moduleKind: "simulation",
+            moduleTitle,
+            lessonTitle,
+            due,
+            dayNum,
+            monthShort,
+            relativeLabel,
+            urgent,
+            href: `/employee/simulations/${moduleAttemptId}/${d.id}/1`,
+        });
+    }
+    return out;
+}
 
 export default function EmployeeHome({ user, workspace }: { user: EmployeeUserType | EmployerUserType,  workspace: WorkspaceType}) {
     const navigate = useNavigate();
@@ -81,6 +238,78 @@ export default function EmployeeHome({ user, workspace }: { user: EmployeeUserTy
     }, [user?.uid, workspace?.id]);
 
     const isEmployee = user.role === "employee";
+    const employeeUser = isEmployee ? (user as EmployeeUserType) : null;
+
+    const [upcomingDeadlines, setUpcomingDeadlines] = useState<UpcomingDeadlineRow[]>([]);
+    const [deadlinesLoading, setDeadlinesLoading] = useState(false);
+    const deadlineGenRef = useRef(0);
+    const stdModuleAttemptIdsRef = useRef<string[]>([]);
+    const simModuleAttemptIdsRef = useRef<string[]>([]);
+
+    useEffect(() => {
+        if (!employeeUser?.uid || !employeeUser.workspaceID) {
+            setUpcomingDeadlines([]);
+            setDeadlinesLoading(false);
+            return;
+        }
+
+        setDeadlinesLoading(true);
+        const userRef = doc(db, "users", employeeUser.uid);
+        const wRef = employeeUser.workspaceID;
+
+        const simQ = query(
+            collection(db, "simulationModuleAttempts"),
+            where("user", "==", userRef),
+            where("workspaceRef", "==", wRef)
+        );
+        const stdQ = query(
+            collection(db, "standardModuleAttempts"),
+            where("user", "==", userRef),
+            where("workspaceRef", "==", wRef)
+        );
+
+        const runMerge = () => {
+            const myGen = ++deadlineGenRef.current;
+            const stdIds = stdModuleAttemptIdsRef.current;
+            const simIds = simModuleAttemptIdsRef.current;
+            void (async () => {
+                const now = new Date();
+                try {
+                    const parts = await Promise.all([
+                        ...stdIds.map((id) => loadStandardDeadlinesForAttempt(id, now)),
+                        ...simIds.map((id) => loadSimulationDeadlinesForAttempt(id, now)),
+                    ]);
+                    if (myGen !== deadlineGenRef.current) return;
+                    const merged = parts
+                        .flat()
+                        .sort((a, b) => a.due.getTime() - b.due.getTime())
+                        .slice(0, MAX_UPCOMING_DEADLINES);
+                    setUpcomingDeadlines(merged);
+                } catch (e) {
+                    console.error("Upcoming deadlines:", e);
+                    if (myGen === deadlineGenRef.current) setUpcomingDeadlines([]);
+                } finally {
+                    if (myGen === deadlineGenRef.current) setDeadlinesLoading(false);
+                }
+            })();
+        };
+
+        const unsubSim = onSnapshot(simQ, (snap) => {
+            simModuleAttemptIdsRef.current = snap.docs.map((d) => d.id);
+            runMerge();
+        });
+        const unsubStd = onSnapshot(stdQ, (snap) => {
+            stdModuleAttemptIdsRef.current = snap.docs.map((d) => d.id);
+            runMerge();
+        });
+
+        return () => {
+            deadlineGenRef.current += 1;
+            unsubSim();
+            unsubStd();
+        };
+    }, [employeeUser?.uid, employeeUser?.workspaceID]);
+
     const streak: LearningStreak | undefined =
         isEmployee && (user as EmployeeUserType).learningStreak
             ? (user as EmployeeUserType).learningStreak
@@ -235,52 +464,51 @@ export default function EmployeeHome({ user, workspace }: { user: EmployeeUserTy
                 </div>
             </div>
 
+            {isEmployee && (
             <div className="section">
                 <div className="section-header">
                     <h2>Upcoming Deadlines</h2>
                 </div>
+                {deadlinesLoading && (
+                    <p className="deadlines-empty">Loading deadlines…</p>
+                )}
+                {!deadlinesLoading && upcomingDeadlines.length === 0 && (
+                    <p className="deadlines-empty">No upcoming deadlines. Lessons with due dates in your in-progress modules will show here.</p>
+                )}
+                {!deadlinesLoading && upcomingDeadlines.length > 0 && (
                 <div className="deadlines-list">
-                    <div className="deadline-item urgent" onClick={() => navigate("/employee/standard-modules/1/3")}>
+                    {upcomingDeadlines.map((d) => (
+                    <div
+                        key={d.id}
+                        className={`deadline-item${d.urgent ? " urgent" : ""}`}
+                        onClick={() => navigate(d.href)}
+                    >
                         <div className="deadline-date">
                             <div className="date-box">
-                                <span className="date-day">24</span>
-                                <span className="date-month">Jan</span>
+                                <span className="date-day">{d.dayNum}</span>
+                                <span className="date-month">{d.monthShort}</span>
                             </div>
                         </div>
                         <div className="deadline-info">
-                            <h4>Standards of Conduct Knowledge Check</h4>
-                            <p>Due in 3 days</p>
+                            <p className="deadline-module-context">
+                                <span className="deadline-module-kind">
+                                    {d.moduleKind === "simulation" ? "Simulation module" : "Standard module"}
+                                </span>
+                                <span className="deadline-module-sep"> · </span>
+                                <span className="deadline-module-name">{d.moduleTitle}</span>
+                            </p>
+                            <h4>{d.lessonTitle}</h4>
+                            <p>{d.relativeLabel}</p>
                         </div>
-                        <div className="deadline-badge urgent-badge">Urgent</div>
+                        <div className={`deadline-badge${d.urgent ? " urgent-badge" : ""}`}>
+                            {d.urgent ? "Urgent" : "Upcoming"}
+                        </div>
                     </div>
-                    <div className="deadline-item">
-                        <div className="deadline-date">
-                            <div className="date-box">
-                                <span className="date-day">28</span>
-                                <span className="date-month">Jan</span>
-                            </div>
-                        </div>
-                        <div className="deadline-info">
-                            <h4>Figma Design Project Submission</h4>
-                            <p>Due in 7 days</p>
-                        </div>
-                        <div className="deadline-badge">Upcoming</div>
-                    </div>
-                    <div className="deadline-item">
-                        <div className="deadline-date">
-                            <div className="date-box">
-                                <span className="date-day">02</span>
-                                <span className="date-month">Feb</span>
-                            </div>
-                        </div>
-                        <div className="deadline-info">
-                            <h4>Time Management Workshop Attendance</h4>
-                            <p>Due in 12 days</p>
-                        </div>
-                        <div className="deadline-badge">Upcoming</div>
-                    </div>
+                    ))}
                 </div>
+                )}
             </div>
+            )}
 
             <div className="section">
                 <div className="section-header">

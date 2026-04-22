@@ -609,6 +609,13 @@
     font-weight: 500;
 }
 
+.deadlines-empty {
+    color: #64748b;
+    font-size: 0.95rem;
+    margin: 0;
+    padding: 0.5rem 0 0 0;
+}
+
 .deadlines-list {
     display: flex;
     flex-direction: column;
@@ -670,6 +677,30 @@
 
 .deadline-info {
     flex: 1;
+}
+
+.deadline-module-context {
+    font-size: 0.85rem;
+    color: #64748b;
+    margin: 0 0 0.35rem 0;
+    line-height: 1.35;
+}
+
+.deadline-module-kind {
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.02em;
+    font-size: 0.75rem;
+}
+
+.deadline-module-name {
+    font-weight: 600;
+    color: #334155;
+}
+
+.deadline-module-sep {
+    font-weight: 500;
+    opacity: 0.85;
 }
 
 .deadline-info h4 {
