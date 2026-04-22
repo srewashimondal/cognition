@@ -351,8 +351,7 @@ export default function VideoLessonPage({ lessonAttempt, lesson, handleBack, mod
                         <img src={left_arrow} />
                     </div>
                     <div className="builder-page-title">
-                        Standard Modules / {moduleTitle}  
-                        <span className="bold-txt vid-title"> / {lesson?.title}</span>
+                        Standard Modules / {moduleTitle} <span className="bold-txt vid-title"> / {lesson?.title}</span>
                     </div>
                 </div>
                 <div className="video-title">

@@ -145,6 +145,7 @@
 }
 
 .user-input-bubble-wrapper {
+    margin-top: 70px;
     width: 100%;
     display: flex;
     align-items: center;

@@ -132,11 +132,12 @@ function Section2() {
                         Meet
                         <span> </span>
                         <span className="sec2-bottom-highlight">
-                            Builder Studio
+                            Cadence
                         </span>
+                         , Cognition's AI Assistant
                     </h4>
                     {/*<img src={chatbarGif} />*/}
-                    <p className="sec2-middle-card-description no-margin" >Use our chatbot to describe ideas for a simulation module, and watch the magic happen.</p>
+                    <p className="sec2-middle-card-description no-margin" >Use our AI chatbot assistant to describe ideas for a simulation module, and watch the magic happen.</p>
                 </div>
                 <video autoPlay loop muted playsInline>
                     <source src={chatbarWebm} type="video/webm" />
@@ -162,7 +163,7 @@ function Section3() {
                         can <br />
                         tailor simulations to <br />
                         their store's protocols <br />
-                        with Cognition AI.
+                        with Cadence.
                     </h4>
                     <p className="homepage-grey-text">
                         Cognition lets employers tailor simulations <br />

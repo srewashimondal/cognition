@@ -13,6 +13,7 @@ import orange_left_arrow from '../../../assets/icons/orange-left-arrow.svg';
 import ai_icon from '../../../assets/icons/simulations/grey-ai-icon.svg';
 import x_icon from '../../../assets/icons/simulations/grey-x-icon.svg';
 import note_icon from '../../../assets/icons/orange-note-icon.svg';
+import GenerationLoadingPage from '../../LoadingPages/GenerationLoading/GenerationLoadingPage';
 
 const resourceSections: ResourceSection[] = [
     {
@@ -60,7 +61,6 @@ export default function Builder({ workspace }: { workspace: WorkspaceType }) {
     const [openModal, setOpenModal] = useState(false);
     const [userInput, setUserInput] = useState("");
     const [attachedFiles, setAttachedFiles] = useState<string[]>([]);
-    const [voiceMode, setVoiceMode] = useState(false);
     const [references, setReferences] = useState<{
         id: string;
         title: string;
@@ -283,17 +283,9 @@ export default function Builder({ workspace }: { workspace: WorkspaceType }) {
                         <img src={orange_left_arrow} />
                     </div>
                 </Tooltip>
-                {(voiceMode) ? 
-                <div className="voice-receiver">
-                    <div className="voice-circle" /> 
-                    You are Speaking
-                </div>
-                : <div className="builder-hero">
+                {<div className="builder-hero">
                     {aiLoading ?
-                    <div className="generating-text">
-                        <h3>Generating Your</h3>
-                        <h3>Simulation Module</h3>
-                    </div>
+                    < GenerationLoadingPage type={"module"} />
                     : <>
                         <h3>Welcome To</h3>
                         <h3>Builder Studio</h3>
@@ -325,7 +317,6 @@ export default function Builder({ workspace }: { workspace: WorkspaceType }) {
                     handleSend={handleSend} handleAttach={() => setOpenModal(true)}
                     attachedFiles={references} showFileCond={!openModal} 
                     handleRemoveFile={handleRemoveFile} 
-                    handleVoiceMode={() => setVoiceMode(prev => !prev)}
                     typingMessageId={typingMessageId} 
                     handleStop={() => {setStopTyping(true); setTypingMessageId(null);}} />}
                 </div>
