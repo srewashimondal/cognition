@@ -212,7 +212,6 @@ export default function ChatBar({ context, addContext, userInput, setUserInput, 
                             </span>
                             Choose Reference Material
                         </div>
-                        <div className="chat-action-divider" />
                     </>
                     }
                     {(context === "module" && addContext) &&

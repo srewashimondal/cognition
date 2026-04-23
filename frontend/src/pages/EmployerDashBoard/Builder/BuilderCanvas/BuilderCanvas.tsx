@@ -1053,7 +1053,7 @@ export default function BuilderCanvas({ id, workspace }: BuilderCanvasProps) {
                                     { aiLoading ? 
                                     <div className="updating-spinner">
                                         <Spinner size="2" /> 
-                                        Cognition is updating this module...
+                                        Cadence is updating this module...
                                     </div> : 
                                     "Builder Studio / Simulation Modules"}
                                 </div>
@@ -1256,7 +1256,7 @@ export default function BuilderCanvas({ id, workspace }: BuilderCanvasProps) {
                             <span>
                                 <img src={orange_ai_icon} />
                             </span>
-                            Cognition AI
+                            Cadence
                         </div>
                         <div className="x-icon" 
                             onClick={() => {
@@ -1286,7 +1286,7 @@ export default function BuilderCanvas({ id, workspace }: BuilderCanvasProps) {
                             <div ref={bottomRef} />
                     </div>
                     <div className="builder-chat-wrapper">
-                        {aiLoading && <div className="ai-loading-text">Cognition AI is applying changes...</div>}
+                        {aiLoading && <div className="ai-loading-text">Cadence is applying changes...</div>}
                         <ChatBar context={"module"} 
                         addContext={!isAddingLesson}
                         userInput={userInput} setUserInput={setUserInput} handleSend={handleSend} 

@@ -1014,7 +1014,7 @@ function BriefingPage({ simIdx, simData, lessonAttempt, moduleTitle, onStart, ha
                 </div>
                 <div className="builder-page-title">
                     Simulation Modules / {moduleTitle} 
-                    <span className="bold-txt blue-txt">/ Lesson {lessonAttempt.lessonInfo.orderNumber}</span>
+                    <span className="bold-txt blue-txt"> / Lesson {lessonAttempt.lessonInfo.orderNumber}</span>
                 </div>
             </div>
             <div className="briefing-lesson-header-wrapper">
