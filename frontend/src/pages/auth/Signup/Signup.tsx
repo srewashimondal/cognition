@@ -10,9 +10,10 @@ import gradient from '../../../assets/illustrations/gradient.jpg';
 import NavBar from '../../../components/NavBar/NavBar.tsx';
 import ErrorMessage from '../../../components/ErrorMessage/ErrorMessage.tsx';
 import { createUserWithEmailAndPassword } from "firebase/auth";
-import { auth, db } from "../../../firebase";
+import { auth, db, signInWithGoogleApp } from "../../../firebase";
 import { doc, setDoc, getDoc, serverTimestamp } from "firebase/firestore";
 import { useNavigate } from "react-router-dom";
+import GoogleSignInButton from "../GoogleSignInButton";
 
 
 type SignupProps = {
@@ -23,7 +24,7 @@ export default function Signup({ role="employee" }: SignupProps) {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [reEnteredPassword, setReEnteredPassword] = useState("");
-    const [fullName, setFullName] = useState("");
+    const fullName = email.split("@")[0] || "";
     const [viewPassword, setViewPassword] = useState(false);
     const [viewReEnteredPassword, setViewReEnteredPassword] = useState(false);
     const [error, setError] = useState<string | null>(null);
@@ -97,7 +98,28 @@ export default function Signup({ role="employee" }: SignupProps) {
 
 
         } catch (err: any) {
-            setError(err.message);
+            if (err?.code === "auth/operation-not-allowed") {
+                setError("Email/password sign-up is disabled in Firebase. Enable it in Authentication > Sign-in method.");
+            } else {
+                setError(err.message);
+            }
+        } finally {
+            setLoading(false);
+        }
+    }
+
+    async function handleGoogleSignUp() {
+        setError(null);
+        setLoading(true);
+        try {
+            const res = await signInWithGoogleApp(role);
+            navigate(res.path);
+        } catch (err: any) {
+            if (err?.code === "auth/operation-not-allowed") {
+                setError("Google sign-up is disabled in Firebase. Enable Google in Authentication > Sign-in method.");
+            } else {
+                setError(err.message ?? "Google sign-up failed.");
+            }
         } finally {
             setLoading(false);
         }
@@ -134,6 +156,13 @@ export default function Signup({ role="employee" }: SignupProps) {
                         </div>
                     </div>
                     <form onSubmit={handleSubmit}>
+                        <div className="auth-oauth">
+                            <GoogleSignInButton
+                                disabled={loading}
+                                onClick={handleGoogleSignUp}
+                            />
+                        </div>
+                        <p className="auth-divider">or</p>
                         {/*<div className="input-wrapper">
                         <input
                             type="text"
