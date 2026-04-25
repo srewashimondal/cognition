@@ -19,6 +19,8 @@ import {collection,query,where,onSnapshot, doc, getDoc} from "firebase/firestore
 import { db } from "../../../firebase";
 import type { StandardModuleType } from "../../../types/Standard/StandardModule";
 import type { StandardModuleAttempt } from "../../../types/Standard/StandardAttempt";
+import type { ModuleAttemptType } from "../../../types/Modules/ModuleAttemptType";
+import type { ModuleType } from "../../../types/Modules/ModuleType";
 
 
 export default function EmployerHome({ viewer, workspace }: { viewer: EmployerUserType, workspace: WorkspaceType }) {
@@ -108,37 +110,37 @@ export default function EmployerHome({ viewer, workspace }: { viewer: EmployerUs
     const totalEmployees = employees.length;
 
     const modulePerformance = modules.map((module) => {
-    const attemptsForModule = moduleAttempts.filter(
-      (attempt) => attempt.moduleInfo?.id === module.id
-    );
+      const attemptsForModule = moduleAttempts.filter(
+        (attempt) => attempt.moduleInfo?.id === module.id
+      );
 
-    const completedAttempts = attemptsForModule.filter(
-      (a) => a.status === "completed"
-    );
+      const completedAttempts = attemptsForModule.filter(
+        (a) => a.status === "completed"
+      );
 
-    const completionCount = completedAttempts.length;
+      const completionCount = completedAttempts.length;
 
-    const avgScore =
-      completionCount > 0
-        ? Math.round(
-            completedAttempts.reduce(
-              (sum, a) => sum + (a.score ?? 0),
-              0
-            ) / completionCount
-          )
-        : 0;
+      const avgScore =
+        completionCount > 0
+          ? Math.round(
+              completedAttempts.reduce(
+                (sum, a) => sum + (a.score ?? 0),
+                0
+              ) / completionCount
+            )
+          : 0;
 
-    const completionRate =
-      totalEmployees > 0
-        ? Math.round((completionCount / totalEmployees) * 100)
-        : 0;
+      const completionRate =
+        totalEmployees > 0
+          ? Math.round((completionCount / totalEmployees) * 100)
+          : 0;
 
-    return {
-      title: module.title,
-      avgScore,
-      completion: completionRate,
-      totalEnrolled: totalEmployees,
-    };
+      return {
+        title: module.title,
+        avgScore,
+        completion: completionRate,
+        totalEnrolled: totalEmployees,
+      };
   });
 
 
