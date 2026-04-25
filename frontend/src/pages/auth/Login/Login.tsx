@@ -10,7 +10,8 @@ import NavBar from '../../../components/NavBar/NavBar.tsx';
 import ErrorMessage from '../../../components/ErrorMessage/ErrorMessage.tsx';
 import { signInWithEmailAndPassword } from "firebase/auth";
 import { doc, getDoc } from "firebase/firestore";
-import { auth, db } from "../../../firebase";
+import { auth, db, signInWithGoogleApp } from "../../../firebase";
+import GoogleSignInButton from "../GoogleSignInButton";
 
 export default function Login() {
     const [email, setEmail] = useState("");
@@ -52,7 +53,28 @@ export default function Login() {
             }
 
         } catch (err: any) {
-            setError(err.message);
+            if (err?.code === "auth/operation-not-allowed") {
+                setError("Email/password sign-in is disabled in Firebase. Enable it in Authentication > Sign-in method.");
+            } else {
+                setError("Incorrect username or password. Please try again.");
+            }
+        } finally {
+            setLoading(false);
+        }
+    }
+
+    async function handleGoogleSignIn() {
+        setError(null);
+        setLoading(true);
+        try {
+            const res = await signInWithGoogleApp("employee");
+            navigate(res.path);
+        } catch (err: any) {
+            if (err?.code === "auth/operation-not-allowed") {
+                setError("Google sign-in is disabled in Firebase. Enable Google in Authentication > Sign-in method.");
+            } else {
+                setError(err.message ?? "Google sign-in failed.");
+            }
         } finally {
             setLoading(false);
         }
@@ -72,6 +94,13 @@ export default function Login() {
                     </div>
                 </div>
                 <form onSubmit={handleSubmit}>
+                    <div className="auth-oauth">
+                        <GoogleSignInButton
+                            disabled={loading}
+                            onClick={handleGoogleSignIn}
+                        />
+                    </div>
+                    <p className="auth-divider">or</p>
                     <div className="input-wrapper">
                         <span className="input-icon">
                             <img src={mail} alt="mail icon"/>
@@ -93,7 +122,7 @@ export default function Login() {
                         <Link to="/forgot-password" className="cta forgot-password-cta">Forgot Password?</Link>
                     </div>
 
-                    {error && <ErrorMessage message={"Incorrect username or password. Please try again."} />}
+                    {error && <ErrorMessage message={error} />}
                     <button className="signin-button" type="submit" disabled={loading}>
                         {loading ? "Signing in..." : "Sign in"}
                     </button>
