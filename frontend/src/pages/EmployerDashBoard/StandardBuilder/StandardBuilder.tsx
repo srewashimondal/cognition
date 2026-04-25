@@ -1,7 +1,7 @@
 import './StandardBuilder.css';
 import { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { doc, getDoc, updateDoc, collection, addDoc, deleteDoc, arrayUnion } from 'firebase/firestore';
+import { doc, getDoc, updateDoc, collection, addDoc, deleteDoc, arrayUnion, where, query, getDocs } from 'firebase/firestore';
 import { ref, uploadBytes, deleteObject, getDownloadURL } from 'firebase/storage';
 import { db, storage } from '../../../firebase';
 import type { DocumentReference } from 'firebase/firestore';
@@ -11,13 +11,17 @@ import type { StandardModuleType } from '../../../types/Standard/StandardModule'
 import type { ChangeEvent } from 'react';
 import type { StandardLessonType, VideoLessonType, QuizLessonType } from '../../../types/Standard/StandardLessons';
 import type { WorkspaceType } from '../../../types/User/WorkspaceType';
+import type { EmployeeUserType } from '../../../types/User/UserType';
 import { DndContext, closestCenter } from "@dnd-kit/core";
 import { SortableContext, verticalListSortingStrategy } from "@dnd-kit/sortable";
 import { arrayMove } from "@dnd-kit/sortable";
-import { Tooltip } from "@radix-ui/themes";
+import { Tooltip, Checkbox } from "@radix-ui/themes";
 import { formatTimestampString } from '../../../utils/Utils';
 // import { standardModule } from '../../../dummy_data/standard_data';
 import orange_left_arrow from '../../../assets/icons/orange-left-arrow.svg';
+import search_icon from '../../../assets/icons/lesson-edit/grey-search.svg';
+import default_icon from '../../../assets/icons/default-icon.svg';
+import users_icon from '../../../assets/icons/grey-users-icon.svg';
 
 function firstVideoThumbnailForModuleCard(lessons: StandardLessonType[]): string | null {
     const sorted = [...lessons].sort((a, b) => a.orderNumber - b.orderNumber);
@@ -76,6 +80,7 @@ export default function StandardBuilder({ workspace }: { workspace: WorkspaceTyp
     const [removeCustomHeader, setRemoveCustomHeader] = useState(false);
     const [deleteModalInput, setDeleteModalInput] = useState("");
     const [deleteModal, setDeleteModal] = useState(false);
+    const [assignModal, setAssignModal] = useState(false);
 
     useEffect(() => {
         async function fetchModule() {
@@ -952,7 +957,7 @@ export default function StandardBuilder({ workspace }: { workspace: WorkspaceTyp
             </div>
             }
 
-            {(anotherDeployModal) && <div className="delete-modal-overlay">
+            {/*(anotherDeployModal) && <div className="delete-modal-overlay">
             <div className="delete-modal">
                 <h3>Deploy this module?</h3>
                 <p>This module will become visible to employees. Any enrolled users will be able to access it immediately.</p>
@@ -965,7 +970,26 @@ export default function StandardBuilder({ workspace }: { workspace: WorkspaceTyp
                         </button>
                     </div>
                 </div>
+            </div>*/}
+
+            {(anotherDeployModal) && <div className="delete-modal-overlay">
+                <AssignModal 
+                    workspace={workspace} 
+                    moduleId={moduleID!}
+                    setOpenModal={setAnotherDeployModal}
+                    deploy={true} 
+                    onDeploy={handleDeploy}
+                />
             </div>}
+
+            { (assignModal) && <div className="delete-modal-overlay">
+                    <AssignModal 
+                        workspace={workspace} 
+                        moduleId={moduleID!}
+                        setOpenModal={setAssignModal}
+                    />
+                </div>
+            }
 
             {(unDeployModal) && <div className="delete-modal-overlay">
             <div className="delete-modal">
@@ -1056,6 +1080,16 @@ export default function StandardBuilder({ workspace }: { workspace: WorkspaceTyp
                                 </div>
                                 </>
                                 }
+                            { isDeployed &&
+                                    <button className="builder-action-pill"
+                                        onClick={() => setAssignModal(true)}
+                                    >
+                                        <span>
+                                            <img src={users_icon} />
+                                        </span>
+                                        Assign to Learners
+                                    </button>
+                            }
                             { !isDeployed ?
                                 <ActionButton text={"Deploy"} buttonType={"deploy"} onClick={() => setAnotherDeployModal(true)} disabled={isDeployed} />
                                 : <Tooltip content="This module has been deployed. If you wish to make edits, please undeploy this module. ">
@@ -1205,6 +1239,179 @@ export default function StandardBuilder({ workspace }: { workspace: WorkspaceTyp
                     </div>
                 </div>
             </div>
+        </div>
+    );
+}
+
+function AssignModal({ 
+        workspace,
+        moduleId,
+        setOpenModal,
+        deploy=false,
+        onDeploy
+    }:
+    { 
+        workspace: WorkspaceType,
+        moduleId: string,
+        setOpenModal: (val: boolean) => void,
+        deploy?: boolean,
+        onDeploy?: () => void;
+    }) {
+    const [employees, setEmployees] = useState<EmployeeUserType[]>([]);
+    const [filtered, setFiltered] = useState<EmployeeUserType[]>([]);
+    const [search, setSearch] = useState("");
+    const [selected, setSelected] = useState<string[]>([]);
+
+    useEffect(() => {
+        if (!workspace) return;
+
+        const fetchEmployees = async () => {
+            const workspaceRef = doc(db, "workspaces", workspace.id);
+
+            const q = query(
+                collection(db, "users"),
+                where("workspaceID", "==", workspaceRef),
+                where("role", "==", "employee")
+            );
+
+            const snap = await getDocs(q);
+
+            const users = snap.docs.map((doc) => ({
+                employeeID: doc.id,
+                ...doc.data(),
+            })) as EmployeeUserType[];
+
+            setEmployees(users);
+
+            setSelected(users.map((u) => u.employeeID));
+            setFiltered(users);
+
+            const moduleRef = doc(db, "standardModules", moduleId);
+            const moduleSnap = await getDoc(moduleRef);
+
+            if (!moduleSnap.exists()) return;
+
+            const moduleData = moduleSnap.data();
+
+            if (!moduleData.assignedUsers) {
+                setSelected(users.map((u) => u.employeeID));
+            } else {
+                const assignedRefs = moduleData.assignedUsers || [];
+                const assignedIds = assignedRefs.map((ref: any) => ref.id);
+                setSelected(assignedIds);
+            }
+        };
+
+        fetchEmployees();
+    }, [workspace]);
+
+    useEffect(() => {
+        if (!search.trim()) {
+            setFiltered(employees);
+            return;
+        }
+
+        const lower = search.toLowerCase();
+
+        const results = employees.filter(
+            (user) =>
+                (user.fullName || "").toLowerCase().startsWith(lower) ||
+                (user.email || "").toLowerCase().startsWith(lower)
+        );
+
+        setFiltered(results);
+    }, [search, employees]);
+
+    const toggleUser = (id: string) => {
+        setSelected((prev) =>
+            prev.includes(id)
+                ? prev.filter((u) => u !== id)
+                : [...prev, id]
+        );
+    };
+
+    const handleDeploy = async () => {
+        if (selected.length === 0) {
+            return;
+        }
+
+        try {
+            const assignedUserRefs = selected.map((userId) =>
+                doc(db, "users", userId)
+            );
+
+            const moduleRef = doc(db, "standardModules", moduleId);
+
+            await updateDoc(moduleRef, {
+                assignedUsers: assignedUserRefs,
+            });
+
+            onDeploy?.();
+        } catch (err) {
+            console.error("Error assigning module:", err);
+        }
+
+        setOpenModal(false);
+    }
+
+    return(
+        <div className="attach-modal">
+            <div className="x-icon-wrapper">
+                Assign to Learners
+            </div>
+            <p>This module will become visible to all assigned employees for immediate access.</p>
+
+            <div className="search-employee">
+                <img src={search_icon} />
+                <input 
+                    placeholder="Search by name or email"
+                    value={search}
+                    onChange={(e) => setSearch(e.target.value)}
+                />
+            </div>
+
+            <div className="assignees">
+                {filtered.map(e => (
+                    <div
+                        key={e.employeeID}
+                        className="assignee-item"
+                    >
+                        <Checkbox color="cyan" 
+                            checked={selected.includes(e.employeeID)}
+                            onCheckedChange={() => toggleUser(e.employeeID)}
+                        />
+                        <div className="employee-icon">
+                            <img src={e.profilePicture || default_icon} />
+                        </div>
+
+                        <div className="employee-info">
+                            <p className="employee-info-name">{e.fullName}</p>
+                            <p className="employee-info-email">{e.email}</p>
+                        </div>
+                    </div>
+                ))
+
+                }
+
+            </div>
+            <p>
+                <span>{selected.length}</span>
+                {" "}
+                employees selected
+            </p>
+            
+            <div className="delete-modal-actions">
+                <button className="cancel-btn" onClick={() => setOpenModal(false)}>
+                    Cancel
+                </button>
+                <button 
+                    className="delete-btn"
+                    onClick={handleDeploy}
+                >
+                    {deploy ? "Assign to Learners and Deploy" : "Assign to Learners"}
+                </button>
+            </div>
+
         </div>
     );
 }

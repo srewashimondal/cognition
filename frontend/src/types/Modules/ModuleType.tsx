@@ -19,4 +19,5 @@ export type ModuleType = {
     headerImageUrl?: string;
     headerImageStoragePath?: string;
     isDeleted?: boolean;
+    assignedUsers?: any[];
 };

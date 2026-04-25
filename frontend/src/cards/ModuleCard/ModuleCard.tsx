@@ -90,6 +90,7 @@ function resolveCardThumbnailUrl(
 
 type ModuleProp = {
     moduleInfo: ModuleType | StandardModuleType;
+    userID?: string;
     type: "simulation" | "standard";
     role: "employer" | "employee";
     status?: "not begun" | "started" | "completed";
@@ -98,7 +99,7 @@ type ModuleProp = {
     attemptId?: string;
 };
 
-export default function ModuleCard({ moduleInfo, type, role, status, percent, style, attemptId }: ModuleProp) {
+export default function ModuleCard({ moduleInfo, userID, type, role, status, percent, style, attemptId }: ModuleProp) {
     const navigate = useNavigate();
     const thumbnailUrl = resolveCardThumbnailUrl(moduleInfo, type);
     const bannerArtStyle = thumbnailUrl ? undefined : bannerStyleFromModuleId(moduleInfo.id);
@@ -108,7 +109,10 @@ export default function ModuleCard({ moduleInfo, type, role, status, percent, st
       (status === "completed" ||
         (typeof percent === "number" && percent >= 100));
 
-    const isActive = moduleInfo.deployed === true;
+    const isAssigned = moduleInfo.assignedUsers?.some(
+      (ref: any) => ref.id === userID
+    );
+    const isActive = moduleInfo.deployed === true && isAssigned;
     const isBlocked = !isActive && role === "employee" && status === "not begun";
 
     const handleNavigateEmployee = () => {
@@ -130,7 +134,7 @@ export default function ModuleCard({ moduleInfo, type, role, status, percent, st
       navigate(`/employee/${type === "simulation" ? "simulations" : "standard-modules"}/${attemptId}`);
     };
 
-    const [isDeployed, setIsDeployed] = useState(moduleInfo.deployed);
+    const [isDeployed, setIsDeployed] = useState(moduleInfo.deployed );
     const handleDeploy = async () => {
       const coll = type === "simulation" ? "simulationModules" : "standardModules";
       const moduleRef = doc(db, coll, moduleInfo.id!);

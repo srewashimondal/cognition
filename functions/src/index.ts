@@ -43,7 +43,24 @@ export const onSimulationModuleDeployed = onDocumentUpdated(
 
     if (!before || !after) return;
 
-    if (before.deployed || !after.deployed) return;
+    const wasDeployed = before.deployed;
+    const isDeployed = after.deployed;
+
+    const beforeAssigned = before.assignedUsers || [];
+    const afterAssigned = after.assignedUsers || [];
+
+    const getIds = (arr: any[]) => arr.map((ref) => ref.id);
+    const beforeIds = new Set(getIds(beforeAssigned));
+    const newUserRefs = afterAssigned.filter(
+      (ref: any) => !beforeIds.has(ref.id)
+    );
+
+    const justDeployed = !wasDeployed && isDeployed;
+    const assignedChanged =
+      isDeployed &&
+      JSON.stringify(getIds(beforeAssigned)) !==
+      JSON.stringify(getIds(afterAssigned));
+    if (!justDeployed && !assignedChanged) return;
 
     const moduleId = event.params.moduleId;
     const moduleRef = db.collection("simulationModules").doc(moduleId);
@@ -52,12 +69,14 @@ export const onSimulationModuleDeployed = onDocumentUpdated(
     console.log("Simulation module deployed:", moduleId);
 
     try {
-      const usersSnap = await db
-        .collection("users")
-        .where("workspaceID", "==", workspaceRef)
-        .get();
+      let usersToProcess: any[] = [];
+      if (justDeployed) {
+        usersToProcess = afterAssigned;
+      } else if (assignedChanged) {
+        usersToProcess = newUserRefs;
+      }
 
-      console.log(`Users found: ${usersSnap.size}`);
+      console.log(`Users to process: ${usersToProcess.length}`);
 
       const lessonsSnap = await db
         .collection("simulationLessons")
@@ -82,9 +101,7 @@ export const onSimulationModuleDeployed = onDocumentUpdated(
 
 
       // iterate thru users
-      for (const userDoc of usersSnap.docs) {
-        const userRef = userDoc.ref;
-
+      for (const userRef of usersToProcess) {
         const existing = await db
           .collection("simulationModuleAttempts")
           .where("user", "==", userRef)
@@ -153,8 +170,24 @@ export const onStandardModuleDeployed = onDocumentUpdated(
 
     if (!before || !after) return;
 
-    // only trigger when deployed flips to true
-    if (before.deployed || !after.deployed) return;
+    const wasDeployed = before.deployed;
+    const isDeployed = after.deployed;
+
+    const beforeAssigned = before.assignedUsers || [];
+    const afterAssigned = after.assignedUsers || [];
+
+    const getIds = (arr: any[]) => arr.map((ref) => ref.id);
+    const beforeIds = new Set(getIds(beforeAssigned));
+    const newUserRefs = afterAssigned.filter(
+      (ref: any) => !beforeIds.has(ref.id)
+    );
+
+    const justDeployed = !wasDeployed && isDeployed;
+    const assignedChanged =
+      isDeployed &&
+      JSON.stringify(getIds(beforeAssigned)) !==
+      JSON.stringify(getIds(afterAssigned));
+    if (!justDeployed && !assignedChanged) return;
 
     const moduleId = event.params.moduleId;
     const moduleRef = db.collection("standardModules").doc(moduleId);
@@ -163,12 +196,14 @@ export const onStandardModuleDeployed = onDocumentUpdated(
     console.log("Standard module deployed:", moduleId);
 
     try {
-      const usersSnap = await db
-        .collection("users")
-        .where("workspaceID", "==", workspaceRef)
-        .get();
+      let usersToProcess: any[] = [];
+      if (justDeployed) {
+        usersToProcess = afterAssigned;
+      } else if (assignedChanged) {
+        usersToProcess = newUserRefs;
+      }
 
-      console.log(`Users found: ${usersSnap.size}`);
+      console.log(`Users to process: ${usersToProcess.length}`);
 
       const lessons: FirebaseFirestore.DocumentReference[] =
                 after.lessonRefs || [];
@@ -188,9 +223,7 @@ export const onStandardModuleDeployed = onDocumentUpdated(
       };
 
       // iterate thru users
-      for (const userDoc of usersSnap.docs) {
-        const userRef = userDoc.ref;
-
+      for (const userRef of usersToProcess) {
         const existing = await db
           .collection("standardModuleAttempts")
           .where("user", "==", userRef)

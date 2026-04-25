@@ -201,7 +201,7 @@ export default function SimulationModules({ user }: { user: EmployeeUserType }) 
             </div>
 
             <div className="modules-grid">
-                {moduleAttempts.map((m) => (<ModuleCard moduleInfo={m.moduleInfo} type={"simulation"} role={"employee"} status={m.status} percent={m.percent} style={true} attemptId={m.id} />))}
+                {moduleAttempts.map((m) => (<ModuleCard moduleInfo={m.moduleInfo} userID={user.employeeID} type={"simulation"} role={"employee"} status={m.status} percent={m.percent} style={true} attemptId={m.id} />))}
             </div>
 
             <div className="filler-space"></div>
