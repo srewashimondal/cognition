@@ -22,6 +22,14 @@ import type { StandardModuleAttempt } from "../../../types/Standard/StandardAtte
 import type { ModuleAttemptType } from "../../../types/Modules/ModuleAttemptType";
 import type { ModuleType } from "../../../types/Modules/ModuleType";
 
+function moduleIdFromAttempt(attempt: {
+  moduleInfo?: { id: string } | null;
+}): string | undefined {
+  const m = attempt.moduleInfo;
+  if (!m || typeof m !== "object") return undefined;
+  const id = (m as { id?: string }).id;
+  return typeof id === "string" ? id : undefined;
+}
 
 export default function EmployerHome({ viewer, workspace }: { viewer: EmployerUserType, workspace: WorkspaceType }) {
   
@@ -29,6 +37,10 @@ export default function EmployerHome({ viewer, workspace }: { viewer: EmployerUs
   const [learnersHydrated, setLearnersHydrated] = useState(false);
   const [moduleAttempts, setModuleAttempts] = useState<StandardModuleAttempt[]>([]);
   const [modules, setModules] = useState<StandardModuleType[]>([]);
+  const [simulationModuleAttempts, setSimulationModuleAttempts] = useState<
+    ModuleAttemptType[]
+  >([]);
+  const [simulationModules, setSimulationModules] = useState<ModuleType[]>([]);
 
   useEffect(() => {
     if (!workspace?.id) return;
@@ -78,6 +90,31 @@ export default function EmployerHome({ viewer, workspace }: { viewer: EmployerUs
 }, [workspace]);
 
   useEffect(() => {
+    if (!workspace?.simulationModules?.length) {
+      setSimulationModules([]);
+      return;
+    }
+
+    const fetchSimModules = async () => {
+      const moduleDocs = await Promise.all(
+        workspace.simulationModules.map(async (ref) => {
+          const snap = await getDoc(ref);
+          if (!snap.exists()) return null;
+          return {
+            id: snap.id,
+            ...snap.data(),
+          } as ModuleType;
+        })
+      );
+      setSimulationModules(
+        (moduleDocs.filter(Boolean) as ModuleType[]).filter((m) => !m.isDeleted)
+      );
+    };
+
+    void fetchSimModules();
+  }, [workspace]);
+
+  useEffect(() => {
     if (!workspace?.id) return;
 
     const workspaceRef = doc(db, "workspaces", workspace.id);
@@ -99,6 +136,28 @@ export default function EmployerHome({ viewer, workspace }: { viewer: EmployerUs
     return () => unsubscribe();
   }, [workspace]);
 
+  useEffect(() => {
+    if (!workspace?.id) return;
+
+    const workspaceRef = doc(db, "workspaces", workspace.id);
+
+    const q = query(
+      collection(db, "simulationModuleAttempts"),
+      where("workspaceRef", "==", workspaceRef)
+    );
+
+    const unsubscribe = onSnapshot(q, (snapshot) => {
+      const data = snapshot.docs.map((docSnap) => ({
+        id: docSnap.id,
+        ...docSnap.data(),
+      })) as ModuleAttemptType[];
+
+      setSimulationModuleAttempts(data);
+    });
+
+    return () => unsubscribe();
+  }, [workspace]);
+
   const topPerformers = [...employees]
       .sort((a, b) => (b.averageScore ?? 0) - (a.averageScore ?? 0))
       .slice(0, 5);
@@ -109,9 +168,13 @@ export default function EmployerHome({ viewer, workspace }: { viewer: EmployerUs
 
     const totalEmployees = employees.length;
 
-    const modulePerformance = modules.map((module) => {
-      const attemptsForModule = moduleAttempts.filter(
-        (attempt) => attempt.moduleInfo?.id === module.id
+    const buildModulePerformance = (
+      module: { id: string; title: string },
+      attempts: Array<StandardModuleAttempt | ModuleAttemptType>,
+      kind: "standard" | "simulation"
+    ) => {
+      const attemptsForModule = attempts.filter(
+        (attempt) => moduleIdFromAttempt(attempt) === module.id
       );
 
       const completedAttempts = attemptsForModule.filter(
@@ -123,10 +186,21 @@ export default function EmployerHome({ viewer, workspace }: { viewer: EmployerUs
       const avgScore =
         completionCount > 0
           ? Math.round(
-              completedAttempts.reduce(
-                (sum, a) => sum + (a.score ?? 0),
-                0
-              ) / completionCount
+              completedAttempts.reduce((sum, a) => {
+                if (kind === "simulation") {
+                  const sim = a as ModuleAttemptType;
+                  const v =
+                    typeof sim.score === "number" && !Number.isNaN(sim.score)
+                      ? sim.score
+                      : typeof sim.percent === "number" &&
+                          !Number.isNaN(sim.percent)
+                        ? sim.percent
+                        : 0;
+                  return sum + v;
+                }
+                const std = a as StandardModuleAttempt;
+                return sum + (std.score ?? 0);
+              }, 0) / completionCount
             )
           : 0;
 
@@ -136,12 +210,23 @@ export default function EmployerHome({ viewer, workspace }: { viewer: EmployerUs
           : 0;
 
       return {
+        key: `${kind}-${module.id}`,
+        kind,
         title: module.title,
         avgScore,
         completion: completionRate,
         totalEnrolled: totalEmployees,
       };
-  });
+    };
+
+    const modulePerformance = [
+      ...modules.map((m) =>
+        buildModulePerformance(m, moduleAttempts, "standard")
+      ),
+      ...simulationModules.map((m) =>
+        buildModulePerformance(m, simulationModuleAttempts, "simulation")
+      ),
+    ].sort((a, b) => a.title.localeCompare(b.title));
 
 
     const averageLessonScore =
@@ -537,9 +622,20 @@ export default function EmployerHome({ viewer, workspace }: { viewer: EmployerUs
               </button>
             </div>
             { modulePerformance.slice(0, showAll ? modulePerformance.length : 2).map((p) => 
-              <div className="module-breakdown">
+              <div className="module-breakdown" key={p.key}>
                 <div className="module-breakdown-left">
-                  <h2 className="module-breakdown-title">{p.title}</h2>
+                  <h2 className="module-breakdown-title">
+                    {p.title}
+                    <span
+                      className={
+                        p.kind === "simulation"
+                          ? "module-breakdown-type module-breakdown-type--sim"
+                          : "module-breakdown-type module-breakdown-type--std"
+                      }
+                    >
+                      {p.kind === "simulation" ? "Simulation" : "Standard"}
+                    </span>
+                  </h2>
                   <p className="module-breakdown-grey">{totalEmployees} employees enrolled</p>
                   <p className="module-breakdown-grey small">Average Score</p>
                   <div className="module-breakdown-bar">

@@ -799,6 +799,30 @@
 .module-breakdown-title {
   font-weight: 600;
   color: var(--theme-text);
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+
+.module-breakdown-type {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  padding: 2px 8px;
+  border-radius: 6px;
+  flex-shrink: 0;
+}
+
+.module-breakdown-type--std {
+  background: rgba(65, 151, 255, 0.12);
+  color: #1a6fd4;
+}
+
+.module-breakdown-type--sim {
+  background: rgba(255, 149, 65, 0.14);
+  color: #c45d12;
 }
 
 .module-breakdown-grey {
